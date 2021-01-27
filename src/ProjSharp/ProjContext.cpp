@@ -3,6 +3,7 @@
 #include <locale>
 #include <codecvt>
 #include "ProjContext.h"
+#include "ProjException.h"
 
 using namespace ProjSharp;
 using namespace System::IO;
@@ -38,6 +39,19 @@ static const char* my_file_finder(PJ_CONTEXT* ctx, const char* file, void* user_
 	return file;
 }
 
+static void my_log_func(void* user_data, int level, const char* message)
+{
+	gcroot<WeakReference<ProjContext^>^>* ref = (gcroot<WeakReference<ProjContext^>^>*)user_data;
+
+	ProjContext^ pc;
+	if ((*ref)->TryGetTarget(pc))
+	{
+		String^ msg = gcnew String(message);
+
+		pc->OnLogMessage((ProjLogLevel)level, msg);
+	}
+}
+
 ProjContext::ProjContext()
 {
 	m_ctx = proj_context_create();
@@ -48,6 +62,7 @@ ProjContext::ProjContext()
 		m_ref = new gcroot<WeakReference<ProjContext^>^>(wr);
 
 		proj_context_set_file_finder(m_ctx, my_file_finder, m_ref);
+		proj_log_func(m_ctx, m_ref, my_log_func);
 	}
 }
 
@@ -55,7 +70,7 @@ Exception^ ProjContext::ConstructException()
 {
 	int err = proj_context_errno(this);
 
-	return gcnew Exception(gcnew String(proj_errno_string(err)));
+	return gcnew ProjException(gcnew String(proj_errno_string(err)));
 }
 
 void ProjContext::OnFindFile(String^ file, [Out] String^% foundFile)
@@ -66,4 +81,9 @@ void ProjContext::OnFindFile(String^ file, [Out] String^% foundFile)
 		foundFile = Path::GetFullPath(file);
 	else if (File::Exists(file = Path::Combine("..", file)))
 		foundFile = Path::GetFullPath(file);
+}
+
+void ProjContext::OnLogMessage(ProjLogLevel level, String^ message)
+{
+
 }

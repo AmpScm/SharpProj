@@ -42,6 +42,15 @@ namespace ProjSharp {
 			return Description;
 		}
 
+	protected public:
+		property ProjContext^ Context
+		{
+			ProjContext^ get()
+			{
+				return m_ctx;
+			}
+		}
+
 	public:		
 		property String^ Id
 		{

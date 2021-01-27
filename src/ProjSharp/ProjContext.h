@@ -3,6 +3,14 @@
 using namespace System;
 
 namespace ProjSharp {
+	public enum class ProjLogLevel
+	{
+		None = PJ_LOG_NONE,
+		Error = PJ_LOG_ERROR,
+		Debug = PJ_LOG_DEBUG,
+		Trace = PJ_LOG_TRACE
+	};
+
 	public ref class ProjContext
 	{
 	private:
@@ -38,6 +46,20 @@ namespace ProjSharp {
 
 	protected public:
 		void OnFindFile(String^ file, [Out] String^% foundFile);
+		void OnLogMessage(ProjLogLevel level, String^ message);
+
+	public:
+		property ProjLogLevel LogLevel
+		{
+			ProjLogLevel get()
+			{
+				return (ProjLogLevel)proj_log_level(this, PJ_LOG_TELL);
+			}
+			void set(ProjLogLevel value)
+			{
+				proj_log_level(this, (PJ_LOG_LEVEL)value);
+			}
+		}
 
 	internal:
 		static operator PJ_CONTEXT* (ProjContext^ me)

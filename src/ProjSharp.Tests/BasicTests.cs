@@ -44,5 +44,25 @@ namespace ProjSharp.Tests
             }
         }
 
+        [TestMethod]
+        public void CreateBasicTransform()
+        {
+            using (var pc = new ProjContext())
+            {
+                using (var crs1 = ProjCrs.Create(pc, "EPSG:25832"))
+                using (var crs2 = ProjCrs.Create(pc, "EPSG:25833"))
+                {
+                    using (var t = ProjTransform.Create(crs1, crs2))
+                    {
+                        Assert.AreEqual("Inverse of UTM zone 32N + UTM zone 33N", t.Description);
+                    }
+
+                    using (var t = ProjTransform.Create(crs2, crs1))
+                    {
+                        Assert.AreEqual("Inverse of UTM zone 33N + UTM zone 32N", t.Description);
+                    }
+                }
+            }
+        }
     }
 }
