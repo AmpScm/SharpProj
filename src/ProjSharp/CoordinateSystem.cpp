@@ -77,12 +77,28 @@ double CoordinateSystem::Distance3D(array<double>^ coordinate1, array<double>^ c
 }
 
 
-GeometricCoordinateSystem^ CoordinateSystem::GetGeometricCoordinateSystem()
+GeometricCoordinateSystem^ CoordinateSystem::CreateGeometricCoordinateSystem(ProjContext^ context)
 {
-	PJ* pj = proj_crs_get_geodetic_crs(Context, this);
+	if (!context)
+		context = Context;
+
+	PJ* pj = proj_crs_get_geodetic_crs(context, this);
 
 	if (!pj)
-		throw Context->ConstructException();
+		throw context->ConstructException();
 
-	return gcnew GeometricCoordinateSystem(Context, pj);
+	return gcnew GeometricCoordinateSystem(context, pj);
+}
+
+CoordinateSystem^ CoordinateSystem::CreateNormalized(ProjContext^ context)
+{
+	if (!context)
+		context = Context;
+
+	PJ* pj = proj_normalize_for_visualization(context, this);
+
+	if (!pj)
+		throw context->ConstructException();
+
+	return gcnew GeometricCoordinateSystem(context, pj);
 }

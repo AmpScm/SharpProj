@@ -103,7 +103,7 @@ namespace ProjSharp.Tests
                         Assert.AreEqual(double.PositiveInfinity, d3);
 
 
-                        using (var c2 = crs1.GetGeometricCoordinateSystem())
+                        using (var c2 = crs1.CreateGeometricCoordinateSystem(pc))
                         {
                             Assert.AreEqual("WGS 84", c2.Description);
                             Assert.AreEqual(CoordinateSystemType.Unknown, c2.Type);

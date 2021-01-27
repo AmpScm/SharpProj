@@ -55,7 +55,8 @@ namespace ProjSharp {
 				return proj_cs_get_axis_count(Context, this);
 			}
 		}
-		GeometricCoordinateSystem^ GetGeometricCoordinateSystem();
+		GeometricCoordinateSystem^ CreateGeometricCoordinateSystem(ProjContext ^context);
+		CoordinateSystem^ CreateNormalized(ProjContext^ context);
 
 	public:
 		static CoordinateSystem^ Create(ProjContext^ ctx, String^ from);

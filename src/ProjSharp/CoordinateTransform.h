@@ -56,15 +56,30 @@ namespace ProjSharp {
 	public:
 		CoordinateTransform^ CreateInverse(ProjContext^ ctx)
 		{
+			if (!ctx)
+				ctx = Context;
+
 			if (!HasInverse)
 				throw gcnew InvalidOperationException();
 
-			return gcnew CoordinateTransform(ctx ? ctx : Context, proj_coordoperation_create_inverse(Context, this));
+			return gcnew CoordinateTransform(ctx, proj_coordoperation_create_inverse(ctx, this));
 		}
 
 		CoordinateTransform^ CreateInverse()
 		{
 			return CreateInverse(Context);
+		}
+
+		CoordinateTransform^ CreateNormalized(ProjContext^ ctx)
+		{
+			if (!ctx)
+				ctx = Context;
+			return gcnew CoordinateTransform(ctx, proj_normalize_for_visualization(ctx, this));
+		}
+
+		CoordinateTransform^ CreateNormalized()
+		{
+			return CreateNormalized(Context);
 		}
 
 	public:
