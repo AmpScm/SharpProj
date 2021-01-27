@@ -130,11 +130,11 @@
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="ProjArea.h" />
-    <ClInclude Include="ProjBase.h" />
+    <ClInclude Include="CoordinateBase.h" />
     <ClInclude Include="ProjContext.h" />
-    <ClInclude Include="ProjCrs.h" />
+    <ClInclude Include="CoordinateSystem.h" />
     <ClInclude Include="ProjException.h" />
-    <ClInclude Include="ProjTransform.h" />
+    <ClInclude Include="CoordinateTransform.h" />
     <ClInclude Include="Resource.h" />
   </ItemGroup>
   <ItemGroup>
@@ -146,11 +146,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ProjArea.cpp" />
-    <ClCompile Include="ProjBase.cpp" />
+    <ClCompile Include="CoordinateBase.cpp" />
     <ClCompile Include="ProjContext.cpp" />
-    <ClCompile Include="ProjCrs.cpp" />
+    <ClCompile Include="CoordinateSystem.cpp" />
     <ClCompile Include="ProjException.cpp" />
-    <ClCompile Include="ProjTransform.cpp" />
+    <ClCompile Include="CoordinateTransform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="app.rc" />

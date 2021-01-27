@@ -57,6 +57,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ProjSharp.NettopologySuite\ProjSharp.NettopologySuite.csproj">
+      <Project>{2aeb2118-5f21-4459-a44c-f3583962dec9}</Project>
+      <Name>ProjSharp.NettopologySuite</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ProjSharp\ProjSharp.vcxproj">
       <Project>{50959ccf-0769-4b0d-848b-a0062075b30a}</Project>
       <Name>ProjSharp</Name>

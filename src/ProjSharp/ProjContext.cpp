@@ -48,6 +48,10 @@ static void my_log_func(void* user_data, int level, const char* message)
 	{
 		String^ msg = gcnew String(message);
 
+#ifdef _DEBUG
+		System::Diagnostics::Debug::WriteLine(msg);
+#endif
+
 		pc->OnLogMessage((ProjLogLevel)level, msg);
 	}
 }

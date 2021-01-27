@@ -1,7 +1,10 @@
 #pragma once
+#include "ProjContext.h"
+
 namespace ProjSharp {
+
 	[System::Diagnostics::DebuggerDisplayAttribute("{Description}")]
-	public ref class ProjBase
+	public ref class CoordinateBase
 	{
 	protected:
 		ProjContext^ m_ctx;
@@ -11,7 +14,7 @@ namespace ProjSharp {
 		String^ m_infoDefinition;
 
 	private:
-		~ProjBase()
+		~CoordinateBase()
 		{
 			if (m_pj)
 			{
@@ -20,17 +23,17 @@ namespace ProjSharp {
 		}
 
 	internal:
-		ProjBase(ProjContext^ ctx, PJ* pj)
+		CoordinateBase(ProjContext^ ctx, PJ* pj)
 		{
 			m_ctx = ctx;
 			m_pj = pj;
 		}
 
-		static operator PJ* (ProjBase^ pj)
+		static operator PJ* (CoordinateBase^ pj)
 		{
 			if ((Object^)pj == nullptr)
-				return nullptr;				
-			else if(pj->m_pj == nullptr)
+				return nullptr;
+			else if (pj->m_pj == nullptr)
 				throw gcnew ObjectDisposedException("PJ disposed");
 
 			return pj->m_pj;
@@ -42,7 +45,7 @@ namespace ProjSharp {
 			return Description;
 		}
 
-	protected public:
+	public:
 		property ProjContext^ Context
 		{
 			ProjContext^ get()
@@ -51,7 +54,7 @@ namespace ProjSharp {
 			}
 		}
 
-	public:		
+	public:
 		property String^ Id
 		{
 			String^ get()
@@ -108,6 +111,33 @@ namespace ProjSharp {
 				return info.accuracy;
 			}
 		}
-	};
 
+	private protected:
+		void SetCoordinate(PJ_COORD& coord, array<double>^ coordinate)
+		{
+			coord.v[0] = coordinate[0];
+			coord.v[1] = coordinate[1];
+			if (coordinate->Length > 2)
+			{
+				coord.v[2] = coordinate[2];
+				if (coordinate->Length > 3)
+					coord.v[3] = coordinate[3];
+			}
+		}
+
+		array<double>^ FromCoordinate(const PJ_COORD& coord, int len)
+		{
+			array<double>^ r = gcnew array<double>(len);
+			r[0] = coord.v[0];
+			r[1] = coord.v[1];
+			if (r->Length > 2)
+			{
+				r[2] = coord.v[2];
+				if (r->Length > 3)
+					r[3] = coord.v[3];
+			}
+
+			return r;
+		}
+	};
 }
