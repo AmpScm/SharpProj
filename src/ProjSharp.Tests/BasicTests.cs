@@ -182,6 +182,7 @@ namespace ProjSharp.Tests
                     }
                     using (var pm = crs3.GetPrimeMeridian(pc))
                     {
+                        Assert.IsTrue((object)pm is PrimeMeridian);
                         Assert.AreEqual("Greenwich", pm.Description);
                         Assert.AreEqual(0.0, pm.Longitude);
                         Assert.AreEqual(0.0175, Math.Round(pm.UnitConversionFactor, 4));
@@ -189,6 +190,7 @@ namespace ProjSharp.Tests
                     }
                     using (var co = crs3.GetCoordinateOperation(pc))
                     {
+                        Assert.IsTrue((object)co is CoordinateOperation);
                         Assert.AreEqual("RD New", co.Description);
                         //Assert.AreEqual(0.0, pm.Longitude);
                         //Assert.AreEqual(0.0175, Math.Round(pm.UnitConversionFactor, 4));
