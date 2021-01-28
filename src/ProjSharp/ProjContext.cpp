@@ -48,6 +48,11 @@ static void my_log_func(void* user_data, int level, const char* message)
 	{
 		String^ msg = gcnew String(message);
 
+		if (level == PJ_LOG_ERROR)
+			pc->m_lastError = msg;
+		else
+			pc->m_lastError = nullptr;
+
 #ifdef _DEBUG
 		System::Diagnostics::Debug::WriteLine(msg);
 #endif
@@ -67,6 +72,7 @@ ProjContext::ProjContext()
 
 		proj_context_set_file_finder(m_ctx, my_file_finder, m_ref);
 		proj_log_func(m_ctx, m_ref, my_log_func);
+		proj_log_level(m_ctx, PJ_LOG_ERROR);
 	}
 }
 
@@ -74,7 +80,18 @@ Exception^ ProjContext::ConstructException()
 {
 	int err = proj_context_errno(this);
 
-	return gcnew ProjException(gcnew String(proj_errno_string(err)));
+
+	String^ msg = m_lastError;
+
+	if (msg)
+	{
+		return gcnew ProjException(gcnew String(proj_errno_string(err)),
+				gcnew ProjException(msg));
+	}
+	else
+	{
+		return gcnew ProjException(gcnew String(proj_errno_string(err)));
+	}
 }
 
 void ProjContext::OnFindFile(String^ file, [Out] String^% foundFile)

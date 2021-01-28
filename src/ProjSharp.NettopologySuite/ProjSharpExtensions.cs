@@ -20,12 +20,12 @@ namespace ProjSharp
         //    return coordinate;
         //}
         //
-        //public static double Distance2D(this Coordinate coord1, Coordinate coord2, CoordinateSystem crs)
+        //public static double Distance2D(this Coordinate coord1, Coordinate coord2, CoordinateReferenceSystem crs)
         //{
         //    crs.Dis
         //}
         //
-        //public static double Distance3D(this Coordinate coord1, Coordinate coord2, CoordinateSystem crs)
+        //public static double Distance3D(this Coordinate coord1, Coordinate coord2, CoordinateReferenceSystem crs)
         //{
         //
         //}

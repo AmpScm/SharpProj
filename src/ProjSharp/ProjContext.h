@@ -3,6 +3,8 @@
 using namespace System;
 
 namespace ProjSharp {
+	ref class ProjObject;
+
 	public enum class ProjLogLevel
 	{
 		None = PJ_LOG_NONE,
@@ -21,6 +23,9 @@ namespace ProjSharp {
 		{
 			m_ctx = ctx;
 		}
+
+	internal:
+		String^ m_lastError;
 
 	public:
 		ProjContext();
@@ -47,6 +52,17 @@ namespace ProjSharp {
 	protected public:
 		void OnFindFile(String^ file, [Out] String^% foundFile);
 		void OnLogMessage(ProjLogLevel level, String^ message);
+
+	public:
+		ProjObject^ Create(String^ definition);
+		ProjObject^ Create(...array<String^>^ from);
+
+	internal:
+		ProjObject^ Create(PJ* pj);
+		void ClearError()
+		{
+			m_lastError = nullptr;
+		}
 
 	public:
 		property ProjLogLevel LogLevel

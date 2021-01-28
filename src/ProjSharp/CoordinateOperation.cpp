@@ -1,16 +1,16 @@
 #include "pch.h"
 #include "ProjContext.h"
-#include "CoordinateTransform.h"
-#include "CoordinateSystem.h"
+#include "CoordinateOperation.h"
+#include "CoordinateReferenceSystem.h"
 #include "ProjArea.h"
 using namespace ProjSharp;
 
-CoordinateTransform^ CoordinateTransform::Create(CoordinateSystem^ sourceCrs, CoordinateSystem^ targetCrs)
+CoordinateOperation^ CoordinateOperation::Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs)
 {
-	return CoordinateTransform::Create((sourceCrs != nullptr) ? sourceCrs->Context : nullptr, sourceCrs, targetCrs, (ProjArea ^)nullptr);
+	return CoordinateOperation::Create((sourceCrs != nullptr) ? sourceCrs->Context : nullptr, sourceCrs, targetCrs, (ProjArea ^)nullptr);
 }
 
-CoordinateTransform^ CoordinateTransform::Create(ProjContext ^ctx, CoordinateSystem^ sourceCrs, CoordinateSystem^ targetCrs, ProjArea ^area)
+CoordinateOperation^ CoordinateOperation::Create(ProjContext ^ctx, CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, ProjArea ^area)
 {
 	if (!sourceCrs)
 		throw gcnew ArgumentNullException("sourceCrs");
@@ -30,7 +30,7 @@ CoordinateTransform^ CoordinateTransform::Create(ProjContext ^ctx, CoordinateSys
 		if (!p)
 			throw ctx->ConstructException();
 
-		return gcnew CoordinateTransform(ctx, p);
+		return static_cast<CoordinateOperation^>(ctx->Create(p));
 	}
 	finally
 	{
@@ -39,7 +39,7 @@ CoordinateTransform^ CoordinateTransform::Create(ProjContext ^ctx, CoordinateSys
 }
 
 
-array<double>^ CoordinateTransform::Transform(array<double>^ coordinate)
+array<double>^ CoordinateOperation::Transform(array<double>^ coordinate)
 {
 	PJ_COORD coord;
 	SetCoordinate(coord, coordinate);
@@ -49,7 +49,7 @@ array<double>^ CoordinateTransform::Transform(array<double>^ coordinate)
 	return FromCoordinate(coord, coordinate->Length);
 }
 
-array<double>^ CoordinateTransform::InverseTransform(array<double>^ coordinate)
+array<double>^ CoordinateOperation::InverseTransform(array<double>^ coordinate)
 {
 	PJ_COORD coord;
 	SetCoordinate(coord, coordinate);
