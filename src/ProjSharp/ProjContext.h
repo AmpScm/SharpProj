@@ -80,7 +80,9 @@ namespace ProjSharp {
 	internal:
 		static operator PJ_CONTEXT* (ProjContext^ me)
 		{
-			if (!me->m_ctx)
+			if ((Object^)me == nullptr)
+				return nullptr;
+			else if (!me->m_ctx)
 				throw gcnew System::ObjectDisposedException("Context already disposed");
 
 			return me->m_ctx;

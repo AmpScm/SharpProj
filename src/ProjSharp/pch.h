@@ -11,15 +11,20 @@
 
 // add headers that you want to pre-compile here
 
+#ifndef _DEBUG
+#pragma comment(lib, "proj.lib")
 #pragma comment(lib, "jpeg.lib")
 #pragma comment(lib, "lzma.lib")
-#pragma comment(lib, "proj.lib")
-#pragma comment(lib, "sqlite3.lib")
 #pragma comment(lib, "tiff.lib")
-#pragma comment(lib, "tiffxx.lib")
-#pragma comment(lib, "turbojpeg.lib")
 #pragma comment(lib, "zlib.lib")
-
+#else
+#pragma comment(lib, "proj_d.lib")
+#pragma comment(lib, "jpegd.lib")
+#pragma comment(lib, "lzmad.lib")
+#pragma comment(lib, "tiffd.lib")
+#pragma comment(lib, "zlibd.lib")
+#endif
+#pragma comment(lib, "sqlite3.lib")
 
 #pragma comment(lib, "Ole32.lib")
 #pragma comment(lib, "Shell32.lib")
@@ -36,5 +41,6 @@ using namespace System;
 std::string utf8_string(String^ v);
 
 using Out = System::Runtime::InteropServices::OutAttribute;
+using Optional = System::Runtime::InteropServices::OptionalAttribute;
 
 #endif //PCH_H

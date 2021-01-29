@@ -29,16 +29,16 @@ namespace ProjSharp {
 	public:
 
 	public:
-		CoordinateReferenceSystem^ GetNormalized(ProjContext^ context);
-		CoordinateReferenceSystem^ GetGeodeticCoordinateReferenceSystem(ProjContext^ context);
-		ProjDatum^ GetHorizontalDatum(ProjContext^ context);
-		ProjDatum^ GetDatum(ProjContext^ context);
-		DatumEnsamble^ GetDatumEnsamble(ProjContext^ context);
-		ProjDatum^ GetDatumForced(ProjContext^ context);
-		CoordinateSystem^ GetCoordinateSystem(ProjContext^ context);
-		Ellipsoid^ GetEllipsoid(ProjContext^ context);
-		PrimeMeridian^ GetPrimeMeridian(ProjContext^ context);
-		CoordinateOperation^ GetCoordinateOperation(ProjContext^ context);
+		CoordinateReferenceSystem^ GetNormalized([Optional] ProjContext^ context);
+		CoordinateReferenceSystem^ GetGeodeticCoordinateReferenceSystem([Optional] ProjContext^ context);
+		ProjDatum^ GetHorizontalDatum([Optional] ProjContext^ context);
+		ProjDatum^ GetDatum([Optional] ProjContext^ context);
+		DatumEnsamble^ GetDatumEnsamble([Optional] ProjContext^ context);
+		ProjDatum^ GetDatumForced([Optional] ProjContext^ context);
+		CoordinateSystem^ GetCoordinateSystem([Optional] ProjContext^ context);
+		Ellipsoid^ GetEllipsoid([Optional] ProjContext^ context);
+		PrimeMeridian^ GetPrimeMeridian([Optional] ProjContext^ context);
+		CoordinateOperation^ GetCoordinateOperation([Optional] ProjContext^ context);
 
 	public:
 		static CoordinateReferenceSystem^ Create(ProjContext^ ctx, String^ from);

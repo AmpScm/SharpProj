@@ -117,35 +117,35 @@ namespace ProjSharp.Tests
                     Assert.AreEqual(ProjType.ProjectedCrs, crs2.Type);
                     Assert.AreEqual(ProjType.ProjectedCrs, crs3.Type);
 
-                    using (var c = crs3.GetGeodeticCoordinateReferenceSystem(pc))
+                    using (var c = crs3.GetGeodeticCoordinateReferenceSystem())
                     {
                         Assert.IsTrue((object)c is GeographicCoordinateReferenceSystem);
                         Assert.AreEqual("Amersfoort", c.Description);
                         Assert.AreEqual(ProjType.Geographic2DCrs, c.Type);
                     }
-                    using (var d = crs3.GetDatum(pc))
+                    using (var d = crs3.GetDatum())
                     {
                         Assert.IsTrue((object)d is ProjDatum);
                         Assert.AreEqual("Amersfoort", d.Description);
                         Assert.AreEqual(ProjType.GeodeticReferenceFrame, d.Type);
                     }
-                    using (var d = crs3.GetDatumEnsamble(pc))
+                    using (var d = crs3.GetDatumEnsamble())
                     {
                         Assert.IsNull(d);
                     }
-                    using (var d = crs3.GetDatumForced(pc))
+                    using (var d = crs3.GetDatumForced())
                     {
                         Assert.IsTrue((object)d is ProjDatum);
                         Assert.AreEqual("Amersfoort", d.Description);
                         Assert.AreEqual(ProjType.GeodeticReferenceFrame, d.Type);
                     }
-                    using (var d = crs3.GetHorizontalDatum(pc))
+                    using (var d = crs3.GetHorizontalDatum())
                     {
                         Assert.IsTrue((object)d is ProjDatum);
                         Assert.AreEqual("Amersfoort", d.Description);
                         Assert.AreEqual(ProjType.GeodeticReferenceFrame, d.Type);
                     }
-                    using (var c = crs3.GetCoordinateSystem(pc))
+                    using (var c = crs3.GetCoordinateSystem())
                     {
                         Assert.IsTrue((object)c is CoordinateSystem);
                         Assert.AreEqual("", c.Description);
@@ -169,7 +169,7 @@ namespace ProjSharp.Tests
                         Assert.AreEqual("east", c.Axis[0].Direction);
                         Assert.AreEqual("north", c.Axis[1].Direction);
                     }
-                    using (var e = crs3.GetEllipsoid(pc))
+                    using (var e = crs3.GetEllipsoid())
                     {
                         Assert.IsTrue((object)e is Ellipsoid);
                         Assert.AreEqual("Bessel 1841", e.Description);
@@ -180,7 +180,7 @@ namespace ProjSharp.Tests
                         Assert.AreEqual(true, e.IsSemiMinorComputed);
                         Assert.AreEqual(299.0, Math.Round(e.InverseFlattening, 0));
                     }
-                    using (var pm = crs3.GetPrimeMeridian(pc))
+                    using (var pm = crs3.GetPrimeMeridian())
                     {
                         Assert.IsTrue((object)pm is PrimeMeridian);
                         Assert.AreEqual("Greenwich", pm.Description);
@@ -188,7 +188,7 @@ namespace ProjSharp.Tests
                         Assert.AreEqual(0.0175, Math.Round(pm.UnitConversionFactor, 4));
                         Assert.AreEqual("degree", pm.UnitName);
                     }
-                    using (var co = crs3.GetCoordinateOperation(pc))
+                    using (var co = crs3.GetCoordinateOperation())
                     {
                         Assert.IsTrue((object)co is CoordinateOperation);
                         Assert.AreEqual("RD New", co.Description);
@@ -220,7 +220,7 @@ namespace ProjSharp.Tests
                         Assert.AreEqual(double.PositiveInfinity, d3);
 
 
-                        using (var c2 = crs1.GetGeodeticCoordinateReferenceSystem(pc))
+                        using (var c2 = crs1.GetGeodeticCoordinateReferenceSystem())
                         {
                             Assert.AreEqual("WGS 84", c2.Description);
                             Assert.AreEqual(ProjType.Geographic2DCrs, c2.Type);
