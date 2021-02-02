@@ -5,19 +5,14 @@
 #include "ProjArea.h"
 using namespace ProjSharp;
 
-CoordinateOperation^ CoordinateOperation::Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs)
-{
-	return CoordinateOperation::Create((sourceCrs != nullptr) ? sourceCrs->Context : nullptr, sourceCrs, targetCrs, (ProjArea ^)nullptr);
-}
-
-CoordinateOperation^ CoordinateOperation::Create(ProjContext ^ctx, CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, ProjArea ^area)
+CoordinateOperation^ CoordinateOperation::Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, ProjArea ^area, ProjContext^ ctx)
 {
 	if (!sourceCrs)
 		throw gcnew ArgumentNullException("sourceCrs");
 	else if (!targetCrs)
 		throw gcnew ArgumentNullException("targetCrs");
 	else if (!ctx) // After fromCrs
-		throw gcnew ArgumentNullException("ctx");
+		ctx = sourceCrs->Context;
 
 	PJ_AREA* p_area = proj_area_create();
 	try
@@ -57,4 +52,34 @@ array<double>^ CoordinateOperation::InverseTransform(array<double>^ coordinate)
 	coord = proj_trans(this, PJ_INV, coord);
 
 	return FromCoordinate(coord, coordinate->Length);
+}
+
+double CoordinateOperation::EllipsoidDistance(array<double>^ coordinate1, array<double>^ coordinate2)
+{
+	PJ_COORD coord1, coord2;
+	SetCoordinate(coord1, coordinate1);
+	SetCoordinate(coord2, coordinate2);
+
+	return proj_lp_dist(this, coord1, coord2);
+}
+
+double CoordinateOperation::EllipsoidDistanceZ(array<double>^ coordinate1, array<double>^ coordinate2)
+{
+	PJ_COORD coord1, coord2;
+	SetCoordinate(coord1, coordinate1);
+	SetCoordinate(coord2, coordinate2);
+
+	return proj_lpz_dist(this, coord1, coord2);
+}
+
+
+array<double>^ CoordinateOperation::EllipsoidGeod(array<double>^ coordinate1, array<double>^ coordinate2)
+{
+	PJ_COORD coord1, coord2;
+	SetCoordinate(coord1, coordinate1);
+	SetCoordinate(coord2, coordinate2);
+
+	PJ_COORD r = proj_geod(this, coord1, coord2);
+
+	return FromCoordinate(r, 3);
 }

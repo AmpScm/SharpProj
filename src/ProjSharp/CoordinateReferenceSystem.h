@@ -27,6 +27,13 @@ namespace ProjSharp {
 		}
 
 	public:
+		property bool IsDeprecated
+		{
+			bool get()
+			{
+				return proj_is_deprecated(this);
+			}
+		}
 
 	public:
 		CoordinateReferenceSystem^ GetNormalized([Optional] ProjContext^ context);
@@ -41,8 +48,8 @@ namespace ProjSharp {
 		CoordinateOperation^ GetCoordinateOperation([Optional] ProjContext^ context);
 
 	public:
-		static CoordinateReferenceSystem^ Create(ProjContext^ ctx, String^ from);
-		static CoordinateReferenceSystem^ Create(ProjContext^ ctx, ...array<String^>^ from);
+		static CoordinateReferenceSystem^ Create(String^ from, [Optional] ProjContext^ ctx);
+		static CoordinateReferenceSystem^ Create(array<String^>^ from, [Optional] ProjContext^ ctx);
 
 	};
 }

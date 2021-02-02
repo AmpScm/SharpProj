@@ -1,5 +1,6 @@
 #pragma once
 #include "ProjContext.h"
+#include "ProjArea.h"
 
 namespace ProjSharp {
 	public enum class ProjType
@@ -56,6 +57,7 @@ namespace ProjSharp {
 		String^ m_infoId;
 		String^ m_infoDescription;
 		String^ m_infoDefinition;
+		String^ m_scope;
 
 	private:
 		~ProjObject()
@@ -159,10 +161,25 @@ namespace ProjSharp {
 
 		property double Accuraracy
 		{
-			double get()
+			double virtual get()
 			{
 				PJ_PROJ_INFO info = proj_pj_info(this);
 				return info.accuracy;
+			}
+		}
+
+		property String^ Scope
+		{
+			String^ get()
+			{
+				if (!m_scope)
+				{
+					const char* scope = proj_get_scope(this);
+
+					if (scope)
+						m_scope = gcnew String(scope);
+				}
+				return m_scope;
 			}
 		}
 
@@ -174,52 +191,45 @@ namespace ProjSharp {
 			}
 		}
 
-		property bool AngularInput
+		property ProjArea^ UsageArea
 		{
-			bool get()
+			ProjArea^ get()
 			{
-				return proj_angular_input(this, PJ_FWD);
+				double west, south, east, north;
+				const char* name;
+				if (proj_get_area_of_use(Context, this, &west, &south, &east, &north, &name))
+				{
+					return gcnew ProjArea(west, south, east, north, name ? gcnew String(name) : nullptr);
+				}
+				else
+					return nullptr;
 			}
 		}
 
-		property bool AngularOutput
+		String^ AsJson()
 		{
-			bool get()
-			{
-				return proj_angular_output(this, PJ_FWD);
-			}
+			const char* v = proj_as_projjson(Context, this, nullptr);
+
+			return v ? gcnew String(v) : nullptr;
 		}
 
-		property bool DegreeInput
+		String^ AsWellKnownText()
 		{
-			bool get()
-			{
-				return proj_degree_input(this, PJ_FWD);
-			}
+			const char* v = proj_as_wkt(Context, this, PJ_WKT2_2019, nullptr);
+
+			return v ? gcnew String(v) : nullptr;
 		}
 
-		property bool DegreeOutput
+		String^ AsProjString()
 		{
-			bool get()
-			{
-				return proj_degree_output(this, PJ_FWD);
-			}
+			const char* v = proj_as_proj_string(Context, this, PJ_PROJ_5/* Last as of 2021-01 */, nullptr);
+
+			return v ? gcnew String(v) : nullptr;
 		}
 
-		double Distance2D(array<double>^ coordinate1, array<double>^ coordinate2);
-		double Distance3D(array<double>^ coordinate1, array<double>^ coordinate2);
-
-
-		double ToRad(double deg)
-		{
-			return proj_torad(deg);
-		}
-
-		double ToDeg(double deg)
-		{
-			return proj_todeg(deg);
-		}
-
+	public:
+		static ProjObject^ Create(String^ definition, [Optional]ProjContext^ ctx);
+		static ProjObject^ Create(array<String^>^ from, [Optional]ProjContext^ ctx);
 
 	private protected:
 		void SetCoordinate(PJ_COORD& coord, array<double>^ coordinate)

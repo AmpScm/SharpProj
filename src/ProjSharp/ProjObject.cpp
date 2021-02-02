@@ -10,6 +10,7 @@
 #include "ReferenceFrame.h"
 #include "DatumEnsamble.h"
 #include "ProjDatum.h"
+#include "Proj.h"
 
 using namespace ProjSharp;
 
@@ -114,6 +115,23 @@ ProjObject^ ProjContext::Create(PJ* pj)
 		if (cst != CoordinateSystemType::Unknown)
 			return gcnew CoordinateSystem(this, pj);
 
+		ClearError();
 		return gcnew ProjObject(this, pj);
 	}
+}
+
+ProjObject^ ProjObject::Create(String^ definition, [Optional]ProjContext^ ctx)
+{
+	if (!ctx)
+		ctx = gcnew ProjContext();
+
+	return ctx->Create(definition);
+}
+
+ProjObject^ ProjObject::Create(array<String^>^ from, [Optional]ProjContext^ ctx)
+{
+	if (!ctx)
+		ctx = gcnew ProjContext();
+
+	return ctx->Create(from);
 }

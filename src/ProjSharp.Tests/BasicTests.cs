@@ -18,7 +18,7 @@ namespace ProjSharp.Tests
             {
                 try
                 {
-                    using (var crs = CoordinateReferenceSystem.Create(pc, "!1@2#3$4%5^6&7*8(9)0"))
+                    using (var crs = CoordinateReferenceSystem.Create("!1@2#3$4%5^6&7*8(9)0", pc))
                     {
                     }
                     Assert.Fail();
@@ -38,15 +38,32 @@ namespace ProjSharp.Tests
                 using (var crs = pc.Create("+proj=merc +ellps=clrk66 +lat_ts=33"))
                 {
                     Assert.AreEqual("PROJ-based coordinate operation", crs.Description);
-                    Assert.AreEqual(false, crs.DegreeInput);
-                    Assert.AreEqual(false, crs.DegreeOutput);
-                    Assert.AreEqual(true, crs.AngularInput);
-                    Assert.AreEqual(false, crs.AngularOutput);
+
+                    if (crs is CoordinateOperation cob)
+                    {
+                        Assert.AreEqual(false, cob.DegreeInput);
+                        Assert.AreEqual(false, cob.DegreeOutput);
+                        Assert.AreEqual(true, cob.AngularInput);
+                        Assert.AreEqual(false, cob.AngularOutput);
+                    }
+                    else
+                        Assert.Fail();
 
                     Assert.AreEqual(ProjType.OtherCoordinateOperation, crs.Type);
+                    string expected =
+@"{
+  ""$schema"": ""https://proj.org/schemas/v0.2/projjson.schema.json"",
+  ""type"": ""Conversion"",
+  ""name"": ""PROJ-based coordinate operation"",
+  ""method"": {
+    ""name"": ""PROJ-based operation method: +proj=merc +ellps=clrk66 +lat_ts=33""
+  }
+}".Replace("\r", "");
+                    Assert.AreEqual(expected, crs.AsJson());
+                    Assert.AreEqual("proj=merc ellps=clrk66 lat_ts=33", crs.Definition);
                 }
 
-                using (var crs = CoordinateReferenceSystem.Create(pc, "proj=merc", "ellps=clrk66", "lat_ts=33"))
+                using (var crs = pc.Create(new string[] { "proj=merc", "ellps=clrk66", "lat_ts=33" }))
                 {
                     Assert.AreEqual("PROJ-based coordinate operation", crs.Description);
                 }
@@ -63,7 +80,7 @@ namespace ProjSharp.Tests
 
                 // Needs proj.db
 
-                using (var crs = CoordinateReferenceSystem.Create(pc, "EPSG:25832"))
+                using (var crs = CoordinateReferenceSystem.Create("EPSG:25832", pc))
                 {
                     Assert.AreEqual("ETRS89 / UTM zone 32N", crs.Description);
                 }
@@ -75,8 +92,8 @@ namespace ProjSharp.Tests
         {
             using (var pc = new ProjContext())
             {
-                using (var crs1 = CoordinateReferenceSystem.Create(pc, "EPSG:25832"))
-                using (var crs2 = CoordinateReferenceSystem.Create(pc, "EPSG:25833"))
+                using (var crs1 = CoordinateReferenceSystem.Create("EPSG:25832", pc))
+                using (var crs2 = CoordinateReferenceSystem.Create("EPSG:25833", pc))
                 {
                     Assert.AreEqual(ProjType.ProjectedCrs, crs1.Type);
                     Assert.AreEqual(ProjType.ProjectedCrs, crs2.Type);
@@ -105,9 +122,9 @@ namespace ProjSharp.Tests
             using (var pc = new ProjContext())
             {
                 pc.LogLevel = ProjLogLevel.Error;
-                using (var crs1 = CoordinateReferenceSystem.Create(pc, "EPSG:3857"))
-                using (var crs2 = CoordinateReferenceSystem.Create(pc, "EPSG:23095"))
-                using (var crs3 = CoordinateReferenceSystem.Create(pc, "EPSG:28992"))
+                using (var crs1 = CoordinateReferenceSystem.Create("EPSG:3857", pc))
+                using (var crs2 = CoordinateReferenceSystem.Create("EPSG:23095", pc))
+                using (var crs3 = CoordinateReferenceSystem.Create("EPSG:28992", pc))
                 {
                     Assert.AreEqual("WGS 84 / Pseudo-Mercator", crs1.Description);
                     Assert.AreEqual("ED50 / TM 5 NE", crs2.Description);
@@ -195,15 +212,17 @@ namespace ProjSharp.Tests
                         //Assert.AreEqual(0.0, pm.Longitude);
                         //Assert.AreEqual(0.0175, Math.Round(pm.UnitConversionFactor, 4));
                         //Assert.AreEqual("degree", pm.UnitName);
+
+                        //Assert.AreEqual(111129.0, Math.Round(co.E(new double[] { Proj.ToRad(r[0]), Proj.ToRad(r[1]) }, new double[] { Proj.ToRad(r[0]), Proj.ToRad(r[1] + 1) }), 0));
                         double[] r = new double[] { 5, 45 };
-                        Assert.AreEqual(111129.0, Math.Round(co.Distance2D(new double[] { co.ToRad(r[0]), co.ToRad(r[1]) }, new double[] { co.ToRad(r[0]), co.ToRad(r[1] + 1) }), 0));
+                        Assert.AreEqual(111129.0, Math.Round(co.EllipsoidDistance(new double[] { Proj.ToRad(r[0]), Proj.ToRad(r[1]) }, new double[] { Proj.ToRad(r[0]), Proj.ToRad(r[1] + 1) }), 0));
                     }
 
                     using (var t = CoordinateOperation.Create(crs1, crs2))
                     {
                         Assert.AreEqual("unavailable until proj_trans is called", t.Description);
 
-                        var start = new double[] { t.ToRad(5.0), t.ToRad(52.0) };
+                        var start = new double[] { Proj.ToRad(5.0), Proj.ToRad(52.0) };
 
                         var r = t.Transform(start);
                         GC.KeepAlive(r);
@@ -213,11 +232,6 @@ namespace ProjSharp.Tests
                         var s = t.InverseTransform(r);
                         GC.KeepAlive(s);
 
-                        var d2 = crs1.Distance2D(start, s);
-                        var d3 = crs1.Distance3D(start, s);
-
-                        Assert.AreEqual(double.PositiveInfinity, d2);
-                        Assert.AreEqual(double.PositiveInfinity, d3);
 
 
                         using (var c2 = crs1.GetGeodeticCoordinateReferenceSystem())
@@ -227,12 +241,6 @@ namespace ProjSharp.Tests
                             using (var t2 = CoordinateOperation.Create(crs1, c2))
                             {
                                 Assert.AreEqual("Inverse of Popular Visualisation Pseudo-Mercator", t2.Description);
-
-                                var d22 = crs1.Distance2D(t2.Transform(start), t2.Transform(s));
-                                var d32 = crs1.Distance3D(t2.Transform(start), t2.Transform(s));
-
-                                Assert.AreEqual(double.PositiveInfinity, d22);
-                                Assert.AreEqual(double.PositiveInfinity, d32);
                             }
                         }
                     }
@@ -247,12 +255,12 @@ namespace ProjSharp.Tests
         public void TestCopenhagen()
         {
             var ctx = new ProjContext();
-            var src = CoordinateReferenceSystem.Create(ctx, "EPSG:4326");
-            var dst = CoordinateReferenceSystem.Create(ctx, /*"+proj=utm +zone=32 +datum=WGS84" or */ "EPSG:32632");
+            var src = CoordinateReferenceSystem.Create("EPSG:4326", ctx);
+            var dst = CoordinateReferenceSystem.Create(/*"+proj=utm +zone=32 +datum=WGS84" or */ "EPSG:32632", ctx);
             Assert.AreEqual("WGS 84", src.Description);
             Assert.AreEqual("WGS 84 / UTM zone 32N", dst.Description);
 
-            var t = CoordinateOperation.Create(ctx, src, dst, null);
+            var t = CoordinateOperation.Create(src, dst, ctx);
 
             var t2 = t.CreateNormalized();
 
@@ -265,18 +273,173 @@ namespace ProjSharp.Tests
 
             Trace.WriteLine($"Longitude: {r[0]}, Latitude: {r[1]}");
 
-            Assert.AreEqual(double.NaN, t2.Distance2D(r, r));
-            Assert.AreEqual(double.PositiveInfinity, src.Distance2D(r, r));
-            Assert.AreEqual(double.PositiveInfinity, dst.Distance2D(r, r));
 
-            var tt = CoordinateOperation.Create(ctx, src, src, null);
+            var tt = CoordinateOperation.Create(src, src, null);
             Assert.AreEqual("Null geographic offset from WGS 84 to WGS 84", tt.Description);
-            Assert.AreEqual(double.NaN, tt.Distance2D(r, r));
-            Assert.AreEqual(double.NaN, tt.Distance2D(r, new double[] { r[0], r[1] + 1 }));
-            Assert.AreEqual(double.NaN, t2.Distance2D(r, new double[] { r[0], r[1] + 1 }));
 
             var ss = ctx.Create("+proj=utm +zone=32 +datum=WGS84 +ellps=clrk66");
-            Assert.AreEqual(111334.0, Math.Round(ss.Distance2D(new double[] { t.ToRad(r[0]), t.ToRad(r[1]) }, new double[] { t.ToRad(r[0]), t.ToRad(r[1] + 1) }), 0));
+            //Assert.AreEqual(111334.0, Math.Round(ss.Distance2D(new double[] { Proj.ToRad(r[0]), Proj.ToRad(r[1]) }, new double[] { Proj.ToRad(r[0]), Proj.ToRad(r[1] + 1) }), 0));
+        }
+
+        [TestMethod]
+        public void TestAmersfoort()
+        {
+            using (var c = new ProjContext())
+            {
+                using (var rd = CoordinateReferenceSystem.Create("EPSG:28992", c))
+                using (var wgs84 = CoordinateReferenceSystem.Create("EPSG:4326", c))
+                using (var google = CoordinateReferenceSystem.Create("EPSG:3857", c))
+                {
+                    var area = rd.UsageArea;
+
+                    Assert.IsNotNull(area);
+                    Assert.AreEqual("Netherlands - onshore, including Waddenzee, Dutch Wadden Islands and 12-mile offshore coastal zone.", area.Name);
+                    Assert.AreEqual(3.2, area.WestLongitude);
+                    Assert.AreEqual(7.22, area.EastLongitude);
+
+
+                    using (var t = CoordinateOperation.Create(rd, wgs84))
+                    {
+                        var r = t.Transform(155000, 463000);
+                        Assert.AreEqual(52.155, Math.Round(r[0], 3));
+                        Assert.AreEqual(5.387, Math.Round(r[1], 3));
+
+                        Assert.AreEqual(1, t.Accuraracy);
+                    }
+
+                    using (var t = CoordinateOperation.Create(rd, google))
+                    {
+                        var r = t.Transform(155000, 463000);
+
+#if !DEBUG
+                        Assert.AreEqual(599706.0, Math.Round(r[0], 0));
+                        Assert.AreEqual(6828392.0, Math.Round(r[1], 0));
+#else
+                        Assert.AreEqual(599701.0, Math.Round(r[0], 0));
+                        Assert.AreEqual(6828231.0, Math.Round(r[1], 0));
+#endif
+
+                        Assert.AreEqual(1, t.Accuraracy);
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void TestSpain()
+        {
+            using (var c = new ProjContext())
+            {
+                using (var wgs84 = CoordinateReferenceSystem.Create("EPSG:4326", c))
+                using (var google = CoordinateReferenceSystem.Create("EPSG:3857", c))
+                using (var q1 = CoordinateReferenceSystem.Create("EPSG:23030"))
+                using (var q2 = CoordinateReferenceSystem.Create("EPSG:2062"))
+                {
+                    Assert.AreEqual("Engineering survey, topographic mapping.", q1.Scope);
+                    Assert.AreEqual("Engineering survey, topographic mapping.", q2.Scope);
+
+                    using (var t = CoordinateOperation.Create(google, wgs84))
+                    {
+                        var r = t.Transform(-333958.47, 4865942.28);
+                        Assert.AreEqual(0, t.GridUsageCount);
+                        Assert.AreEqual(40.0, Math.Round(r[0], 3));
+                        Assert.AreEqual(-3, Math.Round(r[1], 3));
+                    }
+
+                    using (var t = CoordinateOperation.Create(google, q1))
+                    {
+                        var r = t.Transform(-333958.47, 4865942.28);
+                        Assert.AreEqual(0, t.GridUsageCount);
+
+#if !DEBUG
+                        Assert.AreEqual(500002.0, Math.Round(r[0], 0));
+                        Assert.AreEqual(4427830.0, Math.Round(r[1], 0));
+#else
+                        Assert.AreEqual(500110.0, Math.Round(r[0], 0));
+                        Assert.AreEqual(4427965.0, Math.Round(r[1], 0));
+#endif
+                    }
+
+                    using (var t = CoordinateOperation.Create(google, q2))
+                    {
+                        var r = t.Transform(-333958.47, 4865942.28);
+                        Assert.AreEqual(0, t.GridUsageCount);
+
+                        Assert.AreEqual(658629.5, Math.Round(r[0], 1));
+                        Assert.AreEqual(600226.1, Math.Round(r[1], 1));
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void FewEpsg()
+        {
+            bool hasDeprecated = false;
+            using (var wgs84 = CoordinateReferenceSystem.Create("EPSG:4326"))
+            {
+                for (int i = 2000; i < 2400; i++)
+                {
+                    CoordinateReferenceSystem crs;
+                    try
+                    {
+                        crs = CoordinateReferenceSystem.Create($"EPSG:{i}");
+                    }
+                    catch (ProjException )
+                    {
+                        Trace.WriteLine($"Not supported: {i}");
+                        //Assert.IsTrue(new int[] { 0, 1, 2,3 }.Contains(i), $"EPSG {i} not supported");
+                        continue;
+                    }
+
+                    using (crs)
+                    {
+                        if (crs.IsDeprecated)
+                        {
+                            hasDeprecated = true;
+                            continue;
+                        }
+
+                        CoordinateOperation t;
+                        try
+                        {
+                            t = CoordinateOperation.Create(wgs84, crs);
+                        }
+                        catch (ProjException)
+                        {
+                            Trace.WriteLine($"Not convertible: {i}");
+                            //Assert.IsTrue(new int[] { 0, 1, 2,3 }.Contains(i), $"EPSG {i} not supported");
+                            continue;
+                        }
+
+
+                        using (t)
+                        {
+                            var a = crs.UsageArea;
+
+                            double[] center = t.Transform((a.EastLongitude + a.WestLongitude) / 2, (a.NorthLatitude + a.SouthLatitude) / 2);
+
+                            double[] ret = t.InverseTransform(center);
+                        }
+                    }
+                }
+            }
+            Assert.IsTrue(hasDeprecated, "Found deprecated");
+        }
+
+        [TestMethod]
+        public void WithGrid()
+        {
+            using (var pc = new ProjContext())
+            {
+                Assert.IsFalse(pc.AllowNetworkConnections);
+                pc.AllowNetworkConnections = true;
+                Assert.IsTrue(pc.AllowNetworkConnections);
+                using (var po = ProjObject.Create(@"EPSG:8364", pc))
+                {
+                    Assert.IsTrue(po is CoordinateReferenceSystem);
+                }
+            }
         }
     }
 }

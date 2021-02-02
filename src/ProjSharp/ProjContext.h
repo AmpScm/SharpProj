@@ -49,6 +49,45 @@ namespace ProjSharp {
 			return gcnew ProjContext(proj_context_clone(this));
 		}
 
+		property bool AllowNetworkConnections
+		{
+			bool get()
+			{
+				return (0 != proj_context_is_network_enabled(this));
+			}
+			void set(bool value)
+			{
+				proj_context_set_enable_network(this, value);
+			}
+		}
+
+		property String^ EndpointUrl
+		{
+			String^ get()
+			{
+				const char* c = proj_context_get_url_endpoint(this);
+				return (c && *c) ? gcnew String(c) : nullptr;
+			}
+			void set(String^ value)
+			{
+				std::string url = utf8_string(value);
+
+				proj_context_set_url_endpoint(this, url.c_str());
+			}
+		}
+
+		void SetGridCache(bool enabled, String^ path, int max_mb, int ttl_seconds)
+		{
+			proj_grid_cache_set_enable(this, enabled);
+			if (enabled && path)
+			{
+				std::string p = utf8_string(path);
+				proj_grid_cache_set_filename(this, p.c_str());
+			}
+			proj_grid_cache_set_max_size(this, max_mb > 0 ? max_mb : -1);
+			proj_grid_cache_set_ttl(this, ttl_seconds > 0 ? ttl_seconds : -1);
+		}
+
 	protected public:
 		void OnFindFile(String^ file, [Out] String^% foundFile);
 		void OnLogMessage(ProjLogLevel level, String^ message);

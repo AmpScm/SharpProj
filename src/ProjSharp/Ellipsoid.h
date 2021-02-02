@@ -59,5 +59,10 @@ namespace ProjSharp {
 			}
 		}
 
+	public:
+		double EllipsoidDistance(array<double>^ coordinate1, array<double>^ coordinate2);
+		double EllipsoidDistanceZ(array<double>^ coordinate1, array<double>^ coordinate2);
+		array<double>^ EllipsoidGeod(array<double>^ coordinate1, array<double>^ coordinate2);
+
 	};
 }

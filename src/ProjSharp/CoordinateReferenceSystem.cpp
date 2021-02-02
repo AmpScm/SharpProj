@@ -13,12 +13,13 @@
 using namespace ProjSharp;
 
 
-CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(ProjContext^ ctx, String^ from)
+CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(String^ from, ProjContext^ ctx)
 {
-	if (!ctx)
-		throw gcnew ArgumentNullException("ctx");
-	else if (String::IsNullOrWhiteSpace(from))
+	if (String::IsNullOrWhiteSpace(from))
 		throw gcnew ArgumentNullException("from");
+	
+	if (!ctx)
+		ctx = gcnew ProjContext();
 
 	std::string fromStr = utf8_string(from);
 	PJ* pj = proj_create(ctx, fromStr.c_str());
@@ -37,12 +38,13 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(ProjContext^ ctx, S
 }
 
 
-CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(ProjContext^ ctx, ...array<String^>^ from)
+CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(array<String^>^ from, ProjContext^ ctx)
 {
-	if (!ctx)
-		throw gcnew ArgumentNullException("ctx");
-	else if (!from)
+	if (!from)
 		throw gcnew ArgumentNullException("from");
+
+	if (!ctx)
+		ctx = gcnew ProjContext();
 
 	char** lst = new char*[from->Length+1];
 	for(int i = 0; i < from->Length; i++)
@@ -56,9 +58,14 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(ProjContext^ ctx, .
 	{
 		PJ* pj = proj_create_argv(ctx, from->Length, lst);
 
-
 		if (!pj)
 			throw ctx->ConstructException();
+
+		if (!proj_is_crs(pj))
+		{
+			proj_destroy(pj);
+			throw gcnew ProjException(String::Format("'{0}' doesn't describe a coordinate system", from));
+		}
 
 		return static_cast<CoordinateReferenceSystem^>(ctx->Create(pj));
 	}
@@ -70,24 +77,6 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(ProjContext^ ctx, .
 		}
 		delete[] lst;
 	}
-}
-
-double ProjObject::Distance2D(array<double>^ coordinate1, array<double>^ coordinate2)
-{
-	PJ_COORD coord1, coord2;
-	SetCoordinate(coord1, coordinate1);
-	SetCoordinate(coord2, coordinate2);
-
-	return proj_lp_dist(this, coord1, coord2);
-}
-
-double ProjObject::Distance3D(array<double>^ coordinate1, array<double>^ coordinate2)
-{
-	PJ_COORD coord1, coord2;
-	SetCoordinate(coord1, coordinate1);
-	SetCoordinate(coord2, coordinate2);
-
-	return proj_lpz_dist(this, coord1, coord2);
 }
 
 CoordinateReferenceSystem^ CoordinateReferenceSystem::GetGeodeticCoordinateReferenceSystem(ProjContext^ context)
