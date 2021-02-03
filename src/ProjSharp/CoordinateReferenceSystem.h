@@ -4,7 +4,7 @@
 namespace ProjSharp {
 	ref class GeometricCoordinateReferenceSystem;
 	ref class ProjDatum;
-	ref class DatumEnsamble;
+	ref class ProjDatumList;
 	ref class CoordinateSystem;
 	ref class Ellipsoid;
 	ref class PrimeMeridian;
@@ -40,7 +40,7 @@ namespace ProjSharp {
 		CoordinateReferenceSystem^ GetGeodeticCoordinateReferenceSystem([Optional] ProjContext^ context);
 		ProjDatum^ GetHorizontalDatum([Optional] ProjContext^ context);
 		ProjDatum^ GetDatum([Optional] ProjContext^ context);
-		DatumEnsamble^ GetDatumEnsamble([Optional] ProjContext^ context);
+		ProjDatumList^ GetDatumList([Optional] ProjContext^ context);
 		ProjDatum^ GetDatumForced([Optional] ProjContext^ context);
 		CoordinateSystem^ GetCoordinateSystem([Optional] ProjContext^ context);
 		Ellipsoid^ GetEllipsoid([Optional] ProjContext^ context);

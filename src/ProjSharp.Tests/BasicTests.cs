@@ -148,7 +148,7 @@ namespace ProjSharp.Tests
                         Assert.AreEqual("Amersfoort", d.Description);
                         Assert.AreEqual(ProjType.GeodeticReferenceFrame, d.Type);
                     }
-                    using (var d = crs3.GetDatumEnsamble())
+                    using (var d = crs3.GetDatumList())
                     {
                         Assert.IsNull(d);
                     }
@@ -428,7 +428,7 @@ namespace ProjSharp.Tests
                             }
 
 
-                            if (center != null && t.HasInverse)
+                            if (center != null && t.HasInverse && !(t is CoordinateOperationList))
                             {
                                 double[] ret = t.InverseTransform(center);
                             }

@@ -2,11 +2,11 @@
 #include "CoordinateOperation.h"
 
 namespace ProjSharp {
-	using System::Collections::Generic::IReadOnlyCollection;
+	using System::Collections::Generic::IReadOnlyList;
 	ref class CoordinateReferenceSystem;
 	ref class ProjArea;
 
-	public ref class CoordinateOperationList : CoordinateOperation, IReadOnlyCollection<CoordinateOperation^>
+	public ref class CoordinateOperationList : CoordinateOperation, IReadOnlyList<CoordinateOperation^>
 	{
 	private:
 		PJ_OBJ_LIST* m_list;
@@ -81,7 +81,7 @@ namespace ProjSharp {
 
 		property CoordinateOperation^ default[int]
 		{
-			CoordinateOperation^ get(int index)
+			virtual CoordinateOperation^ get(int index) sealed
 			{
 				return m_operations[index];
 			}

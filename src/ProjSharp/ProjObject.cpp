@@ -8,7 +8,7 @@
 #include "GeographicCoordinateReferenceSystem.h"
 #include "PrimeMeridian.h"
 #include "ReferenceFrame.h"
-#include "DatumEnsamble.h"
+#include "ProjDatumList.h"
 #include "ProjDatum.h"
 #include "Proj.h"
 
@@ -77,7 +77,7 @@ ProjObject^ ProjContext::Create(PJ* pj)
 		return gcnew ReferenceFrame(this, pj);
 
 	case ProjType::DatumEnsamble:
-		return gcnew DatumEnsamble(this, pj);
+		return gcnew ProjDatumList(this, pj);
 
 	case ProjType::GeographicCrs: // Never used. Only inherited
 	case ProjType::Geographic2DCrs:

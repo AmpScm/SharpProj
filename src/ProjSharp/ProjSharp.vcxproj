@@ -134,7 +134,7 @@
   <ItemGroup>
     <ClInclude Include="CoordinateOperationList.h" />
     <ClInclude Include="CoordinateSystem.h" />
-    <ClInclude Include="DatumEnsamble.h" />
+    <ClInclude Include="ProjDatumList.h" />
     <ClInclude Include="Ellipsoid.h" />
     <ClInclude Include="GeographicCoordinateReferenceSystem.h" />
     <ClInclude Include="pch.h" />
@@ -155,7 +155,7 @@
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="CoordinateOperationList.cpp" />
     <ClCompile Include="CoordinateSystem.cpp" />
-    <ClCompile Include="DatumEnsamble.cpp" />
+    <ClCompile Include="ProjDatumList.cpp" />
     <ClCompile Include="Ellipsoid.cpp" />
     <ClCompile Include="GeographicCoordinateReferenceSystem.cpp" />
     <ClCompile Include="pch.cpp">

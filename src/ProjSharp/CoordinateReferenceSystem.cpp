@@ -2,7 +2,7 @@
 #include "ProjContext.h"
 #include "ProjException.h"
 #include "CoordinateReferenceSystem.h"
-#include "DatumEnsamble.h"
+#include "ProjDatumList.h"
 #include "CoordinateOperation.h"
 #include "CoordinateSystem.h"
 #include "Ellipsoid.h"
@@ -121,7 +121,7 @@ ProjDatum^ CoordinateReferenceSystem::GetDatum(ProjContext^ context)
 	return static_cast<ProjDatum^>(context->Create(pj));
 }
 
-DatumEnsamble^ CoordinateReferenceSystem::GetDatumEnsamble(ProjContext^ context)
+ProjDatumList^ CoordinateReferenceSystem::GetDatumList(ProjContext^ context)
 {
 	if (!context)
 		context = Context;
@@ -138,7 +138,7 @@ DatumEnsamble^ CoordinateReferenceSystem::GetDatumEnsamble(ProjContext^ context)
 		throw context->ConstructException();
 	}
 
-	return static_cast<DatumEnsamble^>(context->Create(pj));
+	return static_cast<ProjDatumList^>(context->Create(pj));
 }
 
 ProjDatum^ CoordinateReferenceSystem::GetDatumForced(ProjContext^ context)

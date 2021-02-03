@@ -45,9 +45,6 @@
     <ClInclude Include="PrimeMeridian.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DatumEnsamble.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ProjDatum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -67,6 +64,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CoordinateOperationList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProjDatumList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -101,9 +101,6 @@
     <ClCompile Include="PrimeMeridian.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DatumEnsamble.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ProjDatum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -120,6 +117,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CoordinateOperationList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjDatumList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
