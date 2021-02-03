@@ -1,8 +1,10 @@
 #include "pch.h"
 #include "ProjContext.h"
 #include "CoordinateOperation.h"
+#include "CoordinateOperationList.h"
 #include "CoordinateReferenceSystem.h"
 #include "ProjArea.h"
+#include "ProjException.h"
 using namespace ProjSharp;
 
 CoordinateOperation^ CoordinateOperation::Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, ProjArea ^area, ProjContext^ ctx)
@@ -14,42 +16,65 @@ CoordinateOperation^ CoordinateOperation::Create(CoordinateReferenceSystem^ sour
 	else if (!ctx) // After fromCrs
 		ctx = sourceCrs->Context;
 
-	PJ_AREA* p_area = proj_area_create();
-	try
-	{
-		if (area)
-			proj_area_set_bbox(p_area, area->WestLongitude, area->SouthLatitude, area->EastLongitude, area->NorthLatitude);
+    auto operation_ctx = proj_create_operation_factory_context(ctx, nullptr);
+    if (!operation_ctx) {
+        return nullptr;
+    }
 
-		PJ* p = proj_create_crs_to_crs_from_pj(ctx, sourceCrs, targetCrs, p_area, nullptr /* NULL required for now */);
+    if (area) {
+        proj_operation_factory_context_set_area_of_interest(
+            ctx,
+            operation_ctx,
+            area->WestLongitude,
+            area->SouthLatitude,
+            area->EastLongitude,
+            area->NorthLatitude);
+    }
 
-		if (!p)
-			throw ctx->ConstructException();
+    proj_operation_factory_context_set_spatial_criterion(
+        ctx, operation_ctx, PROJ_SPATIAL_CRITERION_PARTIAL_INTERSECTION);
+    proj_operation_factory_context_set_grid_availability_use(
+        ctx, operation_ctx,
+        proj_context_is_network_enabled(ctx) ?
+        PROJ_GRID_AVAILABILITY_KNOWN_AVAILABLE :
+        PROJ_GRID_AVAILABILITY_DISCARD_OPERATION_IF_MISSING_GRID);
 
-		return static_cast<CoordinateOperation^>(ctx->Create(p));
-	}
-	finally
-	{
-		proj_area_destroy(p_area);
-	}
+    auto op_list = proj_create_operations(ctx, sourceCrs, targetCrs, operation_ctx);
+    proj_operation_factory_context_destroy(operation_ctx);
+
+    if (!op_list) {
+        return nullptr;
+    }
+
+    auto op_count = proj_list_get_count(op_list);
+    if (op_count == 0) {
+        proj_list_destroy(op_list);
+
+        throw gcnew ProjException("No operation found matching criteria");
+    }
+
+    PJ* P = proj_list_get(ctx, op_list, 0);
+
+    if (P == nullptr || op_count == 1 || (area) ||
+        sourceCrs->Type == ProjType::GeocentricCrs ||
+        targetCrs->Type == ProjType::GeocentricCrs) {
+        proj_list_destroy(op_list);
+        return static_cast<CoordinateOperation^>(ctx->Create(P));
+    }
+
+    return gcnew CoordinateOperationList(ctx, P, op_list);
 }
 
 
-array<double>^ CoordinateOperation::Transform(array<double>^ coordinate)
+array<double>^ CoordinateOperation::DoTransform(bool forward, array<double>^ coordinate)
 {
+    if (!coordinate)
+        throw gcnew ArgumentNullException("coordinate");
+
 	PJ_COORD coord;
 	SetCoordinate(coord, coordinate);
 
-	coord = proj_trans(this, PJ_FWD, coord);
-
-	return FromCoordinate(coord, coordinate->Length);
-}
-
-array<double>^ CoordinateOperation::InverseTransform(array<double>^ coordinate)
-{
-	PJ_COORD coord;
-	SetCoordinate(coord, coordinate);
-
-	coord = proj_trans(this, PJ_INV, coord);
+	coord = proj_trans(this, forward ? PJ_FWD : PJ_INV, coord);
 
 	return FromCoordinate(coord, coordinate->Length);
 }

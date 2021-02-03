@@ -132,6 +132,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CoordinateOperationList.h" />
     <ClInclude Include="CoordinateSystem.h" />
     <ClInclude Include="DatumEnsamble.h" />
     <ClInclude Include="Ellipsoid.h" />
@@ -146,11 +147,13 @@
     <ClInclude Include="CoordinateReferenceSystem.h" />
     <ClInclude Include="ProjException.h" />
     <ClInclude Include="CoordinateOperation.h" />
+    <ClInclude Include="ProjObjectList.h" />
     <ClInclude Include="ReferenceFrame.h" />
     <ClInclude Include="Resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
+    <ClCompile Include="CoordinateOperationList.cpp" />
     <ClCompile Include="CoordinateSystem.cpp" />
     <ClCompile Include="DatumEnsamble.cpp" />
     <ClCompile Include="Ellipsoid.cpp" />
@@ -169,6 +172,7 @@
     <ClCompile Include="CoordinateReferenceSystem.cpp" />
     <ClCompile Include="ProjException.cpp" />
     <ClCompile Include="CoordinateOperation.cpp" />
+    <ClCompile Include="ProjObjectList.cpp" />
     <ClCompile Include="ReferenceFrame.cpp" />
   </ItemGroup>
   <ItemGroup>

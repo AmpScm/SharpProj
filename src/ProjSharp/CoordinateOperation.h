@@ -16,8 +16,11 @@ namespace ProjSharp {
 		}
 
 	public:
-		array<double>^ Transform(...array<double>^ coords);
-		array<double>^ InverseTransform(...array<double>^ coords);
+		array<double>^ Transform(...array<double>^ coords) { return DoTransform(true, coords); }
+		array<double>^ InverseTransform(...array<double>^ coords) { return DoTransform(false, coords); }
+
+	protected:
+		virtual array<double>^ DoTransform(bool forward, array<double>^ coords);
 
 	public:
 		property bool HasInverse

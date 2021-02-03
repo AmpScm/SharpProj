@@ -75,6 +75,15 @@ namespace ProjSharp {
 			}
 		}
 
+	private protected:
+		void ForceUnknownInfo()
+		{
+			m_infoId = "?";
+			m_infoDescription = "?";
+			m_infoDefinition = "?";
+			m_scope = "?";
+		}
+
 	internal:
 		ProjObject(ProjContext^ ctx, PJ* pj)
 		{
@@ -234,6 +243,7 @@ namespace ProjSharp {
 	private protected:
 		void SetCoordinate(PJ_COORD& coord, array<double>^ coordinate)
 		{
+			memset(&coord, 0, sizeof(coord));
 			coord.v[0] = coordinate[0];
 			coord.v[1] = coordinate[1];
 			if (coordinate->Length > 2)
@@ -246,6 +256,11 @@ namespace ProjSharp {
 
 		array<double>^ FromCoordinate(const PJ_COORD& coord, int len)
 		{
+			if (coord.xyzt.x == HUGE_VAL)
+			{
+				throw Context->ConstructException();
+			}
+
 			array<double>^ r = gcnew array<double>(len);
 			r[0] = coord.v[0];
 			r[1] = coord.v[1];

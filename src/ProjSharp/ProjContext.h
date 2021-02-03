@@ -18,6 +18,7 @@ namespace ProjSharp {
 	private:
 		PJ_CONTEXT* m_ctx;
 		gcroot<WeakReference<ProjContext^>^>* m_ref;
+		void* m_chain;
 
 		ProjContext(PJ_CONTEXT *ctx)
 		{
@@ -26,6 +27,11 @@ namespace ProjSharp {
 
 	internal:
 		String^ m_lastError;
+
+		const char* utf8_string(String^ value);
+
+		const char* utf8_chain(String^ value, void*& chain);
+		void free_chain(void*& chain);
 
 	public:
 		ProjContext();
@@ -41,6 +47,16 @@ namespace ProjSharp {
 			{
 				delete m_ref;
 				m_ref = nullptr;
+			}
+
+			void* chain = m_chain;
+			try
+			{
+				free_chain(chain);
+			}
+			finally
+			{
+				m_chain = chain;
 			}
 		}
 
@@ -88,6 +104,11 @@ namespace ProjSharp {
 			proj_grid_cache_set_ttl(this, ttl_seconds > 0 ? ttl_seconds : -1);
 		}
 
+		void ClearGridCache()
+		{
+			proj_grid_cache_clear(this);
+		}
+
 	protected public:
 		void OnFindFile(String^ file, [Out] String^% foundFile);
 		void OnLogMessage(ProjLogLevel level, String^ message);
@@ -114,6 +135,14 @@ namespace ProjSharp {
 			{
 				proj_log_level(this, (PJ_LOG_LEVEL)value);
 			}
+		}
+
+		event System::Action<ProjLogLevel, String^>^ Log;
+
+	protected:
+		virtual void OnLog(ProjLogLevel level, String^ message)
+		{
+			Log(level, message);
 		}
 
 	internal:

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ namespace ProjSharp.Tests
     [TestClass]
     public class BasicTests
     {
+        public TestContext TestContext { get; set; }
         [TestMethod]
         public void BadInit()
         {
@@ -220,14 +222,12 @@ namespace ProjSharp.Tests
 
                     using (var t = CoordinateOperation.Create(crs1, crs2))
                     {
-                        Assert.AreEqual("unavailable until proj_trans is called", t.Description);
+                        Assert.IsTrue(t is CoordinateOperationList);
 
                         var start = new double[] { Proj.ToRad(5.0), Proj.ToRad(52.0) };
 
                         var r = t.Transform(start);
                         GC.KeepAlive(r);
-
-                        Assert.AreEqual(ProjType.Unknown, t.Type);
 
                         var s = t.InverseTransform(r);
                         GC.KeepAlive(s);
@@ -385,7 +385,7 @@ namespace ProjSharp.Tests
                     {
                         crs = CoordinateReferenceSystem.Create($"EPSG:{i}");
                     }
-                    catch (ProjException )
+                    catch (ProjException)
                     {
                         Trace.WriteLine($"Not supported: {i}");
                         //Assert.IsTrue(new int[] { 0, 1, 2,3 }.Contains(i), $"EPSG {i} not supported");
@@ -417,9 +417,21 @@ namespace ProjSharp.Tests
                         {
                             var a = crs.UsageArea;
 
-                            double[] center = t.Transform((a.EastLongitude + a.WestLongitude) / 2, (a.NorthLatitude + a.SouthLatitude) / 2);
+                            double[] center;
+                            try
+                            {
+                                center = t.Transform((a.EastLongitude + a.WestLongitude) / 2, (a.NorthLatitude + a.SouthLatitude) / 2);
+                            }
+                            catch(ProjException)
+                            {
+                                center = null;
+                            }
 
-                            double[] ret = t.InverseTransform(center);
+
+                            if (center != null && t.HasInverse)
+                            {
+                                double[] ret = t.InverseTransform(center);
+                            }
                         }
                     }
                 }
@@ -432,12 +444,56 @@ namespace ProjSharp.Tests
         {
             using (var pc = new ProjContext())
             {
-                Assert.IsFalse(pc.AllowNetworkConnections);
-                pc.AllowNetworkConnections = true;
-                Assert.IsTrue(pc.AllowNetworkConnections);
-                using (var po = ProjObject.Create(@"EPSG:8364", pc))
+                pc.LogLevel = ProjLogLevel.Trace;
+
+                using (var crsAmersfoort = CoordinateReferenceSystem.Create(@"EPSG:4289", pc)) // Amersfoort
+                using (var crsETRS89 = CoordinateReferenceSystem.Create(@"EPSG:4258", pc))
                 {
-                    Assert.IsTrue(po is CoordinateReferenceSystem);
+                    // Do it the dumb way
+                    using (var t = CoordinateOperation.Create(crsAmersfoort, crsETRS89))
+                    {
+                        Assert.IsFalse(t is CoordinateOperationList);
+                        var r = t.Transform(51, 4, 0);
+
+                        Assert.AreEqual(50.999, Math.Round(r[0], 3));
+                        Assert.AreEqual(4.0, Math.Round(r[1], 3));
+                        Assert.AreEqual(0.0, Math.Round(r[2], 3));
+                    }
+
+                    // Now, let's enable gridshifts
+                    Assert.IsFalse(pc.AllowNetworkConnections);
+                    pc.AllowNetworkConnections = true;
+                    pc.EndpointUrl = "https://cdn.proj.org";
+                    //pc.SetGridCache(true, Path.Combine(TestContext.TestResultsDirectory, "proj.cache"), 300, 3600 * 24);
+
+                    using (var t = CoordinateOperation.Create(crsAmersfoort, crsETRS89))
+                    {
+                        CoordinateOperationList cl = t as CoordinateOperationList;
+                        Assert.IsNotNull(cl);
+                        Assert.AreEqual(2, cl.Count);
+
+                        Assert.IsTrue(cl[0].GridUsageCount > 0);
+                        Assert.IsTrue(cl[1].GridUsageCount == 0);
+
+                        var r = t.Transform(51, 4, 0);
+                        Assert.AreEqual(50.999, Math.Round(r[0], 3));
+                        Assert.AreEqual(4.0, Math.Round(r[1], 3));
+                        Assert.AreEqual(0.0, Math.Round(r[2], 3));
+
+                        var r0 = cl[0].Transform(51, 4, 0);
+                        var r1 = cl[1].Transform(51, 4, 0);
+                        Assert.IsNotNull(r0);
+                        Assert.IsNotNull(r1);
+
+                        Assert.AreEqual(50.999, Math.Round(r0[0], 3));
+                        Assert.AreEqual(4.0, Math.Round(r0[1], 3));
+                        Assert.AreEqual(0.0, Math.Round(r0[2], 3));
+
+                        Assert.AreEqual(50.999, Math.Round(r1[0], 3));
+                        Assert.AreEqual(4.0, Math.Round(r1[1], 3));
+                        Assert.AreEqual(0.0, Math.Round(r1[2], 3));
+
+                    }
                 }
             }
         }

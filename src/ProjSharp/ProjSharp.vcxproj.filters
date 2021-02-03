@@ -63,6 +63,12 @@
     <ClInclude Include="Proj.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ProjObjectList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CoordinateOperationList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp">
@@ -108,6 +114,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GeographicCoordinateReferenceSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjObjectList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CoordinateOperationList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -116,6 +116,13 @@ ProjObject^ ProjContext::Create(PJ* pj)
 			return gcnew CoordinateSystem(this, pj);
 
 		ClearError();
+
+
+		if (!strcmp(proj_get_name(pj), "Transformation pipeline manager"))
+		{
+			return gcnew CoordinateOperation(this, pj);
+		}
+
 		return gcnew ProjObject(this, pj);
 	}
 }
