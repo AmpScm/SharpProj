@@ -46,6 +46,8 @@ namespace ProjSharp {
 		Ellipsoid^ GetEllipsoid([Optional] ProjContext^ context);
 		PrimeMeridian^ GetPrimeMeridian([Optional] ProjContext^ context);
 		CoordinateOperation^ GetCoordinateOperation([Optional] ProjContext^ context);
+		CoordinateReferenceSystem^ GetBaseCoordinateReferenceSystem([Optional] ProjContext^ context);
+		CoordinateReferenceSystem^ GetHubCoordinateReferenceSystem([Optional] ProjContext^ context);
 
 	public:
 		static CoordinateReferenceSystem^ Create(String^ from, [Optional] ProjContext^ ctx);

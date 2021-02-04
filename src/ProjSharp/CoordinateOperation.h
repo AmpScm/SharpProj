@@ -2,8 +2,90 @@
 #include "ProjObject.h"
 
 namespace ProjSharp {
+	ref class CoordinateOperation;
 	ref class CoordinateReferenceSystem;
 	ref class ProjArea;
+
+	public ref class CoordinateOperationFactors
+	{
+	private:
+		initonly double m_meridional_scale;               /* h */
+		initonly double m_parallel_scale;                 /* k */
+		initonly double m_areal_scale;                    /* s */
+		initonly double m_angular_distortion;             /* omega */
+		initonly double m_meridian_parallel_angle;        /* theta-prime */
+		initonly double m_meridian_convergence;           /* alpha */
+		initonly double m_tissot_semimajor;               /* a */
+		initonly double m_tissot_semiminor;               /* b */
+		initonly double m_dx_dlam, m_dx_dphi;
+		initonly double m_dy_dlam, m_dy_dphi;
+	internal:
+		CoordinateOperationFactors(CoordinateOperation^ op, PJ_FACTORS* factors)
+		{
+			m_meridional_scale = factors->meridional_scale;
+			m_parallel_scale = factors->parallel_scale;
+			m_areal_scale = factors->areal_scale;
+			m_angular_distortion = factors->angular_distortion;
+			m_meridian_parallel_angle = factors->meridian_parallel_angle;
+			m_meridian_convergence = factors->meridian_convergence;
+			m_tissot_semimajor = factors->tissot_semimajor;
+			m_tissot_semiminor = factors->tissot_semiminor;
+			m_dx_dlam = factors->dx_dlam;
+			m_dx_dphi = factors->dx_dphi;
+			m_dy_dlam = factors->dy_dlam;
+			m_dy_dphi = factors->dy_dphi;
+		}
+
+	public:
+		property double MeridionalScale
+		{
+			double get() { return m_meridional_scale; }
+		}
+		property double ParallelScale
+		{
+			double get() { return m_parallel_scale; }
+		}
+		property double ArealScale
+		{
+			double get() { return m_areal_scale; }
+		}
+		property double AngularDistortion
+		{
+			double get() { return m_angular_distortion; }
+		}
+		property double MeridianParallelAngle
+		{
+			double get() { return m_meridian_parallel_angle; }
+		}
+		property double MeridianConvergence
+		{
+			double get() { return m_meridian_convergence; }
+		}
+		property double TissotSemimajor
+		{
+			double get() { return m_tissot_semimajor; }
+		}
+		property double TissotSemiminor
+		{
+			double get() { return m_tissot_semiminor; }
+		}
+		property double DxDlam
+		{
+			double get() { return m_dx_dlam; }
+		}
+		property double DxDphi
+		{
+			double get() { return m_dx_dphi; }
+		}
+		property double DyDlam
+		{
+			double get() { return m_dy_dlam; }
+		}
+		property double DyDphi
+		{
+			double get() { return m_dy_dphi; }
+		}
+	};
 
 	public ref class CoordinateOperation : ProjObject
 	{
@@ -111,6 +193,10 @@ namespace ProjSharp {
 		}
 
 	public:
+		CoordinateReferenceSystem^ GetSourceCoordinateReferenceSystem([Optional] ProjContext^ context);
+		CoordinateReferenceSystem^ GetTargetCoordinateReferenceSystem([Optional] ProjContext^ context);
+
+	public:
 		double EllipsoidDistance(array<double>^ coordinate1, array<double>^ coordinate2);
 		double EllipsoidDistanceZ(array<double>^ coordinate1, array<double>^ coordinate2);
 		array<double>^ EllipsoidGeod(array<double>^ coordinate1, array<double>^ coordinate2);
@@ -121,6 +207,10 @@ namespace ProjSharp {
 		{
 			return CoordinateOperation::Create(sourceCrs, targetCrs, nullptr, nullptr);
 		}
+
+	public:
+		double RoundTrip(bool forward, int transforms, array<double>^ coordinate);
+		CoordinateOperationFactors^ Factors(array<double>^ coordinate);
 	};
 
 }

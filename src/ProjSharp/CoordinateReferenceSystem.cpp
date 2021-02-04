@@ -220,3 +220,30 @@ CoordinateOperation^ CoordinateReferenceSystem::GetCoordinateOperation(ProjConte
 
 	return static_cast<CoordinateOperation^>(context->Create(pj));
 }
+
+CoordinateReferenceSystem^ CoordinateReferenceSystem::GetBaseCoordinateReferenceSystem([Optional] ProjContext^ context)
+{
+	if (!context)
+		context = Context;
+
+	PJ* pj = proj_get_source_crs(context, this);
+
+	if (!pj)
+		throw context->ConstructException();
+
+	return static_cast<CoordinateReferenceSystem^>(context->Create(pj));
+}
+
+
+CoordinateReferenceSystem^ CoordinateReferenceSystem::GetHubCoordinateReferenceSystem([Optional] ProjContext^ context)
+{
+	if (!context)
+		context = Context;
+
+	PJ* pj = proj_get_target_crs(context, this);
+
+	if (!pj)
+		throw context->ConstructException();
+
+	return static_cast<CoordinateReferenceSystem^>(context->Create(pj));
+}

@@ -178,6 +178,7 @@
     <ClCompile Include="PrimeMeridian.cpp" />
     <ClCompile Include="ProjArea.cpp" />
     <ClCompile Include="ProjDatum.cpp" />
+    <ClCompile Include="ProjNetworkHandler.cpp" />
     <ClCompile Include="ProjObject.cpp" />
     <ClCompile Include="ProjContext.cpp" />
     <ClCompile Include="CoordinateReferenceSystem.cpp" />

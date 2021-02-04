@@ -65,6 +65,24 @@ CoordinateOperation^ CoordinateOperation::Create(CoordinateReferenceSystem^ sour
     return gcnew CoordinateOperationList(ctx, P, op_list);
 }
 
+double CoordinateOperation::RoundTrip(bool forward, int transforms, array<double>^ coordinate)
+{
+    PJ_COORD coord;
+    SetCoordinate(coord, coordinate);
+
+    return proj_roundtrip(this, forward ? PJ_FWD : PJ_INV, transforms, &coord);
+}
+
+CoordinateOperationFactors^ CoordinateOperation::Factors(array<double>^ coordinate)
+{
+    PJ_COORD coord;
+    SetCoordinate(coord, coordinate);
+
+    PJ_FACTORS f = proj_factors(this, coord);
+
+    return gcnew CoordinateOperationFactors(this, &f);
+}
+
 
 array<double>^ CoordinateOperation::DoTransform(bool forward, array<double>^ coordinate)
 {
@@ -107,4 +125,32 @@ array<double>^ CoordinateOperation::EllipsoidGeod(array<double>^ coordinate1, ar
 	PJ_COORD r = proj_geod(this, coord1, coord2);
 
 	return FromCoordinate(r, 3);
+}
+
+
+CoordinateReferenceSystem^ CoordinateOperation::GetSourceCoordinateReferenceSystem([Optional] ProjContext^ context)
+{
+    if (!context)
+        context = Context;
+
+    PJ* pj = proj_get_source_crs(context, this);
+
+    if (!pj)
+        throw context->ConstructException();
+
+    return static_cast<CoordinateReferenceSystem^>(context->Create(pj));
+}
+
+
+CoordinateReferenceSystem^ CoordinateOperation::GetTargetCoordinateReferenceSystem([Optional] ProjContext^ context)
+{
+    if (!context)
+        context = Context;
+
+    PJ* pj = proj_get_target_crs(context, this);
+
+    if (!pj)
+        throw context->ConstructException();
+
+    return static_cast<CoordinateReferenceSystem^>(context->Create(pj));
 }

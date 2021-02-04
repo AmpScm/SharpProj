@@ -25,6 +25,8 @@ namespace ProjSharp {
 			m_ctx = ctx;
 		}
 
+		void SetupNetworkHandling();
+
 	internal:
 		String^ m_lastError;
 
