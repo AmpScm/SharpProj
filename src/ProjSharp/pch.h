@@ -11,7 +11,7 @@
 
 // add headers that you want to pre-compile here
 
-#ifndef _DEBUG
+#if !defined(_DEBUG) || !defined(USE_PROJ_DEBUG)
 #pragma comment(lib, "proj.lib")
 #pragma comment(lib, "jpeg.lib")
 #pragma comment(lib, "lzma.lib")

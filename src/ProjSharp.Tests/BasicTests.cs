@@ -422,7 +422,7 @@ namespace ProjSharp.Tests
                             {
                                 center = t.Transform((a.EastLongitude + a.WestLongitude) / 2, (a.NorthLatitude + a.SouthLatitude) / 2);
                             }
-                            catch(ProjException)
+                            catch (ProjException)
                             {
                                 center = null;
                             }
@@ -444,6 +444,8 @@ namespace ProjSharp.Tests
         {
             using (var pc = new ProjContext())
             {
+                // Don't use old cache
+                pc.SetGridCache(true, Path.Combine(TestContext.TestResultsDirectory, "proj.cache"), 300, 3600 * 24);
                 pc.LogLevel = ProjLogLevel.Trace;
 
                 using (var crsAmersfoort = CoordinateReferenceSystem.Create(@"EPSG:4289", pc)) // Amersfoort
@@ -464,7 +466,7 @@ namespace ProjSharp.Tests
                     Assert.IsFalse(pc.AllowNetworkConnections);
                     pc.AllowNetworkConnections = true;
                     pc.EndpointUrl = "https://cdn.proj.org";
-                    //pc.SetGridCache(true, Path.Combine(TestContext.TestResultsDirectory, "proj.cache"), 300, 3600 * 24);
+
 
                     using (var t = CoordinateOperation.Create(crsAmersfoort, crsETRS89))
                     {
