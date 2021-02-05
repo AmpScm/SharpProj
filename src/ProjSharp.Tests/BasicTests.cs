@@ -47,6 +47,17 @@ namespace ProjSharp.Tests
                         Assert.AreEqual(false, cob.DegreeOutput);
                         Assert.AreEqual(true, cob.AngularInput);
                         Assert.AreEqual(false, cob.AngularOutput);
+
+                        Assert.IsNull(crs.Identifiers);
+
+                        var src = cob.GetSourceCoordinateReferenceSystem();
+                        var dst = cob.GetTargetCoordinateReferenceSystem();
+
+                        Assert.IsNull(src);
+                        Assert.IsNull(dst);
+
+                        //Assert.AreEqual(1, crs.Identifiers.Count);
+
                     }
                     else
                         Assert.Fail();
@@ -63,6 +74,7 @@ namespace ProjSharp.Tests
 }".Replace("\r", "");
                     Assert.AreEqual(expected, crs.AsJson());
                     Assert.AreEqual("proj=merc ellps=clrk66 lat_ts=33", crs.Definition);
+                    Assert.AreEqual("+proj=merc +ellps=clrk66 +lat_ts=33", crs.AsProjString());
                 }
 
                 using (var crs = pc.Create(new string[] { "proj=merc", "ellps=clrk66", "lat_ts=33" }))
@@ -85,6 +97,18 @@ namespace ProjSharp.Tests
                 using (var crs = CoordinateReferenceSystem.Create("EPSG:25832", pc))
                 {
                     Assert.AreEqual("ETRS89 / UTM zone 32N", crs.Description);
+
+                    Assert.IsNotNull(crs.Identifiers);
+                    Assert.AreEqual(1, crs.Identifiers.Count);
+                    Assert.AreEqual("EPSG", crs.Identifiers[0].Authority);
+                    Assert.AreEqual("25832", crs.Identifiers[0].Name);
+                    Assert.AreEqual("+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs +type=crs", crs.AsProjString());
+
+                    using(var t = ProjObject.Create("+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs +type=crs"))
+                    {
+                        Assert.IsTrue(t is CoordinateReferenceSystem);
+                        Assert.IsTrue(crs.IsEquivalentTo(t));
+                    }
                 }
             }
         }

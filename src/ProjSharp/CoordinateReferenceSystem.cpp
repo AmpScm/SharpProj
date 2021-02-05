@@ -27,7 +27,6 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(String^ from, ProjC
 	if (!pj)
 		throw ctx->ConstructException();
 
-
 	if (!proj_is_crs(pj))
 	{
 		proj_destroy(pj);

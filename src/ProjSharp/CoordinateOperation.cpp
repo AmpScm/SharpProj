@@ -136,7 +136,7 @@ CoordinateReferenceSystem^ CoordinateOperation::GetSourceCoordinateReferenceSyst
     PJ* pj = proj_get_source_crs(context, this);
 
     if (!pj)
-        throw context->ConstructException();
+        return nullptr;
 
     return static_cast<CoordinateReferenceSystem^>(context->Create(pj));
 }
@@ -150,7 +150,7 @@ CoordinateReferenceSystem^ CoordinateOperation::GetTargetCoordinateReferenceSyst
     PJ* pj = proj_get_target_crs(context, this);
 
     if (!pj)
-        throw context->ConstructException();
+        return nullptr;
 
     return static_cast<CoordinateReferenceSystem^>(context->Create(pj));
 }

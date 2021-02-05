@@ -122,11 +122,16 @@ namespace ProjSharp {
 			}
 		}
 
-		property double Accuraracy
+		property Nullable<double> Accuraracy
 		{
-			double virtual get() override
+			Nullable<double> virtual get()
 			{
-				return proj_coordoperation_get_accuracy(Context, this);
+				double d = proj_coordoperation_get_accuracy(Context, this);
+
+				if (d == -1.0)
+					return Nullable<double>();
+				else
+					return d;
 			}
 		}
 
@@ -161,7 +166,6 @@ namespace ProjSharp {
 				return proj_degree_output(this, PJ_FWD);
 			}
 		}
-
 
 	public:
 		CoordinateOperation^ CreateInverse(ProjContext^ ctx)

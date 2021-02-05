@@ -3,6 +3,9 @@
 #include "ProjArea.h"
 
 namespace ProjSharp {
+	using System::Collections::Generic::IReadOnlyList;
+	ref class ProjObject;
+
 	public enum class ProjType
 	{
 		Unknown = PJ_TYPE_UNKNOWN,
@@ -47,6 +50,65 @@ namespace ProjSharp {
 		 ParametricDatum = PJ_TYPE_PARAMETRIC_DATUM,
 	};
 
+	public ref class ProjIdentifier
+	{
+	internal:
+		initonly ProjObject^ m_object;
+		initonly int m_index;
+		String^ m_authority;
+		String^ m_code;
+
+		ProjIdentifier(ProjObject^ object, int index)
+		{
+			m_object = object;
+			m_index = index;
+		}
+	public:
+		property String^ Authority
+		{
+			String^ get();
+		}
+
+		property String^ Name
+		{
+			String^ get();
+		}
+	};
+
+	public ref class ProjIdentifierList : IReadOnlyList<ProjIdentifier^>
+	{
+		initonly ProjObject^ m_object;
+		array<ProjIdentifier^>^ m_Items;
+
+	internal:
+		ProjIdentifierList(ProjObject^ obj)
+		{
+			if (!obj)
+				throw gcnew ArgumentNullException("obj");
+
+			m_object = obj;
+		}
+
+	private:
+		virtual System::Collections::IEnumerator^ Obj_GetEnumerator() sealed = System::Collections::IEnumerable::GetEnumerator
+		{
+			return GetEnumerator();
+		}
+
+	public:
+		// Inherited via IReadOnlyCollection
+		virtual System::Collections::Generic::IEnumerator<ProjSharp::ProjIdentifier^>^ GetEnumerator();
+
+		// Inherited via IReadOnlyList
+		virtual property int Count
+		{
+			int get();
+		}
+		virtual property ProjSharp::ProjIdentifier^ default[int]
+		{
+			ProjSharp::ProjIdentifier^ get(int index);
+		}
+	};
 
 	[System::Diagnostics::DebuggerDisplayAttribute("{Description}")]
 	public ref class ProjObject
@@ -58,6 +120,7 @@ namespace ProjSharp {
 		String^ m_infoDescription;
 		String^ m_infoDefinition;
 		String^ m_scope;
+		ProjIdentifierList^ m_idList;
 
 	private:
 		~ProjObject()
@@ -129,27 +192,14 @@ namespace ProjSharp {
 			return ctx->Create(proj_clone(ctx, this));
 		}
 
-		property String^ Id
-		{
-			String^ get()
-			{
-				if (!m_infoId)
-				{
-					PJ_PROJ_INFO info = proj_pj_info(this);
-					m_infoId = gcnew System::String(info.id);
-				}
-				return m_infoId;
-			}
-		}
-
 		property String^ Description
 		{
 			String^ get()
 			{
 				if (!m_infoDescription)
 				{
-					PJ_PROJ_INFO info = proj_pj_info(this);
-					m_infoDescription = gcnew System::String(info.description);
+					const char *name = proj_get_name(this);
+					m_infoDescription = name ? gcnew System::String(name) : nullptr;
 				}
 				return m_infoDescription;
 			}
@@ -165,15 +215,6 @@ namespace ProjSharp {
 					m_infoDefinition = gcnew System::String(info.definition);
 				}
 				return m_infoDefinition;
-			}
-		}
-
-		property double Accuraracy
-		{
-			double virtual get()
-			{
-				PJ_PROJ_INFO info = proj_pj_info(this);
-				return info.accuracy;
 			}
 		}
 
@@ -234,6 +275,34 @@ namespace ProjSharp {
 			const char* v = proj_as_proj_string(Context, this, PJ_PROJ_5/* Last as of 2021-01 */, nullptr);
 
 			return v ? gcnew String(v) : nullptr;
+		}
+
+	public:
+		property ProjIdentifierList^ Identifiers
+		{
+			ProjIdentifierList^ get();
+		}
+
+		bool IsEquivalentTo(ProjObject^ other, [Optional] ProjContext^ ctx)
+		{
+			if (!other)
+				return false;
+
+			if (!ctx)
+				ctx = Context;
+
+			return 0 != proj_is_equivalent_to_with_ctx(ctx, this, other, PJ_COMP_EQUIVALENT);
+		}
+
+		bool IsEquivalentToRelaxed(ProjObject^ other, [Optional] ProjContext^ ctx)
+		{
+			if (!other)
+				return false;
+
+			if (!ctx)
+				ctx = Context;
+
+			return 0 != proj_is_equivalent_to_with_ctx(ctx, this, other, PJ_COMP_EQUIVALENT_EXCEPT_AXIS_ORDER_GEOGCRS);
 		}
 
 	public:

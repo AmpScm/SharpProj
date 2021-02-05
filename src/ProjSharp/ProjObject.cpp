@@ -142,3 +142,80 @@ ProjObject^ ProjObject::Create(array<String^>^ from, [Optional]ProjContext^ ctx)
 
 	return ctx->Create(from);
 }
+
+ProjIdentifierList^ ProjObject::Identifiers::get()
+{
+	if (!m_idList && proj_get_id_auth_name(this, 0))
+		m_idList = gcnew ProjIdentifierList(this);
+
+	return m_idList;
+}
+
+ProjIdentifier^ ProjIdentifierList::default::get(int index)
+{
+	if (index < 0 || m_Items ? (index >= m_Items->Length) : !proj_get_id_auth_name(m_object, index))
+		throw gcnew IndexOutOfRangeException();
+
+	if (m_Items)
+	{
+		if (!m_Items[index])
+			m_Items[index] = gcnew ProjIdentifier(m_object, index);
+
+		return m_Items[index];
+	}
+	else
+	{
+		// Count still unknown
+		return gcnew ProjIdentifier(m_object, index);
+	}
+}
+
+int ProjIdentifierList::Count::get()
+{
+	if (m_Items)
+		return m_Items->Length;
+
+	for (int i = 0; i < 256 /* some MAX */; i++)
+	{
+		if (!proj_get_id_auth_name(m_object, i))
+		{
+			m_Items = gcnew array<ProjIdentifier^>(i);
+			return i;
+		}
+	}
+	m_Items = Array::Empty<ProjIdentifier^>();
+	return 0;
+}
+
+System::Collections::Generic::IEnumerator<ProjSharp::ProjIdentifier^>^ ProjSharp::ProjIdentifierList::GetEnumerator()
+{
+	for(int i = 0; i < Count /* initializes m_Items if necessary */; i++)
+	{
+		if (!m_Items[i])
+			m_Items[i] = gcnew ProjIdentifier(m_object, i);
+	}
+
+	return static_cast<System::Collections::Generic::IEnumerable<ProjIdentifier^>^>(m_Items)->GetEnumerator();
+}
+
+String^ ProjIdentifier::Authority::get()
+{
+	if (!m_authority)
+	{
+		const char* auth = proj_get_id_auth_name(m_object, m_index);
+
+		m_authority = auth ? gcnew String(auth) : nullptr;
+	}
+	return m_authority;
+}
+
+String^ ProjIdentifier::Name::get()
+{
+	if (!m_code)
+	{
+		const char* code = proj_get_id_code(m_object, m_index);
+
+		m_code = code ? gcnew String(code) : nullptr;
+	}
+	return m_code;
+}
