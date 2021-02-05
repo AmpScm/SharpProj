@@ -1,0 +1,28 @@
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>SharpProj.Dependencies</id>
+    <version>7.2.1</version>
+    <authors>SharpSvn</authors>
+    <owners>SharpSvn</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Native dependencies for SharpProj.Core when compiled with shared libraries</description>
+    <dependencies>
+      <group targetFramework="net40" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\..\vcpkg\installed\x86-windows\bin\jpeg62.dll" target="runtimes/win-x86/lib/net40" />
+    <file src="..\..\vcpkg\installed\x86-windows\bin\lzma.dll" target="runtimes/win-x86/lib/net40" />
+    <file src="..\..\vcpkg\installed\x86-windows\bin\proj.dll" target="runtimes/win-x86/lib/net40" />
+    <file src="..\..\vcpkg\installed\x86-windows\bin\sqlite3.dll" target="runtimes/win-x86/lib/net40" />
+    <file src="..\..\vcpkg\installed\x86-windows\bin\tiff.dll" target="runtimes/win-x86/lib/net40" />
+    <file src="..\..\vcpkg\installed\x86-windows\bin\zlib1.dll" target="runtimes/win-x86/lib/net40" />
+    
+    <file src="..\..\vcpkg\installed\x64-windows\bin\jpeg62.dll" target="runtimes/win-x64/lib/net40" />
+    <file src="..\..\vcpkg\installed\x64-windows\bin\lzma.dll" target="runtimes/win-x64/lib/net40" />
+    <file src="..\..\vcpkg\installed\x64-windows\bin\proj.dll" target="runtimes/win-x64/lib/net40" />
+    <file src="..\..\vcpkg\installed\x64-windows\bin\sqlite3.dll" target="runtimes/win-x64/lib/net40" />
+    <file src="..\..\vcpkg\installed\x64-windows\bin\tiff.dll" target="runtimes/win-x64/lib/net40" />
+    <file src="..\..\vcpkg\installed\x64-windows\bin\zlib1.dll" target="runtimes/win-x64/lib/net40" />
+  </files>
+</package>
