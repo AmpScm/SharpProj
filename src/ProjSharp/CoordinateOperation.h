@@ -91,6 +91,8 @@ namespace ProjSharp {
 
 	public ref class CoordinateOperation : ProjObject
 	{
+	private:
+		String^ m_methodName;
 	internal:
 		CoordinateOperation(ProjContext^ ctx, PJ* pj)
 			: ProjObject(ctx, pj)
@@ -185,6 +187,27 @@ namespace ProjSharp {
 			}
 		}
 
+		property String^ MethodName
+		{
+			String^ get()
+			{
+				if (!m_methodName)
+				{
+					const char* method_name;
+					const char* auth_name;
+					const char* auth_code;
+
+					if (proj_coordoperation_get_method_info(Context, this, &method_name, &auth_name, &auth_code))
+					{
+						if (method_name)
+							m_methodName = gcnew String(method_name);
+					}
+				}
+				
+				return m_methodName;
+			}
+		}
+
 	public:
 		CoordinateOperation^ CreateInverse(ProjContext^ ctx)
 		{
@@ -237,6 +260,20 @@ namespace ProjSharp {
 	public:
 		double RoundTrip(bool forward, int transforms, array<double>^ coordinate);
 		CoordinateOperationFactors^ Factors(array<double>^ coordinate);
+
+
+	public:
+		// Some helpers that do not really belong here, but are easy to access in a sensible way
+		// if they are here anyway
+		static double ToRad(double deg)
+		{
+			return proj_torad(deg);
+		}
+
+		static double ToDeg(double deg)
+		{
+			return proj_todeg(deg);
+		}
 	};
 
 }

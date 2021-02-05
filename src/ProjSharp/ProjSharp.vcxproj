@@ -151,7 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="ConcatCoordinateOperation.h" />
+    <ClInclude Include="MultiCoordinateOperation.h" />
     <ClInclude Include="CoordinateOperationList.h" />
     <ClInclude Include="CoordinateSystem.h" />
     <ClInclude Include="ProjCoordinate.h" />
@@ -160,7 +160,6 @@
     <ClInclude Include="GeographicCoordinateReferenceSystem.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PrimeMeridian.h" />
-    <ClInclude Include="Proj.h" />
     <ClInclude Include="CoordinateArea.h" />
     <ClInclude Include="ProjDatum.h" />
     <ClInclude Include="ProjObject.h" />
@@ -174,7 +173,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
-    <ClCompile Include="ConcatCoordinateOperation.cpp" />
+    <ClCompile Include="MultiCoordinateOperation.cpp" />
     <ClCompile Include="CoordinateOperationList.cpp" />
     <ClCompile Include="CoordinateSystem.cpp" />
     <ClCompile Include="ProjCoordinate.cpp" />

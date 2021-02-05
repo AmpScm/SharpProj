@@ -144,9 +144,19 @@ namespace ProjSharp {
 		String^ GetMetaData(String^ key);
 
 	public:
-		property Version^ EpsgVersion
+		/// <summary>PROJ Version, wrapped by ProjSharp</summary>
+		property System::Version^ Version
 		{
-			Version ^ get();
+			System::Version^ get()
+			{
+				return gcnew System::Version(PROJ_VERSION_MAJOR, PROJ_VERSION_MINOR, PROJ_VERSION_PATCH);
+			}
+		}
+
+		/// <summary>EPSG Version. As stored in Proj Database</summary>
+		property System::Version^ EpsgVersion
+		{
+			System::Version ^ get();
 		}
 
 	protected:

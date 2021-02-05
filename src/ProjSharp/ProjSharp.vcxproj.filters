@@ -54,9 +54,6 @@
     <ClInclude Include="GeographicCoordinateReferenceSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Proj.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ProjObjectList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -72,7 +69,7 @@
     <ClInclude Include="CoordinateArea.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ConcatCoordinateOperation.h">
+    <ClInclude Include="MultiCoordinateOperation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -134,7 +131,7 @@
     <ClCompile Include="CoordinateArea.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ConcatCoordinateOperation.cpp">
+    <ClCompile Include="MultiCoordinateOperation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "ConcatCoordinateOperation.h"
+#include "MultiCoordinateOperation.h"
 
-System::Collections::Generic::IEnumerator<ProjSharp::CoordinateOperation^>^ ProjSharp::ConcatCoordinateOperation::GetEnumerator()
+System::Collections::Generic::IEnumerator<ProjSharp::CoordinateOperation^>^ ProjSharp::MultiCoordinateOperation::GetEnumerator()
 {
 	for (int i = 0; i < Count; i++)
 	{

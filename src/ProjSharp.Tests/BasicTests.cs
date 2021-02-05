@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PJ = ProjSharp.CoordinateOperation;
 
 namespace ProjSharp.Tests
 {
@@ -37,7 +38,7 @@ namespace ProjSharp.Tests
         {
             using (var pc = new ProjContext())
             {
-                Assert.IsTrue(Proj.Version >= new Version(7, 2, 1));
+                Assert.IsTrue(pc.Version >= new Version(7, 2, 1));
                 Assert.IsTrue(pc.EpsgVersion >= new Version(10, 0));
             }
         }
@@ -165,6 +166,13 @@ namespace ProjSharp.Tests
 
                     using (var t = CoordinateOperation.Create(crs1, crs2))
                     {
+                        MultiCoordinateOperation steps = t as MultiCoordinateOperation;
+                        Assert.IsNotNull(steps);
+
+                        Assert.AreEqual(2, steps.Count);
+                        Assert.AreEqual("Inverse of Transverse Mercator", steps[0].MethodName);
+                        Assert.AreEqual("Transverse Mercator", steps[1].MethodName);
+
                         Assert.AreEqual("Inverse of UTM zone 32N + UTM zone 33N", t.Description);
 
                         using (var tr = t.CreateInverse())
@@ -280,14 +288,14 @@ namespace ProjSharp.Tests
 
                         //Assert.AreEqual(111129.0, Math.Round(co.E(new double[] { Proj.ToRad(r[0]), Proj.ToRad(r[1]) }, new double[] { Proj.ToRad(r[0]), Proj.ToRad(r[1] + 1) }), 0));
                         double[] r = new double[] { 5, 45 };
-                        Assert.AreEqual(111129.0, Math.Round(co.EllipsoidDistance(new double[] { Proj.ToRad(r[0]), Proj.ToRad(r[1]) }, new double[] { Proj.ToRad(r[0]), Proj.ToRad(r[1] + 1) }), 0));
+                        Assert.AreEqual(111129.0, Math.Round(co.EllipsoidDistance(new double[] { PJ.ToRad(r[0]), PJ.ToRad(r[1]) }, new double[] { PJ.ToRad(r[0]), PJ.ToRad(r[1] + 1) }), 0));
                     }
 
                     using (var t = CoordinateOperation.Create(crs1, crs2))
                     {
                         Assert.IsTrue(t is CoordinateOperationList);
 
-                        var start = new double[] { Proj.ToRad(5.0), Proj.ToRad(52.0) };
+                        var start = new double[] { PJ.ToRad(5.0), PJ.ToRad(52.0) };
 
                         var r = t.Transform(start);
                         GC.KeepAlive(r);
@@ -553,6 +561,7 @@ namespace ProjSharp.Tests
                         Assert.AreEqual(4.0, Math.Round(r1[1], 3));
                         Assert.AreEqual(0.0, Math.Round(r1[2], 3));
 
+                        Assert.IsNotNull(cl[0].MethodName);
                     }
                 }
             }

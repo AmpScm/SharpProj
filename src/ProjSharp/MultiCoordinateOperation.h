@@ -1,13 +1,13 @@
 #pragma once
 #include "CoordinateOperation.h"
 namespace ProjSharp {
-	public ref class ConcatCoordinateOperation : CoordinateOperation, IReadOnlyList<CoordinateOperation^>
+	public ref class MultiCoordinateOperation : CoordinateOperation, IReadOnlyList<CoordinateOperation^>
 	{
 	private:
 		array<CoordinateOperation^>^ m_steps;
 
 	internal:
-		ConcatCoordinateOperation(ProjContext^ ctx, PJ* pj)
+		MultiCoordinateOperation(ProjContext^ ctx, PJ* pj)
 			:CoordinateOperation(ctx, pj)
 		{
 

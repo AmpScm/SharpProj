@@ -132,12 +132,12 @@ Version^ ProjContext::EpsgVersion::get()
 		String^ md = GetMetaData("EPSG.VERSION");
 
 		if (md->StartsWith("v"))
-			return gcnew Version(md->Substring(1));
+			return gcnew System::Version(md->Substring(1));
 	}
 	catch (ArgumentException^)
 	{
-		return nullptr;
 	}
+	return nullptr;
 }
 
 
@@ -150,8 +150,9 @@ Exception^ ProjContext::ConstructException()
 
 	if (msg)
 	{
+		m_lastError = nullptr;
 		return gcnew ProjException(gcnew String(proj_errno_string(err)),
-				gcnew ProjException(msg));
+			gcnew ProjException(msg));
 	}
 	else
 	{
