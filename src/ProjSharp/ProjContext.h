@@ -141,6 +141,14 @@ namespace ProjSharp {
 
 		event System::Action<ProjLogLevel, String^>^ Log;
 
+		String^ GetMetaData(String^ key);
+
+	public:
+		property Version^ EpsgVersion
+		{
+			Version ^ get();
+		}
+
 	protected:
 		virtual void OnLog(ProjLogLevel level, String^ message)
 		{

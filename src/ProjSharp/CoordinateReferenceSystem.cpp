@@ -17,7 +17,7 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(String^ from, ProjC
 {
 	if (String::IsNullOrWhiteSpace(from))
 		throw gcnew ArgumentNullException("from");
-	
+
 	if (!ctx)
 		ctx = gcnew ProjContext();
 
@@ -45,14 +45,14 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(array<String^>^ fro
 	if (!ctx)
 		ctx = gcnew ProjContext();
 
-	char** lst = new char*[from->Length+1];
-	for(int i = 0; i < from->Length; i++)
+	char** lst = new char* [from->Length + 1];
+	for (int i = 0; i < from->Length; i++)
 	{
 		std::string fromStr = utf8_string(from[i]);
 		lst[i] = _strdup(fromStr.c_str());
 	}
 	lst[from->Length] = 0;
-	
+
 	try
 	{
 		PJ* pj = proj_create_argv(ctx, from->Length, lst);
@@ -133,7 +133,7 @@ ProjDatumList^ CoordinateReferenceSystem::GetDatumList(ProjContext^ context)
 	{
 		if (proj_context_errno(context) == 0)
 			return nullptr;
-		
+
 		throw context->ConstructException();
 	}
 

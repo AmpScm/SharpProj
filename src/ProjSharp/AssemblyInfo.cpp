@@ -6,7 +6,12 @@ using namespace System::Runtime::CompilerServices;
 using namespace System::Runtime::InteropServices;
 using namespace System::Security::Permissions;
 
-[assembly:AssemblyTitleAttribute(L"ProjSharp")];
+#define LIT2(x) #x
+#define LIT(x) LIT2(x)
+
+#define PROJ_VERSION LIT(PROJ_VERSION_MAJOR) "." LIT(PROJ_VERSION_MINOR) "." LIT(PROJ_VERSION_PATCH)
+
+[assembly:AssemblyTitleAttribute(L"ProjSharp - Proj" PROJ_VERSION " wrapped for .Net 4+")];
 [assembly:AssemblyDescriptionAttribute(L"")];
 [assembly:AssemblyConfigurationAttribute(L"")];
 [assembly:AssemblyCompanyAttribute(L"HP Inc.")];
@@ -15,7 +20,7 @@ using namespace System::Security::Permissions;
 [assembly:AssemblyTrademarkAttribute(L"")];
 [assembly:AssemblyCultureAttribute(L"")];
 
-[assembly:AssemblyVersionAttribute("1.0.*")];
+[assembly:AssemblyVersionAttribute(PROJ_VERSION ".*")];
 
 [assembly:ComVisible(false)];
 

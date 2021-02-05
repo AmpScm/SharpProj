@@ -33,6 +33,16 @@ namespace ProjSharp.Tests
         }
 
         [TestMethod]
+        public void EpsgVersionTest()
+        {
+            using (var pc = new ProjContext())
+            {
+                Assert.IsTrue(Proj.Version >= new Version(7, 2, 1));
+                Assert.IsTrue(pc.EpsgVersion >= new Version(10, 0));
+            }
+        }
+
+        [TestMethod]
         public void CreateAndDestroyContext()
         {
             using (var pc = new ProjContext())
@@ -72,7 +82,7 @@ namespace ProjSharp.Tests
     ""name"": ""PROJ-based operation method: +proj=merc +ellps=clrk66 +lat_ts=33""
   }
 }".Replace("\r", "");
-                    Assert.AreEqual(expected, crs.AsJson());
+                    Assert.AreEqual(expected, crs.AsProjJson());
                     Assert.AreEqual("proj=merc ellps=clrk66 lat_ts=33", crs.Definition);
                     Assert.AreEqual("+proj=merc +ellps=clrk66 +lat_ts=33", crs.AsProjString());
                 }
@@ -104,11 +114,40 @@ namespace ProjSharp.Tests
                     Assert.AreEqual("25832", crs.Identifiers[0].Name);
                     Assert.AreEqual("+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs +type=crs", crs.AsProjString());
 
-                    using(var t = ProjObject.Create("+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs +type=crs"))
+                    using (var t = ProjObject.Create(crs.AsProjString()))
                     {
                         Assert.IsTrue(t is CoordinateReferenceSystem);
-                        Assert.IsTrue(crs.IsEquivalentTo(t));
+
+                        Assert.IsNull(t.Identifiers);
+
+                        Assert.AreEqual(crs.AsProjString(), t.AsProjString());
                     }
+
+                    using (var t = ProjObject.Create(crs.AsWellKnownText()))
+                    {
+                        Assert.IsTrue(t is CoordinateReferenceSystem);
+
+                        Assert.IsNotNull(t.Identifiers);
+                        Assert.AreEqual("EPSG", t.Identifiers[0].Authority);
+                        Assert.AreEqual("25832", t.Identifiers[0].Name);
+                        Assert.AreEqual("+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs +type=crs", t.AsProjString());
+                        Assert.AreEqual(crs.AsProjString(), t.AsProjString());
+
+                        Assert.IsTrue(t.IsEquivalentTo(crs));
+                    }
+                    using (var t = ProjObject.Create(crs.AsProjJson()))
+                    {
+                        Assert.IsTrue(t is CoordinateReferenceSystem);
+
+                        Assert.IsNotNull(t.Identifiers);
+                        Assert.AreEqual("EPSG", t.Identifiers[0].Authority);
+                        Assert.AreEqual("25832", t.Identifiers[0].Name);
+                        Assert.AreEqual("+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs +type=crs", t.AsProjString());
+                        Assert.AreEqual(crs.AsProjString(), t.AsProjString());
+                        Assert.IsTrue(t.IsEquivalentTo(crs));
+                    }
+
+
                 }
             }
         }
@@ -191,7 +230,7 @@ namespace ProjSharp.Tests
                     using (var c = crs3.GetCoordinateSystem())
                     {
                         Assert.IsTrue((object)c is CoordinateSystem);
-                        Assert.AreEqual("", c.Description);
+                        Assert.AreEqual(null, c.Description);
                         Assert.AreEqual(ProjType.Unknown, c.Type);
                         Assert.AreEqual(CoordinateSystemType.Cartesian, c.CsType);
                         Assert.AreEqual(2, c.AxisCount);
@@ -335,13 +374,8 @@ namespace ProjSharp.Tests
                     {
                         var r = t.Transform(155000, 463000);
 
-#if !DEBUG
-                        Assert.AreEqual(599706.0, Math.Round(r[0], 0));
-                        Assert.AreEqual(6828392.0, Math.Round(r[1], 0));
-#else
                         Assert.AreEqual(599701.0, Math.Round(r[0], 0));
                         Assert.AreEqual(6828231.0, Math.Round(r[1], 0));
-#endif
 
                         Assert.AreEqual(1, t.Accuraracy);
                     }
@@ -375,13 +409,8 @@ namespace ProjSharp.Tests
                         var r = t.Transform(-333958.47, 4865942.28);
                         Assert.AreEqual(0, t.GridUsageCount);
 
-#if !DEBUG
-                        Assert.AreEqual(500002.0, Math.Round(r[0], 0));
-                        Assert.AreEqual(4427830.0, Math.Round(r[1], 0));
-#else
                         Assert.AreEqual(500110.0, Math.Round(r[0], 0));
                         Assert.AreEqual(4427965.0, Math.Round(r[1], 0));
-#endif
                     }
 
                     using (var t = CoordinateOperation.Create(google, q2))
@@ -490,7 +519,8 @@ namespace ProjSharp.Tests
                     Assert.IsFalse(pc.AllowNetworkConnections);
                     pc.AllowNetworkConnections = true;
                     pc.EndpointUrl = "https://cdn.proj.org";
-
+                    bool usedHttp = false;
+                    pc.Log += (_, x) => { if (x.Contains("https://")) usedHttp = true; };
 
                     using (var t = CoordinateOperation.Create(crsAmersfoort, crsETRS89))
                     {
@@ -502,12 +532,16 @@ namespace ProjSharp.Tests
                         Assert.IsTrue(cl[1].GridUsageCount == 0);
 
                         var r = t.Transform(51, 4, 0);
+                        Assert.IsTrue(usedHttp, "Now http");
                         Assert.AreEqual(50.999, Math.Round(r[0], 3));
                         Assert.AreEqual(4.0, Math.Round(r[1], 3));
                         Assert.AreEqual(0.0, Math.Round(r[2], 3));
 
+
                         var r0 = cl[0].Transform(51, 4, 0);
+                        usedHttp = false;
                         var r1 = cl[1].Transform(51, 4, 0);
+                        Assert.IsFalse(usedHttp, "No http");
                         Assert.IsNotNull(r0);
                         Assert.IsNotNull(r1);
 

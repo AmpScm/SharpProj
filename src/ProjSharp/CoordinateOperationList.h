@@ -42,14 +42,15 @@ namespace ProjSharp {
 			{
 				array<CoordinateOperation^>^ ops = m_operations;
 				m_operations = nullptr;
-				for each (CoordinateOperation^ o in ops)
+				for each (CoordinateOperation ^ o in ops)
 				{
 					try
 					{
 						delete o;
 					}
-					catch(Exception^)
-					{} // Already disposed, other errors, etc.
+					catch (Exception^)
+					{
+					} // Already disposed, other errors, etc.
 				}
 			}
 		}
@@ -81,9 +82,17 @@ namespace ProjSharp {
 
 		property CoordinateOperation^ default[int]
 		{
-			virtual CoordinateOperation^ get(int index) sealed
+			virtual CoordinateOperation ^ get(int index) sealed
 			{
 				return m_operations[index];
+			}
+		}
+
+			property bool HasInverse
+		{
+			virtual bool get() override sealed
+			{
+				return false; // Unable to fetch if the operation is really inverted
 			}
 		}
 	};

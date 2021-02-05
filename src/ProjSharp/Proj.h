@@ -17,6 +17,16 @@ namespace ProjSharp {
 		{
 			return proj_todeg(deg);
 		}
+
+
+	public:
+		static property System::Version^ Version
+		{
+			System::Version^ get()
+			{
+				return gcnew System::Version(PROJ_VERSION_MAJOR, PROJ_VERSION_MINOR, PROJ_VERSION_PATCH);
+			}
+		}
 	};
 
 }

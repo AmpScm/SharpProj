@@ -1,10 +1,12 @@
 #pragma once
 #include "ProjObject.h"
+#include "ProjCoordinate.h"
 
 namespace ProjSharp {
 	ref class CoordinateOperation;
 	ref class CoordinateReferenceSystem;
-	ref class ProjArea;
+	ref class CoordinateArea;
+	ref class CoordinateTransformOptions;
 
 	public ref class CoordinateOperationFactors
 	{
@@ -107,7 +109,7 @@ namespace ProjSharp {
 	public:
 		property bool HasInverse
 		{
-			bool get()
+			virtual bool get()
 			{
 				PJ_PROJ_INFO info = proj_pj_info(this);
 				return info.has_inverse;
@@ -167,6 +169,22 @@ namespace ProjSharp {
 			}
 		}
 
+		property bool IsInstantiable
+		{
+			bool get()
+			{
+				return 0 != proj_coordoperation_is_instantiable(Context, this);
+			}
+		}
+
+		property bool HasBallParkTransformation
+		{
+			bool get()
+			{
+				return 0 != proj_coordoperation_has_ballpark_transformation(Context, this);
+			}
+		}
+
 	public:
 		CoordinateOperation^ CreateInverse(ProjContext^ ctx)
 		{
@@ -201,15 +219,19 @@ namespace ProjSharp {
 		CoordinateReferenceSystem^ GetTargetCoordinateReferenceSystem([Optional] ProjContext^ context);
 
 	public:
+		double EllipsoidDistance(ProjCoordinate coordinate1, ProjCoordinate coordinate2) { return EllipsoidDistance(coordinate1.ToArray(), coordinate2.ToArray()); }
 		double EllipsoidDistance(array<double>^ coordinate1, array<double>^ coordinate2);
+		double EllipsoidDistanceZ(ProjCoordinate coordinate1, ProjCoordinate coordinate2) { return EllipsoidDistanceZ(coordinate1.ToArray(), coordinate2.ToArray()); }
 		double EllipsoidDistanceZ(array<double>^ coordinate1, array<double>^ coordinate2);
+		ProjCoordinate EllipsoidGeod(ProjCoordinate coordinate1, ProjCoordinate coordinate2) { return ProjCoordinate::FromArray(EllipsoidGeod(coordinate1.ToArray(), coordinate2.ToArray())); }
 		array<double>^ EllipsoidGeod(array<double>^ coordinate1, array<double>^ coordinate2);
 
 	public:
-		static CoordinateOperation^ Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, ProjArea ^area, [Optional] ProjContext^ ctx);
+		static CoordinateOperation^ Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, CoordinateArea ^area, [Optional] ProjContext^ ctx);
+		static CoordinateOperation^ Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, CoordinateTransformOptions^ options, [Optional] ProjContext^ ctx);
 		static CoordinateOperation^ Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, [Optional] ProjContext^ ctx)
 		{
-			return CoordinateOperation::Create(sourceCrs, targetCrs, nullptr, nullptr);
+			return CoordinateOperation::Create(sourceCrs, targetCrs, (CoordinateTransformOptions^)nullptr, nullptr);
 		}
 
 	public:

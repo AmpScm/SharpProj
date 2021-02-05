@@ -3,41 +3,86 @@
 #include "CoordinateOperation.h"
 #include "CoordinateOperationList.h"
 #include "CoordinateReferenceSystem.h"
-#include "ProjArea.h"
+#include "CoordinateArea.h"
 #include "ProjException.h"
 using namespace ProjSharp;
 
-CoordinateOperation^ CoordinateOperation::Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, ProjArea ^area, ProjContext^ ctx)
+CoordinateOperation^ CoordinateOperation::Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, CoordinateArea^ area, ProjContext^ ctx)
+{
+    CoordinateTransformOptions^ opts = gcnew CoordinateTransformOptions();
+    opts->Area = area;
+
+    return CoordinateOperation::Create(sourceCrs, targetCrs, opts, ctx);
+}
+
+CoordinateOperation^ CoordinateOperation::Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, CoordinateTransformOptions ^options, ProjContext^ ctx)
 {
 	if (!sourceCrs)
 		throw gcnew ArgumentNullException("sourceCrs");
 	else if (!targetCrs)
 		throw gcnew ArgumentNullException("targetCrs");
-	else if (!ctx) // After fromCrs
+	
+    if (!ctx) // After fromCrs
 		ctx = sourceCrs->Context;
 
-    auto operation_ctx = proj_create_operation_factory_context(ctx, nullptr);
+    if (!options)
+        options = gcnew CoordinateTransformOptions();
+
+    std::string s_auth;
+    if (!String::IsNullOrEmpty(options->Authority))
+        s_auth = utf8_string(options->Authority);
+
+    auto operation_ctx = proj_create_operation_factory_context(ctx, s_auth.size() ? s_auth.c_str() : nullptr);
     if (!operation_ctx) {
         return nullptr;
     }
 
-    if (area) {
+    proj_operation_factory_context_set_allow_ballpark_transformations(ctx, operation_ctx, !options->NoBallparkConversions);
+
+    if (options->Accuracy.HasValue)
+        proj_operation_factory_context_set_desired_accuracy(ctx, operation_ctx, options->Accuracy.Value);
+
+    if (options && options->Area)
+    {
         proj_operation_factory_context_set_area_of_interest(
             ctx,
             operation_ctx,
-            area->WestLongitude,
-            area->SouthLatitude,
-            area->EastLongitude,
-            area->NorthLatitude);
+            options->Area->WestLongitude,
+            options->Area->SouthLatitude,
+            options->Area->EastLongitude,
+            options->Area->NorthLatitude);
+    }
+    else
+    {
+        proj_operation_factory_context_set_spatial_criterion(
+            ctx, operation_ctx,
+            PROJ_SPATIAL_CRITERION_PARTIAL_INTERSECTION);
     }
 
-    proj_operation_factory_context_set_spatial_criterion(
-        ctx, operation_ctx, PROJ_SPATIAL_CRITERION_PARTIAL_INTERSECTION);
     proj_operation_factory_context_set_grid_availability_use(
         ctx, operation_ctx,
-        proj_context_is_network_enabled(ctx) ?
-        PROJ_GRID_AVAILABILITY_KNOWN_AVAILABLE :
-        PROJ_GRID_AVAILABILITY_DISCARD_OPERATION_IF_MISSING_GRID);
+        proj_context_is_network_enabled(ctx)
+            ? PROJ_GRID_AVAILABILITY_KNOWN_AVAILABLE
+            : (options->NoDiscardIfMissing
+                ? PROJ_GRID_AVAILABILITY_USED_FOR_SORTING
+                : PROJ_GRID_AVAILABILITY_DISCARD_OPERATION_IF_MISSING_GRID));
+
+
+    proj_operation_factory_context_set_use_proj_alternative_grid_names(
+        ctx, operation_ctx,
+        !options->UsePrimaryGridNames);
+
+    proj_operation_factory_context_set_allow_use_intermediate_crs(
+        ctx, operation_ctx,
+        (options->IntermediateCrsUsage == IntermediateCrsUsage::Auto
+            ? PROJ_INTERMEDIATE_CRS_USE_IF_NO_DIRECT_TRANSFORMATION
+            : (options->IntermediateCrsUsage == IntermediateCrsUsage::Never
+                ? PROJ_INTERMEDIATE_CRS_USE_NEVER
+                : PROJ_INTERMEDIATE_CRS_USE_IF_NO_DIRECT_TRANSFORMATION)));
+
+    proj_operation_factory_context_set_discard_superseded(
+        ctx, operation_ctx,
+        !options->UseSuperseded);
 
     auto op_list = proj_create_operations(ctx, sourceCrs, targetCrs, operation_ctx);
     proj_operation_factory_context_destroy(operation_ctx);
@@ -55,9 +100,10 @@ CoordinateOperation^ CoordinateOperation::Create(CoordinateReferenceSystem^ sour
 
     PJ* P = proj_list_get(ctx, op_list, 0);
 
-    if (P == nullptr || op_count == 1 || (area) ||
+    if (P == nullptr || op_count == 1 || (options->Area) ||
         sourceCrs->Type == ProjType::GeocentricCrs ||
-        targetCrs->Type == ProjType::GeocentricCrs) {
+        targetCrs->Type == ProjType::GeocentricCrs) 
+    {
         proj_list_destroy(op_list);
         return static_cast<CoordinateOperation^>(ctx->Create(P));
     }

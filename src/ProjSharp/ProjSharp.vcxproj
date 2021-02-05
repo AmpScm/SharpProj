@@ -75,15 +75,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkKeyFile>..\ProjSharp.snk</LinkKeyFile>
+    <OutDir>bin\$(Platform)_$(Configuration)\</OutDir>
+    <IntDir>obj\$(Platform)_$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkKeyFile>..\ProjSharp.snk</LinkKeyFile>
+    <OutDir>bin\$(Platform)_$(Configuration)\</OutDir>
+    <IntDir>obj\$(Platform)_$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkKeyFile>..\ProjSharp.snk</LinkKeyFile>
+    <OutDir>bin\$(Platform)_$(Configuration)\</OutDir>
+    <IntDir>obj\$(Platform)_$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkKeyFile>..\ProjSharp.snk</LinkKeyFile>
+    <OutDir>bin\$(Platform)_$(Configuration)\</OutDir>
+    <IntDir>obj\$(Platform)_$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -91,12 +99,12 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\vcpkg\installed\x86-windows\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\vcpkg\installed\x86-windows-static-md\include</AdditionalIncludeDirectories>
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
     </ClCompile>
     <Link>
       <AdditionalDependencies />
-      <AdditionalLibraryDirectories>..\..\..\vcpkg\installed\x86-windows\lib;..\..\..\vcpkg\installed\x86-windows\debug\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\vcpkg\installed\x86-windows-static-md\lib;..\..\..\vcpkg\installed\x86-windows-static-md\debug\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -105,12 +113,12 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\vcpkg\installed\x64-windows\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\vcpkg\installed\x64-windows-static-md\include</AdditionalIncludeDirectories>
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
     </ClCompile>
     <Link>
       <AdditionalDependencies />
-      <AdditionalLibraryDirectories>..\..\..\vcpkg\installed\x64-windows\lib;..\..\..\vcpkg\installed\x64-windows\debug\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\vcpkg\installed\x64-windows-static-md\lib;..\..\..\vcpkg\installed\x64-windows-static-md\debug\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -119,13 +127,13 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\vcpkg\installed\x86-windows\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\vcpkg\installed\x86-windows-static-md\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
     </ClCompile>
     <Link>
       <AdditionalDependencies />
-      <AdditionalLibraryDirectories>..\..\..\vcpkg\installed\x86-windows\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\vcpkg\installed\x86-windows-static-md\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -134,24 +142,26 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\vcpkg\installed\x64-windows\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\vcpkg\installed\x64-windows-static-md\include</AdditionalIncludeDirectories>
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
     </ClCompile>
     <Link>
       <AdditionalDependencies />
-      <AdditionalLibraryDirectories>..\..\..\vcpkg\installed\x64-windows\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\vcpkg\installed\x64-windows-static-md\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ConcatCoordinateOperation.h" />
     <ClInclude Include="CoordinateOperationList.h" />
     <ClInclude Include="CoordinateSystem.h" />
+    <ClInclude Include="ProjCoordinate.h" />
     <ClInclude Include="ProjDatumList.h" />
     <ClInclude Include="Ellipsoid.h" />
     <ClInclude Include="GeographicCoordinateReferenceSystem.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PrimeMeridian.h" />
     <ClInclude Include="Proj.h" />
-    <ClInclude Include="ProjArea.h" />
+    <ClInclude Include="CoordinateArea.h" />
     <ClInclude Include="ProjDatum.h" />
     <ClInclude Include="ProjObject.h" />
     <ClInclude Include="ProjContext.h" />
@@ -164,8 +174,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
+    <ClCompile Include="ConcatCoordinateOperation.cpp" />
     <ClCompile Include="CoordinateOperationList.cpp" />
     <ClCompile Include="CoordinateSystem.cpp" />
+    <ClCompile Include="ProjCoordinate.cpp" />
     <ClCompile Include="ProjDatumList.cpp" />
     <ClCompile Include="Ellipsoid.cpp" />
     <ClCompile Include="GeographicCoordinateReferenceSystem.cpp" />
@@ -176,7 +188,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="PrimeMeridian.cpp" />
-    <ClCompile Include="ProjArea.cpp" />
+    <ClCompile Include="CoordinateArea.cpp" />
     <ClCompile Include="ProjDatum.cpp" />
     <ClCompile Include="ProjNetworkHandler.cpp" />
     <ClCompile Include="ProjObject.cpp" />

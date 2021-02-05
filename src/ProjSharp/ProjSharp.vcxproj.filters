@@ -27,9 +27,6 @@
     <ClInclude Include="ProjException.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ProjArea.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ProjObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -69,6 +66,15 @@
     <ClInclude Include="ProjDatumList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ProjCoordinate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CoordinateArea.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ConcatCoordinateOperation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp">
@@ -78,9 +84,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ProjContext.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ProjArea.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ProjException.cpp">
@@ -123,6 +126,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ProjNetworkHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjCoordinate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CoordinateArea.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ConcatCoordinateOperation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

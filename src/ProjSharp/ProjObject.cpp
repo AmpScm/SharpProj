@@ -2,6 +2,7 @@
 #include "ProjObject.h"
 #include "ProjException.h"
 #include "CoordinateOperation.h"
+#include "ConcatCoordinateOperation.h"
 #include "CoordinateReferenceSystem.h"
 #include "CoordinateSystem.h"
 #include "Ellipsoid.h"
@@ -99,10 +100,11 @@ ProjObject^ ProjContext::Create(PJ* pj)
 
 	case ProjType::Conversion:
 	case ProjType::Transformation:
-	case ProjType::ConcatenatedOperation:
 	case ProjType::OtherCoordinateOperation:
 		return gcnew CoordinateOperation(this, pj);
 
+	case ProjType::ConcatenatedOperation:
+		return gcnew ConcatCoordinateOperation(this, pj);
 
 	case ProjType::TemporalDatum:
 	case ProjType::EngineeringDatum:

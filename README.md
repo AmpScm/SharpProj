@@ -10,7 +10,7 @@ Setup build environment using:
     git clone https://github.com/Microsoft/vcpkg.git
     cd vcpkg
     bootstrap-vcpkg.bat
-    vcpkg install proj4:x86-windows
-    vcpkg install proj4:x64-windows
+    vcpkg install proj4:x86-windows-static-md
+    vcpkg install proj4:x64-windows-static-md
     cd ..
     git clone https://github.com/AmpScm/ProjSharp.git

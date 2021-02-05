@@ -1,6 +1,6 @@
 #pragma once
 #include "ProjContext.h"
-#include "ProjArea.h"
+#include "CoordinateArea.h"
 
 namespace ProjSharp {
 	using System::Collections::Generic::IReadOnlyList;
@@ -241,22 +241,22 @@ namespace ProjSharp {
 			}
 		}
 
-		property ProjArea^ UsageArea
+		property CoordinateArea^ UsageArea
 		{
-			ProjArea^ get()
+			CoordinateArea^ get()
 			{
 				double west, south, east, north;
 				const char* name;
 				if (proj_get_area_of_use(Context, this, &west, &south, &east, &north, &name))
 				{
-					return gcnew ProjArea(west, south, east, north, name ? gcnew String(name) : nullptr);
+					return gcnew CoordinateArea(west, south, east, north, name ? gcnew String(name) : nullptr);
 				}
 				else
 					return nullptr;
 			}
 		}
 
-		String^ AsJson()
+		String^ AsProjJson()
 		{
 			const char* v = proj_as_projjson(Context, this, nullptr);
 

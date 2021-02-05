@@ -111,6 +111,36 @@ ProjContext::ProjContext()
 	}
 }
 
+String^ ProjContext::GetMetaData(String^ key)
+{
+	if (String::IsNullOrEmpty(key))
+		throw gcnew ArgumentNullException("key");
+
+	std::string skey = utf8_string(key);
+
+	const char* v = proj_context_get_database_metadata(this, skey.c_str());
+
+	if (!v)
+		throw gcnew ArgumentOutOfRangeException("key");
+
+	return gcnew String(v);
+}
+Version^ ProjContext::EpsgVersion::get()
+{
+	try
+	{
+		String^ md = GetMetaData("EPSG.VERSION");
+
+		if (md->StartsWith("v"))
+			return gcnew Version(md->Substring(1));
+	}
+	catch (ArgumentException^)
+	{
+		return nullptr;
+	}
+}
+
+
 Exception^ ProjContext::ConstructException()
 {
 	int err = proj_context_errno(this);
