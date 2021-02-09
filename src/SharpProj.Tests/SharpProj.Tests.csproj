@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="BasicTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SridTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AmpScm.ProjSharp.Core.Database">
@@ -57,9 +58,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SharpProj.NettopologySuite\SharpProj.NettopologySuite.csproj">
+    <ProjectReference Include="..\SharpProj.NettopologySuite\SharpProj.NetTopologySuite.csproj">
       <Project>{2aeb2118-5f21-4459-a44c-f3583962dec9}</Project>
-      <Name>SharpProj.NettopologySuite</Name>
+      <Name>SharpProj.NetTopologySuite</Name>
     </ProjectReference>
     <ProjectReference Include="..\SharpProj\SharpProj.vcxproj">
       <Project>{50959ccf-0769-4b0d-848b-a0062075b30a}</Project>

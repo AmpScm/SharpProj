@@ -14,6 +14,7 @@ namespace SharpProj {
 	{
 	private:
 		ProjContext^ m_ctx;
+		CoordinateSystem^ m_cs;
 
 		~CoordinateReferenceSystem()
 		{
@@ -35,6 +36,23 @@ namespace SharpProj {
 			}
 		}
 
+		property CoordinateSystem^ CoordinateSystem
+		{
+			SharpProj::CoordinateSystem^ get()
+			{
+				if (!m_cs)
+					m_cs = GetCoordinateSystem(nullptr);
+
+				return m_cs;
+			}
+		}
+
+	public:
+		CoordinateReferenceSystem^ Clone([Optional]ProjContext^ ctx)
+		{
+			return static_cast<CoordinateReferenceSystem^>(__super::Clone(ctx));
+		}
+
 	public:
 		CoordinateReferenceSystem^ GetNormalized([Optional] ProjContext^ context);
 		CoordinateReferenceSystem^ GetGeodeticCoordinateReferenceSystem([Optional] ProjContext^ context);
@@ -42,7 +60,7 @@ namespace SharpProj {
 		ProjDatum^ GetDatum([Optional] ProjContext^ context);
 		ProjDatumList^ GetDatumList([Optional] ProjContext^ context);
 		ProjDatum^ GetDatumForced([Optional] ProjContext^ context);
-		CoordinateSystem^ GetCoordinateSystem([Optional] ProjContext^ context);
+		SharpProj::CoordinateSystem^ GetCoordinateSystem([Optional] ProjContext^ context);
 		Ellipsoid^ GetEllipsoid([Optional] ProjContext^ context);
 		PrimeMeridian^ GetPrimeMeridian([Optional] ProjContext^ context);
 		CoordinateOperation^ GetCoordinateOperation([Optional] ProjContext^ context);
@@ -52,6 +70,5 @@ namespace SharpProj {
 	public:
 		static CoordinateReferenceSystem^ Create(String^ from, [Optional] ProjContext^ ctx);
 		static CoordinateReferenceSystem^ Create(array<String^>^ from, [Optional] ProjContext^ ctx);
-
 	};
 }

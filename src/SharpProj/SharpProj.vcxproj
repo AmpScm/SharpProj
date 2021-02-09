@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\packages\SharpSvn.AnnotateAssembly.0.25.2\build\SharpSvn.AnnotateAssembly.props" Condition="Exists('..\..\packages\SharpSvn.AnnotateAssembly.0.25.2\build\SharpSvn.AnnotateAssembly.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -23,8 +24,9 @@
     <ProjectGuid>{50959CCF-0769-4B0D-848B-A0062075B30A}</ProjectGuid>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <Keyword>ManagedCProj</Keyword>
-    <RootNamespace>ProjSharp</RootNamespace>
+    <RootNamespace>SharpProj</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <SharpSvnUpdateVersionResource>true</SharpSvnUpdateVersionResource>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -74,22 +76,22 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkKeyFile>..\ProjSharp.snk</LinkKeyFile>
+    <LinkKeyFile>..\SharpProj.snk</LinkKeyFile>
     <OutDir>bin\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>obj\$(Platform)_$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkKeyFile>..\ProjSharp.snk</LinkKeyFile>
+    <LinkKeyFile>..\SharpProj.snk</LinkKeyFile>
     <OutDir>bin\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>obj\$(Platform)_$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkKeyFile>..\ProjSharp.snk</LinkKeyFile>
+    <LinkKeyFile>..\SharpProj.snk</LinkKeyFile>
     <OutDir>bin\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>obj\$(Platform)_$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkKeyFile>..\ProjSharp.snk</LinkKeyFile>
+    <LinkKeyFile>..\SharpProj.snk</LinkKeyFile>
     <OutDir>bin\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>obj\$(Platform)_$(Configuration)\</IntDir>
   </PropertyGroup>
@@ -199,17 +201,22 @@
     <ClCompile Include="ReferenceFrame.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="app.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="app.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\..\packages\SharpSvn.AnnotateAssembly.0.25.2\build\SharpSvn.AnnotateAssembly.targets" Condition="Exists('..\..\packages\SharpSvn.AnnotateAssembly.0.25.2\build\SharpSvn.AnnotateAssembly.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\packages\SharpSvn.AnnotateAssembly.0.25.2\build\SharpSvn.AnnotateAssembly.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\SharpSvn.AnnotateAssembly.0.25.2\build\SharpSvn.AnnotateAssembly.props'))" />
+    <Error Condition="!Exists('..\..\packages\SharpSvn.AnnotateAssembly.0.25.2\build\SharpSvn.AnnotateAssembly.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\SharpSvn.AnnotateAssembly.0.25.2\build\SharpSvn.AnnotateAssembly.targets'))" />
+  </Target>
 </Project>

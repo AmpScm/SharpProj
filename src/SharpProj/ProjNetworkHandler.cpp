@@ -44,6 +44,7 @@ static PROJ_NETWORK_HANDLE* my_network_open(
 
 	if (hrq != nullptr)
 	{
+		hrq->UserAgent = "System.Net/SharpProj using PROJ " PROJ_VERSION;
 		hrq->AddRange((long long)offset, (long long)(offset + size_to_read));
 	}
 	else

@@ -8,91 +8,221 @@ namespace SharpProj {
 	ref class CoordinateArea;
 	ref class CoordinateTransformOptions;
 
-	public ref class CoordinateOperationFactors
-	{
-	private:
-		initonly double m_meridional_scale;               /* h */
-		initonly double m_parallel_scale;                 /* k */
-		initonly double m_areal_scale;                    /* s */
-		initonly double m_angular_distortion;             /* omega */
-		initonly double m_meridian_parallel_angle;        /* theta-prime */
-		initonly double m_meridian_convergence;           /* alpha */
-		initonly double m_tissot_semimajor;               /* a */
-		initonly double m_tissot_semiminor;               /* b */
-		initonly double m_dx_dlam, m_dx_dphi;
-		initonly double m_dy_dlam, m_dy_dphi;
-	internal:
-		CoordinateOperationFactors(CoordinateOperation^ op, PJ_FACTORS* factors)
-		{
-			m_meridional_scale = factors->meridional_scale;
-			m_parallel_scale = factors->parallel_scale;
-			m_areal_scale = factors->areal_scale;
-			m_angular_distortion = factors->angular_distortion;
-			m_meridian_parallel_angle = factors->meridian_parallel_angle;
-			m_meridian_convergence = factors->meridian_convergence;
-			m_tissot_semimajor = factors->tissot_semimajor;
-			m_tissot_semiminor = factors->tissot_semiminor;
-			m_dx_dlam = factors->dx_dlam;
-			m_dx_dphi = factors->dx_dphi;
-			m_dy_dlam = factors->dy_dlam;
-			m_dy_dphi = factors->dy_dphi;
-		}
+	using System::Collections::ObjectModel::ReadOnlyCollection;
+	using System::Collections::Generic::List;
 
-	public:
-		property double MeridionalScale
+	namespace Details {
+		public ref class CoordinateOperationFactors
 		{
-			double get() { return m_meridional_scale; }
-		}
-		property double ParallelScale
+		private:
+			initonly double m_meridional_scale;               /* h */
+			initonly double m_parallel_scale;                 /* k */
+			initonly double m_areal_scale;                    /* s */
+			initonly double m_angular_distortion;             /* omega */
+			initonly double m_meridian_parallel_angle;        /* theta-prime */
+			initonly double m_meridian_convergence;           /* alpha */
+			initonly double m_tissot_semimajor;               /* a */
+			initonly double m_tissot_semiminor;               /* b */
+			initonly double m_dx_dlam, m_dx_dphi;
+			initonly double m_dy_dlam, m_dy_dphi;
+		internal:
+			CoordinateOperationFactors(CoordinateOperation^ op, PJ_FACTORS* factors)
+			{
+				m_meridional_scale = factors->meridional_scale;
+				m_parallel_scale = factors->parallel_scale;
+				m_areal_scale = factors->areal_scale;
+				m_angular_distortion = factors->angular_distortion;
+				m_meridian_parallel_angle = factors->meridian_parallel_angle;
+				m_meridian_convergence = factors->meridian_convergence;
+				m_tissot_semimajor = factors->tissot_semimajor;
+				m_tissot_semiminor = factors->tissot_semiminor;
+				m_dx_dlam = factors->dx_dlam;
+				m_dx_dphi = factors->dx_dphi;
+				m_dy_dlam = factors->dy_dlam;
+				m_dy_dphi = factors->dy_dphi;
+			}
+
+		public:
+			property double MeridionalScale
+			{
+				double get() { return m_meridional_scale; }
+			}
+			property double ParallelScale
+			{
+				double get() { return m_parallel_scale; }
+			}
+			property double ArealScale
+			{
+				double get() { return m_areal_scale; }
+			}
+			property double AngularDistortion
+			{
+				double get() { return m_angular_distortion; }
+			}
+			property double MeridianParallelAngle
+			{
+				double get() { return m_meridian_parallel_angle; }
+			}
+			property double MeridianConvergence
+			{
+				double get() { return m_meridian_convergence; }
+			}
+			property double TissotSemimajor
+			{
+				double get() { return m_tissot_semimajor; }
+			}
+			property double TissotSemiminor
+			{
+				double get() { return m_tissot_semiminor; }
+			}
+			property double DxDlam
+			{
+				double get() { return m_dx_dlam; }
+			}
+			property double DxDphi
+			{
+				double get() { return m_dx_dphi; }
+			}
+			property double DyDlam
+			{
+				double get() { return m_dy_dlam; }
+			}
+			property double DyDphi
+			{
+				double get() { return m_dy_dphi; }
+			}
+		};
+
+		[System::Diagnostics::DebuggerDisplayAttribute("{Name,nq}={ValueString}")]
+		public ref class CoordinateOperationParameter
 		{
-			double get() { return m_parallel_scale; }
-		}
-		property double ArealScale
-		{
-			double get() { return m_areal_scale; }
-		}
-		property double AngularDistortion
-		{
-			double get() { return m_angular_distortion; }
-		}
-		property double MeridianParallelAngle
-		{
-			double get() { return m_meridian_parallel_angle; }
-		}
-		property double MeridianConvergence
-		{
-			double get() { return m_meridian_convergence; }
-		}
-		property double TissotSemimajor
-		{
-			double get() { return m_tissot_semimajor; }
-		}
-		property double TissotSemiminor
-		{
-			double get() { return m_tissot_semiminor; }
-		}
-		property double DxDlam
-		{
-			double get() { return m_dx_dlam; }
-		}
-		property double DxDphi
-		{
-			double get() { return m_dx_dphi; }
-		}
-		property double DyDlam
-		{
-			double get() { return m_dy_dlam; }
-		}
-		property double DyDphi
-		{
-			double get() { return m_dy_dphi; }
-		}
-	};
+		private:
+			initonly CoordinateOperation^ m_op;
+			initonly int m_index;
+
+			String^ m_name;
+			String^ m_auth_name;
+			String^ m_code;
+			double m_value;
+			String^ m_value_string;
+			double m_unit_conv_factor;
+			String^ m_unit_name;
+			String^ m_unit_auth_name;
+			String^ m_unit_code;
+			String^ m_unit_category;
+
+		internal:
+			CoordinateOperationParameter(CoordinateOperation^ op, int index)
+			{
+				m_op = op;
+				m_index = index;
+			}
+
+			void Ensure();
+
+		public:
+			property String^ Name
+			{
+				String^ get()
+				{
+					Ensure();
+					return m_name;
+				}
+			}
+
+			property String^ AuthName
+			{
+				String^ get()
+				{
+					Ensure();
+					return m_auth_name;
+				}
+			}
+
+			property String^ Code
+			{
+				String^ get()
+				{
+					Ensure();
+					return m_code;
+				}
+			}
+
+			property double Value
+			{
+				double get()
+				{
+					Ensure();
+					return m_value;
+				}
+			}
+
+			property String^ ValueString
+			{
+				String^ get()
+				{
+					Ensure();
+					if (String::IsNullOrEmpty(m_value_string) && Value != 0.0)
+						m_value_string = Convert::ToString(Value);
+
+					return m_value_string;
+				}
+			}
+
+			property double UnitConversionFactor
+			{
+				double get()
+				{
+					Ensure();
+					return m_unit_conv_factor;
+				}
+			}
+
+			property String^ UnitName
+			{
+				String^ get()
+				{
+					Ensure();
+					return m_unit_name;
+				}
+			}
+
+			property String^ UnitAuthName
+			{
+				String^ get()
+				{
+					Ensure();
+					return m_unit_auth_name;
+				}
+			}
+
+			property String^ UnitCode
+			{
+				String^ get()
+				{
+					Ensure();
+					return m_unit_code;
+				}
+			}
+
+			property String^ UnitCategory
+			{
+				String^ get()
+				{
+					Ensure();
+					return m_unit_category;
+				}
+			}
+		};
+	}
+
+	using CoordinateOperationParameter = Details::CoordinateOperationParameter;
 
 	public ref class CoordinateOperation : ProjObject
 	{
 	private:
 		String^ m_methodName;
+		ReadOnlyCollection<CoordinateOperationParameter^>^ m_params;
 	internal:
 		CoordinateOperation(ProjContext^ ctx, PJ* pj)
 			: ProjObject(ctx, pj)
@@ -205,8 +335,30 @@ namespace SharpProj {
 							m_methodName = gcnew String(method_name);
 					}
 				}
-				
+
 				return m_methodName;
+			}
+		}
+
+		property IReadOnlyList<CoordinateOperationParameter^>^ Parameters
+		{
+			virtual IReadOnlyList<CoordinateOperationParameter^>^ get()
+			{
+				if (!m_params)
+				{
+					int cnt = proj_coordoperation_get_param_count(Context, this);
+
+					if (cnt >= 0)
+					{
+						List<CoordinateOperationParameter^>^ lst = gcnew List<CoordinateOperationParameter^>(cnt);
+
+						for (int i = 0; i < cnt; i++)
+							lst->Add(gcnew CoordinateOperationParameter(this, i));
+
+						m_params = lst->AsReadOnly();
+					}
+				}
+				return m_params;
 			}
 		}
 
@@ -252,7 +404,7 @@ namespace SharpProj {
 		array<double>^ EllipsoidGeod(array<double>^ coordinate1, array<double>^ coordinate2) { return EllipsoidGeod(ProjCoordinate::FromArray(coordinate1), ProjCoordinate::FromArray(coordinate2)).ToArray(); }
 
 	public:
-		static CoordinateOperation^ Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, CoordinateArea ^area, [Optional] ProjContext^ ctx);
+		static CoordinateOperation^ Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, CoordinateArea^ area, [Optional] ProjContext^ ctx);
 		static CoordinateOperation^ Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, CoordinateTransformOptions^ options, [Optional] ProjContext^ ctx);
 		static CoordinateOperation^ Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, [Optional] ProjContext^ ctx)
 		{
@@ -262,8 +414,8 @@ namespace SharpProj {
 	public:
 		double RoundTrip(bool forward, int transforms, ProjCoordinate coordinate);
 		double RoundTrip(bool forward, int transforms, array<double>^ coordinate) { return RoundTrip(forward, transforms, ProjCoordinate::FromArray(coordinate)); }
-		CoordinateOperationFactors^ Factors(ProjCoordinate coordinate);
-		CoordinateOperationFactors^ Factors(array<double>^ coordinate) { return Factors(ProjCoordinate::FromArray(coordinate)); }
+		Details::CoordinateOperationFactors^ Factors(ProjCoordinate coordinate);
+		Details::CoordinateOperationFactors^ Factors(array<double>^ coordinate) { return Factors(ProjCoordinate::FromArray(coordinate)); }
 
 
 	public:

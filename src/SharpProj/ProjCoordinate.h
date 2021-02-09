@@ -1,6 +1,7 @@
 #pragma once
 namespace SharpProj {
-	public value class ProjCoordinate
+	ref class CoordinateOperation;
+	public value class ProjCoordinate : IEquatable<ProjCoordinate>
 	{
 	public:
 		double X;
@@ -153,6 +154,36 @@ namespace SharpProj {
 			return p.ToTupleXYZT();
 		}
 
+		static bool operator ==(ProjCoordinate p1, ProjCoordinate p2)
+		{
+			return p1.X == p2.X && p1.Y == p2.Y && p1.Z == p2.Z && p1.T == p2.T;
+		}
+
+		static bool operator !=(ProjCoordinate p1, ProjCoordinate p2)
+		{
+			return p1.X != p2.X || p1.Y != p2.Y || p1.Z != p2.Z || p1.T != p2.T;
+		}
+
+		virtual bool Equals(Object^ other) override sealed
+		{
+			ProjCoordinate^ p = dynamic_cast<ProjCoordinate^>(other);
+
+			if (p)
+				return X == p->X && Y == p->Y && Z == p->Z && T == p->T;
+			else
+				return false;
+		}
+
+		virtual bool Equals(ProjCoordinate other) sealed
+		{
+			return X == other.X && Y == other.Y && Z == other.Z && T == other.T;
+		}
+
+		virtual int GetHashCode() override sealed
+		{
+			return X.GetHashCode() ^ Y.GetHashCode();
+		}
+
 		virtual System::String^ ToString() override
 		{
 			if (Z == double::NaN)
@@ -170,17 +201,15 @@ namespace SharpProj {
 			void set(double value) { Z = value; }
 		}
 
-		property int Axis
+		ProjCoordinate Transform(CoordinateOperation^ operation);
+
+		ProjCoordinate Round(int decimals)
 		{
-			int get()
-			{
-				if (Z == double::NaN)
-					return 2;
-				else if (T == double::NaN)
-					return 3;
-				else
-					return 4;
-			}
+			return ProjCoordinate(
+				Math::Round(X, decimals),
+				Math::Round(Y, decimals),
+				Math::Round(Z, decimals),
+				Math::Round(T, decimals));
 		}
 	};
 }

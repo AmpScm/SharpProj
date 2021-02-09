@@ -154,7 +154,7 @@ ProjDatum^ CoordinateReferenceSystem::GetDatumForced(ProjContext^ context)
 	return static_cast<ProjDatum^>(context->Create(pj));
 }
 
-CoordinateSystem^ CoordinateReferenceSystem::GetCoordinateSystem(ProjContext^ context)
+SharpProj::CoordinateSystem^ CoordinateReferenceSystem::GetCoordinateSystem(ProjContext^ context)
 {
 	if (!context)
 		context = Context;
@@ -165,7 +165,7 @@ CoordinateSystem^ CoordinateReferenceSystem::GetCoordinateSystem(ProjContext^ co
 	if (!pj)
 		throw context->ConstructException();
 
-	return static_cast<CoordinateSystem^>(context->Create(pj));
+	return static_cast<SharpProj::CoordinateSystem^>(context->Create(pj));
 }
 
 CoordinateReferenceSystem^ CoordinateReferenceSystem::GetNormalized(ProjContext^ context)

@@ -241,7 +241,6 @@ namespace SharpProj.Tests
                         Assert.AreEqual(null, c.Description);
                         Assert.AreEqual(ProjType.Unknown, c.Type);
                         Assert.AreEqual(CoordinateSystemType.Cartesian, c.CsType);
-                        Assert.AreEqual(2, c.AxisCount);
                         Assert.AreEqual(2, c.Axis.Count);
 
                         Assert.AreEqual("Easting", c.Axis[0].Name);
@@ -528,7 +527,7 @@ namespace SharpProj.Tests
                     // Now, let's enable gridshifts
                     Assert.IsFalse(pc.AllowNetworkConnections);
                     pc.AllowNetworkConnections = true;
-                    pc.EndpointUrl = "https://cdn.proj.org";
+                    pc.EndpointUrl = ProjContext.DefaultEndpointUrl;// "https://cdn.proj.org";
                     bool usedHttp = false;
                     pc.Log += (_, x) => { if (x.Contains("https://")) usedHttp = true; };
 
@@ -541,11 +540,9 @@ namespace SharpProj.Tests
                         Assert.IsTrue(cl[0].GridUsageCount > 0);
                         Assert.IsTrue(cl[1].GridUsageCount == 0);
 
+                        Assert.AreEqual(new ProjCoordinate(50.999, 4.0), t.Transform(new ProjCoordinate(51, 4)).Round(3));
                         var r = t.Transform(51, 4, 0);
                         Assert.IsTrue(usedHttp, "Now http");
-                        Assert.AreEqual(50.999, Math.Round(r[0], 3));
-                        Assert.AreEqual(4.0, Math.Round(r[1], 3));
-                        Assert.AreEqual(0.0, Math.Round(r[2], 3));
 
 
                         var r0 = cl[0].Transform(51, 4, 0);

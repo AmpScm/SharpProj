@@ -6,6 +6,10 @@ namespace SharpProj {
 	ref class CoordinateReferenceSystem;
 	ref class ProjArea;
 
+	/// <summary>
+	/// Represents a <see cref="CoordinateOperation"/> which is implemented in a number of ways. The best
+	/// implementation is chosen at runtime, based on some predefined settings.
+	/// </summary>
 	public ref class CoordinateOperationList : CoordinateOperation, IReadOnlyList<CoordinateOperation^>
 	{
 	private:
@@ -23,7 +27,7 @@ namespace SharpProj {
 
 			for (int i = 0; i < items->Length; i++)
 			{
-				items[i] = gcnew CoordinateOperation(Context, proj_list_get(Context, m_list, i));
+				items[i] = static_cast<CoordinateOperation^>(ctx->Create(proj_list_get(Context, m_list, i)));
 			}
 			m_operations = items;
 
@@ -56,7 +60,7 @@ namespace SharpProj {
 		}
 
 	protected:
-		virtual ProjCoordinate DoTransform(bool forward, ProjCoordinate %coordinate) override;
+		virtual ProjCoordinate DoTransform(bool forward, ProjCoordinate% coordinate) override;
 	private:
 		virtual System::Collections::IEnumerator^ Obj_GetEnumerator() sealed = System::Collections::IEnumerable::GetEnumerator
 		{
@@ -89,7 +93,7 @@ namespace SharpProj {
 			}
 		}
 
-			property bool HasInverse
+		property bool HasInverse
 		{
 			virtual bool get() override sealed
 			{

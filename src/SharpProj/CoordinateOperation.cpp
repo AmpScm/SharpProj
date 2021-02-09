@@ -119,14 +119,14 @@ double CoordinateOperation::RoundTrip(bool forward, int transforms, ProjCoordina
     return proj_roundtrip(this, forward ? PJ_FWD : PJ_INV, transforms, &coord);
 }
 
-CoordinateOperationFactors^ CoordinateOperation::Factors(ProjCoordinate coordinate)
+Details::CoordinateOperationFactors^ CoordinateOperation::Factors(ProjCoordinate coordinate)
 {
     PJ_COORD coord;
     SetCoordinate(coord, coordinate);
 
     PJ_FACTORS f = proj_factors(this, coord);
 
-    return gcnew CoordinateOperationFactors(this, &f);
+    return gcnew Details::CoordinateOperationFactors(this, &f);
 }
 
 
@@ -196,4 +196,39 @@ CoordinateReferenceSystem^ CoordinateOperation::GetTargetCoordinateReferenceSyst
         return nullptr;
 
     return static_cast<CoordinateReferenceSystem^>(context->Create(pj));
+}
+
+void SharpProj::Details::CoordinateOperationParameter::Ensure()
+{
+    if (!m_name)
+    {
+        const char* name;
+        const char* auth_name;
+        const char* code;
+        double value;
+        const char* value_string;
+        double unit_conv_factor;
+        const char* unit_name;
+        const char* unit_auth_name;
+        const char* unit_code;
+        const char* unit_category;
+
+
+        if (proj_coordoperation_get_param(m_op->Context, m_op, m_index,
+            &name, &auth_name, &code, &value, &value_string,
+            &unit_conv_factor, &unit_name, &unit_auth_name,
+            &unit_code, &unit_category))
+        {
+            m_name = name ? gcnew String(name) : "";
+            m_auth_name = auth_name ? gcnew String(auth_name) : nullptr;
+            m_code = code ? gcnew String(code) : nullptr;
+            m_value = value;
+            m_value_string = value_string ? gcnew String(value_string) : nullptr;
+            m_unit_conv_factor = unit_conv_factor;
+            m_unit_name = unit_name ? gcnew String(unit_name) : nullptr;
+            m_unit_auth_name = unit_auth_name ? gcnew String(unit_auth_name) : nullptr;
+            m_unit_code = unit_code ? gcnew String(unit_code) : nullptr;
+            m_unit_category = unit_category ? gcnew String(unit_category) : nullptr;
+        }
+    }
 }

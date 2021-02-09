@@ -170,6 +170,16 @@ namespace SharpProj {
 			return pj->m_pj;
 		}
 
+		static operator bool(ProjObject^ pj)
+		{
+			if ((Object^)pj == nullptr)
+				return false;
+			else if (pj->m_pj == nullptr)
+				return false;
+
+			return true;
+		}
+
 	public:
 		virtual String^ ToString() override
 		{

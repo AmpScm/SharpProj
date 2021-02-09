@@ -1,6 +1,9 @@
 #pragma once
 #include "CoordinateOperation.h"
 namespace SharpProj {
+	/// <summary>
+	/// Represents a <see cref="CoordinateOperation"/> which is implemented in a number of discrete steps
+	/// </summary>
 	public ref class MultiCoordinateOperation : CoordinateOperation, IReadOnlyList<CoordinateOperation^>
 	{
 	private:

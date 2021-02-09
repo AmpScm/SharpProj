@@ -43,4 +43,10 @@ std::string utf8_string(String^ v);
 using Out = System::Runtime::InteropServices::OutAttribute;
 using Optional = System::Runtime::InteropServices::OptionalAttribute;
 
+#define LIT2(x) #x
+#define LIT(x) LIT2(x)
+
+#define PROJ_VERSION LIT(PROJ_VERSION_MAJOR) "." LIT(PROJ_VERSION_MINOR) "." LIT(PROJ_VERSION_PATCH)
+
+
 #endif //PCH_H

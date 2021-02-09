@@ -27,6 +27,9 @@ namespace SharpProj {
 
 		void SetupNetworkHandling();
 
+	public:
+		static initonly String^ DefaultEndpointUrl = "https://cdn.proj.org";
+
 	internal:
 		String^ m_lastError;
 
