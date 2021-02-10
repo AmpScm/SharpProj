@@ -88,9 +88,18 @@ static PROJ_NETWORK_HANDLE* my_network_open(
 				break;
 		}
 
-		pin_ptr<unsigned char> pBuf = &buf[0];
-		memcpy(buffer, pBuf, r);
-		*out_size_read = r;
+		if (r > 0)
+		{
+			pin_ptr<unsigned char> pBuf = &buf[0];
+			memcpy(buffer, pBuf, r);
+			*out_size_read = r;
+		}
+		else
+		{
+			strncpy_s(out_error_string, error_string_max_size, "Read error", error_string_max_size);
+			*out_size_read = 0;
+			return nullptr;
+		}
 
 	}
 	else if (!in_error)
@@ -209,10 +218,17 @@ size_t my_network_read_range(
 				break;
 		}
 
-		pin_ptr<unsigned char> pBuf = &buf[0];
-		memcpy(buffer, pBuf, r);
-
-		return r;
+		if (r > 0)
+		{
+			pin_ptr<unsigned char> pBuf = &buf[0];
+			memcpy(buffer, pBuf, r);
+			return r;
+		}
+		else
+		{
+			strncpy_s(out_error_string, error_string_max_size, "Read error", error_string_max_size);
+			return 0;
+		}
 	}
 	else if (!in_error)
 	{

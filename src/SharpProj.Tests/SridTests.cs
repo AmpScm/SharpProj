@@ -45,12 +45,12 @@ namespace SharpProj.Tests
 
             Point pp = p.Reproject(SridRegister.GetById(Epsg.BelgiumLambert));
 
-            Assert.AreEqual((int)Epsg.BelgiumLambert,   pp.SRID);
-            //Assert.AreEqual(new Point(155000, 463000), new Point(pp.Coordinate.Round(0)));
+            Assert.AreEqual((int)Epsg.BelgiumLambert, pp.SRID);
+            Assert.AreEqual(new Point(719706, 816781), new Point(pp.Coordinate.Round(0)));
 
-            using (CoordinateOperation t = CoordinateOperation.Create(SridRegister.GetByValue(p.SRID), SridRegister.GetById(Epsg.BelgiumLambert), new CoordinateTransformOptions { NoBallparkConversions = true }))
+            using (CoordinateTransform t = CoordinateTransform.Create(SridRegister.GetByValue(p.SRID), SridRegister.GetById(Epsg.BelgiumLambert), new CoordinateTransformOptions { NoBallparkConversions = true }))
             {
-                if (t is MultiCoordinateOperation mc)
+                if (t is CoordinateTransformList mc)
                 {
                     Assert.AreEqual(3, mc.Count);
                     Assert.AreEqual(5, mc[0].Parameters.Count);
@@ -60,8 +60,8 @@ namespace SharpProj.Tests
                 else
                     Assert.Fail();
 
-                var rr =t.Transform(new ProjCoordinate(155000, 463000));
-                
+                var rr = t.Apply(new ProjCoordinate(155000, 463000));
+
             }
         }
 

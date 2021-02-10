@@ -153,8 +153,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="MultiCoordinateOperation.h" />
-    <ClInclude Include="CoordinateOperationList.h" />
+    <ClInclude Include="CoordinateReferenceSystemList.h" />
+    <ClInclude Include="CoordinateTransformList.h" />
+    <ClInclude Include="AnyCoordinateTransform.h" />
     <ClInclude Include="CoordinateSystem.h" />
     <ClInclude Include="ProjCoordinate.h" />
     <ClInclude Include="ProjDatumList.h" />
@@ -168,15 +169,16 @@
     <ClInclude Include="ProjContext.h" />
     <ClInclude Include="CoordinateReferenceSystem.h" />
     <ClInclude Include="ProjException.h" />
-    <ClInclude Include="CoordinateOperation.h" />
+    <ClInclude Include="CoordinateTransform.h" />
     <ClInclude Include="ProjObjectList.h" />
     <ClInclude Include="ReferenceFrame.h" />
     <ClInclude Include="Resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
-    <ClCompile Include="MultiCoordinateOperation.cpp" />
-    <ClCompile Include="CoordinateOperationList.cpp" />
+    <ClCompile Include="CoordinateTransformList.cpp" />
+    <ClCompile Include="AnyCoordinateTransform.cpp" />
+    <ClCompile Include="CoordinateReferenceSystemList.cpp" />
     <ClCompile Include="CoordinateSystem.cpp" />
     <ClCompile Include="ProjCoordinate.cpp" />
     <ClCompile Include="ProjDatumList.cpp" />
@@ -196,12 +198,13 @@
     <ClCompile Include="ProjContext.cpp" />
     <ClCompile Include="CoordinateReferenceSystem.cpp" />
     <ClCompile Include="ProjException.cpp" />
-    <ClCompile Include="CoordinateOperation.cpp" />
+    <ClCompile Include="CoordinateTransform.cpp" />
     <ClCompile Include="ProjObjectList.cpp" />
     <ClCompile Include="ReferenceFrame.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>

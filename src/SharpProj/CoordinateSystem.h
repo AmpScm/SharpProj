@@ -107,6 +107,34 @@ namespace SharpProj {
 				}
 			}
 		};
+
+		[System::Diagnostics::DebuggerDisplayAttribute("{DebuggerDisplay(),nq}")]
+		public ref class AxisCollection : public System::Collections::ObjectModel::ReadOnlyCollection<Axis^>
+		{
+		public:
+			AxisCollection(System::Collections::Generic::IList<Axis^>^ list)
+				: System::Collections::ObjectModel::ReadOnlyCollection<Axis^>(list)
+			{
+
+			}
+			
+
+		private:
+			String^ DebuggerDisplay()
+			{
+				auto sb = gcnew System::Text::StringBuilder();
+
+				for each (auto v in this)
+				{
+					if (sb->Length)
+						sb->Append(", ");
+
+					sb->AppendFormat("{0}[{1}]", v->Name, v->UnitName);
+				}
+
+				return sb->ToString();
+			}
+		};
 	}
 
 	using ProjAxis = Details::Axis;
@@ -114,7 +142,7 @@ namespace SharpProj {
 	public ref class CoordinateSystem :
 		public ProjObject
 	{
-		ReadOnlyCollection<ProjAxis^>^ m_axis;
+		Details::AxisCollection^ m_axis;
 	internal:
 		CoordinateSystem(ProjContext^ ctx, PJ* pj)
 			: ProjObject(ctx, pj)
@@ -124,18 +152,18 @@ namespace SharpProj {
 		}
 
 	public:
-		property CoordinateSystemType CsType
+		property CoordinateSystemType CoordinateSystemType
 		{
-			CoordinateSystemType get()
+			SharpProj::CoordinateSystemType get()
 			{
-				return (CoordinateSystemType)proj_cs_get_type(Context, this);
+				return (SharpProj::CoordinateSystemType)proj_cs_get_type(Context, this);
 			}
 		}
 
 	public:
-		property ReadOnlyCollection<ProjAxis^>^ Axis
+		property Details::AxisCollection^ Axis
 		{
-			ReadOnlyCollection<ProjAxis^>^ get()
+			virtual Details::AxisCollection^ get()
 			{
 				if (!m_axis)
 				{
@@ -148,7 +176,7 @@ namespace SharpProj {
 						for (int i = 0; i < cnt; i++)
 							lst->Add(gcnew ProjAxis(this, i));
 
-						m_axis = lst->AsReadOnly();
+						m_axis = gcnew Details::AxisCollection(lst);
 					}
 				}
 				return m_axis;

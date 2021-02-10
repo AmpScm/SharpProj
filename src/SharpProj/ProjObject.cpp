@@ -1,9 +1,10 @@
 #include "pch.h"
 #include "ProjObject.h"
 #include "ProjException.h"
-#include "CoordinateOperation.h"
-#include "MultiCoordinateOperation.h"
+#include "CoordinateTransform.h"
+#include "CoordinateTransformList.h"
 #include "CoordinateReferenceSystem.h"
+#include "CoordinateReferenceSystemList.h"
 #include "CoordinateSystem.h"
 #include "Ellipsoid.h"
 #include "GeographicCoordinateReferenceSystem.h"
@@ -89,9 +90,11 @@ ProjObject^ ProjContext::Create(PJ* pj)
 	case ProjType::GeodeticCrs:
 	case ProjType::GeocentricCrs:
 
+	case ProjType::CompoundCrs:
+		return gcnew CoordinateReferenceSystemList(this, pj);
+
 	case ProjType::VerticalCrs:
 	case ProjType::ProjectedCrs:
-	case ProjType::CompoundCrs:
 	case ProjType::TemporalCrs:
 	case ProjType::EngineeringCrs:
 	case ProjType::BoundCrs:
@@ -100,11 +103,11 @@ ProjObject^ ProjContext::Create(PJ* pj)
 
 	case ProjType::Conversion:
 	case ProjType::Transformation:
-	case ProjType::OtherCoordinateOperation:
-		return gcnew CoordinateOperation(this, pj);
+	case ProjType::OtherCoordinateTransform:
+		return gcnew CoordinateTransform(this, pj);
 
 	case ProjType::ConcatenatedOperation:
-		return gcnew MultiCoordinateOperation(this, pj);
+		return gcnew CoordinateTransformList(this, pj);
 
 	case ProjType::TemporalDatum:
 	case ProjType::EngineeringDatum:
@@ -117,16 +120,24 @@ ProjObject^ ProjContext::Create(PJ* pj)
 		if (cst != CoordinateSystemType::Unknown)
 			return gcnew CoordinateSystem(this, pj);
 
-		ClearError();
+		ClearError(pj);
 
 
 		if (!strcmp(proj_get_name(pj), "Transformation pipeline manager"))
 		{
-			return gcnew CoordinateOperation(this, pj);
+			return gcnew CoordinateTransform(this, pj);
 		}
 
 		return gcnew ProjObject(this, pj);
 	}
+}
+
+generic<typename T> where T : ProjObject
+T ProjContext::Create(PJ* pj)
+{
+	ProjObject^ o = Create(pj);
+
+	return safe_cast<T>(o);
 }
 
 ProjObject^ ProjObject::Create(String^ definition, [Optional]ProjContext^ ctx)

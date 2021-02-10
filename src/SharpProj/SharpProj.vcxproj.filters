@@ -30,9 +30,6 @@
     <ClInclude Include="ProjObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CoordinateOperation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ReferenceFrame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -57,9 +54,6 @@
     <ClInclude Include="ProjObjectList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CoordinateOperationList.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ProjDatumList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -69,7 +63,16 @@
     <ClInclude Include="CoordinateArea.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MultiCoordinateOperation.h">
+    <ClInclude Include="CoordinateReferenceSystemList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CoordinateTransform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CoordinateTransformList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AnyCoordinateTransform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -87,9 +90,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ProjObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CoordinateOperation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ReferenceFrame.cpp">
@@ -116,9 +116,6 @@
     <ClCompile Include="ProjObjectList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CoordinateOperationList.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ProjDatumList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -131,18 +128,20 @@
     <ClCompile Include="CoordinateArea.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MultiCoordinateOperation.cpp">
+    <ClCompile Include="CoordinateReferenceSystemList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CoordinateTransform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CoordinateTransformList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AnyCoordinateTransform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="app.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="app.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

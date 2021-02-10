@@ -84,10 +84,6 @@ static void my_log_func(void* user_data, int level, const char* message)
 		else
 			pc->m_lastError = nullptr;
 
-#ifdef _DEBUG
-		System::Diagnostics::Debug::WriteLine(msg);
-#endif
-
 		pc->OnLogMessage((ProjLogLevel)level, msg);
 	}
 }
@@ -172,5 +168,10 @@ void ProjContext::OnFindFile(String^ file, [Out] String^% foundFile)
 
 void ProjContext::OnLogMessage(ProjLogLevel level, String^ message)
 {
+#ifdef _DEBUG
+	if (level <= ProjLogLevel::Error)
+		System::Diagnostics::Debug::WriteLine(message);
+#endif
+
 	OnLog(level, message);
 }

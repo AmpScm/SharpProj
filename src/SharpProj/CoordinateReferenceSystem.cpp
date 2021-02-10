@@ -3,7 +3,7 @@
 #include "ProjException.h"
 #include "CoordinateReferenceSystem.h"
 #include "ProjDatumList.h"
-#include "CoordinateOperation.h"
+#include "CoordinateTransform.h"
 #include "CoordinateSystem.h"
 #include "Ellipsoid.h"
 #include "PrimeMeridian.h"
@@ -12,6 +12,25 @@
 
 using namespace SharpProj;
 
+SharpProj::CoordinateReferenceSystem::~CoordinateReferenceSystem()
+{
+	if ((Object^)m_cs)
+	{
+		delete m_cs;
+		m_cs = nullptr;
+	}
+
+	if ((Object^)m_geodCRS)
+	{
+		delete m_geodCRS;
+		m_geodCRS = nullptr;
+	}
+	if ((Object^)m_ellipsoid)
+	{
+		delete m_ellipsoid;
+		m_ellipsoid = nullptr;
+	}
+}
 
 CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(String^ from, ProjContext^ ctx)
 {
@@ -33,7 +52,7 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(String^ from, ProjC
 		throw gcnew ProjException(String::Format("'{0}' doesn't describe a coordinate system", from));
 	}
 
-	return static_cast<CoordinateReferenceSystem^>(ctx->Create(pj));
+	return ctx->Create<CoordinateReferenceSystem^>(pj);
 }
 
 
@@ -66,7 +85,7 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(array<String^>^ fro
 			throw gcnew ProjException(String::Format("'{0}' doesn't describe a coordinate system", from));
 		}
 
-		return static_cast<CoordinateReferenceSystem^>(ctx->Create(pj));
+		return ctx->Create<CoordinateReferenceSystem^>(pj);
 	}
 	finally
 	{
@@ -78,17 +97,19 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(array<String^>^ fro
 	}
 }
 
-CoordinateReferenceSystem^ CoordinateReferenceSystem::GetGeodeticCoordinateReferenceSystem(ProjContext^ context)
+CoordinateReferenceSystem^ CoordinateReferenceSystem::GeodeticCRS::get()
 {
-	if (!context)
-		context = Context;
+	if (!m_geodCRS && this)
+	{
+		Context->ClearError(this);
+		PJ* pj = proj_crs_get_geodetic_crs(Context, this);
 
-	PJ* pj = proj_crs_get_geodetic_crs(context, this);
+		if (!pj)
+			throw Context->ConstructException();
 
-	if (!pj)
-		throw context->ConstructException();
-
-	return static_cast<CoordinateReferenceSystem^>(context->Create(pj));
+		m_geodCRS = Context->Create<CoordinateReferenceSystem^>(pj);
+	}
+	return m_geodCRS;
 }
 
 ProjDatum^ CoordinateReferenceSystem::GetHorizontalDatum(ProjContext^ context)
@@ -96,13 +117,13 @@ ProjDatum^ CoordinateReferenceSystem::GetHorizontalDatum(ProjContext^ context)
 	if (!context)
 		context = Context;
 
-	context->ClearError();
+	context->ClearError(this);
 	PJ* pj = proj_crs_get_horizontal_datum(context, this);
 
 	if (!pj)
 		throw context->ConstructException();
 
-	return static_cast<ProjDatum^>(context->Create(pj));
+	return context->Create<ProjDatum^>(pj);
 }
 
 ProjDatum^ CoordinateReferenceSystem::GetDatum(ProjContext^ context)
@@ -110,14 +131,13 @@ ProjDatum^ CoordinateReferenceSystem::GetDatum(ProjContext^ context)
 	if (!context)
 		context = Context;
 
-
-	context->ClearError();
+	context->ClearError(this);
 	PJ* pj = proj_crs_get_datum(context, this);
 
 	if (!pj)
 		throw context->ConstructException();
 
-	return static_cast<ProjDatum^>(context->Create(pj));
+	return context->Create<ProjDatum^>(pj);
 }
 
 ProjDatumList^ CoordinateReferenceSystem::GetDatumList(ProjContext^ context)
@@ -125,8 +145,7 @@ ProjDatumList^ CoordinateReferenceSystem::GetDatumList(ProjContext^ context)
 	if (!context)
 		context = Context;
 
-	context->ClearError();
-	proj_errno_reset(this);
+	context->ClearError(this);
 	PJ* pj = proj_crs_get_datum_ensemble(context, this);
 
 	if (!pj)
@@ -137,7 +156,7 @@ ProjDatumList^ CoordinateReferenceSystem::GetDatumList(ProjContext^ context)
 		throw context->ConstructException();
 	}
 
-	return static_cast<ProjDatumList^>(context->Create(pj));
+	return context->Create< ProjDatumList ^>(pj);
 }
 
 ProjDatum^ CoordinateReferenceSystem::GetDatumForced(ProjContext^ context)
@@ -145,27 +164,40 @@ ProjDatum^ CoordinateReferenceSystem::GetDatumForced(ProjContext^ context)
 	if (!context)
 		context = Context;
 
-	context->ClearError();
+	context->ClearError(this);
 	PJ* pj = proj_crs_get_datum_forced(context, this);
 
 	if (!pj)
 		throw context->ConstructException();
 
-	return static_cast<ProjDatum^>(context->Create(pj));
+	return context->Create<ProjDatum^>(pj);
 }
 
-SharpProj::CoordinateSystem^ CoordinateReferenceSystem::GetCoordinateSystem(ProjContext^ context)
+SharpProj::CoordinateSystem^ CoordinateReferenceSystem::CoordinateSystem::get()
 {
-	if (!context)
-		context = Context;
+	if (!m_cs)
+	{
+		if (Type == ProjType::CompoundCrs)
+		{
+			int ax = proj_cs_get_axis_count(Context, this);
 
-	context->ClearError();
-	PJ* pj = proj_crs_get_coordinate_system(context, this);
+			GC::KeepAlive(ax);
 
-	if (!pj)
-		throw context->ConstructException();
+		}
+		else
+		{
+			Context->ClearError(this);
+			PJ* pj = proj_crs_get_coordinate_system(Context, this);
 
-	return static_cast<SharpProj::CoordinateSystem^>(context->Create(pj));
+			if (!pj)
+			{
+				throw Context->ConstructException();
+			}
+
+			m_cs = Context->Create<SharpProj::CoordinateSystem^>(pj);
+		}
+	}
+	return m_cs;
 }
 
 CoordinateReferenceSystem^ CoordinateReferenceSystem::GetNormalized(ProjContext^ context)
@@ -178,20 +210,22 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::GetNormalized(ProjContext^
 	if (!pj)
 		throw context->ConstructException();
 
-	return static_cast<CoordinateReferenceSystem^>(context->Create(pj));
+	return context->Create<CoordinateReferenceSystem^>(pj);
 }
 
-Ellipsoid^ CoordinateReferenceSystem::GetEllipsoid(ProjContext^ context)
+Ellipsoid^ CoordinateReferenceSystem::Ellipsoid::get()
 {
-	if (!context)
-		context = Context;
+	if (!m_ellipsoid && this)
+	{
+		Context->ClearError(this);
+		PJ* pj = proj_get_ellipsoid(Context, this);
 
-	PJ* pj = proj_get_ellipsoid(context, this);
+		if (!pj)
+			throw Context->ConstructException();
 
-	if (!pj)
-		throw context->ConstructException();
-
-	return static_cast<Ellipsoid^>(context->Create(pj));
+		m_ellipsoid = Context->Create<SharpProj::Ellipsoid^>(pj);
+	}
+	return m_ellipsoid;
 }
 
 PrimeMeridian^ CoordinateReferenceSystem::GetPrimeMeridian(ProjContext^ context)
@@ -207,7 +241,7 @@ PrimeMeridian^ CoordinateReferenceSystem::GetPrimeMeridian(ProjContext^ context)
 	return static_cast<PrimeMeridian^>(context->Create(pj));
 }
 
-CoordinateOperation^ CoordinateReferenceSystem::GetCoordinateOperation(ProjContext^ context)
+CoordinateTransform^ CoordinateReferenceSystem::GetTransform(ProjContext^ context)
 {
 	if (!context)
 		context = Context;
@@ -217,10 +251,10 @@ CoordinateOperation^ CoordinateReferenceSystem::GetCoordinateOperation(ProjConte
 	if (!pj)
 		throw context->ConstructException();
 
-	return static_cast<CoordinateOperation^>(context->Create(pj));
+	return static_cast<CoordinateTransform^>(context->Create(pj));
 }
 
-CoordinateReferenceSystem^ CoordinateReferenceSystem::GetBaseCoordinateReferenceSystem([Optional] ProjContext^ context)
+CoordinateReferenceSystem^ CoordinateReferenceSystem::GetBaseCRS([Optional] ProjContext^ context)
 {
 	if (!context)
 		context = Context;
@@ -234,7 +268,7 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::GetBaseCoordinateReference
 }
 
 
-CoordinateReferenceSystem^ CoordinateReferenceSystem::GetHubCoordinateReferenceSystem([Optional] ProjContext^ context)
+CoordinateReferenceSystem^ CoordinateReferenceSystem::GetHubCRS([Optional] ProjContext^ context)
 {
 	if (!context)
 		context = Context;
@@ -245,4 +279,36 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::GetHubCoordinateReferenceS
 		throw context->ConstructException();
 
 	return static_cast<CoordinateReferenceSystem^>(context->Create(pj));
+}
+
+
+int CoordinateReferenceSystem::AxisCount::get()
+{
+	if (!m_axis && Type != ProjType::CompoundCrs)
+	{
+		auto cs = CoordinateSystem;
+
+		if (cs)
+			m_axis = proj_cs_get_axis_count(cs->Context, cs);
+		
+		if (!m_axis)
+			m_axis = -1;
+	}
+
+	return m_axis;
+}
+
+void CoordinateReferenceSystem::AxisCount::set(int value)
+{
+	m_axis = value;
+}
+
+Details::AxisCollection^ CoordinateReferenceSystem::Axis::get()
+{
+	auto cs = CoordinateSystem;
+
+	if (cs)
+		return cs->Axis;
+	else
+		return nullptr;
 }

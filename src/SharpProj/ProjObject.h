@@ -44,7 +44,7 @@ namespace SharpProj {
 		 Conversion = PJ_TYPE_CONVERSION,
 		 Transformation = PJ_TYPE_TRANSFORMATION,
 		 ConcatenatedOperation = PJ_TYPE_CONCATENATED_OPERATION,
-		 OtherCoordinateOperation = PJ_TYPE_OTHER_COORDINATE_OPERATION,
+		 OtherCoordinateTransform = PJ_TYPE_OTHER_COORDINATE_OPERATION,
 
 		 TemporalDatum = PJ_TYPE_TEMPORAL_DATUM,
 		 EngineeringDatum = PJ_TYPE_ENGINEERING_DATUM,
@@ -76,6 +76,7 @@ namespace SharpProj {
 		}
 	};
 
+	[System::Diagnostics::DebuggerDisplayAttribute("Count = {Count}")]
 	public ref class ProjIdentifierList : IReadOnlyList<ProjIdentifier^>
 	{
 		initonly ProjObject^ m_object;
@@ -327,17 +328,6 @@ namespace SharpProj {
 			coord.v[1] = coordinate.Y;
 			coord.v[2] = coordinate.Z;
 			coord.v[3] = coordinate.T;
-		}
-
-		ProjCoordinate FromCoordinate(const PJ_COORD& coord)
-		{
-			ProjCoordinate r;
-			r.X = coord.v[0];
-			r.Y = coord.v[1];
-			r.Z = coord.v[2];
-			r.T = coord.v[3];
-
-			return r;
-		}
+		}		
 	};
 }

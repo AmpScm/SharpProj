@@ -124,9 +124,20 @@ namespace SharpProj {
 
 	internal:
 		ProjObject^ Create(PJ* pj);
+
+		generic<typename T> where T : ProjObject
+			T Create(PJ* pj);
+
 		void ClearError()
 		{
 			m_lastError = nullptr;
+		}
+
+		void ClearError(PJ* pj)
+		{
+			m_lastError = nullptr;
+			if (pj)
+				proj_errno_reset(pj);			
 		}
 
 	public:

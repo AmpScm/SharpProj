@@ -1,5 +1,5 @@
 #pragma once
-#include "CoordinateOperation.h"
+#include "CoordinateTransform.h"
 
 namespace SharpProj {
 	using System::Collections::Generic::IReadOnlyList;
@@ -7,27 +7,28 @@ namespace SharpProj {
 	ref class ProjArea;
 
 	/// <summary>
-	/// Represents a <see cref="CoordinateOperation"/> which is implemented in a number of ways. The best
+	/// Represents a <see cref="CoordinateTransform"/> which is implemented in a number of ways. The best
 	/// implementation is chosen at runtime, based on some predefined settings.
 	/// </summary>
-	public ref class CoordinateOperationList : CoordinateOperation, IReadOnlyList<CoordinateOperation^>
+	[System::Diagnostics::DebuggerDisplayAttribute("Option Count={Count}")]
+	public ref class AnyCoordinateTransform : CoordinateTransform, IReadOnlyList<CoordinateTransform^>
 	{
 	private:
 		PJ_OBJ_LIST* m_list;
-		array<CoordinateOperation^>^ m_operations;
-		CoordinateOperation^ m_last;
+		array<CoordinateTransform^>^ m_operations;
+		CoordinateTransform^ m_last;
 
 	internal:
-		CoordinateOperationList(ProjContext^ ctx, PJ* pj, PJ_OBJ_LIST* list)
-			: CoordinateOperation(ctx, pj)
+		AnyCoordinateTransform(ProjContext^ ctx, PJ* pj, PJ_OBJ_LIST* list)
+			: CoordinateTransform(ctx, pj)
 		{
 			m_list = list;
 
-			array<CoordinateOperation^>^ items = gcnew array<CoordinateOperation^>(proj_list_get_count(list));
+			array<CoordinateTransform^>^ items = gcnew array<CoordinateTransform^>(proj_list_get_count(list));
 
 			for (int i = 0; i < items->Length; i++)
 			{
-				items[i] = static_cast<CoordinateOperation^>(ctx->Create(proj_list_get(Context, m_list, i)));
+				items[i] = static_cast<CoordinateTransform^>(ctx->Create(proj_list_get(Context, m_list, i)));
 			}
 			m_operations = items;
 
@@ -35,7 +36,7 @@ namespace SharpProj {
 		}
 
 	private:
-		~CoordinateOperationList()
+		~AnyCoordinateTransform()
 		{
 			if (m_list)
 			{
@@ -44,9 +45,9 @@ namespace SharpProj {
 			}
 			if (m_operations)
 			{
-				array<CoordinateOperation^>^ ops = m_operations;
+				array<CoordinateTransform^>^ ops = m_operations;
 				m_operations = nullptr;
-				for each (CoordinateOperation ^ o in ops)
+				for each (CoordinateTransform ^ o in ops)
 				{
 					try
 					{
@@ -69,13 +70,13 @@ namespace SharpProj {
 
 	public:
 		int SuggestedOperation(ProjCoordinate coordinate);
-		int SuggestedOperation(...array<double>^ coordinate) { return SuggestedOperation(ProjCoordinate::FromArray(coordinate)); }
+		int SuggestedOperation(...array<double>^ ordinates) { return SuggestedOperation(ProjCoordinate(ordinates)); }
 
 	public:
 		// Inherited via IReadOnlyCollection
-		virtual System::Collections::Generic::IEnumerator<SharpProj::CoordinateOperation^>^ GetEnumerator() sealed
+		virtual System::Collections::Generic::IEnumerator<SharpProj::CoordinateTransform^>^ GetEnumerator() sealed
 		{
-			return static_cast<System::Collections::Generic::IEnumerable<CoordinateOperation^>^>(m_operations)->GetEnumerator();
+			return static_cast<System::Collections::Generic::IEnumerable<CoordinateTransform^>^>(m_operations)->GetEnumerator();
 		}
 		virtual property int Count
 		{
@@ -85,15 +86,15 @@ namespace SharpProj {
 			}
 		}
 
-		property CoordinateOperation^ default[int]
+		property CoordinateTransform^ default[int]
 		{
-			virtual CoordinateOperation ^ get(int index) sealed
+			virtual CoordinateTransform ^ get(int index) sealed
 			{
 				return m_operations[index];
 			}
 		}
 
-		property bool HasInverse
+			property bool HasInverse
 		{
 			virtual bool get() override sealed
 			{

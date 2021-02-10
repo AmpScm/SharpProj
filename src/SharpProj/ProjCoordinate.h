@@ -1,6 +1,6 @@
 #pragma once
 namespace SharpProj {
-	ref class CoordinateOperation;
+	ref class CoordinateTransform;
 	public value class ProjCoordinate : IEquatable<ProjCoordinate>
 	{
 	public:
@@ -8,13 +8,43 @@ namespace SharpProj {
 		double Y;
 		double Z;
 		double T;
+		Byte m_axis;
 
+	internal:
+		ProjCoordinate(int axis, const double* v)
+		{
+			if (axis < 1 || axis > 4)
+				throw gcnew ArgumentOutOfRangeException("axis");
+
+			m_axis = (Byte)axis;
+			X = v[0];
+			Y = (axis > 1) ? v[1] : 0;
+			Z = (axis > 2) ? v[2] : 0;
+			T = (axis > 3) ? v[3] : 0;
+		}
+
+		ProjCoordinate(const PJ_COORD& coord)
+		{
+			ProjCoordinate r;
+			r.X = coord.v[0];
+			r.Y = coord.v[1];
+			r.Z = coord.v[2];
+			r.T = coord.v[3];
+
+			if (r.T != 0)
+				m_axis = 4;
+			else if (r.Z != 0)
+				m_axis = 3;
+			else
+				m_axis = 2;
+		}
 	public:
 		ProjCoordinate(double x, double y)
 		{
 			X = x;
 			Y = y;
 			Z = T = 0;
+			m_axis = 2;
 		}
 
 		ProjCoordinate(double x, double y, double z)
@@ -23,6 +53,7 @@ namespace SharpProj {
 			Y = y;
 			Z = z;
 			T = 0;
+			m_axis = 3;
 		}
 
 		ProjCoordinate(double x, double y, double z, double t)
@@ -35,12 +66,16 @@ namespace SharpProj {
 
 		ProjCoordinate(array<double>^ v)
 		{
+			if (!v || v->Length < 1)
+				throw gcnew ArgumentException("Ordinate array needs at least one element");
+
 			X = v[0];
-			Y = v[1];
 			int n = v->Length;
 
+			Y = (n > 1) ? v[1] : 0;
 			Z = (n > 2) ? v[2] : 0;
 			T = (n > 3) ? v[3] : 0;
+			m_axis = Math::Min(v->Length, 4);
 		}
 
 		property double default[int]
@@ -85,12 +120,26 @@ namespace SharpProj {
 
 		array<double>^ ToArray()
 		{
-			if (Z == double::NaN)
+			switch (Axis)
+			{
+			case 1:
+			{
+				return gcnew array<double> {X};
+			}
+			case 2:
+			{
 				return gcnew array<double> {X, Y};
-			else if (T == double::NaN)
-				return gcnew array<double>{X, Y, Z};
-			else
-				return gcnew array<double>{X, Y, Z, T};
+			}
+			case 3:
+			{
+				return gcnew array<double> {X, Y, Z};
+			}
+			case 4:
+			default:
+			{
+				return gcnew array<double> {X, Y, Z, T};
+			}
+			}
 		}
 
 		Tuple<double, double>^ ToTupleXY()
@@ -186,30 +235,73 @@ namespace SharpProj {
 
 		virtual System::String^ ToString() override
 		{
-			if (Z == double::NaN)
+			switch (Axis)
+			{
+			case 1:
+				return String::Format("X={0}", X);
+			case 2:
 				return String::Format("X={0}, Y={1}", X, Y);
-			else if (T == double::NaN)
+			case 3:
 				return String::Format("X={0}, Y={1}, Z={2}", X, Y, Z);
-			else
+			default:
+			case 4:
 				return String::Format("X={0}, Y={1}, Z={2}, T={3}", X, Y, Z, T);
+			}
 		}
 
 		/// <summary>Alias for Z</summary>
+		[System::ComponentModel::BrowsableAttribute(false)]
 		property double M
 		{
 			double get() { return Z; }
 			void set(double value) { Z = value; }
 		}
 
-		ProjCoordinate Transform(CoordinateOperation^ operation);
+		[System::ComponentModel::BrowsableAttribute(false)]
+		property int Axis
+		{
+			int get()
+			{
+				return m_axis;
+			}
+		internal:
+			void set(int value)
+			{
+				m_axis = value;
+			}
+		}
 
 		ProjCoordinate Round(int decimals)
 		{
-			return ProjCoordinate(
+			ProjCoordinate pc = ProjCoordinate(
 				Math::Round(X, decimals),
 				Math::Round(Y, decimals),
 				Math::Round(Z, decimals),
 				Math::Round(T, decimals));
+			pc.Axis = Axis;
+			return pc;
+		}
+
+		ProjCoordinate RoundXY(int decimals)
+		{
+			ProjCoordinate pc = ProjCoordinate(
+				Math::Round(X, decimals),
+				Math::Round(Y, decimals),
+				Z,
+				T);
+			pc.Axis = Axis;
+			return pc;
+		}
+
+		ProjCoordinate DegToRad()
+		{
+			ProjCoordinate pc = ProjCoordinate(
+				proj_torad(X),
+				proj_torad(Y),
+				Z,
+				T);
+			pc.Axis = Axis;
+			return pc;
 		}
 	};
 }

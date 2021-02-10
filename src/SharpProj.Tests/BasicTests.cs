@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PJ = SharpProj.CoordinateOperation;
+using PJ = SharpProj.CoordinateTransform;
 
 namespace SharpProj.Tests
 {
@@ -52,7 +52,7 @@ namespace SharpProj.Tests
                 {
                     Assert.AreEqual("PROJ-based coordinate operation", crs.Description);
 
-                    if (crs is CoordinateOperation cob)
+                    if (crs is CoordinateTransform cob)
                     {
                         Assert.AreEqual(false, cob.DegreeInput);
                         Assert.AreEqual(false, cob.DegreeOutput);
@@ -61,8 +61,8 @@ namespace SharpProj.Tests
 
                         Assert.IsNull(crs.Identifiers);
 
-                        var src = cob.GetSourceCoordinateReferenceSystem();
-                        var dst = cob.GetTargetCoordinateReferenceSystem();
+                        var src = cob.SourceCRS;
+                        var dst = cob.TargetCRS;
 
                         Assert.IsNull(src);
                         Assert.IsNull(dst);
@@ -73,7 +73,7 @@ namespace SharpProj.Tests
                     else
                         Assert.Fail();
 
-                    Assert.AreEqual(ProjType.OtherCoordinateOperation, crs.Type);
+                    Assert.AreEqual(ProjType.OtherCoordinateTransform, crs.Type);
                     string expected =
 @"{
   ""$schema"": ""https://proj.org/schemas/v0.2/projjson.schema.json"",
@@ -164,9 +164,9 @@ namespace SharpProj.Tests
                     Assert.AreEqual(ProjType.ProjectedCrs, crs1.Type);
                     Assert.AreEqual(ProjType.ProjectedCrs, crs2.Type);
 
-                    using (var t = CoordinateOperation.Create(crs1, crs2))
+                    using (var t = CoordinateTransform.Create(crs1, crs2))
                     {
-                        MultiCoordinateOperation steps = t as MultiCoordinateOperation;
+                        CoordinateTransformList steps = t as CoordinateTransformList;
                         Assert.IsNotNull(steps);
 
                         Assert.AreEqual(2, steps.Count);
@@ -181,7 +181,7 @@ namespace SharpProj.Tests
                         }
                     }
 
-                    using (var t = CoordinateOperation.Create(crs2, crs1))
+                    using (var t = CoordinateTransform.Create(crs2, crs1))
                     {
                         Assert.AreEqual("Inverse of UTM zone 33N + UTM zone 32N", t.Description);
                     }
@@ -207,8 +207,8 @@ namespace SharpProj.Tests
                     Assert.AreEqual(ProjType.ProjectedCrs, crs2.Type);
                     Assert.AreEqual(ProjType.ProjectedCrs, crs3.Type);
 
-                    using (var c = crs3.GetGeodeticCoordinateReferenceSystem())
                     {
+                        var c = crs3.GeodeticCRS;
                         Assert.IsTrue((object)c is GeographicCoordinateReferenceSystem);
                         Assert.AreEqual("Amersfoort", c.Description);
                         Assert.AreEqual(ProjType.Geographic2DCrs, c.Type);
@@ -235,12 +235,12 @@ namespace SharpProj.Tests
                         Assert.AreEqual("Amersfoort", d.Description);
                         Assert.AreEqual(ProjType.GeodeticReferenceFrame, d.Type);
                     }
-                    using (var c = crs3.GetCoordinateSystem())
                     {
+                        var c = crs3.CoordinateSystem;
                         Assert.IsTrue((object)c is CoordinateSystem);
                         Assert.AreEqual(null, c.Description);
                         Assert.AreEqual(ProjType.Unknown, c.Type);
-                        Assert.AreEqual(CoordinateSystemType.Cartesian, c.CsType);
+                        Assert.AreEqual(CoordinateSystemType.Cartesian, c.CoordinateSystemType);
                         Assert.AreEqual(2, c.Axis.Count);
 
                         Assert.AreEqual("Easting", c.Axis[0].Name);
@@ -258,8 +258,8 @@ namespace SharpProj.Tests
                         Assert.AreEqual("east", c.Axis[0].Direction);
                         Assert.AreEqual("north", c.Axis[1].Direction);
                     }
-                    using (var e = crs3.GetEllipsoid())
                     {
+                        var e = crs3.Ellipsoid;
                         Assert.IsTrue((object)e is Ellipsoid);
                         Assert.AreEqual("Bessel 1841", e.Description);
                         Assert.AreEqual(ProjType.Ellipsoid, e.Type);
@@ -277,9 +277,9 @@ namespace SharpProj.Tests
                         Assert.AreEqual(0.0175, Math.Round(pm.UnitConversionFactor, 4));
                         Assert.AreEqual("degree", pm.UnitName);
                     }
-                    using (var co = crs3.GetCoordinateOperation())
+                    using (var co = crs3.GetTransform())
                     {
-                        Assert.IsTrue((object)co is CoordinateOperation);
+                        Assert.IsTrue((object)co is CoordinateTransform);
                         Assert.AreEqual("RD New", co.Description);
                         //Assert.AreEqual(0.0, pm.Longitude);
                         //Assert.AreEqual(0.0175, Math.Round(pm.UnitConversionFactor, 4));
@@ -290,27 +290,28 @@ namespace SharpProj.Tests
                         Assert.AreEqual(111129.0, Math.Round(co.EllipsoidDistance(new double[] { PJ.ToRad(r[0]), PJ.ToRad(r[1]) }, new double[] { PJ.ToRad(r[0]), PJ.ToRad(r[1] + 1) }), 0));
                     }
 
-                    using (var t = CoordinateOperation.Create(crs1, crs2))
+                    using (var t = CoordinateTransform.Create(crs1, crs2))
                     {
-                        Assert.IsTrue(t is CoordinateOperationList);
+                        Assert.IsTrue(t is AnyCoordinateTransform);
 
                         var start = new double[] { PJ.ToRad(5.0), PJ.ToRad(52.0) };
 
-                        t.Transform(new Tuple<double, double>(1, 1));
+                        t.Apply(new Tuple<double, double>(1, 1));
 
-                        var r = t.Transform(start);
+                        var r = t.Apply(start);
                         GC.KeepAlive(r);
 
-                        var s = t.InverseTransform(r);
+                        var s = t.Apply(r);
                         GC.KeepAlive(s);
 
 
 
-                        using (var c2 = crs1.GetGeodeticCoordinateReferenceSystem())
+
                         {
+                            var c2 = crs1.GeodeticCRS;
                             Assert.AreEqual("WGS 84", c2.Description);
                             Assert.AreEqual(ProjType.Geographic2DCrs, c2.Type);
-                            using (var t2 = CoordinateOperation.Create(crs1, c2))
+                            using (var t2 = CoordinateTransform.Create(crs1, c2))
                             {
                                 Assert.AreEqual("Inverse of Popular Visualisation Pseudo-Mercator", t2.Description);
                             }
@@ -332,21 +333,21 @@ namespace SharpProj.Tests
             Assert.AreEqual("WGS 84", src.Description);
             Assert.AreEqual("WGS 84 / UTM zone 32N", dst.Description);
 
-            var t = CoordinateOperation.Create(src, dst, ctx);
+            var t = CoordinateTransform.Create(src, dst, ctx);
 
             var t2 = t.CreateNormalized();
 
 
-            var p = t2.Transform(new double[] { 12, 55 });
+            var p = t2.ApplyReversed(new double[] { 12, 55 });
 
             Trace.WriteLine($"Easting: {p[0]}, Northing: {p[1]}");
 
-            var r = t2.InverseTransform(p);
+            var r = t2.ApplyReversed(p);
 
             Trace.WriteLine($"Longitude: {r[0]}, Latitude: {r[1]}");
 
 
-            var tt = CoordinateOperation.Create(src, src, null);
+            var tt = CoordinateTransform.Create(src, src, null);
             Assert.AreEqual("Null geographic offset from WGS 84 to WGS 84", tt.Description);
 
             var ss = ctx.Create("+proj=utm +zone=32 +datum=WGS84 +ellps=clrk66");
@@ -370,18 +371,18 @@ namespace SharpProj.Tests
                     Assert.AreEqual(7.22, area.EastLongitude);
 
 
-                    using (var t = CoordinateOperation.Create(rd, wgs84))
+                    using (var t = CoordinateTransform.Create(rd, wgs84))
                     {
-                        var r = t.Transform(155000, 463000);
+                        var r = t.Apply(155000, 463000);
                         Assert.AreEqual(52.155, Math.Round(r[0], 3));
                         Assert.AreEqual(5.387, Math.Round(r[1], 3));
 
                         Assert.AreEqual(1, t.Accuraracy);
                     }
 
-                    using (var t = CoordinateOperation.Create(rd, google))
+                    using (var t = CoordinateTransform.Create(rd, google))
                     {
-                        var r = t.Transform(155000, 463000);
+                        var r = t.Apply(155000, 463000);
 
                         Assert.AreEqual(599701.0, Math.Round(r[0], 0));
                         Assert.AreEqual(6828231.0, Math.Round(r[1], 0));
@@ -405,26 +406,26 @@ namespace SharpProj.Tests
                     Assert.AreEqual("Engineering survey, topographic mapping.", q1.Scope);
                     Assert.AreEqual("Engineering survey, topographic mapping.", q2.Scope);
 
-                    using (var t = CoordinateOperation.Create(google, wgs84))
+                    using (var t = CoordinateTransform.Create(google, wgs84))
                     {
-                        var r = t.Transform(-333958.47, 4865942.28);
+                        var r = t.Apply(-333958.47, 4865942.28);
                         Assert.AreEqual(0, t.GridUsageCount);
                         Assert.AreEqual(40.0, Math.Round(r[0], 3));
                         Assert.AreEqual(-3, Math.Round(r[1], 3));
                     }
 
-                    using (var t = CoordinateOperation.Create(google, q1))
+                    using (var t = CoordinateTransform.Create(google, q1))
                     {
-                        var r = t.Transform(-333958.47, 4865942.28);
+                        var r = t.Apply(-333958.47, 4865942.28);
                         Assert.AreEqual(0, t.GridUsageCount);
 
                         Assert.AreEqual(500110.0, Math.Round(r[0], 0));
                         Assert.AreEqual(4427965.0, Math.Round(r[1], 0));
                     }
 
-                    using (var t = CoordinateOperation.Create(google, q2))
+                    using (var t = CoordinateTransform.Create(google, q2))
                     {
-                        var r = t.Transform(-333958.47, 4865942.28);
+                        var r = t.Apply(-333958.47, 4865942.28);
                         Assert.AreEqual(0, t.GridUsageCount);
 
                         Assert.AreEqual(658629.5, Math.Round(r[0], 1));
@@ -440,7 +441,7 @@ namespace SharpProj.Tests
             bool hasDeprecated = false;
             using (var wgs84 = CoordinateReferenceSystem.Create("EPSG:4326"))
             {
-                for (int i = 2000; i < 2400; i++)
+                for (int i = 2000; i < 2200; i++)
                 {
                     CoordinateReferenceSystem crs;
                     try
@@ -462,10 +463,10 @@ namespace SharpProj.Tests
                             continue;
                         }
 
-                        CoordinateOperation t;
+                        CoordinateTransform t;
                         try
                         {
-                            t = CoordinateOperation.Create(wgs84, crs);
+                            t = CoordinateTransform.Create(wgs84, crs, new CoordinateTransformOptions { NoBallparkConversions = false });
                         }
                         catch (ProjException)
                         {
@@ -482,7 +483,7 @@ namespace SharpProj.Tests
                             double[] center;
                             try
                             {
-                                center = t.Transform((a.EastLongitude + a.WestLongitude) / 2, (a.NorthLatitude + a.SouthLatitude) / 2);
+                                center = t.Apply((a.EastLongitude + a.WestLongitude) / 2, (a.NorthLatitude + a.SouthLatitude) / 2);
                             }
                             catch (ProjException)
                             {
@@ -490,9 +491,9 @@ namespace SharpProj.Tests
                             }
 
 
-                            if (center != null && t.HasInverse && !(t is CoordinateOperationList))
+                            if (center != null && t.HasInverse && !(t is AnyCoordinateTransform))
                             {
-                                double[] ret = t.InverseTransform(center);
+                                double[] ret = t.ApplyReversed(center);
                             }
                         }
                     }
@@ -514,10 +515,10 @@ namespace SharpProj.Tests
                 using (var crsETRS89 = CoordinateReferenceSystem.Create(@"EPSG:4258", pc))
                 {
                     // Do it the dumb way
-                    using (var t = CoordinateOperation.Create(crsAmersfoort, crsETRS89))
+                    using (var t = CoordinateTransform.Create(crsAmersfoort, crsETRS89))
                     {
-                        Assert.IsFalse(t is CoordinateOperationList);
-                        var r = t.Transform(51, 4, 0);
+                        Assert.IsFalse(t is AnyCoordinateTransform);
+                        var r = t.Apply(51, 4, 0);
 
                         Assert.AreEqual(50.999, Math.Round(r[0], 3));
                         Assert.AreEqual(4.0, Math.Round(r[1], 3));
@@ -531,23 +532,23 @@ namespace SharpProj.Tests
                     bool usedHttp = false;
                     pc.Log += (_, x) => { if (x.Contains("https://")) usedHttp = true; };
 
-                    using (var t = CoordinateOperation.Create(crsAmersfoort, crsETRS89))
+                    using (var t = CoordinateTransform.Create(crsAmersfoort, crsETRS89))
                     {
-                        CoordinateOperationList cl = t as CoordinateOperationList;
+                        AnyCoordinateTransform cl = t as AnyCoordinateTransform;
                         Assert.IsNotNull(cl);
                         Assert.AreEqual(2, cl.Count);
 
                         Assert.IsTrue(cl[0].GridUsageCount > 0);
                         Assert.IsTrue(cl[1].GridUsageCount == 0);
 
-                        Assert.AreEqual(new ProjCoordinate(50.999, 4.0), t.Transform(new ProjCoordinate(51, 4)).Round(3));
-                        var r = t.Transform(51, 4, 0);
+                        Assert.AreEqual(new ProjCoordinate(50.999, 4.0), t.Apply(new ProjCoordinate(51, 4)).Round(3));
+                        var r = t.Apply(51, 4, 0);
                         Assert.IsTrue(usedHttp, "Now http");
 
 
-                        var r0 = cl[0].Transform(51, 4, 0);
+                        var r0 = cl[0].Apply(51, 4, 0);
                         usedHttp = false;
-                        var r1 = cl[1].Transform(51, 4, 0);
+                        var r1 = cl[1].Apply(51, 4, 0);
                         Assert.IsFalse(usedHttp, "No http");
                         Assert.IsNotNull(r0);
                         Assert.IsNotNull(r1);

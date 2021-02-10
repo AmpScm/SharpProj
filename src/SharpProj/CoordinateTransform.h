@@ -3,7 +3,7 @@
 #include "ProjCoordinate.h"
 
 namespace SharpProj {
-	ref class CoordinateOperation;
+	ref class CoordinateTransform;
 	ref class CoordinateReferenceSystem;
 	ref class CoordinateArea;
 	ref class CoordinateTransformOptions;
@@ -12,7 +12,7 @@ namespace SharpProj {
 	using System::Collections::Generic::List;
 
 	namespace Details {
-		public ref class CoordinateOperationFactors
+		public ref class CoordinateTransformFactors
 		{
 		private:
 			initonly double m_meridional_scale;               /* h */
@@ -26,7 +26,7 @@ namespace SharpProj {
 			initonly double m_dx_dlam, m_dx_dphi;
 			initonly double m_dy_dlam, m_dy_dphi;
 		internal:
-			CoordinateOperationFactors(CoordinateOperation^ op, PJ_FACTORS* factors)
+			CoordinateTransformFactors(CoordinateTransform^ op, PJ_FACTORS* factors)
 			{
 				m_meridional_scale = factors->meridional_scale;
 				m_parallel_scale = factors->parallel_scale;
@@ -94,10 +94,10 @@ namespace SharpProj {
 		};
 
 		[System::Diagnostics::DebuggerDisplayAttribute("{Name,nq}={ValueString}")]
-		public ref class CoordinateOperationParameter
+		public ref class CoordinateTransformParameter
 		{
 		private:
-			initonly CoordinateOperation^ m_op;
+			initonly CoordinateTransform^ m_op;
 			initonly int m_index;
 
 			String^ m_name;
@@ -112,7 +112,7 @@ namespace SharpProj {
 			String^ m_unit_category;
 
 		internal:
-			CoordinateOperationParameter(CoordinateOperation^ op, int index)
+			CoordinateTransformParameter(CoordinateTransform^ op, int index)
 			{
 				m_op = op;
 				m_index = index;
@@ -216,29 +216,38 @@ namespace SharpProj {
 		};
 	}
 
-	using CoordinateOperationParameter = Details::CoordinateOperationParameter;
+	using CoordinateTransformParameter = Details::CoordinateTransformParameter;
 
-	public ref class CoordinateOperation : ProjObject
+	public ref class CoordinateTransform : ProjObject
 	{
 	private:
 		String^ m_methodName;
-		ReadOnlyCollection<CoordinateOperationParameter^>^ m_params;
+		ReadOnlyCollection<CoordinateTransformParameter^>^ m_params;
+		CoordinateReferenceSystem^ m_source;
+		CoordinateReferenceSystem^ m_target;
 	internal:
-		CoordinateOperation(ProjContext^ ctx, PJ* pj)
+		CoordinateTransform(ProjContext^ ctx, PJ* pj)
 			: ProjObject(ctx, pj)
 		{
 
 
 		}
 
+	private:
+		~CoordinateTransform();
+
 	public:
-		ProjCoordinate Transform(ProjCoordinate coord) { return DoTransform(true, coord); }
-		array<double>^ Transform(...array<double>^ coord) { return DoTransform(true, ProjCoordinate::FromArray(coord)).ToArray(); }
-		ProjCoordinate InverseTransform(ProjCoordinate coord) { return DoTransform(false, coord); }
-		array<double>^ InverseTransform(...array<double>^ coord) { return DoTransform(false, ProjCoordinate::FromArray(coord)).ToArray(); }
+		ProjCoordinate Apply(ProjCoordinate coord) { return DoTransform(true, coord); }
+		array<double>^ Apply(...array<double>^ ordinates) { return DoTransform(true, ProjCoordinate(ordinates)).ToArray(); }
+		ProjCoordinate ApplyReversed(ProjCoordinate coord) { return DoTransform(false, coord); }
+		array<double>^ ApplyReversed(...array<double>^ ordinates) { return DoTransform(false, ProjCoordinate(ordinates)).ToArray(); }
 
 	protected:
 		virtual ProjCoordinate DoTransform(bool forward, ProjCoordinate% coords);
+
+	internal:
+		ProjCoordinate FromCoordinate(const PJ_COORD& coord, bool forward);
+		
 
 	public:
 		property bool HasInverse
@@ -340,9 +349,9 @@ namespace SharpProj {
 			}
 		}
 
-		property IReadOnlyList<CoordinateOperationParameter^>^ Parameters
+		property ReadOnlyCollection<CoordinateTransformParameter^>^ Parameters
 		{
-			virtual IReadOnlyList<CoordinateOperationParameter^>^ get()
+			virtual ReadOnlyCollection<CoordinateTransformParameter^>^ get()
 			{
 				if (!m_params)
 				{
@@ -350,10 +359,10 @@ namespace SharpProj {
 
 					if (cnt >= 0)
 					{
-						List<CoordinateOperationParameter^>^ lst = gcnew List<CoordinateOperationParameter^>(cnt);
+						List<CoordinateTransformParameter^>^ lst = gcnew List<CoordinateTransformParameter^>(cnt);
 
 						for (int i = 0; i < cnt; i++)
-							lst->Add(gcnew CoordinateOperationParameter(this, i));
+							lst->Add(gcnew CoordinateTransformParameter(this, i));
 
 						m_params = lst->AsReadOnly();
 					}
@@ -363,7 +372,7 @@ namespace SharpProj {
 		}
 
 	public:
-		CoordinateOperation^ CreateInverse(ProjContext^ ctx)
+		CoordinateTransform^ CreateInverse(ProjContext^ ctx)
 		{
 			if (!ctx)
 				ctx = Context;
@@ -371,51 +380,58 @@ namespace SharpProj {
 			if (!HasInverse)
 				throw gcnew InvalidOperationException();
 
-			return gcnew CoordinateOperation(ctx, proj_coordoperation_create_inverse(ctx, this));
+			return gcnew CoordinateTransform(ctx, proj_coordoperation_create_inverse(ctx, this));
 		}
 
-		CoordinateOperation^ CreateInverse()
+		CoordinateTransform^ CreateInverse()
 		{
 			return CreateInverse(Context);
 		}
 
-		CoordinateOperation^ CreateNormalized(ProjContext^ ctx)
+		CoordinateTransform^ CreateNormalized(ProjContext^ ctx)
 		{
 			if (!ctx)
 				ctx = Context;
-			return gcnew CoordinateOperation(ctx, proj_normalize_for_visualization(ctx, this));
+			return gcnew CoordinateTransform(ctx, proj_normalize_for_visualization(ctx, this));
 		}
 
-		CoordinateOperation^ CreateNormalized()
+		CoordinateTransform^ CreateNormalized()
 		{
 			return CreateNormalized(Context);
 		}
 
 	public:
-		CoordinateReferenceSystem^ GetSourceCoordinateReferenceSystem([Optional] ProjContext^ context);
-		CoordinateReferenceSystem^ GetTargetCoordinateReferenceSystem([Optional] ProjContext^ context);
+		property CoordinateReferenceSystem^ SourceCRS
+		{
+			CoordinateReferenceSystem ^ get();
+		}
+
+		property CoordinateReferenceSystem^ TargetCRS
+		{
+			CoordinateReferenceSystem^ get();
+		}
 
 	public:
 		double EllipsoidDistance(ProjCoordinate coordinate1, ProjCoordinate coordinate2);
-		double EllipsoidDistance(array<double>^ coordinate1, array<double>^ coordinate2) { return EllipsoidDistance(ProjCoordinate::FromArray(coordinate1), ProjCoordinate::FromArray(coordinate2)); }
+		double EllipsoidDistance(array<double>^ ordinates1, array<double>^ ordinates2) { return EllipsoidDistance(ProjCoordinate(ordinates1), ProjCoordinate(ordinates2)); }
 		double EllipsoidDistanceZ(ProjCoordinate coordinate1, ProjCoordinate coordinate2);
-		double EllipsoidDistanceZ(array<double>^ coordinate1, array<double>^ coordinate2) { return EllipsoidDistanceZ(ProjCoordinate::FromArray(coordinate1), ProjCoordinate::FromArray(coordinate2)); }
+		double EllipsoidDistanceZ(array<double>^ ordinates1, array<double>^ ordinates2) { return EllipsoidDistanceZ(ProjCoordinate(ordinates1), ProjCoordinate(ordinates2)); }
 		ProjCoordinate EllipsoidGeod(ProjCoordinate coordinate1, ProjCoordinate coordinate2);
-		array<double>^ EllipsoidGeod(array<double>^ coordinate1, array<double>^ coordinate2) { return EllipsoidGeod(ProjCoordinate::FromArray(coordinate1), ProjCoordinate::FromArray(coordinate2)).ToArray(); }
+		array<double>^ EllipsoidGeod(array<double>^ ordinates1, array<double>^ ordinates2) { return EllipsoidGeod(ProjCoordinate(ordinates1), ProjCoordinate(ordinates2)).ToArray(); }
 
 	public:
-		static CoordinateOperation^ Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, CoordinateArea^ area, [Optional] ProjContext^ ctx);
-		static CoordinateOperation^ Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, CoordinateTransformOptions^ options, [Optional] ProjContext^ ctx);
-		static CoordinateOperation^ Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, [Optional] ProjContext^ ctx)
+		static CoordinateTransform^ Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, CoordinateArea^ area, [Optional] ProjContext^ ctx);
+		static CoordinateTransform^ Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, CoordinateTransformOptions^ options, [Optional] ProjContext^ ctx);
+		static CoordinateTransform^ Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, [Optional] ProjContext^ ctx)
 		{
-			return CoordinateOperation::Create(sourceCrs, targetCrs, (CoordinateTransformOptions^)nullptr, nullptr);
+			return CoordinateTransform::Create(sourceCrs, targetCrs, (CoordinateTransformOptions^)nullptr, nullptr);
 		}
 
 	public:
 		double RoundTrip(bool forward, int transforms, ProjCoordinate coordinate);
-		double RoundTrip(bool forward, int transforms, array<double>^ coordinate) { return RoundTrip(forward, transforms, ProjCoordinate::FromArray(coordinate)); }
-		Details::CoordinateOperationFactors^ Factors(ProjCoordinate coordinate);
-		Details::CoordinateOperationFactors^ Factors(array<double>^ coordinate) { return Factors(ProjCoordinate::FromArray(coordinate)); }
+		double RoundTrip(bool forward, int transforms, array<double>^ ordinates) { return RoundTrip(forward, transforms, ProjCoordinate(ordinates)); }
+		Details::CoordinateTransformFactors^ Factors(ProjCoordinate coordinate);
+		Details::CoordinateTransformFactors^ Factors(array<double>^ ordinates) { return Factors(ProjCoordinate(ordinates)); }
 
 
 	public:

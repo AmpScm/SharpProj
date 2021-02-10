@@ -60,13 +60,5 @@ namespace SharpProj {
 			}
 		}
 
-	public:
-		double EllipsoidDistance(ProjCoordinate coordinate1, ProjCoordinate coordinate2);
-		double EllipsoidDistance(array<double>^ coordinate1, array<double>^ coordinate2) { return EllipsoidDistance(ProjCoordinate::FromArray(coordinate1), ProjCoordinate::FromArray(coordinate2)); }
-		double EllipsoidDistanceZ(ProjCoordinate coordinate1, ProjCoordinate coordinate2);
-		double EllipsoidDistanceZ(array<double>^ coordinate1, array<double>^ coordinate2) { return EllipsoidDistanceZ(ProjCoordinate::FromArray(coordinate1), ProjCoordinate::FromArray(coordinate2)); }
-		ProjCoordinate EllipsoidGeod(ProjCoordinate coordinate1, ProjCoordinate coordinate2);
-		array<double>^ EllipsoidGeod(array<double>^ coordinate1, array<double>^ coordinate2) { return EllipsoidGeod(ProjCoordinate::FromArray(coordinate1), ProjCoordinate::FromArray(coordinate2)).ToArray(); }
-
 	};
 }
