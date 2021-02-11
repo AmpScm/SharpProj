@@ -1,7 +1,7 @@
 #pragma once
 #include "ProjObject.h"
 namespace SharpProj {
-	namespace Details {
+	namespace ProjDetaile {
 		public ref class PrimeMeridian :
 			public ProjObject
 		{

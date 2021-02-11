@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTopologySuite.Geometries;
-using SharpProj.Details;
+using SharpProj.ProjDetaile;
 
 namespace SharpProj.Tests
 {

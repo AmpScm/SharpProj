@@ -7,7 +7,7 @@ namespace SharpProj {
 		public CoordinateReferenceSystem, IReadOnlyList<CoordinateReferenceSystem^>
 	{
 		array<CoordinateReferenceSystem^>^ m_crs;
-		Details::AxisCollection^ m_axis;
+		ProjDetaile::AxisCollection^ m_axis;
 	internal:
 		CoordinateReferenceSystemList(ProjContext^ ctx, PJ* pj)
 			: CoordinateReferenceSystem(ctx, pj)
@@ -89,9 +89,9 @@ namespace SharpProj {
 			int get() override;
 		}
 
-		property Details::AxisCollection^ Axis
+		property ProjDetaile::AxisCollection^ Axis
 		{
-			virtual Details::AxisCollection^ get() override;
+			virtual ProjDetaile::AxisCollection^ get() override;
 		}
 	};
 

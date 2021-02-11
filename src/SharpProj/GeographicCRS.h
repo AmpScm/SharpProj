@@ -2,7 +2,7 @@
 #include "CoordinateReferenceSystem.h"
 namespace SharpProj {
 
-    namespace Details {
+    namespace ProjDetaile {
         public ref class GeodeticCRS : public CoordinateReferenceSystem
         {
         internal:

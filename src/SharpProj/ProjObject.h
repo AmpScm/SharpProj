@@ -7,7 +7,7 @@ namespace SharpProj {
 	using System::Collections::Generic::IReadOnlyList;
 	ref class ProjObject;
 
-	namespace Details {
+	namespace ProjDetaile {
 		public enum class ProjType
 		{
 			Unknown = PJ_TYPE_UNKNOWN,
@@ -137,7 +137,7 @@ namespace SharpProj {
 		String^ m_name;
 		String^ m_infoDefinition;
 		String^ m_scope;
-		Details::IdentifierList^ m_idList;
+		ProjDetaile::IdentifierList^ m_idList;
 
 	private:
 		~ProjObject()
@@ -274,11 +274,11 @@ namespace SharpProj {
 			}
 		}
 
-		property Details::ProjType Type
+		property ProjDetaile::ProjType Type
 		{
-			virtual Details::ProjType get()
+			virtual ProjDetaile::ProjType get()
 			{
-				return (Details::ProjType)proj_get_type(this);
+				return (ProjDetaile::ProjType)proj_get_type(this);
 			}
 		}
 
@@ -319,9 +319,9 @@ namespace SharpProj {
 		}
 
 	public:
-		property Details::IdentifierList^ Identifiers
+		property ProjDetaile::IdentifierList^ Identifiers
 		{
-			Details::IdentifierList^ get();
+			ProjDetaile::IdentifierList^ get();
 		}
 
 		bool IsEquivalentTo(ProjObject^ other, [Optional] ProjContext^ ctx)

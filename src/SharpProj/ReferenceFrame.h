@@ -2,7 +2,7 @@
 #include "Datum.h"
 
 namespace SharpProj {
-    namespace Details {
+    namespace ProjDetaile {
         ref class Ellipsoid;
 
         public ref class ReferenceFrame :
@@ -38,7 +38,7 @@ namespace SharpProj {
 
             property Ellipsoid^ Ellipsoid
             {
-                Details::Ellipsoid^ get();
+                ProjDetaile::Ellipsoid^ get();
             }
 
         public:

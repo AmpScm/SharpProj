@@ -11,7 +11,7 @@ namespace SharpProj {
 	using System::Collections::ObjectModel::ReadOnlyCollection;
 	using System::Collections::Generic::List;
 
-	namespace Details {
+	namespace ProjDetaile {
 		public ref class CoordinateTransformFactors
 		{
 		private:
@@ -216,7 +216,7 @@ namespace SharpProj {
 		};
 	}
 
-	using CoordinateTransformParameter = Details::CoordinateTransformParameter;
+	using CoordinateTransformParameter = ProjDetaile::CoordinateTransformParameter;
 
 	public ref class CoordinateTransform : ProjObject
 	{
@@ -435,8 +435,8 @@ namespace SharpProj {
 	public:
 		double RoundTrip(bool forward, int transforms, PPoint coordinate);
 		double RoundTrip(bool forward, int transforms, array<double>^ ordinates) { return RoundTrip(forward, transforms, PPoint(ordinates)); }
-		Details::CoordinateTransformFactors^ Factors(PPoint coordinate);
-		Details::CoordinateTransformFactors^ Factors(array<double>^ ordinates) { return Factors(PPoint(ordinates)); }
+		ProjDetaile::CoordinateTransformFactors^ Factors(PPoint coordinate);
+		ProjDetaile::CoordinateTransformFactors^ Factors(array<double>^ ordinates) { return Factors(PPoint(ordinates)); }
 
 
 	public:

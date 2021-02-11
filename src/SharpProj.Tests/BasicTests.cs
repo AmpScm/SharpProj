@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SharpProj.Details;
+using SharpProj.ProjDetaile;
 using PJ = SharpProj.CoordinateTransform;
 
 namespace SharpProj.Tests
@@ -210,7 +210,7 @@ namespace SharpProj.Tests
                     Assert.IsNotNull(crs3.Datum);
                     Assert.AreEqual("Amersfoort", crs3.Datum.Name);
                     Assert.AreEqual(ProjType.GeodeticReferenceFrame, crs3.Datum.Type);
-                    Assert.IsFalse(crs3.Datum is Details.DatumList);
+                    Assert.IsFalse(crs3.Datum is ProjDetaile.DatumList);
                     Assert.AreEqual(null, crs3.CoordinateSystem.Name);
                     Assert.AreEqual(ProjType.CoordinateSystem, crs3.CoordinateSystem.Type);
                     Assert.AreEqual(CoordinateSystemType.Cartesian, crs3.CoordinateSystem.CoordinateSystemType);

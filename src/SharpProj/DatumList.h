@@ -3,7 +3,7 @@
 namespace SharpProj {
     using System::Collections::Generic::IReadOnlyList;
 
-    namespace Details {
+    namespace ProjDetaile {
         public ref class DatumList :
             public Datum, IReadOnlyList<Datum^>
         {
@@ -65,5 +65,5 @@ namespace SharpProj {
         };
     }
 
-    using Details::DatumList;
+    using ProjDetaile::DatumList;
 }

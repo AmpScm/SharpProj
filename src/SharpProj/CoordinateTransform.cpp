@@ -139,14 +139,14 @@ double CoordinateTransform::RoundTrip(bool forward, int transforms, PPoint coord
 	return proj_roundtrip(this, forward ? PJ_FWD : PJ_INV, transforms, &coord);
 }
 
-Details::CoordinateTransformFactors^ CoordinateTransform::Factors(PPoint coordinate)
+ProjDetaile::CoordinateTransformFactors^ CoordinateTransform::Factors(PPoint coordinate)
 {
 	PJ_COORD coord;
 	SetCoordinate(coord, coordinate);
 
 	PJ_FACTORS f = proj_factors(this, coord);
 
-	return gcnew Details::CoordinateTransformFactors(this, &f);
+	return gcnew ProjDetaile::CoordinateTransformFactors(this, &f);
 }
 
 PPoint CoordinateTransform::DoTransform(bool forward, PPoint% coordinate)
@@ -203,7 +203,7 @@ CoordinateReferenceSystem^ CoordinateTransform::TargetCRS::get()
 	return m_target;
 }
 
-void SharpProj::Details::CoordinateTransformParameter::Ensure()
+void SharpProj::ProjDetaile::CoordinateTransformParameter::Ensure()
 {
 	if (!m_name)
 	{

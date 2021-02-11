@@ -14,7 +14,7 @@
 #include "Datum.h"
 
 using namespace SharpProj;
-using namespace SharpProj::Details;
+using namespace SharpProj::ProjDetaile;
 
 ProjObject^ ProjContext::Create(String^ definition)
 {
@@ -70,16 +70,16 @@ ProjObject^ ProjContext::Create(PJ* pj)
 		return gcnew Ellipsoid(this, pj);
 
 	case ProjType::PrimeMeridian:
-		return gcnew Details::PrimeMeridian(this, pj);
+		return gcnew ProjDetaile::PrimeMeridian(this, pj);
 
 	case ProjType::GeodeticReferenceFrame:
 	case ProjType::DynamicGeodeticReferenceFrame:
 	case ProjType::VerticalReferenceFrame:
 	case ProjType::DynamicVerticalReferenceFrame:
-		return gcnew Details::ReferenceFrame(this, pj);
+		return gcnew ProjDetaile::ReferenceFrame(this, pj);
 
 	case ProjType::DatumEnsamble:
-		return gcnew Details::DatumList(this, pj);
+		return gcnew ProjDetaile::DatumList(this, pj);
 
 	case ProjType::GeographicCrs: // Never used. Only inherited
 	case ProjType::Geographic2DCrs:
@@ -115,7 +115,7 @@ ProjObject^ ProjContext::Create(PJ* pj)
 	case ProjType::TemporalDatum:
 	case ProjType::EngineeringDatum:
 	case ProjType::ParametricDatum:
-		return gcnew Details::Datum(this, pj);
+		return gcnew ProjDetaile::Datum(this, pj);
 
 	case ProjType::ChooseTransform:
 	case ProjType::CoordinateSystem:
