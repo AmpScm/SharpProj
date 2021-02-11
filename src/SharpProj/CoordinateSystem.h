@@ -1,27 +1,29 @@
 #pragma once
 #include "ProjObject.h"
 namespace SharpProj {
-	using System::Collections::ObjectModel::ReadOnlyCollection;
-	using System::Collections::Generic::List;
-
-	ref class CoordinateSystem;
-
-	public enum class CoordinateSystemType
-	{
-		Unknown = PJ_CS_TYPE_UNKNOWN,
-
-		Cartesian = PJ_CS_TYPE_CARTESIAN,
-		Ellipsoidal = PJ_CS_TYPE_ELLIPSOIDAL,
-		Vertical = PJ_CS_TYPE_VERTICAL,
-		Spherical = PJ_CS_TYPE_SPHERICAL,
-		Ordinal = PJ_CS_TYPE_ORDINAL,
-		Parametric = PJ_CS_TYPE_PARAMETRIC,
-		DateTimeTemporal = PJ_CS_TYPE_DATETIMETEMPORAL,
-		TemporalCount = PJ_CS_TYPE_TEMPORALCOUNT,
-		TemporalMeasure = PJ_CS_TYPE_TEMPORALMEASURE
-	};
-
 	namespace Details {
+
+		using System::Collections::ObjectModel::ReadOnlyCollection;
+		using System::Collections::Generic::List;
+
+
+		ref class CoordinateSystem;
+
+		public enum class CoordinateSystemType
+		{
+			Unknown = PJ_CS_TYPE_UNKNOWN,
+
+			Cartesian = PJ_CS_TYPE_CARTESIAN,
+			Ellipsoidal = PJ_CS_TYPE_ELLIPSOIDAL,
+			Vertical = PJ_CS_TYPE_VERTICAL,
+			Spherical = PJ_CS_TYPE_SPHERICAL,
+			Ordinal = PJ_CS_TYPE_ORDINAL,
+			Parametric = PJ_CS_TYPE_PARAMETRIC,
+			DateTimeTemporal = PJ_CS_TYPE_DATETIMETEMPORAL,
+			TemporalCount = PJ_CS_TYPE_TEMPORALCOUNT,
+			TemporalMeasure = PJ_CS_TYPE_TEMPORALMEASURE
+		};
+
 		[System::Diagnostics::DebuggerDisplayAttribute("{Name}")]
 		public ref class Axis
 		{
@@ -117,7 +119,7 @@ namespace SharpProj {
 			{
 
 			}
-			
+
 
 		private:
 			String^ DebuggerDisplay()
@@ -135,52 +137,59 @@ namespace SharpProj {
 				return sb->ToString();
 			}
 		};
-	}
 
-	using ProjAxis = Details::Axis;
-
-	public ref class CoordinateSystem :
-		public ProjObject
-	{
-		Details::AxisCollection^ m_axis;
-	internal:
-		CoordinateSystem(ProjContext^ ctx, PJ* pj)
-			: ProjObject(ctx, pj)
+		typedef Axis ProjAxis;
+		public ref class CoordinateSystem :
+			public ProjObject
 		{
-
-
-		}
-
-	public:
-		property CoordinateSystemType CoordinateSystemType
-		{
-			SharpProj::CoordinateSystemType get()
+			AxisCollection^ m_axis;
+		internal:
+			CoordinateSystem(ProjContext^ ctx, PJ* pj)
+				: ProjObject(ctx, pj)
 			{
-				return (SharpProj::CoordinateSystemType)proj_cs_get_type(Context, this);
+
+
 			}
-		}
 
-	public:
-		property Details::AxisCollection^ Axis
-		{
-			virtual Details::AxisCollection^ get()
+		public:
+			property CoordinateSystemType CoordinateSystemType
 			{
-				if (!m_axis)
+				Details::CoordinateSystemType get()
 				{
-					int cnt = proj_cs_get_axis_count(Context, this);
-
-					if (cnt > 0)
-					{
-						List<ProjAxis^>^ lst = gcnew List<ProjAxis^>(cnt);
-
-						for (int i = 0; i < cnt; i++)
-							lst->Add(gcnew ProjAxis(this, i));
-
-						m_axis = gcnew Details::AxisCollection(lst);
-					}
+					return (Details::CoordinateSystemType)proj_cs_get_type(Context, this);
 				}
-				return m_axis;
 			}
-		}
-	};
+
+			property ProjType Type
+			{
+				virtual ProjType get() override
+				{
+					return ProjType::CoordinateSystem;
+				}
+			}
+
+		public:
+			property Details::AxisCollection^ Axis
+			{
+				virtual Details::AxisCollection^ get()
+				{
+					if (!m_axis)
+					{
+						int cnt = proj_cs_get_axis_count(Context, this);
+
+						if (cnt > 0)
+						{
+							List<ProjAxis^>^ lst = gcnew List<ProjAxis^>(cnt);
+
+							for (int i = 0; i < cnt; i++)
+								lst->Add(gcnew ProjAxis(this, i));
+
+							m_axis = gcnew Details::AxisCollection(lst);
+						}
+					}
+					return m_axis;
+				}
+			}
+		};
+	}
 }

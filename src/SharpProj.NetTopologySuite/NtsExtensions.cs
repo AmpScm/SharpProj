@@ -50,7 +50,7 @@ namespace SharpProj
             return op.Apply(FromCoordinate(c)).ToCoordinate();
         }
 
-        public static Coordinate ToCoordinate(this ProjCoordinate p)
+        public static Coordinate ToCoordinate(this PPoint p)
         {
             switch (p.Axis)
             {
@@ -115,14 +115,14 @@ namespace SharpProj
             return (coordinate as CoordinateM)?.M ?? (coordinate as CoordinateZM)?.M;
         }
 
-        private static ProjCoordinate FromCoordinate(Coordinate coordinate)
+        private static PPoint FromCoordinate(Coordinate coordinate)
         {
             if (double.IsNaN(coordinate.Z))
-                return new ProjCoordinate(coordinate.X, coordinate.Y);
+                return new PPoint(coordinate.X, coordinate.Y);
             if (coordinate is CoordinateZM)
-                return new ProjCoordinate(coordinate.X, coordinate.Y, coordinate.Z, coordinate.M);
+                return new PPoint(coordinate.X, coordinate.Y, coordinate.Z, coordinate.M);
             else
-                return new ProjCoordinate(coordinate.X, coordinate.Y, coordinate.GetZ() ?? coordinate.GetM() ?? 0);
+                return new PPoint(coordinate.X, coordinate.Y, coordinate.GetZ() ?? coordinate.GetM() ?? 0);
         }
 
         internal static Disposer WithReadLock(this ReaderWriterLockSlim rwls)
@@ -161,28 +161,14 @@ namespace SharpProj
                 return false;
         }
 
-        public static double EllipsoidDistance(this CoordinateTransform operation, Coordinate c1, Coordinate c2)
+        public static double GeoDistance(this CoordinateTransform operation, Coordinate c1, Coordinate c2)
         {
-            if (operation.DegreeInput || operation.SourceCRS?.Axis?[0].UnitName == "degree")
-            {
-                return operation.EllipsoidDistance(FromCoordinate(c1).DegToRad(), FromCoordinate(c2).DegToRad());
-            }
-            else
-            {
-                return operation.EllipsoidDistance(FromCoordinate(c1), FromCoordinate(c2));
-            }
+            return operation.GeoDistance(FromCoordinate(c1), FromCoordinate(c2));
         }
 
-        public static double EllipsoidDistanceZ(this CoordinateTransform operation, Coordinate c1, Coordinate c2)
+        public static double GeoDistanceZ(this CoordinateTransform operation, Coordinate c1, Coordinate c2)
         {
-            if (operation.DegreeInput)
-            {
-                return operation.EllipsoidDistanceZ(FromCoordinate(c1).DegToRad(), FromCoordinate(c2).DegToRad());
-            }
-            else
-            {
-                return operation.EllipsoidDistanceZ(FromCoordinate(c1), FromCoordinate(c2));
-            }
+            return operation.GeoDistanceZ(FromCoordinate(c1), FromCoordinate(c2));
         }
 
         internal sealed class Disposer : IDisposable

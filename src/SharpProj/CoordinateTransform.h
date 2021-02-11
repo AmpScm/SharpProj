@@ -1,6 +1,6 @@
 #pragma once
 #include "ProjObject.h"
-#include "ProjCoordinate.h"
+#include "CoordinateReferenceSystem.h"
 
 namespace SharpProj {
 	ref class CoordinateTransform;
@@ -225,6 +225,7 @@ namespace SharpProj {
 		ReadOnlyCollection<CoordinateTransformParameter^>^ m_params;
 		CoordinateReferenceSystem^ m_source;
 		CoordinateReferenceSystem^ m_target;
+		int m_distanceFlags;
 	internal:
 		CoordinateTransform(ProjContext^ ctx, PJ* pj)
 			: ProjObject(ctx, pj)
@@ -237,16 +238,16 @@ namespace SharpProj {
 		~CoordinateTransform();
 
 	public:
-		ProjCoordinate Apply(ProjCoordinate coord) { return DoTransform(true, coord); }
-		array<double>^ Apply(...array<double>^ ordinates) { return DoTransform(true, ProjCoordinate(ordinates)).ToArray(); }
-		ProjCoordinate ApplyReversed(ProjCoordinate coord) { return DoTransform(false, coord); }
-		array<double>^ ApplyReversed(...array<double>^ ordinates) { return DoTransform(false, ProjCoordinate(ordinates)).ToArray(); }
+		PPoint Apply(PPoint coord) { return DoTransform(true, coord); }
+		array<double>^ Apply(...array<double>^ ordinates) { return DoTransform(true, PPoint(ordinates)).ToArray(); }
+		PPoint ApplyReversed(PPoint coord) { return DoTransform(false, coord); }
+		array<double>^ ApplyReversed(...array<double>^ ordinates) { return DoTransform(false, PPoint(ordinates)).ToArray(); }
 
 	protected:
-		virtual ProjCoordinate DoTransform(bool forward, ProjCoordinate% coords);
+		virtual PPoint DoTransform(bool forward, PPoint% coords);
 
 	internal:
-		ProjCoordinate FromCoordinate(const PJ_COORD& coord, bool forward);
+		PPoint FromCoordinate(const PJ_COORD& coord, bool forward);
 		
 
 	public:
@@ -277,38 +278,6 @@ namespace SharpProj {
 					return Nullable<double>();
 				else
 					return d;
-			}
-		}
-
-		property bool AngularInput
-		{
-			bool get()
-			{
-				return proj_angular_input(this, PJ_FWD);
-			}
-		}
-
-		property bool AngularOutput
-		{
-			bool get()
-			{
-				return proj_angular_output(this, PJ_FWD);
-			}
-		}
-
-		property bool DegreeInput
-		{
-			bool get()
-			{
-				return proj_degree_input(this, PJ_FWD);
-			}
-		}
-
-		property bool DegreeOutput
-		{
-			bool get()
-			{
-				return proj_degree_output(this, PJ_FWD);
 			}
 		}
 
@@ -372,7 +341,7 @@ namespace SharpProj {
 		}
 
 	public:
-		CoordinateTransform^ CreateInverse(ProjContext^ ctx)
+		CoordinateTransform^ CreateInverse([Optional]ProjContext^ ctx)
 		{
 			if (!ctx)
 				ctx = Context;
@@ -381,23 +350,6 @@ namespace SharpProj {
 				throw gcnew InvalidOperationException();
 
 			return gcnew CoordinateTransform(ctx, proj_coordoperation_create_inverse(ctx, this));
-		}
-
-		CoordinateTransform^ CreateInverse()
-		{
-			return CreateInverse(Context);
-		}
-
-		CoordinateTransform^ CreateNormalized(ProjContext^ ctx)
-		{
-			if (!ctx)
-				ctx = Context;
-			return gcnew CoordinateTransform(ctx, proj_normalize_for_visualization(ctx, this));
-		}
-
-		CoordinateTransform^ CreateNormalized()
-		{
-			return CreateNormalized(Context);
 		}
 
 	public:
@@ -411,13 +363,66 @@ namespace SharpProj {
 			CoordinateReferenceSystem^ get();
 		}
 
+	private:
+		void EnsureDistance()
+		{
+			if (m_distanceFlags)
+				return;
+
+			SetupDistance();
+		}
+
+		void SetupDistance();
+
 	public:
-		double EllipsoidDistance(ProjCoordinate coordinate1, ProjCoordinate coordinate2);
-		double EllipsoidDistance(array<double>^ ordinates1, array<double>^ ordinates2) { return EllipsoidDistance(ProjCoordinate(ordinates1), ProjCoordinate(ordinates2)); }
-		double EllipsoidDistanceZ(ProjCoordinate coordinate1, ProjCoordinate coordinate2);
-		double EllipsoidDistanceZ(array<double>^ ordinates1, array<double>^ ordinates2) { return EllipsoidDistanceZ(ProjCoordinate(ordinates1), ProjCoordinate(ordinates2)); }
-		ProjCoordinate EllipsoidGeod(ProjCoordinate coordinate1, ProjCoordinate coordinate2);
-		array<double>^ EllipsoidGeod(array<double>^ ordinates1, array<double>^ ordinates2) { return EllipsoidGeod(ProjCoordinate(ordinates1), ProjCoordinate(ordinates2)).ToArray(); }
+		/// <summary>
+		/// When called on an instance obtained from CoordinateRefenceSystem.DistanceTransform calculates the distance in meters
+		/// Between p1 and p2 in meters calculating via the GeodeticCRS below the CoordinateReferenceSystem
+		/// disregarding the height.
+		/// </summary>
+		/// <param name="p1"></param>
+		/// <param name="p2"></param>
+		/// <returns>Distance in meters or Double.NaN if unable to calculate</returns>
+		double GeoDistance(PPoint p1, PPoint p2);
+		/// <summary>
+		/// When called on an instance obtained from CoordinateRefenceSystem.DistanceTransform calculates the distance in meters
+		/// Between p1 and p2 in meters calculating via the GeodeticCRS below the CoordinateReferenceSystem
+		/// disregarding the height.
+		/// </summary>
+		/// <param name="ordinates1"></param>
+		/// <param name="ordinates2"></param>
+		/// <returns>Distance in meters or Double.NaN if unable to calculate</returns>
+		double GeoDistance(array<double>^ ordinates1, array<double>^ ordinates2) { return GeoDistance(PPoint(ordinates1), PPoint(ordinates2)); }
+		/// <summary>
+		/// When called on an instance obtained from CoordinateRefenceSystem.DistanceTransform calculates the distance in meters
+		/// Between p1 and p2 in meters calculating via the GeodeticCRS below the CoordinateReferenceSystem.
+		/// After applying the distance over the ellipsoid the Z coordinate is applied in meters, as if the route was a simple straight line (using Pythagoras).
+		/// </summary>
+		/// <param name="p1"></param>
+		/// <param name="p2"></param>
+		/// <returns>Distance in meters or Double.NaN if unable to calculate</returns>
+		double GeoDistanceZ(PPoint p1, PPoint p2);
+		/// <summary>
+		/// When called on an instance obtained from CoordinateRefenceSystem.DistanceTransform calculates the distance in meters
+		/// Between p1 and p2 in meters calculating via the GeodeticCRS below the CoordinateReferenceSystem.
+		/// After applying the distance over the ellipsoid the Z coordinate is applied in meters, as if the route was a simple straight line (using Pythagoras).
+		/// </summary>
+		/// <param name="ordinates1"></param>
+		/// <param name="ordinates2"></param>
+		/// <returns>Distance in meters or Double.NaN if unable to calculate</returns>
+		double GeoDistanceZ(array<double>^ ordinates1, array<double>^ ordinates2) { return GeoDistanceZ(PPoint(ordinates1), PPoint(ordinates2)); }
+		PPoint Geod(PPoint p1, PPoint p2);
+		array<double>^ Geod(array<double>^ ordinates1, array<double>^ ordinates2) { return Geod(PPoint(ordinates1), PPoint(ordinates2)).ToArray(); }
+
+	private protected:
+		virtual ProjObject^ DoClone(ProjContext^ ctx) override
+		{
+			auto t = static_cast<CoordinateTransform^>(__super::DoClone(ctx));
+
+			t->m_methodName = m_methodName;
+			t->m_distanceFlags = m_distanceFlags;
+			return t;
+		}
 
 	public:
 		static CoordinateTransform^ Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, CoordinateArea^ area, [Optional] ProjContext^ ctx);
@@ -428,23 +433,25 @@ namespace SharpProj {
 		}
 
 	public:
-		double RoundTrip(bool forward, int transforms, ProjCoordinate coordinate);
-		double RoundTrip(bool forward, int transforms, array<double>^ ordinates) { return RoundTrip(forward, transforms, ProjCoordinate(ordinates)); }
-		Details::CoordinateTransformFactors^ Factors(ProjCoordinate coordinate);
-		Details::CoordinateTransformFactors^ Factors(array<double>^ ordinates) { return Factors(ProjCoordinate(ordinates)); }
+		double RoundTrip(bool forward, int transforms, PPoint coordinate);
+		double RoundTrip(bool forward, int transforms, array<double>^ ordinates) { return RoundTrip(forward, transforms, PPoint(ordinates)); }
+		Details::CoordinateTransformFactors^ Factors(PPoint coordinate);
+		Details::CoordinateTransformFactors^ Factors(array<double>^ ordinates) { return Factors(PPoint(ordinates)); }
 
 
 	public:
+		static const double _degToRad = (2.0 * System::Math::PI / 360.0);
+		static const double _radToDeg = (360.0 / System::Math::PI / 2.0);
 		// Some helpers that do not really belong here, but are easy to access in a sensible way
 		// if they are here anyway
 		static double ToRad(double deg)
 		{
-			return proj_torad(deg);
+			return deg * _degToRad; // proj_torad(deg); // Inlineable by .Net CLR
 		}
 
-		static double ToDeg(double deg)
+		static double ToDeg(double rad)
 		{
-			return proj_todeg(deg);
+			return rad * _radToDeg; //return proj_todeg(rad); // Inlineable by .Net CLR
 		}
 	};
 

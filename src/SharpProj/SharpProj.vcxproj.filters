@@ -39,25 +39,13 @@
     <ClInclude Include="PrimeMeridian.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ProjDatum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CoordinateReferenceSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CoordinateSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GeographicCoordinateReferenceSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ProjObjectList.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ProjDatumList.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ProjCoordinate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CoordinateArea.h">
@@ -72,7 +60,19 @@
     <ClInclude Include="CoordinateTransformList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AnyCoordinateTransform.h">
+    <ClInclude Include="GeographicCRS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Datum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DatumList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ChooseCoordinateTransform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PPoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -101,28 +101,16 @@
     <ClCompile Include="PrimeMeridian.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ProjDatum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CoordinateReferenceSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CoordinateSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeographicCoordinateReferenceSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ProjObjectList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ProjDatumList.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ProjNetworkHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ProjCoordinate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CoordinateArea.cpp">
@@ -137,7 +125,19 @@
     <ClCompile Include="CoordinateTransformList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AnyCoordinateTransform.cpp">
+    <ClCompile Include="GeographicCRS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Datum.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DatumList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ChooseCoordinateTransform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PPoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

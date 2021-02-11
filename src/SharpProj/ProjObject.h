@@ -1,128 +1,143 @@
 #pragma once
 #include "ProjContext.h"
 #include "CoordinateArea.h"
-#include "ProjCoordinate.h"
+#include "PPoint.h"
 
 namespace SharpProj {
 	using System::Collections::Generic::IReadOnlyList;
 	ref class ProjObject;
 
-	public enum class ProjType
-	{
-		Unknown = PJ_TYPE_UNKNOWN,
-
-		Ellipsoid = PJ_TYPE_ELLIPSOID,
-
-		PrimeMeridian = PJ_TYPE_PRIME_MERIDIAN,
-
-		GeodeticReferenceFrame = PJ_TYPE_GEODETIC_REFERENCE_FRAME,
-		DynamicGeodeticReferenceFrame = PJ_TYPE_DYNAMIC_GEODETIC_REFERENCE_FRAME,
-		VerticalReferenceFrame = PJ_TYPE_VERTICAL_REFERENCE_FRAME,
-		DynamicVerticalReferenceFrame = PJ_TYPE_DYNAMIC_VERTICAL_REFERENCE_FRAME,
-		DatumEnsamble = PJ_TYPE_DATUM_ENSEMBLE,
-
-		/** Abstract type, not returned by proj_get_type() */
-		CRS = PJ_TYPE_CRS,
-
-		GeodeticCrs = PJ_TYPE_GEODETIC_CRS,
-		GeocentricCrs = PJ_TYPE_GEOCENTRIC_CRS,
-
-		/** proj_get_type() will never return that type, but
-		 * PJ_TYPE_GEOGRAPHIC_2D_CRS or PJ_TYPE_GEOGRAPHIC_3D_CRS. */
-		 GeographicCrs = PJ_TYPE_GEOGRAPHIC_CRS,
-
-		 Geographic2DCrs = PJ_TYPE_GEOGRAPHIC_2D_CRS,
-		 Geographic3DCrs = PJ_TYPE_GEOGRAPHIC_3D_CRS,
-		 VerticalCrs = PJ_TYPE_VERTICAL_CRS,
-		 ProjectedCrs = PJ_TYPE_PROJECTED_CRS,
-		 CompoundCrs = PJ_TYPE_COMPOUND_CRS,
-		 TemporalCrs = PJ_TYPE_TEMPORAL_CRS,
-		 EngineeringCrs = PJ_TYPE_ENGINEERING_CRS,
-		 BoundCrs = PJ_TYPE_BOUND_CRS,
-		 OtherCrs = PJ_TYPE_OTHER_CRS,
-
-		 Conversion = PJ_TYPE_CONVERSION,
-		 Transformation = PJ_TYPE_TRANSFORMATION,
-		 ConcatenatedOperation = PJ_TYPE_CONCATENATED_OPERATION,
-		 OtherCoordinateTransform = PJ_TYPE_OTHER_COORDINATE_OPERATION,
-
-		 TemporalDatum = PJ_TYPE_TEMPORAL_DATUM,
-		 EngineeringDatum = PJ_TYPE_ENGINEERING_DATUM,
-		 ParametricDatum = PJ_TYPE_PARAMETRIC_DATUM,
-	};
-
-	public ref class ProjIdentifier
-	{
-	internal:
-		initonly ProjObject^ m_object;
-		initonly int m_index;
-		String^ m_authority;
-		String^ m_code;
-
-		ProjIdentifier(ProjObject^ object, int index)
+	namespace Details {
+		public enum class ProjType
 		{
-			m_object = object;
-			m_index = index;
-		}
-	public:
-		property String^ Authority
+			Unknown = PJ_TYPE_UNKNOWN,
+
+			Ellipsoid = PJ_TYPE_ELLIPSOID,
+
+			PrimeMeridian = PJ_TYPE_PRIME_MERIDIAN,
+
+			GeodeticReferenceFrame = PJ_TYPE_GEODETIC_REFERENCE_FRAME,
+			DynamicGeodeticReferenceFrame = PJ_TYPE_DYNAMIC_GEODETIC_REFERENCE_FRAME,
+			VerticalReferenceFrame = PJ_TYPE_VERTICAL_REFERENCE_FRAME,
+			DynamicVerticalReferenceFrame = PJ_TYPE_DYNAMIC_VERTICAL_REFERENCE_FRAME,
+			DatumEnsamble = PJ_TYPE_DATUM_ENSEMBLE,
+
+			/** Abstract type, not returned by proj_get_type() */
+			CRS = PJ_TYPE_CRS,
+
+			GeodeticCrs = PJ_TYPE_GEODETIC_CRS,
+			GeocentricCrs = PJ_TYPE_GEOCENTRIC_CRS,
+
+			/** proj_get_type() will never return that type, but
+			 * PJ_TYPE_GEOGRAPHIC_2D_CRS or PJ_TYPE_GEOGRAPHIC_3D_CRS. */
+			 GeographicCrs = PJ_TYPE_GEOGRAPHIC_CRS,
+
+			 Geographic2DCrs = PJ_TYPE_GEOGRAPHIC_2D_CRS,
+			 Geographic3DCrs = PJ_TYPE_GEOGRAPHIC_3D_CRS,
+			 VerticalCrs = PJ_TYPE_VERTICAL_CRS,
+			 ProjectedCrs = PJ_TYPE_PROJECTED_CRS,
+			 CompoundCrs = PJ_TYPE_COMPOUND_CRS,
+			 TemporalCrs = PJ_TYPE_TEMPORAL_CRS,
+			 EngineeringCrs = PJ_TYPE_ENGINEERING_CRS,
+			 BoundCrs = PJ_TYPE_BOUND_CRS,
+			 OtherCrs = PJ_TYPE_OTHER_CRS,
+
+			 Conversion = PJ_TYPE_CONVERSION,
+			 Transformation = PJ_TYPE_TRANSFORMATION,
+			 ConcatenatedOperation = PJ_TYPE_CONCATENATED_OPERATION,
+			 OtherCoordinateTransform = PJ_TYPE_OTHER_COORDINATE_OPERATION,
+
+			 TemporalDatum = PJ_TYPE_TEMPORAL_DATUM,
+			 EngineeringDatum = PJ_TYPE_ENGINEERING_DATUM,
+			 ParametricDatum = PJ_TYPE_PARAMETRIC_DATUM,
+
+
+
+
+
+
+
+
+
+
+			 // Local types
+			 ChooseTransform = 1001,
+			 CoordinateSystem
+		};
+
+		public ref class Identifier
 		{
-			String^ get();
-		}
+		internal:
+			initonly ProjObject^ m_object;
+			initonly int m_index;
+			String^ m_authority;
+			String^ m_code;
 
-		property String^ Name
+			Identifier(ProjObject^ object, int index)
+			{
+				m_object = object;
+				m_index = index;
+			}
+		public:
+			property String^ Authority
+			{
+				String^ get();
+			}
+
+			property String^ Name
+			{
+				String^ get();
+			}
+		};
+
+		[System::Diagnostics::DebuggerDisplayAttribute("Count = {Count}")]
+		public ref class IdentifierList : IReadOnlyList<Identifier^>
 		{
-			String^ get();
-		}
-	};
+			initonly ProjObject^ m_object;
+			array<Identifier^>^ m_Items;
 
-	[System::Diagnostics::DebuggerDisplayAttribute("Count = {Count}")]
-	public ref class ProjIdentifierList : IReadOnlyList<ProjIdentifier^>
-	{
-		initonly ProjObject^ m_object;
-		array<ProjIdentifier^>^ m_Items;
+		internal:
+			IdentifierList(ProjObject^ obj)
+			{
+				if (!obj)
+					throw gcnew ArgumentNullException("obj");
 
-	internal:
-		ProjIdentifierList(ProjObject^ obj)
-		{
-			if (!obj)
-				throw gcnew ArgumentNullException("obj");
+				m_object = obj;
+			}
 
-			m_object = obj;
-		}
+		private:
+			virtual System::Collections::IEnumerator^ Obj_GetEnumerator() sealed = System::Collections::IEnumerable::GetEnumerator
+			{
+				return GetEnumerator();
+			}
 
-	private:
-		virtual System::Collections::IEnumerator^ Obj_GetEnumerator() sealed = System::Collections::IEnumerable::GetEnumerator
-		{
-			return GetEnumerator();
-		}
+		public:
+			// Inherited via IReadOnlyCollection
+			virtual System::Collections::Generic::IEnumerator<Identifier^>^ GetEnumerator();
 
-	public:
-		// Inherited via IReadOnlyCollection
-		virtual System::Collections::Generic::IEnumerator<SharpProj::ProjIdentifier^>^ GetEnumerator();
+			// Inherited via IReadOnlyList
+			virtual property int Count
+			{
+				int get();
+			}
+			virtual property Identifier^ default[int]
+			{
+				Identifier ^ get(int index);
+			}
+		};
+	}
 
-		// Inherited via IReadOnlyList
-		virtual property int Count
-		{
-			int get();
-		}
-		virtual property SharpProj::ProjIdentifier^ default[int]
-		{
-			SharpProj::ProjIdentifier^ get(int index);
-		}
-	};
-
-	[System::Diagnostics::DebuggerDisplayAttribute("{Description}")]
+	[System::Diagnostics::DebuggerDisplayAttribute("[{Type}] {ToString(),nq}")]
 	public ref class ProjObject
 	{
 	protected:
 		ProjContext^ m_ctx;
 		PJ* m_pj;
 		String^ m_infoId;
-		String^ m_infoDescription;
+		String^ m_name;
 		String^ m_infoDefinition;
 		String^ m_scope;
-		ProjIdentifierList^ m_idList;
+		Details::IdentifierList^ m_idList;
 
 	private:
 		~ProjObject()
@@ -144,7 +159,7 @@ namespace SharpProj {
 		void ForceUnknownInfo()
 		{
 			m_infoId = "?";
-			m_infoDescription = "?";
+			m_name = "?";
 			m_infoDefinition = "?";
 			m_scope = "?";
 		}
@@ -184,7 +199,9 @@ namespace SharpProj {
 	public:
 		virtual String^ ToString() override
 		{
-			return Description;
+			auto name = Name;
+
+			return name ? name : "<no-name>";
 		}
 
 	public:
@@ -201,19 +218,31 @@ namespace SharpProj {
 			if (!ctx)
 				throw gcnew ArgumentNullException("ctx");
 
+			return DoClone(ctx);
+		}
+
+	private protected:
+		virtual ProjObject^ DoClone(ProjContext^ ctx)
+		{
 			return ctx->Create(proj_clone(ctx, this));
 		}
 
-		property String^ Description
+	public:
+		property String^ Name
 		{
 			String^ get()
 			{
-				if (!m_infoDescription)
+				if (!m_name)
 				{
 					const char *name = proj_get_name(this);
-					m_infoDescription = name ? gcnew System::String(name) : nullptr;
+					m_name = name ? gcnew System::String(name) : nullptr;
 				}
-				return m_infoDescription;
+				return m_name;
+			}
+		internal:
+			void set(String^ value)
+			{
+				m_name = value;
 			}
 		}
 
@@ -245,11 +274,11 @@ namespace SharpProj {
 			}
 		}
 
-		property ProjType Type
+		property Details::ProjType Type
 		{
-			ProjType get()
+			virtual Details::ProjType get()
 			{
-				return (ProjType)proj_get_type(this);
+				return (Details::ProjType)proj_get_type(this);
 			}
 		}
 
@@ -290,9 +319,9 @@ namespace SharpProj {
 		}
 
 	public:
-		property ProjIdentifierList^ Identifiers
+		property Details::IdentifierList^ Identifiers
 		{
-			ProjIdentifierList^ get();
+			Details::IdentifierList^ get();
 		}
 
 		bool IsEquivalentTo(ProjObject^ other, [Optional] ProjContext^ ctx)
@@ -322,7 +351,7 @@ namespace SharpProj {
 		static ProjObject^ Create(array<String^>^ from, [Optional]ProjContext^ ctx);
 
 	private protected:
-		void SetCoordinate(PJ_COORD& coord, ProjCoordinate %coordinate)
+		void SetCoordinate(PJ_COORD& coord, PPoint %coordinate)
 		{
 			coord.v[0] = coordinate.X;
 			coord.v[1] = coordinate.Y;

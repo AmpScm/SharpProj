@@ -60,7 +60,7 @@ namespace SharpProj.Tests
                 else
                     Assert.Fail();
 
-                var rr = t.Apply(new ProjCoordinate(155000, 463000));
+                var rr = t.Apply(new PPoint(155000, 463000));
 
             }
         }

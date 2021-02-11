@@ -1,17 +1,23 @@
 #pragma once
 namespace SharpProj {
 	ref class CoordinateTransform;
-	public value class ProjCoordinate : IEquatable<ProjCoordinate>
+
+	/// <summary>
+	/// .Net wrapper for proj coordinate, containing at most 4 ordinates conveniently called: X, Y, Z, T. (or V[0] upto V[3]).
+	/// What these coordinates mean (and if they are swapped, etc.) is all defined by their usage.
+	/// </summary>
+	public value class PPoint : IEquatable<PPoint>
 	{
 	public:
 		double X;
 		double Y;
 		double Z;
 		double T;
+	private:
 		Byte m_axis;
 
 	internal:
-		ProjCoordinate(int axis, const double* v)
+		PPoint(int axis, const double* v)
 		{
 			if (axis < 1 || axis > 4)
 				throw gcnew ArgumentOutOfRangeException("axis");
@@ -23,9 +29,9 @@ namespace SharpProj {
 			T = (axis > 3) ? v[3] : 0;
 		}
 
-		ProjCoordinate(const PJ_COORD& coord)
+		PPoint(const PJ_COORD& coord)
 		{
-			ProjCoordinate r;
+			PPoint r;
 			r.X = coord.v[0];
 			r.Y = coord.v[1];
 			r.Z = coord.v[2];
@@ -39,7 +45,7 @@ namespace SharpProj {
 				m_axis = 2;
 		}
 	public:
-		ProjCoordinate(double x, double y)
+		PPoint(double x, double y)
 		{
 			X = x;
 			Y = y;
@@ -47,7 +53,7 @@ namespace SharpProj {
 			m_axis = 2;
 		}
 
-		ProjCoordinate(double x, double y, double z)
+		PPoint(double x, double y, double z)
 		{
 			X = x;
 			Y = y;
@@ -56,15 +62,16 @@ namespace SharpProj {
 			m_axis = 3;
 		}
 
-		ProjCoordinate(double x, double y, double z, double t)
+		PPoint(double x, double y, double z, double t)
 		{
 			X = x;
 			Y = y;
 			Z = z;
 			T = t;
+			m_axis = (t == 0.0) ? 3 : 4;
 		}
 
-		ProjCoordinate(array<double>^ v)
+		PPoint(array<double>^ v)
 		{
 			if (!v || v->Length < 1)
 				throw gcnew ArgumentException("Ordinate array needs at least one element");
@@ -157,65 +164,65 @@ namespace SharpProj {
 			return gcnew Tuple<double, double, double, double>(X, Y, Z, T);
 		}
 
-		static ProjCoordinate FromArray(array<double>^ v)
+		static PPoint FromArray(array<double>^ v)
 		{
-			return ProjCoordinate(v);
+			return PPoint(v);
 		}
 
 	public:
-		static operator array<double> ^ (ProjCoordinate v)
+		static operator array<double> ^ (PPoint v)
 		{
 			return v.ToArray();
 		}
 
-		static explicit operator ProjCoordinate (array<double>^ v)
+		static explicit operator PPoint (array<double>^ v)
 		{
 			return FromArray(v);
 		}
 
-		static operator ProjCoordinate (Tuple<double, double> t)
+		static operator PPoint (Tuple<double, double> t)
 		{
-			return ProjCoordinate(t.Item1, t.Item2);
+			return PPoint(t.Item1, t.Item2);
 		}
 
-		static operator ProjCoordinate (Tuple<double, double, double> t)
+		static operator PPoint (Tuple<double, double, double> t)
 		{
-			return ProjCoordinate(t.Item1, t.Item2, t.Item3);
+			return PPoint(t.Item1, t.Item2, t.Item3);
 		}
 
-		static operator ProjCoordinate (Tuple<double, double, double, double> t)
+		static operator PPoint (Tuple<double, double, double, double> t)
 		{
-			return ProjCoordinate(t.Item1, t.Item2, t.Item3, t.Item4);
+			return PPoint(t.Item1, t.Item2, t.Item3, t.Item4);
 		}
 
-		static explicit operator Tuple<double,double>^ (ProjCoordinate p)
+		static explicit operator Tuple<double,double>^ (PPoint p)
 		{
 			return p.ToTupleXY();
 		}
 
-		static explicit operator Tuple<double, double, double> ^ (ProjCoordinate p)
+		static explicit operator Tuple<double, double, double> ^ (PPoint p)
 		{
 			return p.ToTupleXYZ();
 		}
 
-		static explicit operator Tuple<double, double, double, double> ^ (ProjCoordinate p)
+		static explicit operator Tuple<double, double, double, double> ^ (PPoint p)
 		{
 			return p.ToTupleXYZT();
 		}
 
-		static bool operator ==(ProjCoordinate p1, ProjCoordinate p2)
+		static bool operator ==(PPoint p1, PPoint p2)
 		{
 			return p1.X == p2.X && p1.Y == p2.Y && p1.Z == p2.Z && p1.T == p2.T;
 		}
 
-		static bool operator !=(ProjCoordinate p1, ProjCoordinate p2)
+		static bool operator !=(PPoint p1, PPoint p2)
 		{
 			return p1.X != p2.X || p1.Y != p2.Y || p1.Z != p2.Z || p1.T != p2.T;
 		}
 
 		virtual bool Equals(Object^ other) override sealed
 		{
-			ProjCoordinate^ p = dynamic_cast<ProjCoordinate^>(other);
+			PPoint^ p = dynamic_cast<PPoint^>(other);
 
 			if (p)
 				return X == p->X && Y == p->Y && Z == p->Z && T == p->T;
@@ -223,7 +230,7 @@ namespace SharpProj {
 				return false;
 		}
 
-		virtual bool Equals(ProjCoordinate other) sealed
+		virtual bool Equals(PPoint other) sealed
 		{
 			return X == other.X && Y == other.Y && Z == other.Z && T == other.T;
 		}
@@ -262,18 +269,20 @@ namespace SharpProj {
 		{
 			int get()
 			{
-				return m_axis;
+				return m_axis ? m_axis : 4;
 			}
-		internal:
 			void set(int value)
 			{
-				m_axis = value;
+				if (value >= 1 && value <= 4)
+					m_axis = value;
+				else if (m_axis == 0)
+					m_axis = 4;
 			}
 		}
 
-		ProjCoordinate Round(int decimals)
+		PPoint RoundAll(int decimals)
 		{
-			ProjCoordinate pc = ProjCoordinate(
+			PPoint pc = PPoint(
 				Math::Round(X, decimals),
 				Math::Round(Y, decimals),
 				Math::Round(Z, decimals),
@@ -282,9 +291,9 @@ namespace SharpProj {
 			return pc;
 		}
 
-		ProjCoordinate RoundXY(int decimals)
+		PPoint RoundXY(int decimals)
 		{
-			ProjCoordinate pc = ProjCoordinate(
+			PPoint pc = PPoint(
 				Math::Round(X, decimals),
 				Math::Round(Y, decimals),
 				Z,
@@ -293,15 +302,22 @@ namespace SharpProj {
 			return pc;
 		}
 
-		ProjCoordinate DegToRad()
+		PPoint DegToRad();
+
+		PPoint RadToDeg();
+
+		PPoint Offset(double dx, double dy)
 		{
-			ProjCoordinate pc = ProjCoordinate(
-				proj_torad(X),
-				proj_torad(Y),
-				Z,
-				T);
-			pc.Axis = Axis;
-			return pc;
+			PPoint r = PPoint(X + dx, Y + dy, Z, T);
+			r.Axis = Axis;
+			return r;
+		}
+
+		PPoint Offset(double dx, double dy, double dz)
+		{
+			PPoint r = PPoint(X + dx, Y + dy, Z + dz, T);
+			r.Axis = Axis;
+			return r;
 		}
 	};
 }

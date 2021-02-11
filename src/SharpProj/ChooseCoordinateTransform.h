@@ -10,8 +10,8 @@ namespace SharpProj {
 	/// Represents a <see cref="CoordinateTransform"/> which is implemented in a number of ways. The best
 	/// implementation is chosen at runtime, based on some predefined settings.
 	/// </summary>
-	[System::Diagnostics::DebuggerDisplayAttribute("Option Count={Count}")]
-	public ref class AnyCoordinateTransform : CoordinateTransform, IReadOnlyList<CoordinateTransform^>
+	[System::Diagnostics::DebuggerDisplayAttribute("[ChooseCoordinateTransform] Option Count={Count}")]
+	public ref class ChooseCoordinateTransform : CoordinateTransform, IReadOnlyList<CoordinateTransform^>
 	{
 	private:
 		PJ_OBJ_LIST* m_list;
@@ -19,7 +19,7 @@ namespace SharpProj {
 		CoordinateTransform^ m_last;
 
 	internal:
-		AnyCoordinateTransform(ProjContext^ ctx, PJ* pj, PJ_OBJ_LIST* list)
+		ChooseCoordinateTransform(ProjContext^ ctx, PJ* pj, PJ_OBJ_LIST* list)
 			: CoordinateTransform(ctx, pj)
 		{
 			m_list = list;
@@ -33,10 +33,11 @@ namespace SharpProj {
 			m_operations = items;
 
 			ForceUnknownInfo();
+			Name = "<choose-coordinate-transform>";
 		}
 
 	private:
-		~AnyCoordinateTransform()
+		~ChooseCoordinateTransform()
 		{
 			if (m_list)
 			{
@@ -61,7 +62,7 @@ namespace SharpProj {
 		}
 
 	protected:
-		virtual ProjCoordinate DoTransform(bool forward, ProjCoordinate% coordinate) override;
+		virtual PPoint DoTransform(bool forward, PPoint% coordinate) override;
 	private:
 		virtual System::Collections::IEnumerator^ Obj_GetEnumerator() sealed = System::Collections::IEnumerable::GetEnumerator
 		{
@@ -69,8 +70,8 @@ namespace SharpProj {
 		}
 
 	public:
-		int SuggestedOperation(ProjCoordinate coordinate);
-		int SuggestedOperation(...array<double>^ ordinates) { return SuggestedOperation(ProjCoordinate(ordinates)); }
+		int SuggestedOperation(PPoint coordinate);
+		int SuggestedOperation(...array<double>^ ordinates) { return SuggestedOperation(PPoint(ordinates)); }
 
 	public:
 		// Inherited via IReadOnlyCollection
@@ -94,11 +95,19 @@ namespace SharpProj {
 			}
 		}
 
-			property bool HasInverse
+		property bool HasInverse
 		{
 			virtual bool get() override sealed
 			{
 				return false; // Unable to fetch if the operation is really inverted
+			}
+		}
+
+		property ProjType Type
+		{
+			virtual ProjType get() override
+			{
+				return ProjType::Unknown;
 			}
 		}
 	};

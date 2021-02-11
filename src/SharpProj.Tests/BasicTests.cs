@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SharpProj.Details;
 using PJ = SharpProj.CoordinateTransform;
 
 namespace SharpProj.Tests
@@ -50,15 +51,10 @@ namespace SharpProj.Tests
             {
                 using (var crs = pc.Create("+proj=merc +ellps=clrk66 +lat_ts=33"))
                 {
-                    Assert.AreEqual("PROJ-based coordinate operation", crs.Description);
+                    Assert.AreEqual("PROJ-based coordinate operation", crs.Name);
 
                     if (crs is CoordinateTransform cob)
                     {
-                        Assert.AreEqual(false, cob.DegreeInput);
-                        Assert.AreEqual(false, cob.DegreeOutput);
-                        Assert.AreEqual(true, cob.AngularInput);
-                        Assert.AreEqual(false, cob.AngularOutput);
-
                         Assert.IsNull(crs.Identifiers);
 
                         var src = cob.SourceCRS;
@@ -90,7 +86,7 @@ namespace SharpProj.Tests
 
                 using (var crs = pc.Create(new string[] { "proj=merc", "ellps=clrk66", "lat_ts=33" }))
                 {
-                    Assert.AreEqual("PROJ-based coordinate operation", crs.Description);
+                    Assert.AreEqual("PROJ-based coordinate operation", crs.Name);
                 }
             }
         }
@@ -107,7 +103,7 @@ namespace SharpProj.Tests
 
                 using (var crs = CoordinateReferenceSystem.Create("EPSG:25832", pc))
                 {
-                    Assert.AreEqual("ETRS89 / UTM zone 32N", crs.Description);
+                    Assert.AreEqual("ETRS89 / UTM zone 32N", crs.Name);
 
                     Assert.IsNotNull(crs.Identifiers);
                     Assert.AreEqual(1, crs.Identifiers.Count);
@@ -173,17 +169,17 @@ namespace SharpProj.Tests
                         Assert.AreEqual("Inverse of Transverse Mercator", steps[0].MethodName);
                         Assert.AreEqual("Transverse Mercator", steps[1].MethodName);
 
-                        Assert.AreEqual("Inverse of UTM zone 32N + UTM zone 33N", t.Description);
+                        Assert.AreEqual("Inverse of UTM zone 32N + UTM zone 33N", t.Name);
 
                         using (var tr = t.CreateInverse())
                         {
-                            Assert.AreEqual("Inverse of UTM zone 33N + UTM zone 32N", tr.Description);
+                            Assert.AreEqual("Inverse of UTM zone 33N + UTM zone 32N", tr.Name);
                         }
                     }
 
                     using (var t = CoordinateTransform.Create(crs2, crs1))
                     {
-                        Assert.AreEqual("Inverse of UTM zone 33N + UTM zone 32N", t.Description);
+                        Assert.AreEqual("Inverse of UTM zone 33N + UTM zone 32N", t.Name);
                     }
                 }
             }
@@ -199,100 +195,58 @@ namespace SharpProj.Tests
                 using (var crs2 = CoordinateReferenceSystem.Create("EPSG:23095", pc))
                 using (var crs3 = CoordinateReferenceSystem.Create("EPSG:28992", pc))
                 {
-                    Assert.AreEqual("WGS 84 / Pseudo-Mercator", crs1.Description);
-                    Assert.AreEqual("ED50 / TM 5 NE", crs2.Description);
-                    Assert.AreEqual("Amersfoort / RD New", crs3.Description);
+                    Assert.AreEqual("WGS 84 / Pseudo-Mercator", crs1.Name);
+                    Assert.AreEqual("ED50 / TM 5 NE", crs2.Name);
+                    Assert.AreEqual("Amersfoort / RD New", crs3.Name);
 
                     Assert.AreEqual(ProjType.ProjectedCrs, crs1.Type);
                     Assert.AreEqual(ProjType.ProjectedCrs, crs2.Type);
                     Assert.AreEqual(ProjType.ProjectedCrs, crs3.Type);
 
-                    {
-                        var c = crs3.GeodeticCRS;
-                        Assert.IsTrue((object)c is GeographicCoordinateReferenceSystem);
-                        Assert.AreEqual("Amersfoort", c.Description);
-                        Assert.AreEqual(ProjType.Geographic2DCrs, c.Type);
-                    }
-                    using (var d = crs3.GetDatum())
-                    {
-                        Assert.IsTrue((object)d is ProjDatum);
-                        Assert.AreEqual("Amersfoort", d.Description);
-                        Assert.AreEqual(ProjType.GeodeticReferenceFrame, d.Type);
-                    }
-                    using (var d = crs3.GetDatumList())
-                    {
-                        Assert.IsNull(d);
-                    }
-                    using (var d = crs3.GetDatumForced())
-                    {
-                        Assert.IsTrue((object)d is ProjDatum);
-                        Assert.AreEqual("Amersfoort", d.Description);
-                        Assert.AreEqual(ProjType.GeodeticReferenceFrame, d.Type);
-                    }
-                    using (var d = crs3.GetHorizontalDatum())
-                    {
-                        Assert.IsTrue((object)d is ProjDatum);
-                        Assert.AreEqual("Amersfoort", d.Description);
-                        Assert.AreEqual(ProjType.GeodeticReferenceFrame, d.Type);
-                    }
-                    {
-                        var c = crs3.CoordinateSystem;
-                        Assert.IsTrue((object)c is CoordinateSystem);
-                        Assert.AreEqual(null, c.Description);
-                        Assert.AreEqual(ProjType.Unknown, c.Type);
-                        Assert.AreEqual(CoordinateSystemType.Cartesian, c.CoordinateSystemType);
-                        Assert.AreEqual(2, c.Axis.Count);
+                    Assert.IsNotNull(crs3.GeodeticCRS);
+                    Assert.AreEqual("Amersfoort", crs3.GeodeticCRS.Name);
+                    Assert.AreEqual(ProjType.Geographic2DCrs, crs3.GeodeticCRS.Type);
 
-                        Assert.AreEqual("Easting", c.Axis[0].Name);
-                        Assert.AreEqual("Northing", c.Axis[1].Name);
-                        Assert.AreEqual("X", c.Axis[0].Abbreviation);
-                        Assert.AreEqual("Y", c.Axis[1].Abbreviation);
-                        Assert.AreEqual("metre", c.Axis[0].UnitName);
-                        Assert.AreEqual("metre", c.Axis[1].UnitName);
-                        Assert.AreEqual("EPSG", c.Axis[0].UnitAuthName);
-                        Assert.AreEqual("EPSG", c.Axis[1].UnitAuthName);
-                        Assert.AreEqual(1.0, c.Axis[0].UnitConversionFactor);
-                        Assert.AreEqual(1.0, c.Axis[1].UnitConversionFactor);
-                        Assert.AreEqual("9001", c.Axis[0].UnitCode);
-                        Assert.AreEqual("9001", c.Axis[1].UnitCode);
-                        Assert.AreEqual("east", c.Axis[0].Direction);
-                        Assert.AreEqual("north", c.Axis[1].Direction);
-                    }
-                    {
-                        var e = crs3.Ellipsoid;
-                        Assert.IsTrue((object)e is Ellipsoid);
-                        Assert.AreEqual("Bessel 1841", e.Description);
-                        Assert.AreEqual(ProjType.Ellipsoid, e.Type);
+                    Assert.IsNotNull(crs3.Datum);
+                    Assert.AreEqual("Amersfoort", crs3.Datum.Name);
+                    Assert.AreEqual(ProjType.GeodeticReferenceFrame, crs3.Datum.Type);
+                    Assert.IsFalse(crs3.Datum is Details.DatumList);
+                    Assert.AreEqual(null, crs3.CoordinateSystem.Name);
+                    Assert.AreEqual(ProjType.CoordinateSystem, crs3.CoordinateSystem.Type);
+                    Assert.AreEqual(CoordinateSystemType.Cartesian, crs3.CoordinateSystem.CoordinateSystemType);
+                    Assert.AreEqual(2, crs3.CoordinateSystem.Axis.Count);
 
-                        Assert.AreEqual(6377397.0, Math.Round(e.SemiMajorMetre, 0));
-                        Assert.AreEqual(6356079.0, Math.Round(e.SemiMinorMetre, 0));
-                        Assert.AreEqual(true, e.IsSemiMinorComputed);
-                        Assert.AreEqual(299.0, Math.Round(e.InverseFlattening, 0));
-                    }
-                    using (var pm = crs3.GetPrimeMeridian())
-                    {
-                        Assert.IsTrue((object)pm is PrimeMeridian);
-                        Assert.AreEqual("Greenwich", pm.Description);
-                        Assert.AreEqual(0.0, pm.Longitude);
-                        Assert.AreEqual(0.0175, Math.Round(pm.UnitConversionFactor, 4));
-                        Assert.AreEqual("degree", pm.UnitName);
-                    }
-                    using (var co = crs3.GetTransform())
-                    {
-                        Assert.IsTrue((object)co is CoordinateTransform);
-                        Assert.AreEqual("RD New", co.Description);
-                        //Assert.AreEqual(0.0, pm.Longitude);
-                        //Assert.AreEqual(0.0175, Math.Round(pm.UnitConversionFactor, 4));
-                        //Assert.AreEqual("degree", pm.UnitName);
+                    Assert.AreEqual("Easting", crs3.CoordinateSystem.Axis[0].Name);
+                    Assert.AreEqual("Northing", crs3.CoordinateSystem.Axis[1].Name);
+                    Assert.AreEqual("X", crs3.CoordinateSystem.Axis[0].Abbreviation);
+                    Assert.AreEqual("Y", crs3.CoordinateSystem.Axis[1].Abbreviation);
+                    Assert.AreEqual("metre", crs3.CoordinateSystem.Axis[0].UnitName);
+                    Assert.AreEqual("metre", crs3.CoordinateSystem.Axis[1].UnitName);
+                    Assert.AreEqual("EPSG", crs3.CoordinateSystem.Axis[0].UnitAuthName);
+                    Assert.AreEqual("EPSG", crs3.CoordinateSystem.Axis[1].UnitAuthName);
+                    Assert.AreEqual(1.0, crs3.CoordinateSystem.Axis[0].UnitConversionFactor);
+                    Assert.AreEqual(1.0, crs3.CoordinateSystem.Axis[1].UnitConversionFactor);
+                    Assert.AreEqual("9001", crs3.CoordinateSystem.Axis[0].UnitCode);
+                    Assert.AreEqual("9001", crs3.CoordinateSystem.Axis[1].UnitCode);
+                    Assert.AreEqual("east", crs3.CoordinateSystem.Axis[0].Direction);
+                    Assert.AreEqual("north", crs3.CoordinateSystem.Axis[1].Direction);
 
-                        //Assert.AreEqual(111129.0, Math.Round(co.E(new double[] { Proj.ToRad(r[0]), Proj.ToRad(r[1]) }, new double[] { Proj.ToRad(r[0]), Proj.ToRad(r[1] + 1) }), 0));
-                        double[] r = new double[] { 5, 45 };
-                        Assert.AreEqual(111129.0, Math.Round(co.EllipsoidDistance(new double[] { PJ.ToRad(r[0]), PJ.ToRad(r[1]) }, new double[] { PJ.ToRad(r[0]), PJ.ToRad(r[1] + 1) }), 0));
-                    }
+                    Assert.AreEqual("Bessel 1841", crs3.Ellipsoid.Name);
+                    Assert.AreEqual(ProjType.Ellipsoid, crs3.Ellipsoid.Type);
+
+                    Assert.AreEqual(6377397.0, Math.Round(crs3.Ellipsoid.SemiMajorMetre, 0));
+                    Assert.AreEqual(6356079.0, Math.Round(crs3.Ellipsoid.SemiMinorMetre, 0));
+                    Assert.AreEqual(true, crs3.Ellipsoid.IsSemiMinorComputed);
+                    Assert.AreEqual(299.0, Math.Round(crs3.Ellipsoid.InverseFlattening, 0));
+
+                    Assert.AreEqual("Greenwich", crs3.PrimeMeridian.Name);
+                    Assert.AreEqual(0.0, crs3.PrimeMeridian.Longitude);
+                    Assert.AreEqual(0.0175, Math.Round(crs3.PrimeMeridian.UnitConversionFactor, 4));
+                    Assert.AreEqual("degree", crs3.PrimeMeridian.UnitName);
 
                     using (var t = CoordinateTransform.Create(crs1, crs2))
                     {
-                        Assert.IsTrue(t is AnyCoordinateTransform);
+                        Assert.IsTrue(t is ChooseCoordinateTransform);
 
                         var start = new double[] { PJ.ToRad(5.0), PJ.ToRad(52.0) };
 
@@ -309,11 +263,11 @@ namespace SharpProj.Tests
 
                         {
                             var c2 = crs1.GeodeticCRS;
-                            Assert.AreEqual("WGS 84", c2.Description);
+                            Assert.AreEqual("WGS 84", c2.Name);
                             Assert.AreEqual(ProjType.Geographic2DCrs, c2.Type);
                             using (var t2 = CoordinateTransform.Create(crs1, c2))
                             {
-                                Assert.AreEqual("Inverse of Popular Visualisation Pseudo-Mercator", t2.Description);
+                                Assert.AreEqual("Inverse of Popular Visualisation Pseudo-Mercator", t2.Name);
                             }
                         }
                     }
@@ -324,18 +278,19 @@ namespace SharpProj.Tests
             }
         }
 
+
         [TestMethod]
         public void TestCopenhagen()
         {
             var ctx = new ProjContext();
             var src = CoordinateReferenceSystem.Create("EPSG:4326", ctx);
             var dst = CoordinateReferenceSystem.Create(/*"+proj=utm +zone=32 +datum=WGS84" or */ "EPSG:32632", ctx);
-            Assert.AreEqual("WGS 84", src.Description);
-            Assert.AreEqual("WGS 84 / UTM zone 32N", dst.Description);
+            Assert.AreEqual("WGS 84", src.Name);
+            Assert.AreEqual("WGS 84 / UTM zone 32N", dst.Name);
 
             var t = CoordinateTransform.Create(src, dst, ctx);
 
-            var t2 = t.CreateNormalized();
+            var t2 = CoordinateTransform.Create(src.WithAxisNormalized(), dst.WithAxisNormalized(), ctx);
 
 
             var p = t2.ApplyReversed(new double[] { 12, 55 });
@@ -348,10 +303,9 @@ namespace SharpProj.Tests
 
 
             var tt = CoordinateTransform.Create(src, src, null);
-            Assert.AreEqual("Null geographic offset from WGS 84 to WGS 84", tt.Description);
+            Assert.AreEqual("Null geographic offset from WGS 84 to WGS 84", tt.Name);
 
             var ss = ctx.Create("+proj=utm +zone=32 +datum=WGS84 +ellps=clrk66");
-            //Assert.AreEqual(111334.0, Math.Round(ss.Distance2D(new double[] { Proj.ToRad(r[0]), Proj.ToRad(r[1]) }, new double[] { Proj.ToRad(r[0]), Proj.ToRad(r[1] + 1) }), 0));
         }
 
         [TestMethod]
@@ -491,7 +445,7 @@ namespace SharpProj.Tests
                             }
 
 
-                            if (center != null && t.HasInverse && !(t is AnyCoordinateTransform))
+                            if (center != null && t.HasInverse && !(t is ChooseCoordinateTransform))
                             {
                                 double[] ret = t.ApplyReversed(center);
                             }
@@ -517,12 +471,11 @@ namespace SharpProj.Tests
                     // Do it the dumb way
                     using (var t = CoordinateTransform.Create(crsAmersfoort, crsETRS89))
                     {
-                        Assert.IsFalse(t is AnyCoordinateTransform);
+                        Assert.IsFalse(t is ChooseCoordinateTransform);
                         var r = t.Apply(51, 4, 0);
 
                         Assert.AreEqual(50.999, Math.Round(r[0], 3));
                         Assert.AreEqual(4.0, Math.Round(r[1], 3));
-                        Assert.AreEqual(0.0, Math.Round(r[2], 3));
                     }
 
                     // Now, let's enable gridshifts
@@ -534,14 +487,14 @@ namespace SharpProj.Tests
 
                     using (var t = CoordinateTransform.Create(crsAmersfoort, crsETRS89))
                     {
-                        AnyCoordinateTransform cl = t as AnyCoordinateTransform;
+                        ChooseCoordinateTransform cl = t as ChooseCoordinateTransform;
                         Assert.IsNotNull(cl);
                         Assert.AreEqual(2, cl.Count);
 
                         Assert.IsTrue(cl[0].GridUsageCount > 0);
                         Assert.IsTrue(cl[1].GridUsageCount == 0);
 
-                        Assert.AreEqual(new ProjCoordinate(50.999, 4.0), t.Apply(new ProjCoordinate(51, 4)).Round(3));
+                        Assert.AreEqual(new PPoint(50.999, 4.0), t.Apply(new PPoint(51, 4)).RoundXY(3));
                         var r = t.Apply(51, 4, 0);
                         Assert.IsTrue(usedHttp, "Now http");
 
@@ -555,16 +508,35 @@ namespace SharpProj.Tests
 
                         Assert.AreEqual(50.999, Math.Round(r0[0], 3));
                         Assert.AreEqual(4.0, Math.Round(r0[1], 3));
-                        Assert.AreEqual(0.0, Math.Round(r0[2], 3));
 
                         Assert.AreEqual(50.999, Math.Round(r1[0], 3));
                         Assert.AreEqual(4.0, Math.Round(r1[1], 3));
-                        Assert.AreEqual(0.0, Math.Round(r1[2], 3));
 
                         Assert.IsNotNull(cl[0].MethodName);
                     }
                 }
             }
+        }
+
+        [TestMethod]
+        public void DegRadTests()
+        {
+            var PI = Math.PI;
+
+            // If this fails, something is severely broken... 
+            // Or we are using some different math implementation with minor difference
+
+            // The code was moved to .Net to allow inlining by the CLR
+            Assert.AreEqual(0.0 * PI / 2.0, PJ.ToRad(0));
+            Assert.AreEqual(1.0 * PI / 2.0, PJ.ToRad(90));
+            Assert.AreEqual(2.0 * PI / 2.0, PJ.ToRad(180));
+            Assert.AreEqual(3.0 * PI / 2.0, PJ.ToRad(270));
+
+
+            Assert.AreEqual(0.0, PJ.ToDeg(0.0 * PI / 2.0));
+            Assert.AreEqual(90.0, PJ.ToDeg(1.0 * PI / 2.0));
+            Assert.AreEqual(180.0, PJ.ToDeg(2.0 * PI / 2.0));
+            Assert.AreEqual(270.0, PJ.ToDeg(3.0 * PI / 2.0));
         }
     }
 }

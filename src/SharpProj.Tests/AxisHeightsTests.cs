@@ -5,14 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTopologySuite.Geometries;
+using SharpProj.Details;
 
 namespace SharpProj.Tests
 {
     [TestClass]
     public class AxisHeightsTests
     {
-        static readonly Coordinate DomUtrechtWGS84 = new Coordinate(52.0906147, 5.1212057); // WGS84
-        static readonly Coordinate StServaasMaastrichtWGS84 = new Coordinate(50.8491832, 5.6872587);
+        static readonly Coordinate DomUtrechtWGS84 = new Coordinate(52.09063, 5.123078); // WGS84
+        static readonly Coordinate StServaasMaastrichtWGS84 = new Coordinate(50.84938, 5.687712);
 
         [TestMethod]
         public void HeightConversionNLBE()
@@ -32,7 +33,7 @@ namespace SharpProj.Tests
                     Assert.AreEqual(2, wgs84.AxisCount);
                     Assert.AreEqual(3, wgs84D3.AxisCount);
 
-                    using (var n = wgs84D3.GetNormalized())
+                    using (var n = wgs84D3.WithAxisNormalized())
                     {
                         Assert.IsFalse(wgs84D3.IsEquivalentTo(n));
                         Assert.IsTrue(wgs84D3.IsEquivalentToRelaxed(n));
@@ -45,11 +46,11 @@ namespace SharpProj.Tests
                     {
                         domNL = t.Apply(domWGS84);
 
-                        Assert.AreEqual(new CoordinateZ(136770.4, 455850.7, 0), domNL.Round(1));
+                        Assert.AreEqual(new CoordinateZ(136898.7, 455851.9, -43.4), domNL.Round(1));
 
                         servaasNL = t.Apply(stServaasWGS84);
 
-                        Assert.AreEqual(new CoordinateZ(176132.7, 317748.5, -45.7), servaasNL.Round(1));
+                        Assert.AreEqual(new CoordinateZ(176164.5, 317770.5, -45.7), servaasNL.Round(1));
                     }
 
 
@@ -57,12 +58,12 @@ namespace SharpProj.Tests
                     {
                         var servaasBE = t.Apply(servaasNL);
 
-                        Assert.AreEqual(new CoordinateZ(742845.8, 671812.5, -45.7), servaasBE.Round(1));
+                        Assert.AreEqual(new CoordinateZ(742877.4, 671835, -45.7), servaasBE.Round(1));
 
                         servaasNL.Z = 15;
                         servaasBE = t.Apply(servaasNL);
 
-                        Assert.IsTrue(new CoordinateZ(742845.8, 671812.5, 15).Equals3D(servaasBE.Round(1)), $"Unexpected coordinate {servaasBE.Round(1)}");
+                        Assert.IsTrue(new CoordinateZ(742877.4, 671835, 15).Equals3D(servaasBE.Round(1)), $"Unexpected coordinate {servaasBE.Round(1)}");
 
                         servaasNL.Z = 0; //revert to original value
                     }
@@ -71,19 +72,36 @@ namespace SharpProj.Tests
                     using (var t = CoordinateTransform.Create(nlNAP, wgs84D3))
                     {
                         var domGPS = t.Apply(domNL);
-                        Assert.AreEqual(new CoordinateZ(52.0906147, 5.1212057, 0), domGPS.Round(7));
+                        Assert.AreEqual(new CoordinateZ(52.09063, 5.123078, 0), domGPS.Round(7));
 
                         var servaasGPS = t.Apply(servaasNL);
-                        Assert.AreEqual(new CoordinateZ(50.8491832, 5.6872587, 45.7359553), servaasGPS.Round(7));
+                        Assert.AreEqual(new CoordinateZ(50.84938, 5.687712, 45.7353891), servaasGPS.Round(7));
 
                         servaasNL.Z = 15;
 
                         servaasGPS = t.Apply(servaasNL);
 
-                        Assert.IsTrue(new CoordinateZ(50.84918, 5.68726, 60.73596).Equals3D(servaasGPS.Round(5)), $"Unexpected coordinate {servaasGPS.Round(5)}");
+                        Assert.IsTrue(new CoordinateZ(50.84938, 5.68771, 60.73539).Equals3D(servaasGPS.Round(5)), $"Unexpected coordinate {servaasGPS.Round(5)}");
 
                     }
                 }
+            }
+        }
+        [TestMethod]
+        public void DistanceDemo()
+        {
+            // Demo case from https://www.mkompf.com/gps/distcalc.html
+            PPoint RusselsheimStation = new PPoint(49.9917, 8.41321);
+            PPoint RusselsheimOpelBridge = new PPoint(50.0049, 8.42182);
+            PPoint BerlinBrandenburgGate = new PPoint(52.5164, 13.3777);
+            PPoint LisbonTagusBridge = new PPoint(38.692668, -9.177944);
+
+            using (var ctx = new ProjContext())
+            using (var wgs84 = CoordinateReferenceSystem.Create("EPSG:4326", ctx))
+            {
+                Assert.AreEqual(1592.7, Math.Round(wgs84.DistanceTransform.GeoDistance(RusselsheimStation, RusselsheimOpelBridge), 1));
+
+                Assert.AreEqual(2318217, Math.Round(wgs84.DistanceTransform.GeoDistance(BerlinBrandenburgGate, LisbonTagusBridge)));
             }
         }
 
@@ -102,36 +120,26 @@ namespace SharpProj.Tests
                     {
                         using (var t = CoordinateTransform.Create(wgs84, nl))
                         {
+                            if (t is ChooseCoordinateTransform cct)
+                            {
+                                Assert.AreEqual(ProjType.ConcatenatedOperation, cct[0].Type);
+                                Assert.AreEqual(ProjType.ConcatenatedOperation, cct[1].Type);
+                            }
                             dom = t.Apply(DomUtrechtWGS84);
                             servaas = t.Apply(StServaasMaastrichtWGS84);
                         }
 
-                        using (var t = CoordinateTransform.Create(wgs84, wgs84))
-                        {
-                            Assert.AreEqual(151, Math.Round(t.EllipsoidDistance(t.Apply(DomUtrechtWGS84), t.Apply(StServaasMaastrichtWGS84)) / 1000.0, 0));
-                        }
+                        Assert.AreEqual(143.562, Math.Round(wgs84.DistanceTransform.GeoDistance(DomUtrechtWGS84, StServaasMaastrichtWGS84)) / 1000.0, "Distance WGS84");
                     }
 
 
-                    Assert.IsNotNull(nl.GeodeticCRS);
-
-                    using (var t = CoordinateTransform.Create(nl, nl.GeodeticCRS))
-                    using (var t2 = nl.GetTransform())
-                    {
-                        //Assert.IsTrue(t2.IsEquivalentTo(t));
-
-                        Coordinate domGeo = t.Apply(dom);
-                        Coordinate servaasGeo = t.Apply(servaas);
-
-                        Coordinate domGeo2 = t2.Apply(dom);
-
-                        Assert.AreEqual(new Coordinate(52.091595, 5.1216022), domGeo.Round(7));
+                    Assert.AreEqual(143.562, Math.Round(nl.DistanceTransform.GeoDistance(dom, servaas), 0) / 1000.0, "Distance RD");
 
 
-                        //Assert.AreEqual(300.0, nl.EllipsoidDistance(domGeo, servaasGeo));
-                        Assert.AreEqual(151, Math.Round(t2.EllipsoidDistance(domGeo, servaasGeo) / 1000.0, 0));
+                    double dx = Math.Abs(dom.X - servaas.X);
+                    double dy = Math.Abs(dom.Y - servaas.Y);
 
-                    }
+                    Assert.AreEqual(143.556, Math.Round(Math.Sqrt(dx * dx + dy * dy)) / 1000.0, "Distance pythagoras");
                 }
 
                 using (var nlNAP = CoordinateReferenceSystem.Create("EPSG:7415", pc))
@@ -145,12 +153,6 @@ namespace SharpProj.Tests
 
                         GC.KeepAlive(cs0);
                         GC.KeepAlive(cs1);
-
-                        using (var op = cs0.GetTransform())
-                        {
-                            GC.KeepAlive(op);
-                        }
-
                     }
 
                     pc.AllowNetworkConnections = true;

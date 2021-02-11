@@ -1,53 +1,54 @@
 #pragma once
 #include "ProjObject.h"
 namespace SharpProj {
-	public ref class PrimeMeridian :
-		public ProjObject
-	{
-		initonly double m_longitude;
-		initonly double m_unit_conv_factor;
-		initonly String^ m_unit_name;
-
-	internal:
-		PrimeMeridian(ProjContext^ ctx, PJ* pj)
-			: ProjObject(ctx, pj)
+	namespace Details {
+		public ref class PrimeMeridian :
+			public ProjObject
 		{
-			double longitude;
-			double unit_conv_factor;
-			const char* unit_name;
+			initonly double m_longitude;
+			initonly double m_unit_conv_factor;
+			initonly String^ m_unit_name;
 
-			if (proj_prime_meridian_get_parameters(Context, this, &longitude, &unit_conv_factor, &unit_name))
+		internal:
+			PrimeMeridian(ProjContext^ ctx, PJ* pj)
+				: ProjObject(ctx, pj)
 			{
-				m_longitude = longitude;
-				m_unit_conv_factor = unit_conv_factor;
-				m_unit_name = unit_name ? gcnew String(unit_name) : nullptr;
-			}
-		}
+				double longitude;
+				double unit_conv_factor;
+				const char* unit_name;
 
-	public:
-		property double Longitude
-		{
-			double get()
+				if (proj_prime_meridian_get_parameters(Context, this, &longitude, &unit_conv_factor, &unit_name))
+				{
+					m_longitude = longitude;
+					m_unit_conv_factor = unit_conv_factor;
+					m_unit_name = unit_name ? gcnew String(unit_name) : nullptr;
+				}
+			}
+
+		public:
+			property double Longitude
 			{
-				return m_longitude;
+				double get()
+				{
+					return m_longitude;
+				}
 			}
-		}
 
-		property double UnitConversionFactor
-		{
-			double get()
+			property double UnitConversionFactor
 			{
-				return m_unit_conv_factor;
+				double get()
+				{
+					return m_unit_conv_factor;
+				}
 			}
-		}
 
-		property String^ UnitName
-		{
-			String^ get()
+			property String^ UnitName
 			{
-				return m_unit_name;
+				String^ get()
+				{
+					return m_unit_name;
+				}
 			}
-		}
-	};
-
+		};
+	}
 }

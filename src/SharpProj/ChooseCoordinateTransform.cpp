@@ -1,12 +1,12 @@
 #include "pch.h"
-#include "AnyCoordinateTransform.h"
+#include "ChooseCoordinateTransform.h"
 #include "ProjException.h"
 
 using namespace SharpProj;
 
 using System::Collections::Generic::IEnumerable;
 
-int AnyCoordinateTransform::SuggestedOperation(ProjCoordinate coordinate)
+int ChooseCoordinateTransform::SuggestedOperation(PPoint coordinate)
 {
 	PJ_COORD coord;
 	SetCoordinate(coord, coordinate);
@@ -14,7 +14,7 @@ int AnyCoordinateTransform::SuggestedOperation(ProjCoordinate coordinate)
 	return proj_get_suggested_operation(Context, m_list, PJ_FWD, coord);
 }
 
-ProjCoordinate AnyCoordinateTransform::DoTransform(bool forward, ProjCoordinate% coordinate)
+PPoint ChooseCoordinateTransform::DoTransform(bool forward, PPoint% coordinate)
 {
 	PJ_DIRECTION dir = forward ? PJ_FWD : PJ_INV;
 	PJ_COORD coord;
@@ -42,7 +42,7 @@ ProjCoordinate AnyCoordinateTransform::DoTransform(bool forward, ProjCoordinate%
 		{
 			if (Context->LogLevel >= ProjLogLevel::Debug)
 			{
-				Context->OnLogMessage(ProjLogLevel::Debug, "Using coordinate operation " + c->Description);
+				Context->OnLogMessage(ProjLogLevel::Debug, "Using coordinate operation " + c->Name);
 			}
 			m_last = c;
 		}
@@ -74,7 +74,7 @@ ProjCoordinate AnyCoordinateTransform::DoTransform(bool forward, ProjCoordinate%
 		{
 			if (Context->LogLevel >= ProjLogLevel::Debug)
 			{
-				Context->OnLogMessage(ProjLogLevel::Debug, "Using coordinate operation " + c->Description);
+				Context->OnLogMessage(ProjLogLevel::Debug, "Using coordinate operation " + c->Name);
 			}
 			m_last = c;
 		}

@@ -141,7 +141,6 @@ Exception^ ProjContext::ConstructException()
 {
 	int err = proj_context_errno(this);
 
-
 	String^ msg = m_lastError;
 
 	if (msg)

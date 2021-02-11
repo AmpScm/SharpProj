@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "ProjContext.h"
 #include "CoordinateTransform.h"
-#include "AnyCoordinateTransform.h"
+#include "ChooseCoordinateTransform.h"
 #include "CoordinateReferenceSystem.h"
 #include "CoordinateSystem.h"
 #include "CoordinateArea.h"
@@ -121,13 +121,17 @@ CoordinateTransform^ CoordinateTransform::Create(CoordinateReferenceSystem^ sour
 		targetCrs->Type == ProjType::GeocentricCrs)
 	{
 		proj_list_destroy(op_list);
+
+		if (!P)
+			throw ctx->ConstructException();
+
 		return ctx->Create<CoordinateTransform^>(P);
 	}
 
-	return gcnew AnyCoordinateTransform(ctx, P, op_list);
+	return gcnew ChooseCoordinateTransform(ctx, P, op_list);
 }
 
-double CoordinateTransform::RoundTrip(bool forward, int transforms, ProjCoordinate coordinate)
+double CoordinateTransform::RoundTrip(bool forward, int transforms, PPoint coordinate)
 {
 	PJ_COORD coord;
 	SetCoordinate(coord, coordinate);
@@ -135,7 +139,7 @@ double CoordinateTransform::RoundTrip(bool forward, int transforms, ProjCoordina
 	return proj_roundtrip(this, forward ? PJ_FWD : PJ_INV, transforms, &coord);
 }
 
-Details::CoordinateTransformFactors^ CoordinateTransform::Factors(ProjCoordinate coordinate)
+Details::CoordinateTransformFactors^ CoordinateTransform::Factors(PPoint coordinate)
 {
 	PJ_COORD coord;
 	SetCoordinate(coord, coordinate);
@@ -145,7 +149,7 @@ Details::CoordinateTransformFactors^ CoordinateTransform::Factors(ProjCoordinate
 	return gcnew Details::CoordinateTransformFactors(this, &f);
 }
 
-ProjCoordinate CoordinateTransform::DoTransform(bool forward, ProjCoordinate% coordinate)
+PPoint CoordinateTransform::DoTransform(bool forward, PPoint% coordinate)
 {
 	PJ_COORD coord;
 	SetCoordinate(coord, coordinate);
@@ -158,46 +162,15 @@ ProjCoordinate CoordinateTransform::DoTransform(bool forward, ProjCoordinate% co
 	return FromCoordinate(coord, forward);
 }
 
-ProjCoordinate CoordinateTransform::FromCoordinate(const PJ_COORD& coord, bool forward)
+PPoint CoordinateTransform::FromCoordinate(const PJ_COORD& coord, bool forward)
 {
 	int axis = 4;
 
 	CoordinateReferenceSystem^ crs = forward ? TargetCRS : SourceCRS;
 	axis = crs ? crs->AxisCount : 4;
 
-	return ProjCoordinate(axis, &coord.v[0]);
+	return PPoint(axis, &coord.v[0]);
 }
-
-double CoordinateTransform::EllipsoidDistance(ProjCoordinate coordinate1, ProjCoordinate coordinate2)
-{
-	PJ_COORD coord1, coord2;
-	SetCoordinate(coord1, coordinate1);
-	SetCoordinate(coord2, coordinate2);
-
-	return proj_lp_dist(this, coord1, coord2);
-}
-
-double CoordinateTransform::EllipsoidDistanceZ(ProjCoordinate coordinate1, ProjCoordinate coordinate2)
-{
-	PJ_COORD coord1, coord2;
-	SetCoordinate(coord1, coordinate1);
-	SetCoordinate(coord2, coordinate2);
-
-	return proj_lpz_dist(this, coord1, coord2);
-}
-
-
-ProjCoordinate CoordinateTransform::EllipsoidGeod(ProjCoordinate coordinate1, ProjCoordinate coordinate2)
-{
-	PJ_COORD coord1, coord2;
-	SetCoordinate(coord1, coordinate1);
-	SetCoordinate(coord2, coordinate2);
-
-	PJ_COORD r = proj_geod(this, coord1, coord2);
-
-	return ProjCoordinate(r);
-}
-
 
 CoordinateReferenceSystem^ CoordinateTransform::SourceCRS::get()
 {
@@ -263,4 +236,140 @@ void SharpProj::Details::CoordinateTransformParameter::Ensure()
 			m_unit_category = unit_category ? gcnew String(unit_category) : nullptr;
 		}
 	}
+}
+
+enum DistanceFlags
+{
+	None = 0,
+	Setup = 1,
+	ApplyTransform = 2,
+	SwapXY = 4,
+	ApplyRad = 8
+};
+
+void CoordinateTransform::SetupDistance()
+{
+	int d = DistanceFlags::Setup;
+
+	d |= DistanceFlags::ApplyTransform;
+
+	auto axis = this->TargetCRS->Axis;
+
+	if (axis && axis->Count)
+	{
+		String^ abbr = axis[0]->Abbreviation;
+
+		if (abbr == "Lat")
+			d |= DistanceFlags::SwapXY | DistanceFlags::ApplyRad;
+		else if (abbr == "Lon")
+			d |= DistanceFlags::ApplyRad;
+	}
+
+	m_distanceFlags = d;
+}
+
+double CoordinateTransform::GeoDistance(PPoint p1, PPoint p2)
+{
+	EnsureDistance();
+
+	if (m_distanceFlags & DistanceFlags::ApplyTransform)
+	{
+		p1 = Apply(p1);
+		p2 = Apply(p2);
+	}
+
+	PJ_COORD coord1 = {}, coord2 = {};
+
+	if (m_distanceFlags & DistanceFlags::ApplyRad)
+	{
+		coord1.xy.x = ToRad(p1.X);
+		coord1.xy.y = ToRad(p1.Y);
+		coord2.xy.x = ToRad(p2.X);
+		coord2.xy.y = ToRad(p2.Y);
+	}
+	else
+	{
+		coord1.xy.x = p1.X;
+		coord1.xy.y = p1.Y;
+		coord2.xy.x = p2.X;
+		coord2.xy.y = p2.Y;
+	}
+
+	if (m_distanceFlags & DistanceFlags::SwapXY)
+	{
+		std::swap(coord1.xy.x, coord1.xy.y);
+		std::swap(coord2.xy.x, coord2.xy.y);
+	}
+
+	return proj_lp_dist(this, coord1, coord2);
+}
+
+double CoordinateTransform::GeoDistanceZ(PPoint p1, PPoint p2)
+{
+	EnsureDistance();
+
+	if (m_distanceFlags & DistanceFlags::ApplyTransform)
+	{
+		p1 = Apply(p1);
+		p2 = Apply(p2);
+	}
+
+	PJ_COORD coord1 = {}, coord2 = {};
+
+	if (m_distanceFlags & DistanceFlags::ApplyRad)
+	{
+		coord1.xyz.x = ToRad(p1.X);
+		coord1.xyz.y = ToRad(p1.Y);
+		coord1.xyz.z = p1.Z;
+		coord2.xyz.x = ToRad(p2.X);
+		coord2.xyz.y = ToRad(p2.Y);
+		coord2.xyz.z = p2.Z;
+	}
+	else
+	{
+		coord1.xyz.x = p1.X;
+		coord1.xyz.y = p1.Y;
+		coord1.xyz.z = p1.Z;
+		coord2.xyz.x = p2.X;
+		coord2.xyz.y = p2.Y;
+		coord2.xyz.z = p2.Z;
+	}
+
+	if (m_distanceFlags & DistanceFlags::SwapXY)
+	{
+		std::swap(coord1.xy.x, coord1.xy.y);
+		std::swap(coord2.xy.x, coord2.xy.y);
+	}
+
+	return proj_lpz_dist(this, coord1, coord2);
+}
+
+
+PPoint CoordinateTransform::Geod(PPoint p1, PPoint p2)
+{
+	EnsureDistance();
+
+	if (m_distanceFlags & DistanceFlags::ApplyTransform)
+	{
+		p1 = Apply(p1);
+		p2 = Apply(p2);
+	}
+
+	PJ_COORD coord1 = {}, coord2 = {};
+	coord1.xyz.x = ToRad(p1.X);
+	coord1.xyz.y = ToRad(p1.Y);
+	coord1.xyz.z = p1.Z;
+	coord2.xyz.x = ToRad(p2.X);
+	coord2.xyz.y = ToRad(p2.Y);
+	coord2.xyz.z = p2.Z;
+
+	if (m_distanceFlags & DistanceFlags::SwapXY)
+	{
+		std::swap(coord1.xy.x, coord1.xy.y);
+		std::swap(coord2.xy.x, coord2.xy.y);
+	}
+
+	PJ_COORD r = proj_geod(this, coord1, coord2);
+
+	return PPoint(r);
 }

@@ -155,16 +155,16 @@
   <ItemGroup>
     <ClInclude Include="CoordinateReferenceSystemList.h" />
     <ClInclude Include="CoordinateTransformList.h" />
-    <ClInclude Include="AnyCoordinateTransform.h" />
+    <ClInclude Include="ChooseCoordinateTransform.h" />
     <ClInclude Include="CoordinateSystem.h" />
-    <ClInclude Include="ProjCoordinate.h" />
-    <ClInclude Include="ProjDatumList.h" />
+    <ClInclude Include="PPoint.h" />
+    <ClInclude Include="DatumList.h" />
     <ClInclude Include="Ellipsoid.h" />
-    <ClInclude Include="GeographicCoordinateReferenceSystem.h" />
+    <ClInclude Include="GeographicCRS.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PrimeMeridian.h" />
     <ClInclude Include="CoordinateArea.h" />
-    <ClInclude Include="ProjDatum.h" />
+    <ClInclude Include="Datum.h" />
     <ClInclude Include="ProjObject.h" />
     <ClInclude Include="ProjContext.h" />
     <ClInclude Include="CoordinateReferenceSystem.h" />
@@ -177,13 +177,13 @@
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="CoordinateTransformList.cpp" />
-    <ClCompile Include="AnyCoordinateTransform.cpp" />
+    <ClCompile Include="ChooseCoordinateTransform.cpp" />
     <ClCompile Include="CoordinateReferenceSystemList.cpp" />
     <ClCompile Include="CoordinateSystem.cpp" />
-    <ClCompile Include="ProjCoordinate.cpp" />
-    <ClCompile Include="ProjDatumList.cpp" />
+    <ClCompile Include="PPoint.cpp" />
+    <ClCompile Include="DatumList.cpp" />
     <ClCompile Include="Ellipsoid.cpp" />
-    <ClCompile Include="GeographicCoordinateReferenceSystem.cpp" />
+    <ClCompile Include="GeographicCRS.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -192,7 +192,7 @@
     </ClCompile>
     <ClCompile Include="PrimeMeridian.cpp" />
     <ClCompile Include="CoordinateArea.cpp" />
-    <ClCompile Include="ProjDatum.cpp" />
+    <ClCompile Include="Datum.cpp" />
     <ClCompile Include="ProjNetworkHandler.cpp" />
     <ClCompile Include="ProjObject.cpp" />
     <ClCompile Include="ProjContext.cpp" />

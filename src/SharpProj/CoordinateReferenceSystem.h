@@ -3,18 +3,20 @@
 
 namespace SharpProj {
 	using System::Collections::ObjectModel::ReadOnlyCollection;
-	ref class GeometricCoordinateReferenceSystem;
-	ref class ProjDatum;
-	ref class ProjDatumList;
-	ref class CoordinateSystem;
-	ref class Ellipsoid;
-	ref class PrimeMeridian;
 	ref class CoordinateTransform;
 
 	namespace Details
 	{
 		ref class Axis;
 		ref class AxisCollection;
+		ref class Datum;
+		ref class Ellipsoid;
+		ref class PrimeMeridian;
+
+		ref class GeodeticCRS;
+		ref class GeometricCRS;
+
+		ref class CoordinateSystem;
 	}
 
 	public ref class CoordinateReferenceSystem : ProjObject
@@ -22,8 +24,12 @@ namespace SharpProj {
 	private:
 		ProjContext^ m_ctx;
 		CoordinateSystem^ m_cs;
-		CoordinateReferenceSystem^ m_geodCRS;
-		Ellipsoid^ m_ellipsoid;
+		GeodeticCRS^ m_geodCRS;
+		Details::Ellipsoid^ m_ellipsoid;
+		Details::Datum^ m_datum;
+		Details::PrimeMeridian^ m_primeMeridian;
+		CoordinateReferenceSystem^ m_baseCrs;
+		CoordinateTransform^ m_distanceTransform;
 		int m_axis;
 
 		~CoordinateReferenceSystem();
@@ -46,7 +52,7 @@ namespace SharpProj {
 
 		property CoordinateSystem^ CoordinateSystem
 		{
-			SharpProj::CoordinateSystem^ get();
+			Details::CoordinateSystem^ get();
 		}
 
 	public:
@@ -68,26 +74,38 @@ namespace SharpProj {
 			virtual Details::AxisCollection^ get();
 		}
 
-		property Ellipsoid^ Ellipsoid
+		property Details::Ellipsoid^ Ellipsoid
 		{
-			SharpProj::Ellipsoid^ get();
+			Details::Ellipsoid^ get();
 		}
 
-		property CoordinateReferenceSystem^ GeodeticCRS
+		property Details::GeodeticCRS^ GeodeticCRS
+		{
+			Details::GeodeticCRS^ get();
+		}
+
+		property Details::Datum^ Datum
+		{
+			Details::Datum^ get();
+		}
+
+		property Details::PrimeMeridian^ PrimeMeridian
+		{
+			Details::PrimeMeridian^ get();
+		}
+
+		property CoordinateReferenceSystem^ BaseCRS
 		{
 			CoordinateReferenceSystem^ get();
 		}
 
+		property CoordinateTransform^ DistanceTransform
+		{
+			CoordinateTransform^ get();
+		}
+
 	public:
-		CoordinateReferenceSystem^ GetNormalized([Optional] ProjContext^ context);		
-		ProjDatum^ GetHorizontalDatum([Optional] ProjContext^ context);
-		ProjDatum^ GetDatum([Optional] ProjContext^ context);
-		ProjDatumList^ GetDatumList([Optional] ProjContext^ context);
-		ProjDatum^ GetDatumForced([Optional] ProjContext^ context);		
-		PrimeMeridian^ GetPrimeMeridian([Optional] ProjContext^ context);
-		CoordinateTransform^ GetTransform([Optional] ProjContext^ context);
-		CoordinateReferenceSystem^ GetBaseCRS([Optional] ProjContext^ context);
-		CoordinateReferenceSystem^ GetHubCRS([Optional] ProjContext^ context);
+		CoordinateReferenceSystem^ WithAxisNormalized([Optional] ProjContext^ context);
 
 	public:
 		static CoordinateReferenceSystem^ Create(String^ from, [Optional] ProjContext^ ctx);

@@ -32,7 +32,10 @@ static PROJ_NETWORK_HANDLE* my_network_open(
 	gcroot<WeakReference<ProjContext^>^>& ref = *(gcroot<WeakReference<ProjContext^>^>*)user_data;
 	ProjContext^ pc;
 	if (!ref->TryGetTarget(pc))
+	{
+		strncpy_s(out_error_string, error_string_max_size, "Already disposed", error_string_max_size);
 		return nullptr;
+	}
 
 	if (error_string_max_size > 0 && out_error_string)
 		out_error_string[0] = '\0';

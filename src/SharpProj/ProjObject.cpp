@@ -7,14 +7,14 @@
 #include "CoordinateReferenceSystemList.h"
 #include "CoordinateSystem.h"
 #include "Ellipsoid.h"
-#include "GeographicCoordinateReferenceSystem.h"
+#include "GeographicCRS.h"
 #include "PrimeMeridian.h"
 #include "ReferenceFrame.h"
-#include "ProjDatumList.h"
-#include "ProjDatum.h"
-#include "Proj.h"
+#include "DatumList.h"
+#include "Datum.h"
 
 using namespace SharpProj;
+using namespace SharpProj::Details;
 
 ProjObject^ ProjContext::Create(String^ definition)
 {
@@ -70,36 +70,39 @@ ProjObject^ ProjContext::Create(PJ* pj)
 		return gcnew Ellipsoid(this, pj);
 
 	case ProjType::PrimeMeridian:
-		return gcnew PrimeMeridian(this, pj);
+		return gcnew Details::PrimeMeridian(this, pj);
 
 	case ProjType::GeodeticReferenceFrame:
 	case ProjType::DynamicGeodeticReferenceFrame:
 	case ProjType::VerticalReferenceFrame:
 	case ProjType::DynamicVerticalReferenceFrame:
-		return gcnew ReferenceFrame(this, pj);
+		return gcnew Details::ReferenceFrame(this, pj);
 
 	case ProjType::DatumEnsamble:
-		return gcnew ProjDatumList(this, pj);
+		return gcnew Details::DatumList(this, pj);
 
 	case ProjType::GeographicCrs: // Never used. Only inherited
 	case ProjType::Geographic2DCrs:
 	case ProjType::Geographic3DCrs:
-		return gcnew GeographicCoordinateReferenceSystem(this, pj);
+		return gcnew GeographicCRS(this, pj);
 
-	case ProjType::CRS: // abstract
 	case ProjType::GeodeticCrs:
 	case ProjType::GeocentricCrs:
-
+		return gcnew GeodeticCRS(this, pj);
+	
 	case ProjType::CompoundCrs:
 		return gcnew CoordinateReferenceSystemList(this, pj);
 
+	case ProjType::CRS: // abstract
 	case ProjType::VerticalCrs:
 	case ProjType::ProjectedCrs:
 	case ProjType::TemporalCrs:
-	case ProjType::EngineeringCrs:
-	case ProjType::BoundCrs:
+	case ProjType::EngineeringCrs:	
 	case ProjType::OtherCrs:
 		return gcnew CoordinateReferenceSystem(this, pj);
+
+	case ProjType::BoundCrs:
+		return gcnew BoundCRS(this, pj);
 
 	case ProjType::Conversion:
 	case ProjType::Transformation:
@@ -112,8 +115,13 @@ ProjObject^ ProjContext::Create(PJ* pj)
 	case ProjType::TemporalDatum:
 	case ProjType::EngineeringDatum:
 	case ProjType::ParametricDatum:
-		return gcnew ProjDatum(this, pj);
+		return gcnew Details::Datum(this, pj);
 
+	case ProjType::ChooseTransform:
+	case ProjType::CoordinateSystem:
+		throw gcnew InvalidOperationException(); // Never returned by proj, but needed for sensible API
+
+	case ProjType::Unknown:		
 	default:
 		CoordinateSystemType cst = (CoordinateSystemType)proj_cs_get_type(this, pj);
 
@@ -156,15 +164,15 @@ ProjObject^ ProjObject::Create(array<String^>^ from, [Optional]ProjContext^ ctx)
 	return ctx->Create(from);
 }
 
-ProjIdentifierList^ ProjObject::Identifiers::get()
+IdentifierList^ ProjObject::Identifiers::get()
 {
 	if (!m_idList && proj_get_id_auth_name(this, 0))
-		m_idList = gcnew ProjIdentifierList(this);
+		m_idList = gcnew IdentifierList(this);
 
 	return m_idList;
 }
 
-ProjIdentifier^ ProjIdentifierList::default::get(int index)
+Identifier^ IdentifierList::default::get(int index)
 {
 	if (index < 0 || m_Items ? (index >= m_Items->Length) : !proj_get_id_auth_name(m_object, index))
 		throw gcnew IndexOutOfRangeException();
@@ -172,18 +180,18 @@ ProjIdentifier^ ProjIdentifierList::default::get(int index)
 	if (m_Items)
 	{
 		if (!m_Items[index])
-			m_Items[index] = gcnew ProjIdentifier(m_object, index);
+			m_Items[index] = gcnew Identifier(m_object, index);
 
 		return m_Items[index];
 	}
 	else
 	{
 		// Count still unknown
-		return gcnew ProjIdentifier(m_object, index);
+		return gcnew Identifier(m_object, index);
 	}
 }
 
-int ProjIdentifierList::Count::get()
+int IdentifierList::Count::get()
 {
 	if (m_Items)
 		return m_Items->Length;
@@ -192,26 +200,26 @@ int ProjIdentifierList::Count::get()
 	{
 		if (!proj_get_id_auth_name(m_object, i))
 		{
-			m_Items = gcnew array<ProjIdentifier^>(i);
+			m_Items = gcnew array<Identifier^>(i);
 			return i;
 		}
 	}
-	m_Items = Array::Empty<ProjIdentifier^>();
+	m_Items = Array::Empty<Identifier^>();
 	return 0;
 }
 
-System::Collections::Generic::IEnumerator<SharpProj::ProjIdentifier^>^ SharpProj::ProjIdentifierList::GetEnumerator()
+System::Collections::Generic::IEnumerator<Identifier^>^ IdentifierList::GetEnumerator()
 {
 	for(int i = 0; i < Count /* initializes m_Items if necessary */; i++)
 	{
 		if (!m_Items[i])
-			m_Items[i] = gcnew ProjIdentifier(m_object, i);
+			m_Items[i] = gcnew Identifier(m_object, i);
 	}
 
-	return static_cast<System::Collections::Generic::IEnumerable<ProjIdentifier^>^>(m_Items)->GetEnumerator();
+	return static_cast<System::Collections::Generic::IEnumerable<Identifier^>^>(m_Items)->GetEnumerator();
 }
 
-String^ ProjIdentifier::Authority::get()
+String^ Identifier::Authority::get()
 {
 	if (!m_authority)
 	{
@@ -222,7 +230,7 @@ String^ ProjIdentifier::Authority::get()
 	return m_authority;
 }
 
-String^ ProjIdentifier::Name::get()
+String^ Identifier::Name::get()
 {
 	if (!m_code)
 	{

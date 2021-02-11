@@ -1,30 +1,48 @@
 #pragma once
-#include "ProjDatum.h"
+#include "Datum.h"
+
 namespace SharpProj {
-    public ref class ReferenceFrame :
-        public ProjDatum
-    {
-    internal:
-        ReferenceFrame(ProjContext^ ctx, PJ* pj)
-            : ProjDatum(ctx, pj)
+    namespace Details {
+        ref class Ellipsoid;
+
+        public ref class ReferenceFrame :
+            public Datum
         {
-
-
-        }
-
-    public:
-        property Nullable<double> ReferenceEpoch
-        {
-            Nullable<double> get()
+        private:
+            Ellipsoid^ m_ellipsoid;
+        internal:
+            ReferenceFrame(ProjContext^ ctx, PJ* pj)
+                : Datum(ctx, pj)
             {
-                if (Type == ProjType::DynamicGeodeticReferenceFrame || Type == ProjType::DynamicVerticalReferenceFrame)
-                    return proj_dynamic_datum_get_frame_reference_epoch(Context, this);
-                else
-                    return Nullable<double>();
+
+
             }
-        }
 
-    public:
-    };
+        public:
+            property Nullable<double> EpochYear
+            {
+                Nullable<double> get()
+                {
+                    if (Type == ProjType::DynamicGeodeticReferenceFrame || Type == ProjType::DynamicVerticalReferenceFrame)
+                    {
+                        double d = proj_dynamic_datum_get_frame_reference_epoch(Context, this);
+                        if (d != -1.0)
+                            return d;
+                        else
+                            return Nullable<double>();
+                    }
+                    else
+                        return Nullable<double>();
+                }
+            }
 
+            property Ellipsoid^ Ellipsoid
+            {
+                Details::Ellipsoid^ get();
+            }
+
+        public:
+        };
+
+    }
 }
