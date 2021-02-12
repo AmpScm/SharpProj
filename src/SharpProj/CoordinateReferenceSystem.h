@@ -5,7 +5,7 @@ namespace SharpProj {
 	using System::Collections::ObjectModel::ReadOnlyCollection;
 	ref class CoordinateTransform;
 
-	namespace ProjDetaile
+	namespace Proj
 	{
 		ref class Axis;
 		ref class AxisCollection;
@@ -25,9 +25,9 @@ namespace SharpProj {
 		ProjContext^ m_ctx;
 		CoordinateSystem^ m_cs;
 		GeodeticCRS^ m_geodCRS;
-		ProjDetaile::Ellipsoid^ m_ellipsoid;
-		ProjDetaile::Datum^ m_datum;
-		ProjDetaile::PrimeMeridian^ m_primeMeridian;
+		Proj::Ellipsoid^ m_ellipsoid;
+		Proj::Datum^ m_datum;
+		Proj::PrimeMeridian^ m_primeMeridian;
 		CoordinateReferenceSystem^ m_baseCrs;
 		CoordinateTransform^ m_distanceTransform;
 		int m_axis;
@@ -52,7 +52,7 @@ namespace SharpProj {
 
 		property CoordinateSystem^ CoordinateSystem
 		{
-			ProjDetaile::CoordinateSystem^ get();
+			Proj::CoordinateSystem^ get();
 		}
 
 	public:
@@ -69,29 +69,29 @@ namespace SharpProj {
 			void set(int value);
 		}
 
-		property ProjDetaile::AxisCollection^ Axis
+		property Proj::AxisCollection^ Axis
 		{
-			virtual ProjDetaile::AxisCollection^ get();
+			virtual Proj::AxisCollection^ get();
 		}
 
-		property ProjDetaile::Ellipsoid^ Ellipsoid
+		property Proj::Ellipsoid^ Ellipsoid
 		{
-			ProjDetaile::Ellipsoid^ get();
+			Proj::Ellipsoid^ get();
 		}
 
-		property ProjDetaile::GeodeticCRS^ GeodeticCRS
+		property Proj::GeodeticCRS^ GeodeticCRS
 		{
-			ProjDetaile::GeodeticCRS^ get();
+			Proj::GeodeticCRS^ get();
 		}
 
-		property ProjDetaile::Datum^ Datum
+		property Proj::Datum^ Datum
 		{
-			ProjDetaile::Datum^ get();
+			Proj::Datum^ get();
 		}
 
-		property ProjDetaile::PrimeMeridian^ PrimeMeridian
+		property Proj::PrimeMeridian^ PrimeMeridian
 		{
-			ProjDetaile::PrimeMeridian^ get();
+			Proj::PrimeMeridian^ get();
 		}
 
 		property CoordinateReferenceSystem^ BaseCRS

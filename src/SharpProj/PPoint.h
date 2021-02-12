@@ -149,21 +149,6 @@ namespace SharpProj {
 			}
 		}
 
-		Tuple<double, double>^ ToTupleXY()
-		{
-			return gcnew Tuple<double, double>(X, Y);
-		}
-
-		Tuple<double, double, double>^ ToTupleXYZ()
-		{
-			return gcnew Tuple<double, double, double>(X, Y, Z);
-		}
-
-		Tuple<double, double, double, double>^ ToTupleXYZT()
-		{
-			return gcnew Tuple<double, double, double, double>(X, Y, Z, T);
-		}
-
 		static PPoint FromArray(array<double>^ v)
 		{
 			return PPoint(v);
@@ -178,36 +163,6 @@ namespace SharpProj {
 		static explicit operator PPoint (array<double>^ v)
 		{
 			return FromArray(v);
-		}
-
-		static operator PPoint (Tuple<double, double> t)
-		{
-			return PPoint(t.Item1, t.Item2);
-		}
-
-		static operator PPoint (Tuple<double, double, double> t)
-		{
-			return PPoint(t.Item1, t.Item2, t.Item3);
-		}
-
-		static operator PPoint (Tuple<double, double, double, double> t)
-		{
-			return PPoint(t.Item1, t.Item2, t.Item3, t.Item4);
-		}
-
-		static explicit operator Tuple<double,double>^ (PPoint p)
-		{
-			return p.ToTupleXY();
-		}
-
-		static explicit operator Tuple<double, double, double> ^ (PPoint p)
-		{
-			return p.ToTupleXYZ();
-		}
-
-		static explicit operator Tuple<double, double, double, double> ^ (PPoint p)
-		{
-			return p.ToTupleXYZT();
 		}
 
 		static bool operator ==(PPoint p1, PPoint p2)
@@ -280,28 +235,6 @@ namespace SharpProj {
 			}
 		}
 
-		PPoint RoundAll(int decimals)
-		{
-			PPoint pc = PPoint(
-				Math::Round(X, decimals),
-				Math::Round(Y, decimals),
-				Math::Round(Z, decimals),
-				Math::Round(T, decimals));
-			pc.Axis = Axis;
-			return pc;
-		}
-
-		PPoint RoundXY(int decimals)
-		{
-			PPoint pc = PPoint(
-				Math::Round(X, decimals),
-				Math::Round(Y, decimals),
-				Z,
-				T);
-			pc.Axis = Axis;
-			return pc;
-		}
-
 		PPoint DegToRad();
 
 		PPoint RadToDeg();
@@ -318,6 +251,14 @@ namespace SharpProj {
 			PPoint r = PPoint(X + dx, Y + dy, Z + dz, T);
 			r.Axis = Axis;
 			return r;
+		}
+
+		property bool HasValues
+		{
+			bool get()
+			{
+				return !double::IsNaN(X);
+			}
 		}
 	};
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include "ProjObject.h"
 namespace SharpProj {
-	namespace ProjDetaile {
+	namespace Proj {
 		public ref class Ellipsoid :
 			public ProjObject
 		{
@@ -63,5 +63,5 @@ namespace SharpProj {
 		};
 	}
 
-	using ProjDetaile::Ellipsoid;
+	using Proj::Ellipsoid;
 }

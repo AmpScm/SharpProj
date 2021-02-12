@@ -6,7 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SharpProj.ProjDetaile;
+using SharpProj.Proj;
+using SparpProj.NetTopologySuite.Testing;
 using PJ = SharpProj.CoordinateTransform;
 
 namespace SharpProj.Tests
@@ -210,7 +211,7 @@ namespace SharpProj.Tests
                     Assert.IsNotNull(crs3.Datum);
                     Assert.AreEqual("Amersfoort", crs3.Datum.Name);
                     Assert.AreEqual(ProjType.GeodeticReferenceFrame, crs3.Datum.Type);
-                    Assert.IsFalse(crs3.Datum is ProjDetaile.DatumList);
+                    Assert.IsFalse(crs3.Datum is Proj.DatumList);
                     Assert.AreEqual(null, crs3.CoordinateSystem.Name);
                     Assert.AreEqual(ProjType.CoordinateSystem, crs3.CoordinateSystem.Type);
                     Assert.AreEqual(CoordinateSystemType.Cartesian, crs3.CoordinateSystem.CoordinateSystemType);
@@ -247,19 +248,6 @@ namespace SharpProj.Tests
                     using (var t = CoordinateTransform.Create(crs1, crs2))
                     {
                         Assert.IsTrue(t is ChooseCoordinateTransform);
-
-                        var start = new double[] { PJ.ToRad(5.0), PJ.ToRad(52.0) };
-
-                        t.Apply(new Tuple<double, double>(1, 1));
-
-                        var r = t.Apply(start);
-                        GC.KeepAlive(r);
-
-                        var s = t.Apply(r);
-                        GC.KeepAlive(s);
-
-
-
 
                         {
                             var c2 = crs1.GeodeticCRS;

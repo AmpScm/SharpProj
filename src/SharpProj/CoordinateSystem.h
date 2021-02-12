@@ -1,7 +1,7 @@
 #pragma once
 #include "ProjObject.h"
 namespace SharpProj {
-	namespace ProjDetaile {
+	namespace Proj {
 
 		using System::Collections::ObjectModel::ReadOnlyCollection;
 		using System::Collections::Generic::List;
@@ -154,9 +154,9 @@ namespace SharpProj {
 		public:
 			property CoordinateSystemType CoordinateSystemType
 			{
-				ProjDetaile::CoordinateSystemType get()
+				Proj::CoordinateSystemType get()
 				{
-					return (ProjDetaile::CoordinateSystemType)proj_cs_get_type(Context, this);
+					return (Proj::CoordinateSystemType)proj_cs_get_type(Context, this);
 				}
 			}
 
@@ -169,9 +169,9 @@ namespace SharpProj {
 			}
 
 		public:
-			property ProjDetaile::AxisCollection^ Axis
+			property Proj::AxisCollection^ Axis
 			{
-				virtual ProjDetaile::AxisCollection^ get()
+				virtual Proj::AxisCollection^ get()
 				{
 					if (!m_axis)
 					{
@@ -184,7 +184,7 @@ namespace SharpProj {
 							for (int i = 0; i < cnt; i++)
 								lst->Add(gcnew ProjAxis(this, i));
 
-							m_axis = gcnew ProjDetaile::AxisCollection(lst);
+							m_axis = gcnew Proj::AxisCollection(lst);
 						}
 					}
 					return m_axis;

@@ -17,7 +17,7 @@ Ellipsoid^ ReferenceFrame::Ellipsoid::get()
 				return nullptr;
 			}
 
-			m_ellipsoid = Context->Create<ProjDetaile::Ellipsoid^>(pj);
+			m_ellipsoid = Context->Create<Proj::Ellipsoid^>(pj);
 		}
 	}
 

@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTopologySuite.Geometries;
-using SharpProj.ProjDetaile;
+using SharpProj.Proj;
+using SparpProj.NetTopologySuite.Testing;
 
 namespace SharpProj.Tests
 {

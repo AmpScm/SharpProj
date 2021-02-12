@@ -11,7 +11,7 @@ namespace SharpProj {
 	using System::Collections::ObjectModel::ReadOnlyCollection;
 	using System::Collections::Generic::List;
 
-	namespace ProjDetaile {
+	namespace Proj {
 		public ref class CoordinateTransformFactors
 		{
 		private:
@@ -216,7 +216,7 @@ namespace SharpProj {
 		};
 	}
 
-	using CoordinateTransformParameter = ProjDetaile::CoordinateTransformParameter;
+	using CoordinateTransformParameter = Proj::CoordinateTransformParameter;
 
 	public ref class CoordinateTransform : ProjObject
 	{
@@ -249,6 +249,11 @@ namespace SharpProj {
 	internal:
 		PPoint FromCoordinate(const PJ_COORD& coord, bool forward);
 		
+	public:
+		CoordinateTransform^ Clone([Optional]ProjContext^ ctx)
+		{
+			return static_cast<CoordinateTransform^>(__super::Clone(ctx));
+		}
 
 	public:
 		property bool HasInverse
@@ -363,7 +368,7 @@ namespace SharpProj {
 			CoordinateReferenceSystem^ get();
 		}
 
-	private:
+	internal:
 		void EnsureDistance()
 		{
 			if (m_distanceFlags)
@@ -371,7 +376,7 @@ namespace SharpProj {
 
 			SetupDistance();
 		}
-
+	public:
 		void SetupDistance();
 
 	public:
@@ -435,8 +440,8 @@ namespace SharpProj {
 	public:
 		double RoundTrip(bool forward, int transforms, PPoint coordinate);
 		double RoundTrip(bool forward, int transforms, array<double>^ ordinates) { return RoundTrip(forward, transforms, PPoint(ordinates)); }
-		ProjDetaile::CoordinateTransformFactors^ Factors(PPoint coordinate);
-		ProjDetaile::CoordinateTransformFactors^ Factors(array<double>^ ordinates) { return Factors(PPoint(ordinates)); }
+		Proj::CoordinateTransformFactors^ Factors(PPoint coordinate);
+		Proj::CoordinateTransformFactors^ Factors(array<double>^ ordinates) { return Factors(PPoint(ordinates)); }
 
 
 	public:

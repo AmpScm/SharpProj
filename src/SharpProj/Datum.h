@@ -1,7 +1,7 @@
 #pragma once
 #include "ProjObject.h"
 namespace SharpProj {
-    namespace ProjDetaile {
+    namespace Proj {
         public ref class Datum :
             public ProjObject
         {

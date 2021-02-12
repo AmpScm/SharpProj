@@ -12,7 +12,7 @@
 
 
 using namespace SharpProj;
-using namespace SharpProj::ProjDetaile;
+using namespace SharpProj::Proj;
 
 SharpProj::CoordinateReferenceSystem::~CoordinateReferenceSystem()
 {
@@ -110,11 +110,11 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(array<String^>^ fro
 	}
 }
 
-ProjDetaile::GeodeticCRS^ CoordinateReferenceSystem::GeodeticCRS::get()
+Proj::GeodeticCRS^ CoordinateReferenceSystem::GeodeticCRS::get()
 {
 	if (!m_geodCRS && this)
 	{
-		ProjDetaile::GeodeticCRS^ geoCrs = dynamic_cast<ProjDetaile::GeodeticCRS^>(this);
+		Proj::GeodeticCRS^ geoCrs = dynamic_cast<Proj::GeodeticCRS^>(this);
 
 		if (geoCrs)
 			m_geodCRS = geoCrs;
@@ -127,13 +127,13 @@ ProjDetaile::GeodeticCRS^ CoordinateReferenceSystem::GeodeticCRS::get()
 			if (!pj)
 				throw Context->ConstructException();
 
-			m_geodCRS = Context->Create<ProjDetaile::GeodeticCRS^>(pj);
+			m_geodCRS = Context->Create<Proj::GeodeticCRS^>(pj);
 		}
 	}
 	return m_geodCRS;
 }
 
-ProjDetaile::Datum^ CoordinateReferenceSystem::Datum::get()
+Proj::Datum^ CoordinateReferenceSystem::Datum::get()
 {
 	if (!m_datum && this)
 	{
@@ -149,14 +149,14 @@ ProjDetaile::Datum^ CoordinateReferenceSystem::Datum::get()
 			return nullptr;
 		}
 
-		m_datum = Context->Create<ProjDetaile::Datum^>(pj);
+		m_datum = Context->Create<Proj::Datum^>(pj);
 	}
 
 	return m_datum;
 }
 
 
-ProjDetaile::CoordinateSystem^ CoordinateReferenceSystem::CoordinateSystem::get()
+Proj::CoordinateSystem^ CoordinateReferenceSystem::CoordinateSystem::get()
 {
 	if (!m_cs)
 	{
@@ -170,7 +170,7 @@ ProjDetaile::CoordinateSystem^ CoordinateReferenceSystem::CoordinateSystem::get(
 				throw Context->ConstructException();
 			}
 
-			m_cs = Context->Create<ProjDetaile::CoordinateSystem^>(pj);
+			m_cs = Context->Create<Proj::CoordinateSystem^>(pj);
 		}
 	}
 	return m_cs;
@@ -189,7 +189,7 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::WithAxisNormalized(ProjCon
 	return context->Create<CoordinateReferenceSystem^>(pj);
 }
 
-ProjDetaile::Ellipsoid^ CoordinateReferenceSystem::Ellipsoid::get()
+Proj::Ellipsoid^ CoordinateReferenceSystem::Ellipsoid::get()
 {
 	if (!m_ellipsoid && this)
 	{
@@ -199,12 +199,12 @@ ProjDetaile::Ellipsoid^ CoordinateReferenceSystem::Ellipsoid::get()
 		if (!pj)
 			throw Context->ConstructException();
 
-		m_ellipsoid = Context->Create<ProjDetaile::Ellipsoid^>(pj);
+		m_ellipsoid = Context->Create<Proj::Ellipsoid^>(pj);
 	}
 	return m_ellipsoid;
 }
 
-ProjDetaile::PrimeMeridian^ CoordinateReferenceSystem::PrimeMeridian::get()
+Proj::PrimeMeridian^ CoordinateReferenceSystem::PrimeMeridian::get()
 {
 	if (!m_primeMeridian && this)
 	{
@@ -215,7 +215,7 @@ ProjDetaile::PrimeMeridian^ CoordinateReferenceSystem::PrimeMeridian::get()
 		if (!pj)
 			throw Context->ConstructException();
 
-		m_primeMeridian = Context->Create<ProjDetaile::PrimeMeridian^>(pj);
+		m_primeMeridian = Context->Create<Proj::PrimeMeridian^>(pj);
 	}
 	return m_primeMeridian;
 }
@@ -242,6 +242,7 @@ CoordinateTransform^ CoordinateReferenceSystem::DistanceTransform::get()
 	if (!m_distanceTransform && this && this->GeodeticCRS)
 	{
 		m_distanceTransform = CoordinateTransform::Create(this, this->GeodeticCRS->WithAxisNormalized(Context), Context);
+		m_distanceTransform->EnsureDistance();
 	}
 	return m_distanceTransform;
 }
@@ -267,7 +268,7 @@ void CoordinateReferenceSystem::AxisCount::set(int value)
 	m_axis = value;
 }
 
-ProjDetaile::AxisCollection^ CoordinateReferenceSystem::Axis::get()
+Proj::AxisCollection^ CoordinateReferenceSystem::Axis::get()
 {
 	auto cs = CoordinateSystem;
 

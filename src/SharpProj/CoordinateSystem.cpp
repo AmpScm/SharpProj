@@ -3,7 +3,7 @@
 
 using namespace SharpProj;
 
-void SharpProj::ProjDetaile::Axis::Ensure()
+void SharpProj::Proj::Axis::Ensure()
 {
     const char* name, * abbrev, * direction, * unit_name, * unit_auth_name, * unit_code;
     double unit_conv_factor;

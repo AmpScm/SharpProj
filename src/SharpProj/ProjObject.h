@@ -7,7 +7,7 @@ namespace SharpProj {
 	using System::Collections::Generic::IReadOnlyList;
 	ref class ProjObject;
 
-	namespace ProjDetaile {
+	namespace Proj {
 		public enum class ProjType
 		{
 			Unknown = PJ_TYPE_UNKNOWN,
@@ -137,7 +137,7 @@ namespace SharpProj {
 		String^ m_name;
 		String^ m_infoDefinition;
 		String^ m_scope;
-		ProjDetaile::IdentifierList^ m_idList;
+		Proj::IdentifierList^ m_idList;
 
 	private:
 		~ProjObject()
@@ -213,10 +213,10 @@ namespace SharpProj {
 			}
 		}
 
-		ProjObject^ Clone(ProjContext^ ctx)
+		ProjObject^ Clone([Optional]ProjContext^ ctx)
 		{
 			if (!ctx)
-				throw gcnew ArgumentNullException("ctx");
+				ctx = Context->Clone();
 
 			return DoClone(ctx);
 		}
@@ -274,11 +274,11 @@ namespace SharpProj {
 			}
 		}
 
-		property ProjDetaile::ProjType Type
+		property Proj::ProjType Type
 		{
-			virtual ProjDetaile::ProjType get()
+			virtual Proj::ProjType get()
 			{
-				return (ProjDetaile::ProjType)proj_get_type(this);
+				return (Proj::ProjType)proj_get_type(this);
 			}
 		}
 
@@ -319,9 +319,9 @@ namespace SharpProj {
 		}
 
 	public:
-		property ProjDetaile::IdentifierList^ Identifiers
+		property Proj::IdentifierList^ Identifiers
 		{
-			ProjDetaile::IdentifierList^ get();
+			Proj::IdentifierList^ get();
 		}
 
 		bool IsEquivalentTo(ProjObject^ other, [Optional] ProjContext^ ctx)

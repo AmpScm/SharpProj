@@ -34,14 +34,14 @@
 namespace SharpProj {
 	ref class ProjContext;
 
-	namespace ProjDetaile {
+	namespace Proj {
 		ref class Datum;
 	}
 }
 
 using namespace System;
 using namespace SharpProj;
-using namespace SharpProj::ProjDetaile;
+using namespace SharpProj::Proj;
 
 #include <string>
 std::string utf8_string(String^ v);

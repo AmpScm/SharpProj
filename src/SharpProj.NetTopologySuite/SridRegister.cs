@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using NetTopologySuite.Geometries;
 using SharpProj;
+using SparpProj.NetTopologySuite.Implementation;
 
 namespace SparpProj.NetTopologySuite
 {
@@ -96,13 +94,10 @@ namespace SparpProj.NetTopologySuite
 
         private static SridItem WithinWriteLock_Register(CoordinateReferenceSystem crs, int withSrid)
         {
-            SridItem added;
+            SridItem added = new SridItem(withSrid, crs);
 
-            if (_registered.TryGetValue(crs, out added))
-                throw new ArgumentException("CRS instance already registered", nameof(crs));
-
-            _catalog.Add(withSrid, added = new SridItem(withSrid, crs));
             _registered.Add(crs, added);
+            _catalog.Add(withSrid, added);
 
             return added;
         }
@@ -129,13 +124,13 @@ namespace SparpProj.NetTopologySuite
 
         static SridItem WithinWriteLock_Register(CoordinateReferenceSystem crs)
         {
-            SridItem added;
-
             while (_catalog.ContainsKey(_nextId))
                 _nextId--;
 
-            _catalog.Add(_nextId, added = new SridItem(_nextId, crs));
+            SridItem added = new SridItem(_nextId, crs);
+
             _registered.Add(crs, added);
+            _catalog.Add(_nextId, added);
 
             return added;
         }
@@ -143,6 +138,11 @@ namespace SparpProj.NetTopologySuite
         public static bool TryRegisterId<T>(SridItem item, T value)
             where T : Enum
         {
+            if (item == null)
+                throw new ArgumentNullException(nameof(item));
+            if (!_catalog.TryGetValue(item.SRID, out var vv) || !ReferenceEquals(vv, item))
+                throw new ArgumentOutOfRangeException(nameof(item));
+
             using (_rwl.WithWriteLock())
             {
                 return WithingWriteLock_TryRegisterId(item, value);

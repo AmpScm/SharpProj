@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using SharpProj;
@@ -22,12 +19,41 @@ namespace SparpProj.NetTopologySuite
         /// </summary>
         public CoordinateReferenceSystem CRS { get; }
 
-        readonly System.Collections.ArrayList _idMap = new System.Collections.ArrayList();
-        Dictionary<object, object> _items;
+        readonly List<object> _idMap = new List<object>();
 
-        public IReadOnlyDictionary<object, object> Items
+        public sealed class ItemDict
         {
-            get { return _items ?? (_items = new Dictionary<object, object>()); }
+            readonly Dictionary<object, object> _items = new Dictionary<object, object>();
+
+            public object this[object key]
+            {
+                get
+                {
+                    lock (_items)
+                    {
+                        if (_items.TryGetValue(key, out var value))
+                            return value;
+                        else
+                            return null;
+                    }
+                }
+                set
+                {
+                    lock (_items)
+                    {
+                        if (value == null)
+                            _items.Remove(key);
+
+                        _items[key] = value;
+                    }
+                }
+            }
+        }
+
+        ItemDict _items;
+        public ItemDict Items
+        {
+            get { return _items ?? (_items = new ItemDict()); }
         }
 
         internal SridItem(int srid, CoordinateReferenceSystem crs)
@@ -62,20 +88,6 @@ namespace SparpProj.NetTopologySuite
         {
             if (Id<T>().HasValue || !SridRegister.TryRegisterId(this, value))
                 throw new InvalidOperationException();
-        }
-
-        /// <summary>
-        /// Allows adding user items to the 'Items' collection for registration purposes.
-        /// </summary>
-        /// <remarks>What is added can't be removed, so only use this for extending the global registry</remarks>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        public void AddItem(object key, object value)
-        {
-            lock (Items) // Triggers creating
-            {
-                _items.Add(key, value);
-            }
         }
 
         // Called within writelock from SridRegister

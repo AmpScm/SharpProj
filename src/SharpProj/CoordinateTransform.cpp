@@ -139,14 +139,14 @@ double CoordinateTransform::RoundTrip(bool forward, int transforms, PPoint coord
 	return proj_roundtrip(this, forward ? PJ_FWD : PJ_INV, transforms, &coord);
 }
 
-ProjDetaile::CoordinateTransformFactors^ CoordinateTransform::Factors(PPoint coordinate)
+Proj::CoordinateTransformFactors^ CoordinateTransform::Factors(PPoint coordinate)
 {
 	PJ_COORD coord;
 	SetCoordinate(coord, coordinate);
 
 	PJ_FACTORS f = proj_factors(this, coord);
 
-	return gcnew ProjDetaile::CoordinateTransformFactors(this, &f);
+	return gcnew Proj::CoordinateTransformFactors(this, &f);
 }
 
 PPoint CoordinateTransform::DoTransform(bool forward, PPoint% coordinate)
@@ -203,7 +203,7 @@ CoordinateReferenceSystem^ CoordinateTransform::TargetCRS::get()
 	return m_target;
 }
 
-void SharpProj::ProjDetaile::CoordinateTransformParameter::Ensure()
+void SharpProj::Proj::CoordinateTransformParameter::Ensure()
 {
 	if (!m_name)
 	{
@@ -277,23 +277,17 @@ double CoordinateTransform::GeoDistance(PPoint p1, PPoint p2)
 		p1 = Apply(p1);
 		p2 = Apply(p2);
 	}
-
-	PJ_COORD coord1 = {}, coord2 = {};
-
 	if (m_distanceFlags & DistanceFlags::ApplyRad)
 	{
-		coord1.xy.x = ToRad(p1.X);
-		coord1.xy.y = ToRad(p1.Y);
-		coord2.xy.x = ToRad(p2.X);
-		coord2.xy.y = ToRad(p2.Y);
+		p1 = p1.DegToRad();
+		p2 = p2.DegToRad();
 	}
-	else
-	{
-		coord1.xy.x = p1.X;
-		coord1.xy.y = p1.Y;
-		coord2.xy.x = p2.X;
-		coord2.xy.y = p2.Y;
-	}
+
+	PJ_COORD coord1 = {}, coord2 = {};
+	coord1.xy.x = p1.X;
+	coord1.xy.y = p1.Y;
+	coord2.xy.x = p2.X;
+	coord2.xy.y = p2.Y;
 
 	if (m_distanceFlags & DistanceFlags::SwapXY)
 	{
@@ -313,27 +307,19 @@ double CoordinateTransform::GeoDistanceZ(PPoint p1, PPoint p2)
 		p1 = Apply(p1);
 		p2 = Apply(p2);
 	}
-
-	PJ_COORD coord1 = {}, coord2 = {};
-
 	if (m_distanceFlags & DistanceFlags::ApplyRad)
 	{
-		coord1.xyz.x = ToRad(p1.X);
-		coord1.xyz.y = ToRad(p1.Y);
-		coord1.xyz.z = p1.Z;
-		coord2.xyz.x = ToRad(p2.X);
-		coord2.xyz.y = ToRad(p2.Y);
-		coord2.xyz.z = p2.Z;
+		p1 = p1.DegToRad();
+		p2 = p2.DegToRad();
 	}
-	else
-	{
-		coord1.xyz.x = p1.X;
-		coord1.xyz.y = p1.Y;
-		coord1.xyz.z = p1.Z;
-		coord2.xyz.x = p2.X;
-		coord2.xyz.y = p2.Y;
-		coord2.xyz.z = p2.Z;
-	}
+
+	PJ_COORD coord1 = {}, coord2 = {};
+	coord1.xyz.x = p1.X;
+	coord1.xyz.y = p1.Y;
+	coord1.xyz.z = p1.Z;
+	coord2.xyz.x = p2.X;
+	coord2.xyz.y = p2.Y;
+	coord2.xyz.z = p2.Z;
 
 	if (m_distanceFlags & DistanceFlags::SwapXY)
 	{
@@ -354,13 +340,18 @@ PPoint CoordinateTransform::Geod(PPoint p1, PPoint p2)
 		p1 = Apply(p1);
 		p2 = Apply(p2);
 	}
+	if (m_distanceFlags & DistanceFlags::ApplyRad)
+	{
+		p1 = p1.DegToRad();
+		p2 = p2.DegToRad();
+	}
 
 	PJ_COORD coord1 = {}, coord2 = {};
-	coord1.xyz.x = ToRad(p1.X);
-	coord1.xyz.y = ToRad(p1.Y);
+	coord1.xyz.x = p1.X;
+	coord1.xyz.y = p1.Y;
 	coord1.xyz.z = p1.Z;
-	coord2.xyz.x = ToRad(p2.X);
-	coord2.xyz.y = ToRad(p2.Y);
+	coord2.xyz.x = p2.X;
+	coord2.xyz.y = p2.Y;
 	coord2.xyz.z = p2.Z;
 
 	if (m_distanceFlags & DistanceFlags::SwapXY)

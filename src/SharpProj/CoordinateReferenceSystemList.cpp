@@ -18,18 +18,18 @@ int CoordinateReferenceSystemList::AxisCount::get()
 	return n;
 }
 
-ProjDetaile::AxisCollection^ CoordinateReferenceSystemList::Axis::get()
+Proj::AxisCollection^ CoordinateReferenceSystemList::Axis::get()
 {
 	if (!m_axis)
 	{
-		auto lst = gcnew List<ProjDetaile::Axis^>();
+		auto lst = gcnew List<Proj::Axis^>();
 
 		for each (CoordinateReferenceSystem ^ r in this)
 		{
 			lst->AddRange(r->Axis);
 		}
 
-		m_axis = gcnew ProjDetaile::AxisCollection(lst);
+		m_axis = gcnew Proj::AxisCollection(lst);
 	}
 
 	return m_axis;
