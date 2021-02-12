@@ -76,14 +76,14 @@ namespace SharpProj.Tests
 
         private static Polygon CreateTriangle(GeometryFactory f, Coordinate centerPoint, double size)
         {
-            double L = Math.Tan(CoordinateTransform.ToRad(30));
+            double halfheight = Math.Cos(CoordinateTransform.ToRad(30)) * size / 2;
 
             return f.CreatePolygon(new Coordinate[]
             {
-                new Coordinate(centerPoint.X, centerPoint.Y-size/2),
-                new Coordinate(centerPoint.X - L/2, centerPoint.Y+size/2),
-                new Coordinate(centerPoint.X + L/2, centerPoint.Y+size/2),
-                new Coordinate(centerPoint.X, centerPoint.Y-size/2),
+                new Coordinate(centerPoint.X, centerPoint.Y-halfheight),
+                new Coordinate(centerPoint.X - size/2, centerPoint.Y+halfheight),
+                new Coordinate(centerPoint.X + size/2, centerPoint.Y+halfheight),
+                new Coordinate(centerPoint.X, centerPoint.Y-halfheight),
             });
         }
 
@@ -94,16 +94,24 @@ namespace SharpProj.Tests
 
             var srid = SridRegister.GetById(Epsg.Netherlands);
 
-            var t1 = CreateTriangle(srid.Factory, amersfoortRD.Offset(-50000, 0).ToCoordinate(), 1);
-            var t2 = CreateTriangle(srid.Factory, amersfoortRD.Offset(20, 50000).ToCoordinate(), 1);
+            var t1 = CreateTriangle(srid.Factory, amersfoortRD.Offset(-50000, 0).ToCoordinate(), 5000);
+            var t2 = CreateTriangle(srid.Factory, amersfoortRD.Offset(20, 50000).ToCoordinate(), 5000);
+            var t3 = CreateTriangle(srid.Factory, amersfoortRD.ToCoordinate(), 100000);
 
-            Assert.AreEqual(70724.0, Math.Round(t1.Distance(t2))); // Pythagoras
-            Assert.AreEqual(70730.0, Math.Round(t1.MeterDistance(t2).Value)); // Via NL CRS
-            
+            Assert.AreEqual(300000, Math.Round(t3.ExteriorRing.Length, 5)); // Pythagoras. By definition
+
+            Assert.AreEqual(65908.18, Math.Round(t1.Distance(t2), 2), "Distance pythagoras"); // Pythagoras
+            Assert.AreEqual(65913.62, Math.Round(t1.MeterDistance(t2).Value, 2), "Geo distance"); // Via NL CRS
 
 
-            Assert.IsTrue(t1.IsWithinMeterDistance(t2, 75000).Value);
-            Assert.IsFalse(t2.IsWithinMeterDistance(t1, 70000).Value);
+
+            Assert.AreEqual(300024.180, Math.Round(t3.ExteriorRing.MeterLength().Value, 3));
+
+
+
+
+            Assert.IsTrue(t1.IsWithinMeterDistance(t2, 70000).Value);
+            Assert.IsFalse(t2.IsWithinMeterDistance(t1, 64000).Value);
 
 
             Assert.IsTrue(t1.Centroid.Coordinate.Equals3D(t1.Centroid.Coordinate));

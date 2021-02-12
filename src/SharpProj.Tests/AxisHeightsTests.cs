@@ -111,17 +111,12 @@ namespace SharpProj.Tests
 
                 Coordinate dom, servaas;
 
-                using (var nl = CoordinateReferenceSystem.Create("EPSG:28992"))
+                using (var nl = CoordinateReferenceSystem.Create("EPSG:28992", pc))
                 {
                     using (var wgs84 = CoordinateReferenceSystem.Create("EPSG:4326", pc))
                     {
                         using (var t = CoordinateTransform.Create(wgs84, nl))
                         {
-                            if (t is ChooseCoordinateTransform cct)
-                            {
-                                Assert.AreEqual(ProjType.ConcatenatedOperation, cct[0].Type);
-                                Assert.AreEqual(ProjType.ConcatenatedOperation, cct[1].Type);
-                            }
                             dom = t.Apply(DomUtrechtWGS84);
                             servaas = t.Apply(StServaasMaastrichtWGS84);
                         }
@@ -129,12 +124,10 @@ namespace SharpProj.Tests
                         Assert.AreEqual(143.562, Math.Round(wgs84.DistanceTransform.GeoDistance(DomUtrechtWGS84, StServaasMaastrichtWGS84)) / 1000.0, "Distance WGS84");
                     }
 
-
                     Assert.AreEqual(143.562, Math.Round(nl.DistanceTransform.GeoDistance(dom, servaas), 0) / 1000.0, "Distance RD");
 
-
-                    double dx = Math.Abs(dom.X - servaas.X);
-                    double dy = Math.Abs(dom.Y - servaas.Y);
+                    double dx = (dom.X - servaas.X);
+                    double dy = (dom.Y - servaas.Y);
 
                     Assert.AreEqual(143.556, Math.Round(Math.Sqrt(dx * dx + dy * dy)) / 1000.0, "Distance pythagoras");
                 }
@@ -152,7 +145,6 @@ namespace SharpProj.Tests
                         GC.KeepAlive(cs1);
                     }
 
-                    pc.AllowNetworkConnections = true;
                     using (var WGS84 = CoordinateReferenceSystem.Create("EPSG:4329", pc))
                     {
                         GC.KeepAlive(WGS84);

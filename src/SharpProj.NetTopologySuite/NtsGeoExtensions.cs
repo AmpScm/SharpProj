@@ -125,5 +125,54 @@ namespace NetTopologySuite.Geometries
                     && double.IsNaN(coordinate.Z) == double.IsNaN(other.Z);
         }
 
+        /// <summary>
+        /// Returns the minimum distance between this Geometry <paramref name="g0"/> and another Geometry <paramref name="g1"/>, by calculating the nearest
+        /// points in NTS and then asking (Sharp)Proj to get the actual distance in meters.
+        /// </summary>
+        /// <param name="g0">Geometry 1</param>
+        /// <param name="g1">Geometry 2</param>
+        /// <returns>The distance in meters between g0 and g1, or null if unable to calculate</returns>
+        /// <exception cref="ArgumentNullException">g0 or g1 is null</exception
+        /// <exception cref="ArgumentOutOfRangeException">The SRID of g0 and g1 don't match, are 0 or can't be resolved using <see cref="SridRegister"/></exception>
+        /// <exception cref="ArgumentException"></exception>
+        public static double? MeterLength(this LineString l)
+        {
+            if (l == null)
+                throw new ArgumentNullException(nameof(l));
+
+            int srid = l.SRID;
+            if (srid == 0)
+                throw new ArgumentOutOfRangeException("SRID is 0 or doesn't match");
+
+
+            SridItem sridItem;
+            try
+            {
+                sridItem = SridRegister.GetByValue(srid);
+            }
+            catch (IndexOutOfRangeException sridExcepton)
+            {
+                throw new ArgumentOutOfRangeException("SRID not resolveable", sridExcepton);
+            }
+
+            double distance = 0;
+            var cs = l.CoordinateSequence;
+            Coordinate last = cs.GetCoordinate(0);
+
+            using (var dt = sridItem.CRS.DistanceTransform.Clone())
+                for (int i = 1; i < cs.Count; i++)
+                {
+                    var c = cs.GetCoordinate(i);
+
+                    double d = dt.GeoDistance(last, c);
+                    if (double.IsNaN(d))
+                        return null;
+
+                    distance += d;
+                    last = c;
+                }
+
+            return distance;
+        }
     }
 }
