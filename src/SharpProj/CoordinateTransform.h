@@ -389,6 +389,9 @@ namespace SharpProj {
 		/// <param name="p2"></param>
 		/// <returns>Distance in meters or Double.NaN if unable to calculate</returns>
 		double GeoDistance(PPoint p1, PPoint p2);
+
+		double GeoDistance(System::Collections::Generic::IEnumerable<PPoint>^ points);
+
 		/// <summary>
 		/// When called on an instance obtained from CoordinateRefenceSystem.DistanceTransform calculates the distance in meters
 		/// Between p1 and p2 in meters calculating via the GeodeticCRS below the CoordinateReferenceSystem
@@ -407,6 +410,9 @@ namespace SharpProj {
 		/// <param name="p2"></param>
 		/// <returns>Distance in meters or Double.NaN if unable to calculate</returns>
 		double GeoDistanceZ(PPoint p1, PPoint p2);
+
+
+		double GeoDistanceZ(System::Collections::Generic::IEnumerable<PPoint>^ points);
 		/// <summary>
 		/// When called on an instance obtained from CoordinateRefenceSystem.DistanceTransform calculates the distance in meters
 		/// Between p1 and p2 in meters calculating via the GeodeticCRS below the CoordinateReferenceSystem.
@@ -418,6 +424,11 @@ namespace SharpProj {
 		double GeoDistanceZ(array<double>^ ordinates1, array<double>^ ordinates2) { return GeoDistanceZ(PPoint(ordinates1), PPoint(ordinates2)); }
 		PPoint Geod(PPoint p1, PPoint p2);
 		array<double>^ Geod(array<double>^ ordinates1, array<double>^ ordinates2) { return Geod(PPoint(ordinates1), PPoint(ordinates2)).ToArray(); }
+
+		/// <summary>
+		/// When called on an instance obtained from CoordinateRefenceSystem.DistanceTransform calculates the area of the polygon defined by points in square meters
+		/// </summary>
+		double GeoArea(System::Collections::Generic::IEnumerable<PPoint>^ points);
 
 	private protected:
 		virtual ProjObject^ DoClone(ProjContext^ ctx) override

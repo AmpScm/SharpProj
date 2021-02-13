@@ -98,6 +98,7 @@ namespace SharpProj.Tests
             var t2 = CreateTriangle(srid.Factory, amersfoortRD.Offset(20, 50000).ToCoordinate(), 5000);
             var t3 = CreateTriangle(srid.Factory, amersfoortRD.ToCoordinate(), 100000);
 
+
             Assert.AreEqual(300000, Math.Round(t3.ExteriorRing.Length, 5)); // Pythagoras. By definition
 
             Assert.AreEqual(65908.18, Math.Round(t1.Distance(t2), 2), "Distance pythagoras"); // Pythagoras
@@ -116,8 +117,16 @@ namespace SharpProj.Tests
 
             Assert.IsTrue(t1.Centroid.Coordinate.Equals3D(t1.Centroid.Coordinate));
 
-            Assert.AreEqual(4330127018.92, Math.Round(t3.Area,2));
-            Assert.AreEqual(4330127018.92, Math.Round(t3.MeterArea().Value, 2)); // Not using backing data yet
+            Assert.AreEqual(4330127018.92, Math.Round(t3.Area, 2));
+
+            Assert.AreEqual(4330127018.92, Math.Round(NetTopologySuite.Algorithm.Area.OfRingSigned(t3.ExteriorRing.Coordinates), 2));
+
+            Assert.AreEqual(4330957964.64, Math.Round(srid.CRS.DistanceTransform.GeoArea(t3.Coordinates), 2));
+
+            Assert.AreEqual(4330957964.64, Math.Round(t3.MeterArea().Value, 2)); // Not using backing data yet
+
+
+
         }
 
     }

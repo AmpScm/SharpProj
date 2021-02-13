@@ -6,6 +6,7 @@
 #include "CoordinateSystem.h"
 #include "CoordinateArea.h"
 #include "ProjException.h"
+#include <geodesic.h>
 
 using namespace SharpProj;
 
@@ -298,6 +299,38 @@ double CoordinateTransform::GeoDistance(PPoint p1, PPoint p2)
 	return proj_lp_dist(this, coord1, coord2);
 }
 
+double CoordinateTransform::GeoDistance(System::Collections::Generic::IEnumerable<PPoint>^ points)
+{
+	if (!points)
+		throw gcnew ArgumentNullException("points");
+	EnsureDistance();
+
+	PJ_COORD c1 = {}, c2 = {};
+	bool first = true;
+
+	double size = 0;
+
+	for each (PPoint p in points)
+	{
+		if (m_distanceFlags & DistanceFlags::ApplyTransform)
+			p = Apply(p);
+		if (m_distanceFlags & DistanceFlags::ApplyRad)
+			p = p.DegToRad();
+
+		c2.xyz.x = (m_distanceFlags & DistanceFlags::SwapXY) ? p.Y : p.X;
+		c2.xyz.y = (m_distanceFlags & DistanceFlags::SwapXY) ? p.X : p.Y;
+
+		if (first)
+			first = false;
+		else
+			size += proj_lp_dist(this, c1, c2);
+
+		c1 = c2;
+	}
+
+	return size;
+}
+
 double CoordinateTransform::GeoDistanceZ(PPoint p1, PPoint p2)
 {
 	EnsureDistance();
@@ -328,6 +361,39 @@ double CoordinateTransform::GeoDistanceZ(PPoint p1, PPoint p2)
 	}
 
 	return proj_lpz_dist(this, coord1, coord2);
+}
+
+double CoordinateTransform::GeoDistanceZ(System::Collections::Generic::IEnumerable<PPoint>^ points)
+{
+	if (!points)
+		throw gcnew ArgumentNullException("points");
+	EnsureDistance();
+
+	PJ_COORD c1 = {}, c2 = {};
+	bool first = true;
+
+	double size = 0;
+
+	for each (PPoint p in points)
+	{
+		if (m_distanceFlags & DistanceFlags::ApplyTransform)
+			p = Apply(p);
+		if (m_distanceFlags & DistanceFlags::ApplyRad)
+			p = p.DegToRad();
+
+		c2.xyz.x = (m_distanceFlags & DistanceFlags::SwapXY) ? p.Y : p.X;
+		c2.xyz.y = (m_distanceFlags & DistanceFlags::SwapXY) ? p.X : p.Y;
+		c2.xyz.z = p.Z;
+
+		if (first)
+			first = false;
+		else
+			size += proj_lpz_dist(this, c1, c2);
+
+		c1 = c2;
+	}
+
+	return size;
 }
 
 
@@ -363,4 +429,42 @@ PPoint CoordinateTransform::Geod(PPoint p1, PPoint p2)
 	PJ_COORD r = proj_geod(this, coord1, coord2);
 
 	return PPoint(r);
+}
+
+double CoordinateTransform::GeoArea(System::Collections::Generic::IEnumerable<PPoint>^ points)
+{
+	if (!points)
+		throw gcnew ArgumentNullException("points");
+
+	// HACK: Get access to geod instance instantiated by proj
+	const struct geod_geodesic* pgeod = *reinterpret_cast<const struct geod_geodesic**>((char*)(void*)m_pj + 9 * sizeof(void*));
+
+	if (!pgeod) // Can be null
+		return HUGE_VAL; // Like distance methods
+
+	EnsureDistance();
+
+	struct geod_polygon poly;
+	geod_polygon_init(&poly, false);
+
+	for each (PPoint p in points)
+	{
+		if (m_distanceFlags & DistanceFlags::ApplyTransform)
+			p = Apply(p);
+
+		if (!(m_distanceFlags & DistanceFlags::ApplyRad))
+			p = p.RadToDeg();
+
+		geod_polygon_addpoint(pgeod, &poly,
+			(m_distanceFlags & DistanceFlags::SwapXY) ? p.X : p.Y,
+			(m_distanceFlags & DistanceFlags::SwapXY) ? p.Y : p.X);
+	}
+
+
+
+	double poly_area;
+	double perim_area;
+	geod_polygon_compute(pgeod, &poly, true /* reverse */, true /* sign */, &poly_area, &perim_area);
+
+	return poly_area;
 }

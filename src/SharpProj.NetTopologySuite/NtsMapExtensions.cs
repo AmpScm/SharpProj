@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NetTopologySuite.Geometries;
 using SparpProj.NetTopologySuite;
@@ -89,6 +90,18 @@ namespace SharpProj
         }
 
         /// <summary>
+        /// Calculates the distance between the coordinates (X,Y) in meters
+        /// </summary>
+        /// <param name="operation"></param>
+        /// <param name="c1"></param>
+        /// <param name="c2"></param>
+        /// <returns>The distance in meters or <see cref="double.NaN"/> if the value can't be calculated</returns>
+        public static double GeoDistance(this CoordinateTransform operation, IEnumerable<Coordinate> coordinates)
+        {
+            return operation.GeoDistance(coordinates.Select(x=>x.ToPPoint()));
+        }
+
+        /// <summary>
         /// Calculates the distance between the two coordinates (X,Y) in meters, and then applies Z (assumed to be meters) via Pythagoras
         /// </summary>
         /// <param name="operation"></param>
@@ -98,6 +111,29 @@ namespace SharpProj
         public static double GeoDistanceZ(this CoordinateTransform operation, Coordinate c1, Coordinate c2)
         {
             return operation.GeoDistanceZ(ToPPoint(c1), ToPPoint(c2));
+        }
+
+        /// <summary>
+        /// Calculates the distance between the two coordinates (X,Y) in meters, and then applies Z (assumed to be meters) via Pythagoras
+        /// </summary>
+        /// <param name="operation"></param>
+        /// <param name="c1"></param>
+        /// <param name="c2"></param>
+        /// <returns>The distance in meters or <see cref="double.NaN"/> if the value can't be calculated</returns>
+        public static double GeoDistanceZ(this CoordinateTransform operation, IEnumerable<Coordinate> coordinates)
+        {
+            return operation.GeoDistanceZ(coordinates.Select(x => x.ToPPoint()));
+        }
+
+        /// <summary>
+        /// Calculates the area in square meters occupied by the polygon described in coordinates
+        /// </summary>
+        /// <param name="operation"></param>
+        /// <param name="coordinates"></param>
+        /// <returns></returns>
+        public static double GeoArea(this CoordinateTransform operation, IEnumerable<Coordinate> coordinates)
+        {
+            return operation.GeoArea(coordinates.Select(x => x.ToPPoint()));
         }
     }
 

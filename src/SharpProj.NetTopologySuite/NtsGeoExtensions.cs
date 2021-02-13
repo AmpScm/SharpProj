@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using SharpProj;
 using SparpProj.NetTopologySuite;
 
@@ -170,24 +171,15 @@ namespace NetTopologySuite.Geometries
 
         private static double? MeterLength(this LineString l, CoordinateTransform dt)
         {
-            double distance = 0;
             var cs = l.CoordinateSequence;
             Coordinate last = cs.GetCoordinate(0);
 
+            double d = dt.GeoDistance(l.Coordinates);
 
-            for (int i = 1; i < cs.Count; i++)
-            {
-                var c = cs.GetCoordinate(i);
-
-                double d = dt.GeoDistance(last, c);
-                if (double.IsNaN(d))
-                    return null;
-
-                distance += d;
-                last = c;
-            }
-
-            return distance;
+            if (double.IsInfinity(d) || double.IsNaN(d))
+                return null;
+            else
+                return d;
         }
 
         public static double? MeterArea(this Polygon p)
@@ -234,12 +226,17 @@ namespace NetTopologySuite.Geometries
                 s += s2;
             }
 
-            return s;
+            return Math.Abs(s.Value);
         }
 
         private static double? SignedRingArea(LineString ring, CoordinateTransform dt)
         {
-            return Algorithm.Area.OfRingSigned(ring.CoordinateSequence);
+            double d = dt.GeoArea(ring.Coordinates.Select(x => x.ToPPoint()).ToArray());
+
+            if (double.IsInfinity(d) || double.IsNaN(d))
+                return null;
+            else
+                return d;
         }
 
         /// <summary>
