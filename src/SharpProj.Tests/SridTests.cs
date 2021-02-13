@@ -115,6 +115,9 @@ namespace SharpProj.Tests
 
 
             Assert.IsTrue(t1.Centroid.Coordinate.Equals3D(t1.Centroid.Coordinate));
+
+            Assert.AreEqual(4330127018.92, Math.Round(t3.Area,2));
+            Assert.AreEqual(4330127018.92, Math.Round(t3.MeterArea().Value, 2)); // Not using backing data yet
         }
 
     }

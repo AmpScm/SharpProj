@@ -29,9 +29,6 @@ namespace NetTopologySuite.Geometries
             if (srid == 0 || g1.SRID != g0.SRID)
                 throw new ArgumentOutOfRangeException("SRID is 0 or doesn't match");
 
-            DistanceOp distanceOp = new DistanceOp(g0, g1);
-            Coordinate[] nearestPoints = distanceOp.NearestPoints();
-
             SridItem sridItem;
             try
             {
@@ -42,15 +39,23 @@ namespace NetTopologySuite.Geometries
                 throw new ArgumentOutOfRangeException("SRID not resolveable", sridExcepton);
             }
 
-            using (var dt = sridItem.CRS.DistanceTransform.Clone())
+            using (var dt = sridItem.CRS.DistanceTransform.Clone()) // Thread safe with clone
             {
-                double d = dt.GeoDistance(nearestPoints[0].ToPPoint(), nearestPoints[1].ToPPoint());
-
-                if (double.IsInfinity(d) || double.IsNaN(d))
-                    return null;
-                else
-                    return d;
+                return g0.MeterDistance(g1, dt);
             }
+        }
+
+        private static double? MeterDistance(this Geometry g0, Geometry g1, CoordinateTransform dt)
+        {
+            DistanceOp distanceOp = new DistanceOp(g0, g1);
+            Coordinate[] nearestPoints = distanceOp.NearestPoints();
+
+            double d = dt.GeoDistance(nearestPoints[0].ToPPoint(), nearestPoints[1].ToPPoint());
+
+            if (double.IsInfinity(d) || double.IsNaN(d))
+                return null;
+            else
+                return d;
         }
 
         /// <summary>
@@ -89,8 +94,10 @@ namespace NetTopologySuite.Geometries
             }
 
             // TODO: There should be possible optimizations now, with knowledg of the CRS
+            //       Maybe we can assume that this is always false if the NTS cut-off thinks it's false
+            //       Not 100% sure and we want correctness
 
-            using (var dt = sridItem.CRS.DistanceTransform.Clone())
+            using (var dt = sridItem.CRS.DistanceTransform.Clone()) // Thread safe with clone
             {
                 double d = dt.GeoDistance(nearestPoints[0].ToPPoint(), nearestPoints[1].ToPPoint());
 
@@ -155,24 +162,178 @@ namespace NetTopologySuite.Geometries
                 throw new ArgumentOutOfRangeException("SRID not resolveable", sridExcepton);
             }
 
+            using (var dt = sridItem.CRS.DistanceTransform.Clone()) // Thread safe with clone
+            {
+                return l.MeterLength(dt);
+            }
+        }
+
+        private static double? MeterLength(this LineString l, CoordinateTransform dt)
+        {
             double distance = 0;
             var cs = l.CoordinateSequence;
             Coordinate last = cs.GetCoordinate(0);
 
-            using (var dt = sridItem.CRS.DistanceTransform.Clone())
-                for (int i = 1; i < cs.Count; i++)
-                {
-                    var c = cs.GetCoordinate(i);
 
-                    double d = dt.GeoDistance(last, c);
-                    if (double.IsNaN(d))
-                        return null;
+            for (int i = 1; i < cs.Count; i++)
+            {
+                var c = cs.GetCoordinate(i);
 
-                    distance += d;
-                    last = c;
-                }
+                double d = dt.GeoDistance(last, c);
+                if (double.IsNaN(d))
+                    return null;
+
+                distance += d;
+                last = c;
+            }
 
             return distance;
+        }
+
+        public static double? MeterArea(this Polygon p)
+        {
+            if (p == null)
+                throw new ArgumentNullException(nameof(p));
+
+            int srid = p.SRID;
+            if (srid == 0)
+                throw new ArgumentOutOfRangeException("SRID is 0 or doesn't match");
+
+
+            SridItem sridItem;
+            try
+            {
+                sridItem = SridRegister.GetByValue(srid);
+            }
+            catch (IndexOutOfRangeException sridExcepton)
+            {
+                throw new ArgumentOutOfRangeException("SRID not resolveable", sridExcepton);
+            }
+
+
+            using (var dt = sridItem.CRS.DistanceTransform.Clone())
+            {
+                return MeterArea(p, dt);
+            }
+        }
+
+        private static double? MeterArea(this Polygon p, CoordinateTransform dt)
+        {
+            double? s = SignedRingArea(p.ExteriorRing, dt);
+
+            if (!s.HasValue)
+                return null;
+
+            foreach(LineString ls in p.InteriorRings)
+            {
+                double? s2 = SignedRingArea(ls, dt);
+
+                if (!s2.HasValue)
+                    return null;
+
+                s += s2;
+            }
+
+            return s;
+        }
+
+        private static double? SignedRingArea(LineString ring, CoordinateTransform dt)
+        {
+            return Algorithm.Area.OfRingSigned(ring.CoordinateSequence);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="gc"></param>
+        /// <returns></returns>
+        public static double? MeterLength(this GeometryCollection gc)
+        {
+            if (gc.Count == 0)
+                return null;
+
+            int srid = gc.SRID;
+            if (srid == 0)
+                throw new ArgumentOutOfRangeException("SRID is 0 or doesn't match");
+
+
+            SridItem sridItem;
+            try
+            {
+                sridItem = SridRegister.GetByValue(srid);
+            }
+            catch (IndexOutOfRangeException sridExcepton)
+            {
+                throw new ArgumentOutOfRangeException("SRID not resolveable", sridExcepton);
+            }
+
+            using (var dt = sridItem.CRS.DistanceTransform.Clone()) // Thread safe with clone
+            {
+                return gc.MeterLength(dt);
+            }
+        }
+
+        private static double? MeterLength(this GeometryCollection gc, CoordinateTransform dt)
+        {
+            double sum = 0;
+            
+            foreach (Geometry g in gc)
+            {
+                double? s = (g as LineString)?.MeterLength(dt) ?? (g as GeometryCollection)?.MeterLength(dt);
+
+                if (!s.HasValue)
+                    return null;
+
+                sum += s.Value;
+            }
+            return sum;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="gc"></param>
+        /// <returns></returns>
+        public static double? MeterArea(this GeometryCollection gc)
+        {
+            if (gc.Count == 0)
+                return null;
+
+            int srid = gc.SRID;
+            if (srid == 0)
+                throw new ArgumentOutOfRangeException("SRID is 0 or doesn't match");
+
+            SridItem sridItem;
+            try
+            {
+                sridItem = SridRegister.GetByValue(srid);
+            }
+            catch (IndexOutOfRangeException sridExcepton)
+            {
+                throw new ArgumentOutOfRangeException("SRID not resolveable", sridExcepton);
+            }
+
+            using (var dt = sridItem.CRS.DistanceTransform.Clone()) // Thread safe with clone
+            {
+                return gc.MeterArea(dt);
+            }
+        }
+
+        private static double? MeterArea(this GeometryCollection gc, CoordinateTransform dt)
+        {
+            double sum = 0.0;
+
+            // TODO: Optimize by fetching SRID only once
+            foreach (Geometry g in gc)
+            {
+                double? s = (g as Polygon)?.MeterArea(dt) ?? (g as GeometryCollection)?.MeterArea(dt);
+
+                if (!s.HasValue)
+                    return null;
+
+                sum += s.Value;
+            }
+            return sum;
         }
     }
 }
