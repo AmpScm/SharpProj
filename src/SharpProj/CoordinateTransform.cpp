@@ -303,29 +303,53 @@ double CoordinateTransform::GeoDistance(System::Collections::Generic::IEnumerabl
 {
 	if (!points)
 		throw gcnew ArgumentNullException("points");
+
 	EnsureDistance();
 
-	PJ_COORD c1 = {}, c2 = {};
+	// HACK: Get access to geod instance instantiated by proj
+	const struct geod_geodesic* pgeod = *reinterpret_cast<const struct geod_geodesic**>((char*)(void*)m_pj + 9 * sizeof(void*));
+
+	if (!pgeod) // Can be null
+		return double::PositiveInfinity; // Like distance methods
+
+
+	bool applyTransform = (m_distanceFlags & DistanceFlags::ApplyTransform);
+	bool swapXY = (m_distanceFlags & DistanceFlags::SwapXY);
+	bool applyToRad = (m_distanceFlags & DistanceFlags::ApplyRad);
+
+	double ll1[2] = {};
+	double ll2[2] = {};
 	bool first = true;
 
 	double size = 0;
 
 	for each (PPoint p in points)
 	{
-		if (m_distanceFlags & DistanceFlags::ApplyTransform)
+		if (applyTransform)
 			p = Apply(p);
-		if (m_distanceFlags & DistanceFlags::ApplyRad)
-			p = p.DegToRad();
 
-		c2.xyz.x = (m_distanceFlags & DistanceFlags::SwapXY) ? p.Y : p.X;
-		c2.xyz.y = (m_distanceFlags & DistanceFlags::SwapXY) ? p.X : p.Y;
+		ll2[0] = swapXY ? p.X : p.Y;
+		ll2[1] = swapXY ? p.Y : p.X;
+
+		if (!applyToRad)
+		{
+			ll2[0] = ToDeg(ll2[0]);
+			ll2[1] = ToDeg(ll2[1]);
+		}
 
 		if (first)
 			first = false;
 		else
-			size += proj_lp_dist(this, c1, c2);
+		{
+			double s12, azi1, azi2;
+			/* Note: the geodesic code takes arguments in degrees */
 
-		c1 = c2;
+			geod_inverse(pgeod, ll1[0], ll1[1], ll2[0], ll2[1], &s12, &azi1, &azi2);
+
+			size += s12;
+		}
+
+		memcpy(&ll1, &ll2, sizeof(ll1));
 	}
 
 	return size;
@@ -367,30 +391,54 @@ double CoordinateTransform::GeoDistanceZ(System::Collections::Generic::IEnumerab
 {
 	if (!points)
 		throw gcnew ArgumentNullException("points");
+
 	EnsureDistance();
 
-	PJ_COORD c1 = {}, c2 = {};
+	// HACK: Get access to geod instance instantiated by proj
+	const struct geod_geodesic* pgeod = *reinterpret_cast<const struct geod_geodesic**>((char*)(void*)m_pj + 9 * sizeof(void*));
+
+	if (!pgeod) // Can be null
+		return double::PositiveInfinity; // Like distance methods
+
+
+	bool applyTransform = (m_distanceFlags & DistanceFlags::ApplyTransform);
+	bool swapXY = (m_distanceFlags & DistanceFlags::SwapXY);
+	bool applyToRad = (m_distanceFlags & DistanceFlags::ApplyRad);
+
+	double ll1[3] = {};
+	double ll2[3] = {};
 	bool first = true;
 
 	double size = 0;
 
 	for each (PPoint p in points)
 	{
-		if (m_distanceFlags & DistanceFlags::ApplyTransform)
+		if (applyTransform)
 			p = Apply(p);
-		if (m_distanceFlags & DistanceFlags::ApplyRad)
-			p = p.DegToRad();
 
-		c2.xyz.x = (m_distanceFlags & DistanceFlags::SwapXY) ? p.Y : p.X;
-		c2.xyz.y = (m_distanceFlags & DistanceFlags::SwapXY) ? p.X : p.Y;
-		c2.xyz.z = p.Z;
+		ll2[0] = swapXY ? p.X : p.Y;
+		ll2[1] = swapXY ? p.Y : p.X;
+		ll2[2] = p.Z;
+
+		if (!applyToRad)
+		{
+			ll2[0] = ToDeg(ll2[0]);
+			ll2[1] = ToDeg(ll2[1]);
+		}
 
 		if (first)
 			first = false;
 		else
-			size += proj_lpz_dist(this, c1, c2);
+		{
+			double s12, azi1, azi2;
+			/* Note: the geodesic code takes arguments in degrees */
 
-		c1 = c2;
+			geod_inverse(pgeod, ll1[0], ll1[1], ll2[0], ll2[1], &s12, &azi1, &azi2);
+
+			size += hypot(s12, ll1[2] - ll2[2]);
+		}
+
+		memcpy(&ll1, &ll2, sizeof(ll1));
 	}
 
 	return size;
@@ -400,6 +448,7 @@ double CoordinateTransform::GeoDistanceZ(System::Collections::Generic::IEnumerab
 PPoint CoordinateTransform::Geod(PPoint p1, PPoint p2)
 {
 	EnsureDistance();
+
 
 	if (m_distanceFlags & DistanceFlags::ApplyTransform)
 	{
@@ -436,35 +485,37 @@ double CoordinateTransform::GeoArea(System::Collections::Generic::IEnumerable<PP
 	if (!points)
 		throw gcnew ArgumentNullException("points");
 
+	EnsureDistance();
+
 	// HACK: Get access to geod instance instantiated by proj
 	const struct geod_geodesic* pgeod = *reinterpret_cast<const struct geod_geodesic**>((char*)(void*)m_pj + 9 * sizeof(void*));
 
 	if (!pgeod) // Can be null
-		return HUGE_VAL; // Like distance methods
+		return double::PositiveInfinity; // Like distance methods
 
-	EnsureDistance();
+	bool applyTransform = (m_distanceFlags & DistanceFlags::ApplyTransform);
+	bool swapXY = (m_distanceFlags & DistanceFlags::SwapXY);
+	bool applyToRad = (m_distanceFlags & DistanceFlags::ApplyRad);
 
 	struct geod_polygon poly;
 	geod_polygon_init(&poly, false);
 
 	for each (PPoint p in points)
 	{
-		if (m_distanceFlags & DistanceFlags::ApplyTransform)
+		if (applyTransform)
 			p = Apply(p);
 
-		if (!(m_distanceFlags & DistanceFlags::ApplyRad))
+		if (!applyToRad)
 			p = p.RadToDeg();
 
 		geod_polygon_addpoint(pgeod, &poly,
-			(m_distanceFlags & DistanceFlags::SwapXY) ? p.X : p.Y,
-			(m_distanceFlags & DistanceFlags::SwapXY) ? p.Y : p.X);
+			swapXY ? p.X : p.Y,
+			swapXY ? p.Y : p.X);
 	}
-
-
 
 	double poly_area;
 	double perim_area;
-	geod_polygon_compute(pgeod, &poly, true /* reverse */, true /* sign */, &poly_area, &perim_area);
+	geod_polygon_compute(pgeod, &poly, true /* clockwise = positive */, true /* sign */, &poly_area, &perim_area);
 
 	return poly_area;
 }

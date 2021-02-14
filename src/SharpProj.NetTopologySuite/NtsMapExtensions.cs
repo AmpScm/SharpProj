@@ -37,12 +37,27 @@ namespace SharpProj
                 return new PPoint(coordinate.X, coordinate.Y, coordinate.Z);
         }
 
+        public static IEnumerable<PPoint> ToPPoints(this CoordinateSequence cs)
+        {
+            for(int i = 0; i < cs.Count; i++)
+            {
+                yield return cs.GetCoordinate(i).ToPPoint();
+            }
+        }
+
+        public static IEnumerable<Coordinate> ToCoordinates(this IEnumerable<PPoint> points)
+        {
+            foreach(var p in points)
+            {
+                yield return p.ToCoordinate();
+            }
+        }
 
         public static TGeometry Reproject<TGeometry>(this TGeometry geometry, CoordinateTransform operation, GeometryFactory factory)
             where TGeometry : Geometry
         {
             return SridRegister.Reproject(geometry, factory,
-                sq => factory.CoordinateSequenceFactory.Create(sq.ToCoordinateArray().Select(x => operation.Apply(x)).ToArray()));
+                sq => factory.CoordinateSequenceFactory.Create(sq.ToPPoints().Select(x => operation.Apply(x)).ToCoordinates().ToArray()));
         }
 
         public static TGeometry Reproject<TGeometry>(this TGeometry geometry, CoordinateReferenceSystem crs)

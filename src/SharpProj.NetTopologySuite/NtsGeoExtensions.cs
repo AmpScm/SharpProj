@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using SharpProj;
 using SparpProj.NetTopologySuite;
 
@@ -171,10 +170,7 @@ namespace NetTopologySuite.Geometries
 
         private static double? MeterLength(this LineString l, CoordinateTransform dt)
         {
-            var cs = l.CoordinateSequence;
-            Coordinate last = cs.GetCoordinate(0);
-
-            double d = dt.GeoDistance(l.Coordinates);
+            double d = dt.GeoDistance(l.CoordinateSequence.ToPPoints());
 
             if (double.IsInfinity(d) || double.IsNaN(d))
                 return null;
@@ -182,6 +178,55 @@ namespace NetTopologySuite.Geometries
                 return d;
         }
 
+        /// <summary>
+        /// Returns the peremiter of this polygon in meters (via ProjSharp)
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        public static double? MeterLength(this Polygon p)
+        {
+            if (p == null)
+                throw new ArgumentNullException(nameof(p));
+
+            int srid = p.SRID;
+            if (srid == 0)
+                throw new ArgumentOutOfRangeException("SRID is 0 or doesn't match");
+
+
+            SridItem sridItem;
+            try
+            {
+                sridItem = SridRegister.GetByValue(srid);
+            }
+            catch (IndexOutOfRangeException sridExcepton)
+            {
+                throw new ArgumentOutOfRangeException("SRID not resolveable", sridExcepton);
+            }
+
+            using (var dt = sridItem.CRS.DistanceTransform.Clone()) // Thread safe with clone
+            {
+                return p.MeterLength(dt);
+            }
+        }
+
+        private static double? MeterLength(this Polygon p, CoordinateTransform dt)
+        {
+            double? len = p.ExteriorRing.MeterLength(dt);
+
+            for (int i = 0; i < p.NumInteriorRings; i++)
+            {
+                len += p.GetInteriorRingN(i).MeterLength(dt);
+            }
+
+            return len;
+        }
+
+
+        /// <summary>
+        /// Gets the area occupied by polygon <paramref name="p"/> in square meters (via SharpProj)
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
         public static double? MeterArea(this Polygon p)
         {
             if (p == null)
@@ -216,7 +261,7 @@ namespace NetTopologySuite.Geometries
             if (!s.HasValue)
                 return null;
 
-            foreach(LineString ls in p.InteriorRings)
+            foreach (LineString ls in p.InteriorRings)
             {
                 double? s2 = SignedRingArea(ls, dt);
 
@@ -231,7 +276,7 @@ namespace NetTopologySuite.Geometries
 
         private static double? SignedRingArea(LineString ring, CoordinateTransform dt)
         {
-            double d = dt.GeoArea(ring.Coordinates.Select(x => x.ToPPoint()).ToArray());
+            double d = dt.GeoArea(ring.CoordinateSequence.ToPPoints());
 
             if (double.IsInfinity(d) || double.IsNaN(d))
                 return null;
@@ -240,7 +285,7 @@ namespace NetTopologySuite.Geometries
         }
 
         /// <summary>
-        /// 
+        /// Gets the meterlengths of the <see cref="Polygon"/>, <see cref="LineString"/> and <see cref="GeometryCollection"/> instances in <paramref name="gc"/> in meters
         /// </summary>
         /// <param name="gc"></param>
         /// <returns></returns>
@@ -252,7 +297,6 @@ namespace NetTopologySuite.Geometries
             int srid = gc.SRID;
             if (srid == 0)
                 throw new ArgumentOutOfRangeException("SRID is 0 or doesn't match");
-
 
             SridItem sridItem;
             try
@@ -273,10 +317,12 @@ namespace NetTopologySuite.Geometries
         private static double? MeterLength(this GeometryCollection gc, CoordinateTransform dt)
         {
             double sum = 0;
-            
+
             foreach (Geometry g in gc)
             {
-                double? s = (g as LineString)?.MeterLength(dt) ?? (g as GeometryCollection)?.MeterLength(dt);
+                double? s = (g as LineString)?.MeterLength(dt)
+                        ?? (g as Polygon).MeterLength(dt)
+                        ?? (g as GeometryCollection)?.MeterLength(dt);
 
                 if (!s.HasValue)
                     return null;
@@ -287,7 +333,7 @@ namespace NetTopologySuite.Geometries
         }
 
         /// <summary>
-        /// 
+        /// Gets the area occupied by the polygons in <paramref name="gc"/> in square meters
         /// </summary>
         /// <param name="gc"></param>
         /// <returns></returns>
@@ -323,7 +369,8 @@ namespace NetTopologySuite.Geometries
             // TODO: Optimize by fetching SRID only once
             foreach (Geometry g in gc)
             {
-                double? s = (g as Polygon)?.MeterArea(dt) ?? (g as GeometryCollection)?.MeterArea(dt);
+                double? s = (g as Polygon)?.MeterArea(dt)
+                    ?? (g as GeometryCollection)?.MeterArea(dt);
 
                 if (!s.HasValue)
                     return null;
