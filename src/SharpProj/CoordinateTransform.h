@@ -2,6 +2,10 @@
 #include "ProjObject.h"
 #include "CoordinateReferenceSystem.h"
 
+extern "C" {
+	struct geod_geodesic;
+};
+
 namespace SharpProj {
 	ref class CoordinateTransform;
 	ref class CoordinateReferenceSystem;
@@ -226,6 +230,7 @@ namespace SharpProj {
 		CoordinateReferenceSystem^ m_source;
 		CoordinateReferenceSystem^ m_target;
 		int m_distanceFlags;
+		struct geod_geodesic* m_pgeod;
 	internal:
 		CoordinateTransform(ProjContext^ ctx, PJ* pj)
 			: ProjObject(ctx, pj)
@@ -431,14 +436,7 @@ namespace SharpProj {
 		double GeoArea(System::Collections::Generic::IEnumerable<PPoint>^ points);
 
 	private protected:
-		virtual ProjObject^ DoClone(ProjContext^ ctx) override
-		{
-			auto t = static_cast<CoordinateTransform^>(__super::DoClone(ctx));
-
-			t->m_methodName = m_methodName;
-			t->m_distanceFlags = m_distanceFlags;
-			return t;
-		}
+		virtual ProjObject^ DoClone(ProjContext^ ctx) override;
 
 	public:
 		static CoordinateTransform^ Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, CoordinateArea^ area, [Optional] ProjContext^ ctx);

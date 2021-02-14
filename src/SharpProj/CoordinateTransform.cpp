@@ -1,4 +1,6 @@
 #include "pch.h"
+#include <geodesic.h>
+
 #include "ProjContext.h"
 #include "CoordinateTransform.h"
 #include "ChooseCoordinateTransform.h"
@@ -6,9 +8,7 @@
 #include "CoordinateSystem.h"
 #include "CoordinateArea.h"
 #include "ProjException.h"
-#include <geodesic.h>
-
-using namespace SharpProj;
+#include "Ellipsoid.h"
 
 SharpProj::CoordinateTransform::~CoordinateTransform()
 {
@@ -22,7 +22,28 @@ SharpProj::CoordinateTransform::~CoordinateTransform()
 		delete m_target;
 		m_target = nullptr;
 	}
+	if (m_pgeod)
+	{
+		delete m_pgeod;
+		m_pgeod = nullptr;
+	}
 }
+
+ProjObject^ SharpProj::CoordinateTransform::DoClone(ProjContext^ ctx)
+{
+	auto t = static_cast<CoordinateTransform^>(__super::DoClone(ctx));
+
+	t->m_methodName = m_methodName;
+	t->m_distanceFlags = m_distanceFlags;
+
+	if (m_pgeod && !t->m_pgeod)
+	{
+		t->m_pgeod = new struct geod_geodesic;
+		*t->m_pgeod = *m_pgeod;
+	}
+	return t;
+}
+
 
 CoordinateTransform^ CoordinateTransform::Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, CoordinateArea^ area, ProjContext^ ctx)
 {
@@ -267,36 +288,22 @@ void CoordinateTransform::SetupDistance()
 	}
 
 	m_distanceFlags = d;
+
+	if (!m_pgeod && TargetCRS)
+	{
+		auto el = TargetCRS->Ellipsoid;
+		if (el)
+		{
+			m_pgeod = new struct geod_geodesic;
+
+			geod_init(m_pgeod, el->SemiMajorMetre, 1.0 / el->InverseFlattening);
+		}
+	}
 }
 
 double CoordinateTransform::GeoDistance(PPoint p1, PPoint p2)
 {
-	EnsureDistance();
-
-	if (m_distanceFlags & DistanceFlags::ApplyTransform)
-	{
-		p1 = Apply(p1);
-		p2 = Apply(p2);
-	}
-	if (m_distanceFlags & DistanceFlags::ApplyRad)
-	{
-		p1 = p1.DegToRad();
-		p2 = p2.DegToRad();
-	}
-
-	PJ_COORD coord1 = {}, coord2 = {};
-	coord1.xy.x = p1.X;
-	coord1.xy.y = p1.Y;
-	coord2.xy.x = p2.X;
-	coord2.xy.y = p2.Y;
-
-	if (m_distanceFlags & DistanceFlags::SwapXY)
-	{
-		std::swap(coord1.xy.x, coord1.xy.y);
-		std::swap(coord2.xy.x, coord2.xy.y);
-	}
-
-	return proj_lp_dist(this, coord1, coord2);
+	return GeoDistance(gcnew array<PPoint>{p1, p2});
 }
 
 double CoordinateTransform::GeoDistance(System::Collections::Generic::IEnumerable<PPoint>^ points)
@@ -306,12 +313,8 @@ double CoordinateTransform::GeoDistance(System::Collections::Generic::IEnumerabl
 
 	EnsureDistance();
 
-	// HACK: Get access to geod instance instantiated by proj
-	const struct geod_geodesic* pgeod = *reinterpret_cast<const struct geod_geodesic**>((char*)(void*)m_pj + 9 * sizeof(void*));
-
-	if (!pgeod) // Can be null
+	if (!m_pgeod)
 		return double::PositiveInfinity; // Like distance methods
-
 
 	bool applyTransform = (m_distanceFlags & DistanceFlags::ApplyTransform);
 	bool swapXY = (m_distanceFlags & DistanceFlags::SwapXY);
@@ -344,7 +347,7 @@ double CoordinateTransform::GeoDistance(System::Collections::Generic::IEnumerabl
 			double s12, azi1, azi2;
 			/* Note: the geodesic code takes arguments in degrees */
 
-			geod_inverse(pgeod, ll1[0], ll1[1], ll2[0], ll2[1], &s12, &azi1, &azi2);
+			geod_inverse(m_pgeod, ll1[0], ll1[1], ll2[0], ll2[1], &s12, &azi1, &azi2);
 
 			size += s12;
 		}
@@ -357,34 +360,7 @@ double CoordinateTransform::GeoDistance(System::Collections::Generic::IEnumerabl
 
 double CoordinateTransform::GeoDistanceZ(PPoint p1, PPoint p2)
 {
-	EnsureDistance();
-
-	if (m_distanceFlags & DistanceFlags::ApplyTransform)
-	{
-		p1 = Apply(p1);
-		p2 = Apply(p2);
-	}
-	if (m_distanceFlags & DistanceFlags::ApplyRad)
-	{
-		p1 = p1.DegToRad();
-		p2 = p2.DegToRad();
-	}
-
-	PJ_COORD coord1 = {}, coord2 = {};
-	coord1.xyz.x = p1.X;
-	coord1.xyz.y = p1.Y;
-	coord1.xyz.z = p1.Z;
-	coord2.xyz.x = p2.X;
-	coord2.xyz.y = p2.Y;
-	coord2.xyz.z = p2.Z;
-
-	if (m_distanceFlags & DistanceFlags::SwapXY)
-	{
-		std::swap(coord1.xy.x, coord1.xy.y);
-		std::swap(coord2.xy.x, coord2.xy.y);
-	}
-
-	return proj_lpz_dist(this, coord1, coord2);
+	return GeoDistanceZ(gcnew array<PPoint>{ p1, p2 });
 }
 
 double CoordinateTransform::GeoDistanceZ(System::Collections::Generic::IEnumerable<PPoint>^ points)
@@ -394,12 +370,8 @@ double CoordinateTransform::GeoDistanceZ(System::Collections::Generic::IEnumerab
 
 	EnsureDistance();
 
-	// HACK: Get access to geod instance instantiated by proj
-	const struct geod_geodesic* pgeod = *reinterpret_cast<const struct geod_geodesic**>((char*)(void*)m_pj + 9 * sizeof(void*));
-
-	if (!pgeod) // Can be null
+	if (!m_pgeod) // Can be null
 		return double::PositiveInfinity; // Like distance methods
-
 
 	bool applyTransform = (m_distanceFlags & DistanceFlags::ApplyTransform);
 	bool swapXY = (m_distanceFlags & DistanceFlags::SwapXY);
@@ -433,7 +405,7 @@ double CoordinateTransform::GeoDistanceZ(System::Collections::Generic::IEnumerab
 			double s12, azi1, azi2;
 			/* Note: the geodesic code takes arguments in degrees */
 
-			geod_inverse(pgeod, ll1[0], ll1[1], ll2[0], ll2[1], &s12, &azi1, &azi2);
+			geod_inverse(m_pgeod, ll1[0], ll1[1], ll2[0], ll2[1], &s12, &azi1, &azi2);
 
 			size += hypot(s12, ll1[2] - ll2[2]);
 		}
@@ -487,10 +459,7 @@ double CoordinateTransform::GeoArea(System::Collections::Generic::IEnumerable<PP
 
 	EnsureDistance();
 
-	// HACK: Get access to geod instance instantiated by proj
-	const struct geod_geodesic* pgeod = *reinterpret_cast<const struct geod_geodesic**>((char*)(void*)m_pj + 9 * sizeof(void*));
-
-	if (!pgeod) // Can be null
+	if (!m_pgeod) // Can be null
 		return double::PositiveInfinity; // Like distance methods
 
 	bool applyTransform = (m_distanceFlags & DistanceFlags::ApplyTransform);
@@ -508,14 +477,15 @@ double CoordinateTransform::GeoArea(System::Collections::Generic::IEnumerable<PP
 		if (!applyToRad)
 			p = p.RadToDeg();
 
-		geod_polygon_addpoint(pgeod, &poly,
+		geod_polygon_addpoint(m_pgeod, &poly,
 			swapXY ? p.X : p.Y,
 			swapXY ? p.Y : p.X);
 	}
 
 	double poly_area;
 	double perim_area;
-	geod_polygon_compute(pgeod, &poly, true /* clockwise = positive */, true /* sign */, &poly_area, &perim_area);
+	geod_polygon_compute(m_pgeod, &poly, true /* clockwise = positive */, true /* sign */, &poly_area, &perim_area);
 
 	return poly_area;
 }
+
