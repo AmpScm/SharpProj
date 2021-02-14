@@ -16,5 +16,7 @@ if NOT EXIST ".\obj\." mkdir obj
 if NOT EXIST ".\bin\." mkdir bin
 copy ..\..\vcpkg\installed\x86-windows-static-md\share\proj4\*.db obj\ || exit /B 1
 copy ..\..\vcpkg\installed\x86-windows-static-md\share\proj4\*.ini obj\ || exit /B 1
-nuget pack SharpProj.Database.nuspec -version %PROJ_VER% -OutputDirectory bin
-nuget pack SharpProj.Core.nuspec -version %SHARPPROJ_VER% -OutputDirectory bin
+nuget pack SharpProj.Database.nuspec -version %PROJ_VER% -OutputDirectory bin || exit /B 1
+nuget pack SharpProj.Core.nuspec -version %SHARPPROJ_VER% -OutputDirectory bin || exit /B 1
+nuget pack SharpProj.nuspec -version %SHARPPROJ_VER% -OutputDirectory bin || exit /B 1
+echo "--done--"
