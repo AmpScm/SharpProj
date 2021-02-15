@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTopologySuite.Geometries;
 using SharpProj.Proj;
-using SparpProj.NetTopologySuite.Testing;
+using SharpProj.NetTopologySuite.Testing;
 
 namespace SharpProj.Tests
 {

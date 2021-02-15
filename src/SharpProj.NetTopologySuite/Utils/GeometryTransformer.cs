@@ -2,7 +2,7 @@
 using System;
 using NetTopologySuite.Geometries;
 
-namespace SparpProj.NetTopologySuite.Utils
+namespace SharpProj.NetTopologySuite.Utils
 {
     /// <summary>
     /// 

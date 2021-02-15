@@ -37,5 +37,5 @@ echo "--done--"
 goto :eof
 
 :xmlpoke
-msbuild xmlpoke.build "/p:File=%1" "/p:XPath=%2" "/p:Value=%3"
+msbuild /nologo /v:m xmlpoke.build "/p:File=%1" "/p:XPath=%2" "/p:Value=%3"
 exit /b 0

@@ -5,7 +5,7 @@ using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using SharpProj;
 
-namespace SparpProj.NetTopologySuite
+namespace SharpProj.NetTopologySuite
 {
     /// <summary>
     /// SRID to <see cref="CoordinateReferenceSystem"/> mapping item

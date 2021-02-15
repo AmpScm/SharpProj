@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NetTopologySuite.Geometries;
-using SparpProj.NetTopologySuite;
+using SharpProj.NetTopologySuite;
 
 namespace SharpProj
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace SparpProj.NetTopologySuite.Implementation
+namespace SharpProj.NetTopologySuite.Implementation
 {
     internal static class ProjImplementationExtensions
     {

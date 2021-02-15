@@ -5,8 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTopologySuite.Geometries;
-using SparpProj.NetTopologySuite;
-using SparpProj.NetTopologySuite.Testing;
+using SharpProj.NetTopologySuite;
+using SharpProj.NetTopologySuite.Testing;
 
 namespace SharpProj.Tests
 {

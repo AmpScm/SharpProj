@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Threading;
 using NetTopologySuite.Geometries;
 using SharpProj;
-using SparpProj.NetTopologySuite.Implementation;
+using SharpProj.NetTopologySuite.Implementation;
 
-namespace SparpProj.NetTopologySuite
+namespace SharpProj.NetTopologySuite
 {
     /// <summary>
     /// The global SRID (int) to <see cref="CoordinateReferenceSystem"/> mapping

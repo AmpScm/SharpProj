@@ -2,7 +2,7 @@
 using NetTopologySuite.Geometries;
 using SharpProj;
 
-namespace SparpProj.NetTopologySuite.Testing
+namespace SharpProj.NetTopologySuite.Testing
 {
     public static class ProjTestExtensions
     {
