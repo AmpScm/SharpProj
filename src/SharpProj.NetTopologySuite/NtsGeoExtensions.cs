@@ -1,6 +1,6 @@
 ﻿using System;
 using SharpProj;
-using SharpProj.NetTopologySuite;
+using SharpProj.NTS;
 
 using DistanceOp = NetTopologySuite.Operation.Distance.DistanceOp;
 

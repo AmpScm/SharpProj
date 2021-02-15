@@ -2,7 +2,7 @@
 using System;
 using NetTopologySuite.Geometries;
 
-namespace SharpProj.NetTopologySuite.Utils
+namespace SharpProj.Utils.NTSAdditions
 {
     /// <summary>
     /// 

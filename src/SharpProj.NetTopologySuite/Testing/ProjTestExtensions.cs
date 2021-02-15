@@ -2,8 +2,11 @@
 using NetTopologySuite.Geometries;
 using SharpProj;
 
-namespace SharpProj.NetTopologySuite.Testing
+namespace SharpProj.Testing
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class ProjTestExtensions
     {
         /// <summary>

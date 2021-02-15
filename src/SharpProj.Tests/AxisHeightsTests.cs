@@ -1,8 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTopologySuite.Geometries;
-using SharpProj.Proj;
-using SharpProj.NetTopologySuite.Testing;
+using SharpProj.Testing;
 
 namespace SharpProj.Tests
 {

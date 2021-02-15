@@ -7,7 +7,7 @@
     <ProjectGuid>{2AEB2118-5F21-4459-A44C-F3583962DEC9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SparpProj.NetTopologySuite</RootNamespace>
+    <RootNamespace>SharpProj.NTS</RootNamespace>
     <AssemblyName>SharpProj.NetTopologySuite</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

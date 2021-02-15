@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
-using SharpProj;
 
-namespace SharpProj.NetTopologySuite
+namespace SharpProj.NTS
 {
     /// <summary>
     /// SRID to <see cref="CoordinateReferenceSystem"/> mapping item

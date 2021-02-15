@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SharpProj.Proj;
-using SharpProj.NetTopologySuite.Testing;
+using SharpProj.Testing;
 using PJ = SharpProj.CoordinateTransform;
 
 namespace SharpProj.Tests

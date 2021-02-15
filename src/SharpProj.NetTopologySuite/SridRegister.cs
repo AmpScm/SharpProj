@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Threading;
 using NetTopologySuite.Geometries;
 using SharpProj;
-using SharpProj.NetTopologySuite.Implementation;
+using SharpProj.Implementation;
 
-namespace SharpProj.NetTopologySuite
+namespace SharpProj.NTS
 {
     /// <summary>
     /// The global SRID (int) to <see cref="CoordinateReferenceSystem"/> mapping
@@ -330,7 +330,7 @@ namespace SharpProj.NetTopologySuite
             }
         }
 
-        sealed class MyGeometryTransformer : Utils.GeometryTransformer
+        sealed class MyGeometryTransformer : Utils.NTSAdditions.GeometryTransformer
         {
             readonly Func<CoordinateSequence, CoordinateSequence> _transform;
 
