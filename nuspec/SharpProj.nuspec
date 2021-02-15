@@ -8,6 +8,7 @@
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/ampscm/SharpProj</projectUrl>
     <description>SharpProj wraps PROJ for .Net. This package will provide PROJ and the standard proj.db database needed at runtime</description>
+    <tags>Topology PROJ CRS</tags>
     <dependencies>
       <group targetFramework="net45">
         <dependency id="SharpProj.Core" version="[7.2001.8]" />

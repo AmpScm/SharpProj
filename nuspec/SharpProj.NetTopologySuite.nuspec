@@ -9,9 +9,11 @@
     <projectUrl>https://github.com/ampscm/SharpProj</projectUrl>
     <description>NetTopologySupport for SharpProj. Makes (via extension methods) SharpProj accept NetTopology coordinates in most operations and adds an global SRID registration to allow resolving CRS instances by just the SRID property in NTS. Also extends NTS Geometries with .MeterLength() and .MeterArea() based on the PROJ and Geodetic math.
     </description>
+    <tags>NTS Topology PROJ CRS</tags>
     <dependencies>
       <group targetFramework="net45">
         <dependency id="SharpProj.Core" version="[7.2001.8]" />
+        <dependency id="NetTopologySuite" version="2.1.0" />
       </group>
     </dependencies>
   </metadata>
