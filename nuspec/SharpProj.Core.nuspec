@@ -1,7 +1,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
   <metadata>
     <id>SharpProj.Core</id>
-    <version>7.2001.0</version>
+    <version>7.2001.2</version>
     <authors>SharpSvn</authors>
     <owners>SharpSvn</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -17,6 +17,8 @@
   </metadata>
   <files>
     <file src="..\src\SharpProj\bin\Win32_release\SharpProj.dll" target="lib/net45/win-x86" />
+    <file src="..\src\SharpProj\bin\Win32_release\SharpProj.xml" target="lib/net45/win-x86" />
     <file src="..\src\SharpProj\bin\x64_release\SharpProj.dll" target="lib/net45/win-x64" />
+    <file src="..\src\SharpProj\bin\x64_release\SharpProj.xml" target="lib/net45/win-x64" />
   </files>
 </package>

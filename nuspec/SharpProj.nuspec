@@ -1,7 +1,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
   <metadata>
     <id>SharpProj</id>
-    <version>7.2001.0</version>
+    <version>7.2001.2</version>
     <authors>SharpSvn</authors>
     <owners>SharpSvn</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -10,7 +10,7 @@
     and the standard proj.db database needed at runtime</description>
     <dependencies>
       <group targetFramework="net45">
-        <dependency id="SharpProj.Core" version="7.2001" />
+        <dependency id="SharpProj.Core" version="7.2001.2" />
         <dependency id="SharpProj.Database" version="7.2.1" />
       </group>
     </dependencies>
