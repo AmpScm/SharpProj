@@ -6,6 +6,7 @@
     <owners>SharpSvn</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
+    <projectUrl>https://github.com/ampscm/SharpProj</projectUrl>
     <description>The PROJ (www.proj.org) proj.db and proj.ini for the SharpProj and SharpProj.Core package.
     Version number matches the PROJ version for this .db file.</description>
     <dependencies>

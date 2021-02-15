@@ -1,11 +1,12 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
   <metadata>
     <id>SharpProj.Core</id>
-    <version>7.2001.7</version>
+    <version>7.2001.8</version>
     <authors>SharpSvn</authors>
     <owners>SharpSvn</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
+    <projectUrl>https://github.com/ampscm/SharpProj</projectUrl>
     <description>SharpProj wraps PROJ for .Net. At runtime usually a 'proj.db' package is required,
     such as provided by the SharpProj.Database nuget package. The version number consists of the PROJ version
     and the wrapping. As Such SharProj 7.2001.3 is based on PROJ 7.2.1 (7.2001) and is SharpProj build 3 for

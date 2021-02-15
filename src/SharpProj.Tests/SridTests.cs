@@ -42,6 +42,10 @@ namespace SharpProj.Tests
 
             Point pp = p.Reproject(SridRegister.GetById(Epsg.BelgiumLambert));
 
+            Assert.IsNotNull(pp);
+
+            Assert.IsNotNull(p.Reproject<Geometry>(SridRegister.GetById(Epsg.BelgiumLambert)));
+
             Assert.AreEqual((int)Epsg.BelgiumLambert, pp.SRID);
             Assert.AreEqual(new Point(719706, 816781), new Point(pp.Coordinate.RoundAll(0)));
 

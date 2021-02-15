@@ -22,12 +22,12 @@ CALL :xmlpoke SharpProj.Database.nuspec //nu:metadata/nu:version %PROJ_VER% || E
 CALL :xmlpoke SharpProj.Core.nuspec //nu:metadata/nu:version %SHARPPROJ_VER% || EXIT /B 1
 
 CALL :xmlpoke SharpProj.nuspec //nu:metadata/nu:version %SHARPPROJ_VER% || EXIT /B 1
-CALL :xmlpoke SharpProj.nuspec "//nu:dependency[@id='SharpProj.Core']/@version" "%SHARPPROJ_VER%" || EXIT /B 1
+CALL :xmlpoke SharpProj.nuspec "//nu:dependency[@id='SharpProj.Core']/@version" "[%SHARPPROJ_VER%]" || EXIT /B 1
 CALL :xmlpoke SharpProj.nuspec "//nu:dependency[@id='SharpProj.Database']/@version" "%PROJ_VER%" || EXIT /B 1
 
 
 CALL :xmlpoke SharpProj.NetTopologySuite.nuspec //nu:metadata/nu:version %SHARPPROJ_VER% || EXIT /B 1
-CALL :xmlpoke SharpProj.NetTopologySuite.nuspec "//nu:dependency[@id='SharpProj.Core']/@version" "%SHARPPROJ_VER%" || EXIT /B 1
+CALL :xmlpoke SharpProj.NetTopologySuite.nuspec "//nu:dependency[@id='SharpProj.Core']/@version" "[%SHARPPROJ_VER%]" || EXIT /B 1
 
 nuget pack SharpProj.Database.nuspec -version %PROJ_VER% -OutputDirectory bin || exit /B 1
 nuget pack SharpProj.Core.nuspec -version %SHARPPROJ_VER% -OutputDirectory bin || exit /B 1

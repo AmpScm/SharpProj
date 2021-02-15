@@ -48,7 +48,7 @@ namespace SharpProj.NTS
         /// <returns></returns>
         /// <exception cref="IndexOutOfRangeException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        public static bool GetByValue(int srid, out SridItem item)
+        public static bool TryGetByValue(int srid, out SridItem item)
         {
             using (_rwl.WithReadLock())
             {
@@ -58,6 +58,18 @@ namespace SharpProj.NTS
                 item = null;
                 return false;
             }
+        }
+
+        /// <summary>
+        /// - Use TryGetByValue(). Will be removed
+        /// </summary>
+        /// <param name="srid"></param>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        [Obsolete("Please use .TryGetByValue. This method will be removed")]
+        public static bool GetByValue(int srid, out SridItem item)
+        {
+            return TryGetByValue(srid, out item);
         }
 
         /// <summary>
@@ -372,6 +384,9 @@ namespace SharpProj.NTS
                     t = t.BaseType;
                 }
             }
+
+            if (dlg == null)
+                return (T)GenericTransform(source, toFactory, coordinateTransform);
 
             // Two cases where we can handle things nicer than the dynamic invoke below
             if (typeof(T) == t)
