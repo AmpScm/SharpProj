@@ -36,6 +36,7 @@ namespace SharpProj {
 
 	namespace Proj {
 		ref class Datum;
+		ref class ProjObject;
 	}
 }
 

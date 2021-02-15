@@ -13,9 +13,6 @@
 #include "DatumList.h"
 #include "Datum.h"
 
-using namespace SharpProj;
-using namespace SharpProj::Proj;
-
 ProjObject^ ProjContext::Create(String^ definition)
 {
 	if (String::IsNullOrWhiteSpace(definition))

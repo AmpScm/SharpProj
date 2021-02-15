@@ -5,9 +5,10 @@
 
 namespace SharpProj {
 	using System::Collections::Generic::IReadOnlyList;
-	ref class ProjObject;
 
 	namespace Proj {
+		ref class ProjObject;
+
 		public enum class ProjType
 		{
 			Unknown = PJ_TYPE_UNKNOWN,
@@ -127,236 +128,239 @@ namespace SharpProj {
 		};
 	}
 
-	[System::Diagnostics::DebuggerDisplayAttribute("[{Type}] {ToString(),nq}")]
-	public ref class ProjObject
+	namespace Proj
 	{
-	protected:
-		ProjContext^ m_ctx;
-		PJ* m_pj;
-		String^ m_infoId;
-		String^ m_name;
-		String^ m_infoDefinition;
-		String^ m_scope;
-		Proj::IdentifierList^ m_idList;
-
-	private:
-		~ProjObject()
+		[System::Diagnostics::DebuggerDisplayAttribute("[{Type}] {ToString(),nq}")]
+		public ref class ProjObject
 		{
-			if (m_pj)
+		protected:
+			ProjContext^ m_ctx;
+			PJ* m_pj;
+			String^ m_infoId;
+			String^ m_name;
+			String^ m_infoDefinition;
+			String^ m_scope;
+			Proj::IdentifierList^ m_idList;
+
+		private:
+			~ProjObject()
 			{
-				try
+				if (m_pj)
 				{
-					proj_destroy(m_pj);
-				}
-				finally
-				{
-					m_pj = nullptr;
+					try
+					{
+						proj_destroy(m_pj);
+					}
+					finally
+					{
+						m_pj = nullptr;
+					}
 				}
 			}
-		}
 
-	private protected:
-		void ForceUnknownInfo()
-		{
-			m_infoId = "?";
-			m_name = "?";
-			m_infoDefinition = "?";
-			m_scope = "?";
-		}
-
-	internal:
-		ProjObject(ProjContext^ ctx, PJ* pj)
-		{
-			if (!ctx)
-				throw gcnew ArgumentNullException("ctx");
-			else if (!pj)
-				throw gcnew ArgumentNullException("pj");
-
-			m_ctx = ctx;
-			m_pj = pj;
-		}
-
-		static operator PJ* (ProjObject^ pj)
-		{
-			if ((Object^)pj == nullptr)
-				return nullptr;
-			else if (pj->m_pj == nullptr)
-				throw gcnew ObjectDisposedException("PJ disposed");
-
-			return pj->m_pj;
-		}
-
-		static operator bool(ProjObject^ pj)
-		{
-			if ((Object^)pj == nullptr)
-				return false;
-			else if (pj->m_pj == nullptr)
-				return false;
-
-			return true;
-		}
-
-	public:
-		virtual String^ ToString() override
-		{
-			auto name = Name;
-
-			return name ? name : "<no-name>";
-		}
-
-	public:
-		property ProjContext^ Context
-		{
-			ProjContext^ get()
+		private protected:
+			void ForceUnknownInfo()
 			{
-				return m_ctx;
+				m_infoId = "?";
+				m_name = "?";
+				m_infoDefinition = "?";
+				m_scope = "?";
 			}
-		}
 
-		ProjObject^ Clone([Optional]ProjContext^ ctx)
-		{
-			if (!ctx)
-				ctx = Context->Clone();
-
-			return DoClone(ctx);
-		}
-
-	private protected:
-		virtual ProjObject^ DoClone(ProjContext^ ctx)
-		{
-			return ctx->Create(proj_clone(ctx, this));
-		}
-
-	public:
-		property String^ Name
-		{
-			String^ get()
-			{
-				if (!m_name)
-				{
-					const char *name = proj_get_name(this);
-					m_name = name ? gcnew System::String(name) : nullptr;
-				}
-				return m_name;
-			}
 		internal:
-			void set(String^ value)
+			ProjObject(ProjContext^ ctx, PJ* pj)
 			{
-				m_name = value;
+				if (!ctx)
+					throw gcnew ArgumentNullException("ctx");
+				else if (!pj)
+					throw gcnew ArgumentNullException("pj");
+
+				m_ctx = ctx;
+				m_pj = pj;
 			}
-		}
 
-		property String^ Definition
-		{
-			String^ get()
+			static operator PJ* (ProjObject^ pj)
 			{
-				if (!m_infoDefinition)
-				{
-					PJ_PROJ_INFO info = proj_pj_info(this);
-					m_infoDefinition = gcnew System::String(info.definition);
-				}
-				return m_infoDefinition;
-			}
-		}
-
-		property String^ Scope
-		{
-			String^ get()
-			{
-				if (!m_scope)
-				{
-					const char* scope = proj_get_scope(this);
-
-					if (scope)
-						m_scope = gcnew String(scope);
-				}
-				return m_scope;
-			}
-		}
-
-		property Proj::ProjType Type
-		{
-			virtual Proj::ProjType get()
-			{
-				return (Proj::ProjType)proj_get_type(this);
-			}
-		}
-
-		property CoordinateArea^ UsageArea
-		{
-			CoordinateArea^ get()
-			{
-				double west, south, east, north;
-				const char* name;
-				if (proj_get_area_of_use(Context, this, &west, &south, &east, &north, &name))
-				{
-					return gcnew CoordinateArea(west, south, east, north, name ? gcnew String(name) : nullptr);
-				}
-				else
+				if ((Object^)pj == nullptr)
 					return nullptr;
+				else if (pj->m_pj == nullptr)
+					throw gcnew ObjectDisposedException("PJ disposed");
+
+				return pj->m_pj;
 			}
-		}
 
-		String^ AsProjJson()
-		{
-			const char* v = proj_as_projjson(Context, this, nullptr);
+			static operator bool(ProjObject^ pj)
+			{
+				if ((Object^)pj == nullptr)
+					return false;
+				else if (pj->m_pj == nullptr)
+					return false;
 
-			return v ? gcnew String(v) : nullptr;
-		}
+				return true;
+			}
 
-		String^ AsWellKnownText()
-		{
-			const char* v = proj_as_wkt(Context, this, PJ_WKT2_2019, nullptr);
+		public:
+			virtual String^ ToString() override
+			{
+				auto name = Name;
 
-			return v ? gcnew String(v) : nullptr;
-		}
+				return name ? name : "<no-name>";
+			}
 
-		String^ AsProjString()
-		{
-			const char* v = proj_as_proj_string(Context, this, PJ_PROJ_5/* Last as of 2021-01 */, nullptr);
+		public:
+			property ProjContext^ Context
+			{
+				ProjContext^ get()
+				{
+					return m_ctx;
+				}
+			}
 
-			return v ? gcnew String(v) : nullptr;
-		}
+			ProjObject^ Clone([Optional]ProjContext^ ctx)
+			{
+				if (!ctx)
+					ctx = Context->Clone();
 
-	public:
-		property Proj::IdentifierList^ Identifiers
-		{
-			Proj::IdentifierList^ get();
-		}
+				return DoClone(ctx);
+			}
 
-		bool IsEquivalentTo(ProjObject^ other, [Optional] ProjContext^ ctx)
-		{
-			if (!other)
-				return false;
+		private protected:
+			virtual ProjObject^ DoClone(ProjContext^ ctx)
+			{
+				return ctx->Create(proj_clone(ctx, this));
+			}
 
-			if (!ctx)
-				ctx = Context;
+		public:
+			property String^ Name
+			{
+				String^ get()
+				{
+					if (!m_name)
+					{
+						const char* name = proj_get_name(this);
+						m_name = name ? gcnew System::String(name) : nullptr;
+					}
+					return m_name;
+				}
+			internal:
+				void set(String^ value)
+				{
+					m_name = value;
+				}
+			}
 
-			return 0 != proj_is_equivalent_to_with_ctx(ctx, this, other, PJ_COMP_EQUIVALENT);
-		}
+			property String^ Definition
+			{
+				String^ get()
+				{
+					if (!m_infoDefinition)
+					{
+						PJ_PROJ_INFO info = proj_pj_info(this);
+						m_infoDefinition = gcnew System::String(info.definition);
+					}
+					return m_infoDefinition;
+				}
+			}
 
-		bool IsEquivalentToRelaxed(ProjObject^ other, [Optional] ProjContext^ ctx)
-		{
-			if (!other)
-				return false;
+			property String^ Scope
+			{
+				String^ get()
+				{
+					if (!m_scope)
+					{
+						const char* scope = proj_get_scope(this);
 
-			if (!ctx)
-				ctx = Context;
+						if (scope)
+							m_scope = gcnew String(scope);
+					}
+					return m_scope;
+				}
+			}
 
-			return 0 != proj_is_equivalent_to_with_ctx(ctx, this, other, PJ_COMP_EQUIVALENT_EXCEPT_AXIS_ORDER_GEOGCRS);
-		}
+			property Proj::ProjType Type
+			{
+				virtual Proj::ProjType get()
+				{
+					return (Proj::ProjType)proj_get_type(this);
+				}
+			}
 
-	public:
-		static ProjObject^ Create(String^ definition, [Optional]ProjContext^ ctx);
-		static ProjObject^ Create(array<String^>^ from, [Optional]ProjContext^ ctx);
+			property CoordinateArea^ UsageArea
+			{
+				CoordinateArea^ get()
+				{
+					double west, south, east, north;
+					const char* name;
+					if (proj_get_area_of_use(Context, this, &west, &south, &east, &north, &name))
+					{
+						return gcnew CoordinateArea(west, south, east, north, name ? gcnew String(name) : nullptr);
+					}
+					else
+						return nullptr;
+				}
+			}
 
-	private protected:
-		void SetCoordinate(PJ_COORD& coord, PPoint %coordinate)
-		{
-			coord.v[0] = coordinate.X;
-			coord.v[1] = coordinate.Y;
-			coord.v[2] = coordinate.Z;
-			coord.v[3] = coordinate.T;
-		}		
-	};
+			String^ AsProjJson()
+			{
+				const char* v = proj_as_projjson(Context, this, nullptr);
+
+				return v ? gcnew String(v) : nullptr;
+			}
+
+			String^ AsWellKnownText()
+			{
+				const char* v = proj_as_wkt(Context, this, PJ_WKT2_2019, nullptr);
+
+				return v ? gcnew String(v) : nullptr;
+			}
+
+			String^ AsProjString()
+			{
+				const char* v = proj_as_proj_string(Context, this, PJ_PROJ_5/* Last as of 2021-01 */, nullptr);
+
+				return v ? gcnew String(v) : nullptr;
+			}
+
+		public:
+			property Proj::IdentifierList^ Identifiers
+			{
+				Proj::IdentifierList^ get();
+			}
+
+			bool IsEquivalentTo(ProjObject^ other, [Optional] ProjContext^ ctx)
+			{
+				if (!other)
+					return false;
+
+				if (!ctx)
+					ctx = Context;
+
+				return 0 != proj_is_equivalent_to_with_ctx(ctx, this, other, PJ_COMP_EQUIVALENT);
+			}
+
+			bool IsEquivalentToRelaxed(ProjObject^ other, [Optional] ProjContext^ ctx)
+			{
+				if (!other)
+					return false;
+
+				if (!ctx)
+					ctx = Context;
+
+				return 0 != proj_is_equivalent_to_with_ctx(ctx, this, other, PJ_COMP_EQUIVALENT_EXCEPT_AXIS_ORDER_GEOGCRS);
+			}
+
+		public:
+			static ProjObject^ Create(String^ definition, [Optional]ProjContext^ ctx);
+			static ProjObject^ Create(array<String^>^ from, [Optional]ProjContext^ ctx);
+
+		private protected:
+			void SetCoordinate(PJ_COORD& coord, PPoint% coordinate)
+			{
+				coord.v[0] = coordinate.X;
+				coord.v[1] = coordinate.Y;
+				coord.v[2] = coordinate.Z;
+				coord.v[3] = coordinate.T;
+			}
+		};
+	}
 }

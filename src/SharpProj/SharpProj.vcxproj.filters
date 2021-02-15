@@ -45,9 +45,6 @@
     <ClInclude Include="CoordinateSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ProjObjectList.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CoordinateArea.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -105,9 +102,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CoordinateSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ProjObjectList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ProjNetworkHandler.cpp">

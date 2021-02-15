@@ -3,7 +3,9 @@
 using namespace System;
 
 namespace SharpProj {
-	ref class ProjObject;
+	namespace Proj {
+		ref class ProjObject;
+	}
 
 	public enum class ProjLogLevel
 	{
