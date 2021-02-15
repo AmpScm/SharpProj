@@ -1,0 +1,24 @@
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>SharpProj.NetTopologySuite</id>
+    <version>7.2001.1</version>
+    <authors>SharpSvn</authors>
+    <owners>SharpSvn</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <description>NetTopologySupport for SharpProj. Makes (via extension methods)
+    SharpProj accept NetTopology coordinates in most operations and adds an global
+    SRID registration to allow resolving CRS instances by just the SRID property
+    in NTS. Also extends NTS Geometries with .MeterLength() and .MeterArea() based
+    on the PROJ and Geodetic math.</description>
+    <dependencies>
+      <group targetFramework="net45">
+        <dependency id="SharpProj.Core" version="7.2001.2" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\src\SharpProj.NetTopologySuite\bin\release\SharpProj.NetTopologySuite.dll" target="lib" />
+    <file src="..\src\SharpProj.NetTopologySuite\bin\release\SharpProj.NetTopologySuite.xml" target="lib" />
+  </files>
+</package>

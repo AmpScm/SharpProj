@@ -4,12 +4,19 @@ using NetTopologySuite.Geometries;
 
 namespace SparpProj.NetTopologySuite.Utils
 {
-
+    /// <summary>
+    /// 
+    /// </summary>
     public class GeometryTransformer : global::NetTopologySuite.Geometries.Utilities.GeometryTransformer
     {
-
+        /// <summary>
+        /// 
+        /// </summary>
         public new Geometry InputGeometry { get; protected set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         protected new GeometryFactory Factory
         {
             get => base.Factory;
@@ -26,6 +33,12 @@ namespace SparpProj.NetTopologySuite.Utils
             return Transform(inputGeom, inputGeom.Factory);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="inputGeom"></param>
+        /// <param name="factory"></param>
+        /// <returns></returns>
         public Geometry Transform(Geometry inputGeom, GeometryFactory factory)
         {
             InputGeometry = inputGeom;
@@ -33,6 +46,12 @@ namespace SparpProj.NetTopologySuite.Utils
             return DoTransform(InputGeometry, null);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="inputGeom"></param>
+        /// <param name="parentGeometry"></param>
+        /// <returns></returns>
         public virtual Geometry DoTransform(Geometry inputGeom, Geometry parentGeometry)
         {
             if (inputGeom is Point point)

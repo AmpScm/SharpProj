@@ -7,6 +7,9 @@ using SparpProj.NetTopologySuite.Implementation;
 
 namespace SparpProj.NetTopologySuite
 {
+    /// <summary>
+    /// The global SRID (int) to <see cref="CoordinateReferenceSystem"/> mapping
+    /// </summary>
     public static partial class SridRegister
     {
         static readonly Dictionary<int, SridItem> _catalog = new Dictionary<int, SridItem>();
@@ -19,6 +22,13 @@ namespace SparpProj.NetTopologySuite
 
         static int _nextId = -21000;
 
+        /// <summary>
+        /// Gets the SRID item by id
+        /// </summary>
+        /// <param name="srid"></param>
+        /// <returns></returns>
+        /// <exception cref="IndexOutOfRangeException"></exception>
+        /// <exception cref="ArgumentException"></exception>
         public static SridItem GetByValue(int srid)
         {
             using (_rwl.WithReadLock())
@@ -26,10 +36,37 @@ namespace SparpProj.NetTopologySuite
                 if (_catalog.TryGetValue(srid, out var v))
                     return v;
 
-                throw new IndexOutOfRangeException();
+                throw new IndexOutOfRangeException($"Unregistered SRID {srid} used");
             }
         }
 
+        /// <summary>
+        /// Gets the SRID item by id
+        /// </summary>
+        /// <param name="srid"></param>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        /// <exception cref="IndexOutOfRangeException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        public static bool GetByValue(int srid, out SridItem item)
+        {
+            using (_rwl.WithReadLock())
+            {
+                if (_catalog.TryGetValue(srid, out item))
+                    return true;
+
+                item = null;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="item"></param>
+        /// <returns></returns>
         public static bool TryGetById<T>(T key, out SridItem item)
             where T : struct, Enum
         {
@@ -66,6 +103,12 @@ namespace SparpProj.NetTopologySuite
             return Register(crs.Clone());
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public static SridItem GetById<T>(T key)
             where T : struct, Enum
         {
@@ -106,7 +149,6 @@ namespace SparpProj.NetTopologySuite
         /// Registers the CoordinateReferenceSystem with a new SRID.
         /// </summary>
         /// <param name="crs"></param>
-        /// <param name="withSrid"></param>
         /// <returns></returns>
         public static SridItem Register(CoordinateReferenceSystem crs)
         {
@@ -135,6 +177,13 @@ namespace SparpProj.NetTopologySuite
             return added;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="item"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static bool TryRegisterId<T>(SridItem item, T value)
             where T : Enum
         {
@@ -170,6 +219,12 @@ namespace SparpProj.NetTopologySuite
             return true;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="item"></param>
+        /// <param name="value"></param>
         public static void RegisterId<T>(SridItem item, T value)
             where T : struct, Enum
         {
@@ -192,13 +247,27 @@ namespace SparpProj.NetTopologySuite
             return TypeId<T>.Value;
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <param name="creator"></param>
+        /// <returns></returns>
         public static SridItem Ensure<T>(T value, Func<CoordinateReferenceSystem> creator)
             where T : struct, Enum
         {
             return Ensure(value, creator, null);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <param name="creator"></param>
+        /// <param name="preferredSrid"></param>
+        /// <returns></returns>
         public static SridItem Ensure<T>(T value, Func<CoordinateReferenceSystem> creator, int? preferredSrid)
         where T : struct, Enum
         {
@@ -276,7 +345,15 @@ namespace SparpProj.NetTopologySuite
             }
         }
 
-        public static T Reproject<T>(T source, GeometryFactory toFactory, Func<CoordinateSequence, CoordinateSequence> coordinateTransform)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="toFactory"></param>
+        /// <param name="coordinateTransform"></param>
+        /// <returns></returns>
+        public static T ReProject<T>(T source, GeometryFactory toFactory, Func<CoordinateSequence, CoordinateSequence> coordinateTransform)
             where T : Geometry
         {
             Type t = source.GetType();

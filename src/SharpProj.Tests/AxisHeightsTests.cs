@@ -43,11 +43,11 @@ namespace SharpProj.Tests
                     {
                         domNL = t.Apply(domWGS84);
 
-                        Assert.AreEqual(new CoordinateZ(136898.7, 455851.9, -43.4), domNL.Round(1));
+                        Assert.AreEqual(new CoordinateZ(136898.7, 455851.9, -43.4), domNL.RoundAll(1));
 
                         servaasNL = t.Apply(stServaasWGS84);
 
-                        Assert.AreEqual(new CoordinateZ(176164.5, 317770.5, -45.7), servaasNL.Round(1));
+                        Assert.AreEqual(new CoordinateZ(176164.5, 317770.5, -45.7), servaasNL.RoundAll(1));
                     }
 
 
@@ -55,12 +55,12 @@ namespace SharpProj.Tests
                     {
                         var servaasBE = t.Apply(servaasNL);
 
-                        Assert.AreEqual(new CoordinateZ(742877.4, 671835, -45.7), servaasBE.Round(1));
+                        Assert.AreEqual(new CoordinateZ(742877.4, 671835, -45.7), servaasBE.RoundAll(1));
 
                         servaasNL.Z = 15;
                         servaasBE = t.Apply(servaasNL);
 
-                        Assert.IsTrue(new CoordinateZ(742877.4, 671835, 15).Equals3D(servaasBE.Round(1)), $"Unexpected coordinate {servaasBE.Round(1)}");
+                        Assert.IsTrue(new CoordinateZ(742877.4, 671835, 15).Equals3D(servaasBE.RoundAll(1)), $"Unexpected coordinate {servaasBE.RoundAll(1)}");
 
                         servaasNL.Z = 0; //revert to original value
                     }
@@ -69,16 +69,16 @@ namespace SharpProj.Tests
                     using (var t = CoordinateTransform.Create(nlNAP, wgs84D3))
                     {
                         var domGPS = t.Apply(domNL);
-                        Assert.AreEqual(new CoordinateZ(52.09063, 5.123078, 0), domGPS.Round(7));
+                        Assert.AreEqual(new CoordinateZ(52.09063, 5.123078, 0), domGPS.RoundAll(7));
 
                         var servaasGPS = t.Apply(servaasNL);
-                        Assert.AreEqual(new CoordinateZ(50.84938, 5.687712, 45.7353891), servaasGPS.Round(7));
+                        Assert.AreEqual(new CoordinateZ(50.84938, 5.687712, 45.7353891), servaasGPS.RoundAll(7));
 
                         servaasNL.Z = 15;
 
                         servaasGPS = t.Apply(servaasNL);
 
-                        Assert.IsTrue(new CoordinateZ(50.84938, 5.68771, 60.73539).Equals3D(servaasGPS.Round(5)), $"Unexpected coordinate {servaasGPS.Round(5)}");
+                        Assert.IsTrue(new CoordinateZ(50.84938, 5.68771, 60.73539).Equals3D(servaasGPS.RoundAll(5)), $"Unexpected coordinate {servaasGPS.RoundAll(5)}");
 
                     }
                 }

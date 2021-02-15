@@ -47,7 +47,7 @@ namespace SharpProj.Tests
             Point pp = p.Reproject(SridRegister.GetById(Epsg.BelgiumLambert));
 
             Assert.AreEqual((int)Epsg.BelgiumLambert, pp.SRID);
-            Assert.AreEqual(new Point(719706, 816781), new Point(pp.Coordinate.Round(0)));
+            Assert.AreEqual(new Point(719706, 816781), new Point(pp.Coordinate.RoundAll(0)));
 
             using (CoordinateTransform t = CoordinateTransform.Create(SridRegister.GetByValue(p.SRID), SridRegister.GetById(Epsg.BelgiumLambert), new CoordinateTransformOptions { NoBallparkConversions = true }))
             {

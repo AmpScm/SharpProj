@@ -6,6 +6,9 @@ using DistanceOp = NetTopologySuite.Operation.Distance.DistanceOp;
 
 namespace NetTopologySuite.Geometries
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class SharpProjNtsExtensions
     {
         /// <summary>
@@ -15,7 +18,7 @@ namespace NetTopologySuite.Geometries
         /// <param name="g0">Geometry 1</param>
         /// <param name="g1">Geometry 2</param>
         /// <returns>The distance in meters between g0 and g1, or null if unable to calculate</returns>
-        /// <exception cref="ArgumentNullException">g0 or g1 is null</exception
+        /// <exception cref="ArgumentNullException">g0 or g1 is null</exception>
         /// <exception cref="ArgumentOutOfRangeException">The SRID of g0 and g1 don't match, are 0 or can't be resolved using <see cref="SridRegister"/></exception>
         /// <exception cref="ArgumentException"></exception>
         public static double? MeterDistance(this Geometry g0, Geometry g1)
@@ -66,7 +69,7 @@ namespace NetTopologySuite.Geometries
         /// <param name="g1">Geometry 2</param>
         /// <param name="distanceInMeter">The distance limit</param>
         /// <returns>true if the geometries are within distance, false if not and NULL if unable to calculate</returns>
-        /// <exception cref="ArgumentNullException">g0 or g1 is null</exception
+        /// <exception cref="ArgumentNullException">g0 or g1 is null</exception>
         /// <exception cref="ArgumentOutOfRangeException">The SRID of g0 and g1 don't match, are 0 or can't be resolved using <see cref="SridRegister"/></exception>
         /// <exception cref="ArgumentException"></exception>
         public static bool? IsWithinMeterDistance(this Geometry g0, Geometry g1, double distanceInMeter)
@@ -108,6 +111,12 @@ namespace NetTopologySuite.Geometries
             }
         }
 
+        /// <summary>
+        /// When the Coordinates are <see cref="CoordinateZ"/> uses <see cref="CoordinateZ.Equals3D(CoordinateZ)"/>, otherwise do a 2D check and verify that coordinates are 2D
+        /// </summary>
+        /// <param name="coordinate"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public static bool Equals3D(this Coordinate coordinate, Coordinate other)
         {
             if (coordinate is null || other is null)
@@ -120,6 +129,13 @@ namespace NetTopologySuite.Geometries
                     && double.IsNaN(coordinate.Z) == double.IsNaN(other.Z);
         }
 
+        /// <summary>
+        /// When the Coordinates are <see cref="CoordinateZ"/> uses <see cref="CoordinateZ.Equals3D(CoordinateZ)"/>, otherwise do a 2D check and verify that coordinates are 2D
+        /// </summary>
+        /// <param name="coordinate"></param>
+        /// <param name="other"></param>
+        /// <param name="tolerance"></param>
+        /// <returns></returns>
         public static bool Equals3D(this Coordinate coordinate, Coordinate other, double tolerance)
         {
             if (coordinate is null || other is null)
@@ -133,14 +149,10 @@ namespace NetTopologySuite.Geometries
         }
 
         /// <summary>
-        /// Returns the minimum distance between this Geometry <paramref name="g0"/> and another Geometry <paramref name="g1"/>, by calculating the nearest
-        /// points in NTS and then asking (Sharp)Proj to get the actual distance in meters.
+        /// Returns the total length between the coordinates of <paramref name="l"/> in meters via SharpProk
         /// </summary>
-        /// <param name="g0">Geometry 1</param>
-        /// <param name="g1">Geometry 2</param>
-        /// <returns>The distance in meters between g0 and g1, or null if unable to calculate</returns>
-        /// <exception cref="ArgumentNullException">g0 or g1 is null</exception
-        /// <exception cref="ArgumentOutOfRangeException">The SRID of g0 and g1 don't match, are 0 or can't be resolved using <see cref="SridRegister"/></exception>
+        /// <param name="l">The linestring</param>
+        /// <returns>The distance in meters between the coordinates, or null if unable to calculate</returns>
         /// <exception cref="ArgumentException"></exception>
         public static double? MeterLength(this LineString l)
         {
