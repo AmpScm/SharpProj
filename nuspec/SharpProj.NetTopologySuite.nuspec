@@ -5,7 +5,7 @@
     <authors>SharpSvn</authors>
     <owners>SharpSvn</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <license type="expression">MIT</license>
+    <license type="expression">Apache-2.0</license>
     <projectUrl>https://github.com/ampscm/SharpProj</projectUrl>
     <description>NetTopologySupport for SharpProj. Makes (via extension methods) SharpProj accept NetTopology coordinates in most operations and adds an global SRID registration to allow resolving CRS instances by just the SRID property in NTS. Also extends NTS Geometries with .MeterLength() and .MeterArea() based on the PROJ and Geodetic math.
     </description>

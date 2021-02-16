@@ -5,7 +5,7 @@
     <authors>SharpSvn</authors>
     <owners>SharpSvn</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <license type="expression">MIT</license>
+    <license type="expression">Apache-2.0</license>
     <projectUrl>https://github.com/ampscm/SharpProj</projectUrl>
     <description>SharpProj wraps PROJ for .Net. This package will provide PROJ and the standard proj.db database needed at runtime</description>
     <tags>Topology PROJ CRS</tags>

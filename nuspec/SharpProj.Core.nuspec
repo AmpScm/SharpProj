@@ -5,7 +5,7 @@
     <authors>SharpSvn</authors>
     <owners>SharpSvn</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <license type="expression">MIT</license>
+    <license type="expression">Apache-2.0</license>
     <projectUrl>https://github.com/ampscm/SharpProj</projectUrl>
     <description>SharpProj wraps PROJ for .Net. At runtime usually a 'proj.db' package is required,
     such as provided by the SharpProj.Database nuget package. The version number consists of the PROJ version
