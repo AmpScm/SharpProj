@@ -66,6 +66,19 @@ namespace SharpProj {
 			 CoordinateSystem
 		};
 
+		public enum class WktType
+		{
+			WKT2_2015 = PJ_WKT2_2015,
+			WKT2_2015_Simplified = PJ_WKT2_2015_SIMPLIFIED,
+			WKT2_2019 = PJ_WKT2_2019,
+			WKT2_2018 = PJ_WKT2_2018, // Alias for 2019 (via PROJ)
+			WKT2_2019_Simplified = PJ_WKT2_2019_SIMPLIFIED,
+			WKT2_2018_Simplified = PJ_WKT2_2018_SIMPLIFIED, // Alias for 2019 (via PROJ)
+			WKT1_GDAL = PJ_WKT1_GDAL,
+			WKT1_SRI = PJ_WKT1_ESRI
+		};
+
+		[System::Diagnostics::DebuggerDisplayAttribute("{Authority,nq}:{Name,nq}")]
 		public ref class Identifier
 		{
 		internal:
@@ -88,6 +101,28 @@ namespace SharpProj {
 			property String^ Name
 			{
 				String^ get();
+			}
+
+			virtual String^ ToString() override
+			{
+				return Authority + ":" + Name;
+			}
+		};
+
+		public ref class WktOptions
+		{
+		public:
+			property WktType WktType;
+			property bool SingleLine;
+			property bool NoIndentation;
+			property Nullable<bool> WriteAxis;
+			property bool Strict;
+			property bool AllowEllipsoidalHeightAsVerticalCRS;
+
+		public:
+			WktOptions()
+			{
+				WktType = Proj::WktType::WKT2_2019;
 			}
 		};
 
@@ -126,10 +161,7 @@ namespace SharpProj {
 				Identifier ^ get(int index);
 			}
 		};
-	}
 
-	namespace Proj
-	{
 		[System::Diagnostics::DebuggerDisplayAttribute("[{Type}] {ToString(),nq}")]
 		public ref class ProjObject
 		{
@@ -307,11 +339,41 @@ namespace SharpProj {
 				return v ? gcnew String(v) : nullptr;
 			}
 
-			String^ AsWellKnownText()
+			String^ AsWellKnownText(WktOptions^ options)
 			{
-				const char* v = proj_as_wkt(Context, this, PJ_WKT2_2019, nullptr);
+				PJ_WKT_TYPE tp = options ? (PJ_WKT_TYPE)options->WktType : PJ_WKT2_2019;
+				const char* opts[30] = {};
+				int nOpts = 0;
+
+				if (options && (tp != PJ_WKT1_ESRI) == options->SingleLine)
+				{
+					opts[nOpts++] = (tp != PJ_WKT1_ESRI) ? "MULTILINE=NO" : "MULTILINE=YES";
+				}
+				if (options && options->NoIndentation)
+				{
+					opts[nOpts++] = "INDENTATION_WIDTH=0";
+				}
+				if (options && options->WriteAxis.HasValue)
+				{
+					opts[nOpts++] = options->WriteAxis.Value ? "OUTPUT_AXIS=YES" : "OUTPUT_AXIS=NO";
+				}
+				if (!options || !options->Strict)
+				{
+					opts[nOpts++] = "STRICT=NO";
+				}
+				if (options && options->AllowEllipsoidalHeightAsVerticalCRS)
+				{
+					opts[nOpts++] = "ALLOW_ELLIPSOIDAL_HEIGHT_AS_VERTICAL_CRS=YES";
+				}
+
+				const char* v = proj_as_wkt(Context, this, PJ_WKT2_2019, opts);
 
 				return v ? gcnew String(v) : nullptr;
+			}
+
+			String^ AsWellKnownText()
+			{
+				return AsWellKnownText(nullptr);
 			}
 
 			String^ AsProjString()
