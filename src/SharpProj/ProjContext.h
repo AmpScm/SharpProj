@@ -31,6 +31,7 @@ namespace SharpProj {
 
 	public:
 		static initonly String^ DefaultEndpointUrl = "https://cdn.proj.org";
+		static property bool EnableNetworkConnectionsOnNewContexts;
 
 	internal:
 		String^ m_lastError;
@@ -43,29 +44,7 @@ namespace SharpProj {
 	public:
 		ProjContext();
 
-		~ProjContext()
-		{
-			if (m_ctx)
-			{
-				proj_context_destroy(m_ctx);
-				m_ctx = nullptr;
-			}
-			if (m_ref)
-			{
-				delete m_ref;
-				m_ref = nullptr;
-			}
-
-			void* chain = m_chain;
-			try
-			{
-				free_chain(chain);
-			}
-			finally
-			{
-				m_chain = chain;
-			}
-		}
+		~ProjContext();
 
 		ProjContext^ Clone()
 		{
@@ -89,7 +68,7 @@ namespace SharpProj {
 			String^ get()
 			{
 				const char* c = proj_context_get_url_endpoint(this);
-				return (c && *c) ? gcnew String(c) : nullptr;
+				return (c && *c) ? Utf8_PtrToString(c) : nullptr;
 			}
 			void set(String^ value)
 			{
@@ -181,6 +160,11 @@ namespace SharpProj {
 			Log(level, message);
 		}
 
+	private:
+		static String^ EnvCombine(String^ envVar, String^ file);
+
+	public:
+		static void DownloadProjDB(String^ toPath);
 	internal:
 		static operator PJ_CONTEXT* (ProjContext^ me)
 		{

@@ -58,7 +58,8 @@ static const char* my_file_finder(PJ_CONTEXT* ctx, const char* file, void* user_
 	ProjContext^ pc;
 	if (ref->TryGetTarget(pc))
 	{
-		String^ origFile = gcnew String(file);
+		String^ origFile = Utf8_PtrToString(file);
+
 		String^ newFile;
 		pc->OnFindFile(origFile, newFile);
 
@@ -77,7 +78,7 @@ static void my_log_func(void* user_data, int level, const char* message)
 	ProjContext^ pc;
 	if (ref->TryGetTarget(pc))
 	{
-		String^ msg = gcnew String(message);
+		String^ msg = Utf8_PtrToString(message);
 
 		if (level == PJ_LOG_ERROR)
 			pc->m_lastError = msg;
@@ -104,6 +105,33 @@ ProjContext::ProjContext()
 		proj_log_level(m_ctx, PJ_LOG_ERROR);
 
 		SetupNetworkHandling();
+
+		if (EnableNetworkConnectionsOnNewContexts)
+			AllowNetworkConnections = true;
+	}
+}
+
+inline SharpProj::ProjContext::~ProjContext()
+{
+	if (m_ctx)
+	{
+		proj_context_destroy(m_ctx);
+		m_ctx = nullptr;
+	}
+	if (m_ref)
+	{
+		delete m_ref;
+		m_ref = nullptr;
+	}
+
+	void* chain = m_chain;
+	try
+	{
+		free_chain(chain);
+	}
+	finally
+	{
+		m_chain = chain;
 	}
 }
 
@@ -119,7 +147,7 @@ String^ ProjContext::GetMetaData(String^ key)
 	if (!v)
 		throw gcnew ArgumentOutOfRangeException("key");
 
-	return gcnew String(v);
+	return Utf8_PtrToString(v);
 }
 Version^ ProjContext::EpsgVersion::get()
 {
@@ -146,23 +174,75 @@ Exception^ ProjContext::ConstructException()
 	if (msg)
 	{
 		m_lastError = nullptr;
-		return gcnew ProjException(gcnew String(proj_errno_string(err)),
+		return gcnew ProjException(Utf8_PtrToString(proj_errno_string(err)),
 			gcnew ProjException(msg));
 	}
 	else
 	{
-		return gcnew ProjException(gcnew String(proj_errno_string(err)));
+		return gcnew ProjException(Utf8_PtrToString(proj_errno_string(err)));
+	}
+}
+
+String^ ProjContext::EnvCombine(String^ envVar, String^ file)
+{
+	try
+	{
+		return Path::GetFullPath(Path::Combine(Environment::GetEnvironmentVariable("PROJ_LIB"), file));
+	}
+	catch(IOException^)
+	{
+		return file;
+	}
+	catch (ArgumentException^)
+	{
+		return file;
 	}
 }
 
 void ProjContext::OnFindFile(String^ file, [Out] String^% foundFile)
 {
-	if (File::Exists(file))
+	String^ testFile;
+	const char* pUserDir = proj_context_get_user_writable_directory(this, false);
+	String^ userDir = Utf8_PtrToString(pUserDir);
+
+	if (File::Exists(testFile = Path::Combine(userDir, file)))
+		foundFile = Path::GetFullPath(testFile);
+	else if (File::Exists(testFile = EnvCombine("PROJ_LIB", file)))
+		foundFile = Path::GetFullPath(testFile);
+	else if (File::Exists(testFile = Path::Combine(userDir, ("proj" PROJ_VERSION "-") + file)))
+		foundFile = Path::GetFullPath(testFile);
+	else if (File::Exists(file))
 		foundFile = Path::GetFullPath(file);
 	else if (File::Exists(file = Path::Combine("..", file)))
 		foundFile = Path::GetFullPath(file);
-	else if (File::Exists(file = Path::Combine("..", file)))
-		foundFile = Path::GetFullPath(file);
+	else if (proj_context_is_network_enabled(this))
+	{
+		testFile = testFile = Path::Combine(userDir, ("proj" PROJ_VERSION "-") + file);
+		try
+		{
+			DownloadProjDB(testFile);
+		}
+		catch (IOException^)
+		{
+			foundFile = nullptr;
+			return;
+		}
+		catch (System::Net::WebException^)
+		{
+			foundFile = nullptr;
+			return;
+		}
+		catch (InvalidOperationException^)
+		{
+			foundFile = nullptr;
+			return;
+		}
+
+		if (File::Exists(testFile))
+			foundFile = Path::GetFullPath(testFile);
+	}
+	else
+		foundFile = nullptr;
 }
 
 void ProjContext::OnLogMessage(ProjLogLevel level, String^ message)

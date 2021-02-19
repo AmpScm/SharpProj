@@ -1,7 +1,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
   <metadata>
     <id>SharpProj.Core</id>
-    <version>7.2001.8</version>
+    <version>7.2001.9</version>
     <authors>SharpSvn</authors>
     <owners>SharpSvn</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>

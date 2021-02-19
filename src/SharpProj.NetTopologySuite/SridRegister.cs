@@ -368,6 +368,13 @@ namespace SharpProj.NTS
         public static T ReProject<T>(T source, GeometryFactory toFactory, Func<CoordinateSequence, CoordinateSequence> coordinateTransform)
             where T : Geometry
         {
+            if (source is null)
+                throw new ArgumentNullException(nameof(source));
+            else if (toFactory is null)
+                throw new ArgumentNullException(nameof(toFactory));
+            else if (coordinateTransform is null)
+                throw new ArgumentNullException(nameof(coordinateTransform));
+
             Type t = source.GetType();
             Delegate dlg = null;
 

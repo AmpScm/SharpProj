@@ -21,7 +21,7 @@ namespace SharpProj {
 				{
 					m_longitude = longitude;
 					m_unit_conv_factor = unit_conv_factor;
-					m_unit_name = unit_name ? gcnew String(unit_name) : nullptr;
+					m_unit_name = Utf8_PtrToString(unit_name);
 				}
 			}
 

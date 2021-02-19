@@ -56,4 +56,13 @@ using Optional = System::Runtime::InteropServices::OptionalAttribute;
 #define PROJ_VERSION LIT(PROJ_VERSION_MAJOR) "." LIT(PROJ_VERSION_MINOR) "." LIT(PROJ_VERSION_PATCH)
 
 
+inline static String^ Utf8_PtrToString(const char* pTxt)
+{
+	if (!pTxt)
+		return nullptr;
+
+	return gcnew String(pTxt, 0, strlen(pTxt), System::Text::Encoding::UTF8);
+}
+
+
 #endif //PCH_H

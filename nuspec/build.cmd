@@ -23,7 +23,7 @@ CALL :xmlpoke SharpProj.Core.nuspec //nu:metadata/nu:version %SHARPPROJ_VER% || 
 
 CALL :xmlpoke SharpProj.nuspec //nu:metadata/nu:version %SHARPPROJ_VER% || EXIT /B 1
 CALL :xmlpoke SharpProj.nuspec "//nu:dependency[@id='SharpProj.Core']/@version" "[%SHARPPROJ_VER%]" || EXIT /B 1
-CALL :xmlpoke SharpProj.nuspec "//nu:dependency[@id='SharpProj.Database']/@version" "%PROJ_VER%" || EXIT /B 1
+CALL :xmlpoke SharpProj.nuspec "//nu:dependency[@id='SharpProj.Database']/@version" "[%PROJ_VER%]" || EXIT /B 1
 
 
 CALL :xmlpoke SharpProj.NetTopologySuite.nuspec //nu:metadata/nu:version %SHARPPROJ_VER% || EXIT /B 1

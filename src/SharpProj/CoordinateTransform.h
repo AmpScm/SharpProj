@@ -319,8 +319,7 @@ namespace SharpProj {
 
 					if (proj_coordoperation_get_method_info(Context, this, &method_name, &auth_name, &auth_code))
 					{
-						if (method_name)
-							m_methodName = gcnew String(method_name);
+						m_methodName = Utf8_PtrToString(method_name);
 					}
 				}
 

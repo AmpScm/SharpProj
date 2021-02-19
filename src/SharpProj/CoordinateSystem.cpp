@@ -11,12 +11,12 @@ void SharpProj::Proj::Axis::Ensure()
     if (!m_name && proj_cs_get_axis_info(m_cs->Context, m_cs, m_idx,
         &name, &abbrev, &direction, &unit_conv_factor, &unit_name, &unit_auth_name, &unit_code))
     {
-        m_name = name ? gcnew String(name) : nullptr;
-        m_abbrev = abbrev ? gcnew String(abbrev) : nullptr;
-        m_direction = direction ? gcnew String(direction) : nullptr;
+        m_name = Utf8_PtrToString(name);
+        m_abbrev = Utf8_PtrToString(abbrev);
+        m_direction = Utf8_PtrToString(direction);
         m_unit_conv_factor = unit_conv_factor;
-        m_unit_name = unit_name ? gcnew String(unit_name) : nullptr;
-        m_unit_auth_name = unit_name ? gcnew String(unit_auth_name) : nullptr;
-        m_unit_code = unit_code ? gcnew String(unit_code) : nullptr;
+        m_unit_name = Utf8_PtrToString(unit_name);
+        m_unit_auth_name = Utf8_PtrToString(unit_auth_name);
+        m_unit_code = Utf8_PtrToString(unit_code);
     }
 }

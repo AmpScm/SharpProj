@@ -5,6 +5,7 @@
 
 namespace SharpProj {
 	using System::Collections::Generic::IReadOnlyList;
+	value class PPoint;
 
 	namespace Proj {
 		ref class ProjObject;
@@ -162,6 +163,122 @@ namespace SharpProj {
 			}
 		};
 
+		[System::Diagnostics::DebuggerDisplayAttribute("{Name,nq}")]
+		public ref class UsageArea
+		{
+		private:
+			initonly double m_westLongitude; 
+			initonly double m_southLatitude; 
+			initonly double m_eastLongitude; 
+			initonly double m_northLatitude; 
+			initonly String^ m_name;
+			initonly ProjObject^ m_obj;
+			Nullable<PPoint> m_NE, m_NW, m_SE, m_SW;
+			Nullable<double> m_minX, m_minY, m_maxX, m_maxY;
+			CoordinateTransform^ m_latLonTransform;
+
+		internal:
+
+			UsageArea(ProjObject^ ob, double westLongitude, double southLatitude, double eastLongitude, double northLatitude, String^ name)
+			{
+				m_obj = ob;
+				m_westLongitude = westLongitude;
+				m_southLatitude = southLatitude;
+				m_eastLongitude = eastLongitude;
+				m_northLatitude = northLatitude;
+				m_name = name;
+			}
+
+		private:
+			CoordinateTransform^ GetLatLonConvert();
+
+		public:
+			virtual String^ ToString() override
+			{
+				if (Name)
+					return Name;
+				else
+					return __super::ToString();
+			}
+
+		public:
+			property double WestLongitude
+			{
+				double get()
+				{
+					return m_westLongitude;
+				}
+			}
+			property double SouthLatitude
+			{
+				double get()
+				{
+					return m_southLatitude;
+				}
+			}
+			property double EastLongitude
+			{
+				double get()
+				{
+					return m_eastLongitude;
+				}
+			}
+			property double NorthLatitude
+			{
+				double get()
+				{
+					return m_northLatitude;
+				}
+			}
+			property String^ Name
+			{
+				String^ get()
+				{
+					return m_name;
+				}
+			}
+
+			property PPoint NorthWestCorner
+			{
+				PPoint get();
+			}
+
+			property PPoint SouthEastCorner
+			{
+				PPoint get();
+			}
+
+			property PPoint SouthWestCorner
+			{
+				PPoint get();
+			}
+
+			property PPoint NorthEastCorner
+			{
+				PPoint get();
+			}
+
+			property double MinX
+			{
+				double get();
+			}
+
+			property double MinY
+			{
+				double get();
+			}
+
+			property double MaxX
+			{
+				double get();
+			}
+
+			property double MaxY
+			{
+				double get();
+			}
+		};
+
 		[System::Diagnostics::DebuggerDisplayAttribute("[{Type}] {ToString(),nq}")]
 		public ref class ProjObject
 		{
@@ -239,6 +356,23 @@ namespace SharpProj {
 				return name ? name : "<no-name>";
 			}
 
+		private protected:
+			static array<String^>^ FromStringList(PROJ_STRING_LIST lst)
+			{
+				if (!lst || !*lst)
+					return Array::Empty<String^>();
+
+				auto items = gcnew System::Collections::Generic::List<String^>();
+
+				while (*lst)
+				{
+					items->Add(Utf8_PtrToString(*lst));
+					lst++;
+				}
+
+				return items->ToArray();
+			}
+
 		public:
 			property ProjContext^ Context
 			{
@@ -302,8 +436,7 @@ namespace SharpProj {
 					{
 						const char* scope = proj_get_scope(this);
 
-						if (scope)
-							m_scope = gcnew String(scope);
+						m_scope = Utf8_PtrToString(scope);
 					}
 					return m_scope;
 				}
@@ -317,15 +450,15 @@ namespace SharpProj {
 				}
 			}
 
-			property CoordinateArea^ UsageArea
+			property UsageArea^ UsageArea
 			{
-				CoordinateArea^ get()
+				Proj::UsageArea^ get()
 				{
 					double west, south, east, north;
 					const char* name;
 					if (proj_get_area_of_use(Context, this, &west, &south, &east, &north, &name))
 					{
-						return gcnew CoordinateArea(west, south, east, north, name ? gcnew String(name) : nullptr);
+						return gcnew Proj::UsageArea(this, west, south, east, north, Utf8_PtrToString(name));
 					}
 					else
 						return nullptr;
@@ -336,7 +469,7 @@ namespace SharpProj {
 			{
 				const char* v = proj_as_projjson(Context, this, nullptr);
 
-				return v ? gcnew String(v) : nullptr;
+				return Utf8_PtrToString(v);
 			}
 
 			String^ AsWellKnownText(WktOptions^ options)
@@ -368,7 +501,7 @@ namespace SharpProj {
 
 				const char* v = proj_as_wkt(Context, this, PJ_WKT2_2019, opts);
 
-				return v ? gcnew String(v) : nullptr;
+				return Utf8_PtrToString(v);
 			}
 
 			String^ AsWellKnownText()
@@ -380,7 +513,7 @@ namespace SharpProj {
 			{
 				const char* v = proj_as_proj_string(Context, this, PJ_PROJ_5/* Last as of 2021-01 */, nullptr);
 
-				return v ? gcnew String(v) : nullptr;
+				return Utf8_PtrToString(v);
 			}
 
 		public:

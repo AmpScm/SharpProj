@@ -60,7 +60,7 @@ namespace SharpProj
         /// <returns></returns>
         public static IEnumerable<PPoint> ToPPoints(this CoordinateSequence cs)
         {
-            for(int i = 0; i < cs.Count; i++)
+            for (int i = 0; i < cs.Count; i++)
             {
                 yield return cs.GetCoordinate(i).ToPPoint();
             }
@@ -86,7 +86,7 @@ namespace SharpProj
         /// <returns></returns>
         public static IEnumerable<Coordinate> ToCoordinates(this IEnumerable<PPoint> points)
         {
-            foreach(var p in points)
+            foreach (var p in points)
             {
                 yield return p.ToCoordinate();
             }
@@ -150,6 +150,13 @@ namespace SharpProj
         public static TGeometry Reproject<TGeometry>(this TGeometry geometry, CoordinateTransform operation, GeometryFactory factory)
         where TGeometry : Geometry
         {
+            if (geometry is null)
+                throw new ArgumentNullException(nameof(geometry));
+            else if (operation is null)
+                throw new ArgumentNullException(nameof(operation));
+            else if (factory is null)
+                throw new ArgumentNullException(nameof(factory));
+
             return SridRegister.ReProject(geometry, factory,
                 sq => factory.CoordinateSequenceFactory.Create(sq.ToPPoints().Select(x => operation.Apply(x)).ToCoordinates().ToArray()));
         }

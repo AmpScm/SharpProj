@@ -62,6 +62,75 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(String^ from, ProjC
 	if (!proj_is_crs(pj))
 	{
 		proj_destroy(pj);
+
+		if (from->Trim()->StartsWith("+") && !from->Contains("+type=crs"))
+		{
+			try
+			{
+				return CoordinateReferenceSystem::Create(from + " +type=crs", ctx);
+			}
+			catch (ProjException^)
+			{
+			}
+		}
+
+		throw gcnew ProjException(String::Format("'{0}' doesn't describe a coordinate system", from));
+	}
+
+	return ctx->Create<CoordinateReferenceSystem^>(pj);
+}
+
+CoordinateReferenceSystem^ CoordinateReferenceSystem::CreateFromWellKnownText(String^ from, ProjContext^ ctx)
+{
+	array<String^>^ wars = nullptr;
+
+	return CreateFromWellKnownText(from, wars, ctx);
+}
+
+CoordinateReferenceSystem^ CoordinateReferenceSystem::CreateFromWellKnownText(String^ from, [Out] array<String^>^% warnings, ProjContext^ ctx)
+{
+	if (String::IsNullOrWhiteSpace(from))
+		throw gcnew ArgumentNullException("from");
+
+	if (!ctx)
+		ctx = gcnew ProjContext();
+
+	PROJ_STRING_LIST wrs = nullptr;
+	PROJ_STRING_LIST errs = nullptr;
+	const char* options[32] = {};
+
+	std::string fromStr = utf8_string(from);
+	PJ* pj = proj_create_from_wkt(ctx, fromStr.c_str(), options, &wrs, &errs);
+
+	warnings = FromStringList(wrs);
+	array<String^>^ errors = FromStringList(errs);
+
+	if (wrs)
+		proj_string_list_destroy(wrs);
+	if (errs)
+		proj_string_list_destroy(errs);
+
+	if (!pj)
+	{
+		Exception^ ex = ctx->ConstructException();
+		if (errors && errors->Length)
+		{
+			Exception^ ex2 = (ex && ex->Message->Length) ? ex : nullptr;
+
+			for each (String ^ msg in errors)
+			{
+				ex2 = gcnew ProjException(msg, ex2);
+			}
+
+			if (ex2)
+				throw ex2;
+		}
+		throw ex;
+	}
+
+	if (!proj_is_crs(pj))
+	{
+		proj_destroy(pj);
 		throw gcnew ProjException(String::Format("'{0}' doesn't describe a coordinate system", from));
 	}
 
@@ -167,7 +236,8 @@ Proj::CoordinateSystem^ CoordinateReferenceSystem::CoordinateSystem::get()
 
 			if (!pj)
 			{
-				throw Context->ConstructException();
+				Context->ClearError(this);
+				return nullptr;
 			}
 
 			m_cs = Context->Create<Proj::CoordinateSystem^>(pj);

@@ -1,7 +1,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
   <metadata>
     <id>SharpProj</id>
-    <version>7.2001.8</version>
+    <version>7.2001.9</version>
     <authors>SharpSvn</authors>
     <owners>SharpSvn</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -10,10 +10,8 @@
     <description>SharpProj wraps PROJ for .Net. This package will provide PROJ and the standard proj.db database needed at runtime</description>
     <tags>Topology PROJ CRS</tags>
     <dependencies>
-      <group targetFramework="net45">
-        <dependency id="SharpProj.Core" version="[7.2001.8]" />
-        <dependency id="SharpProj.Database" version="7.2.1" />
-      </group>
+      <dependency id="SharpProj.Core" version="[7.2001.9]" />
+      <dependency id="SharpProj.Database" version="7.2.1" />
     </dependencies>
   </metadata>
   <files>

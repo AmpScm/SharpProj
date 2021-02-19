@@ -2,7 +2,6 @@
 namespace SharpProj {
 	public ref class CoordinateArea
 	{
-		initonly String^ m_name;
 	public:
 		CoordinateArea()
 		{}
@@ -15,26 +14,11 @@ namespace SharpProj {
 			NorthLatitude = northLatitude;
 		}
 
-	internal:
-		CoordinateArea(double westLongitude, double southLatitude, double eastLongitude, double northLatitude, String^ name)
-			: CoordinateArea(westLongitude, southLatitude, eastLongitude, northLatitude)
-		{
-			m_name = name;
-		}
-
 	public:
 		property double WestLongitude;
 		property double SouthLatitude;
 		property double EastLongitude;
 		property double NorthLatitude;
-
-		property String^ Name
-		{
-			String^ get()
-			{
-				return m_name;
-			}
-		}
 	};
 
 
@@ -55,6 +39,7 @@ namespace SharpProj {
 		property bool NoDiscardIfMissing;
 		property bool UsePrimaryGridNames;
 		property bool UseSuperseded;
+		property bool StrictContains;
 		property IntermediateCrsUsage IntermediateCrsUsage;		
 	};
 }

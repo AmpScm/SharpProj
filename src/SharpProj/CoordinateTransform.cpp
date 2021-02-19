@@ -90,12 +90,12 @@ CoordinateTransform^ CoordinateTransform::Create(CoordinateReferenceSystem^ sour
 			options->Area->EastLongitude,
 			options->Area->NorthLatitude);
 	}
-	else
-	{
-		proj_operation_factory_context_set_spatial_criterion(
+
+	proj_operation_factory_context_set_spatial_criterion(
 			ctx, operation_ctx,
-			PROJ_SPATIAL_CRITERION_PARTIAL_INTERSECTION);
-	}
+			(options && options->StrictContains)
+			? PROJ_SPATIAL_CRITERION_STRICT_CONTAINMENT
+			: PROJ_SPATIAL_CRITERION_PARTIAL_INTERSECTION);
 
 	proj_operation_factory_context_set_grid_availability_use(
 		ctx, operation_ctx,
@@ -246,16 +246,16 @@ void SharpProj::Proj::CoordinateTransformParameter::Ensure()
 			&unit_conv_factor, &unit_name, &unit_auth_name,
 			&unit_code, &unit_category))
 		{
-			m_name = name ? gcnew String(name) : "";
-			m_auth_name = auth_name ? gcnew String(auth_name) : nullptr;
-			m_code = code ? gcnew String(code) : nullptr;
+			m_name = Utf8_PtrToString(name);
+			m_auth_name = Utf8_PtrToString(auth_name);
+			m_code = Utf8_PtrToString(code);
 			m_value = value;
-			m_value_string = value_string ? gcnew String(value_string) : nullptr;
+			m_value_string = Utf8_PtrToString(value_string);
 			m_unit_conv_factor = unit_conv_factor;
-			m_unit_name = unit_name ? gcnew String(unit_name) : nullptr;
-			m_unit_auth_name = unit_auth_name ? gcnew String(unit_auth_name) : nullptr;
-			m_unit_code = unit_code ? gcnew String(unit_code) : nullptr;
-			m_unit_category = unit_category ? gcnew String(unit_category) : nullptr;
+			m_unit_name = Utf8_PtrToString(unit_name);
+			m_unit_auth_name = Utf8_PtrToString(unit_auth_name);
+			m_unit_code = Utf8_PtrToString(unit_code);
+			m_unit_category = Utf8_PtrToString(unit_category);
 		}
 	}
 }

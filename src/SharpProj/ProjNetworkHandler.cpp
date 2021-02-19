@@ -41,7 +41,7 @@ static PROJ_NETWORK_HANDLE* my_network_open(
 		out_error_string[0] = '\0';
 
 
-	String^ sUrl = gcnew String(url);
+	String^ sUrl = Utf8_PtrToString(url);
 	WebRequest^ rq = WebRequest::Create(sUrl);
 	HttpWebRequest^ hrq = dynamic_cast<HttpWebRequest^>(rq);
 
@@ -144,7 +144,7 @@ const char* my_network_get_header_value(
 {
 	my_network_data* d = (my_network_data*)handle;
 
-	String^ h = d->rp->Headers->Get(gcnew String(header_name));
+	String^ h = d->rp->Headers->Get(Utf8_PtrToString(header_name));
 
 	if (h)
 	{
@@ -255,4 +255,44 @@ void ProjContext::SetupNetworkHandling()
 		my_network_get_header_value,
 		my_network_read_range,
 		m_ref);
+}
+
+void ProjContext::DownloadProjDB(String^ target)
+{
+	using namespace System::IO::Compression;
+	try
+	{
+		WebRequest^ wr = WebRequest::Create("https://www.nuget.org/api/v2/package/SharpProj.Database/" PROJ_VERSION);
+
+		Stream^ stream = wr->GetResponse()->GetResponseStream();
+		Stream^ sz = nullptr;
+		Stream^ tmp = nullptr;
+		try
+		{
+			auto za = gcnew System::IO::Compression::ZipArchive(stream, ZipArchiveMode::Read);
+
+			sz = za->GetEntry("contentFiles/any/any/proj.db")->Open();
+			tmp = File::Create(target + ".tmp");
+
+			sz->CopyTo(tmp);
+			tmp->Close();
+			tmp = nullptr;
+			delete sz;
+			sz = nullptr;
+
+			File::Move(target + ".tmp", target);
+		}
+		catch (Exception^)
+		{
+			if (tmp)
+				delete tmp;
+			if (sz)
+				delete sz;
+			if (stream)
+				delete stream;
+		}
+	}
+	catch (Exception^)
+	{
+	}
 }
