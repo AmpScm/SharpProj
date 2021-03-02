@@ -356,7 +356,7 @@ namespace SharpProj {
 				return name ? name : "<no-name>";
 			}
 
-		private protected:
+		internal:
 			static array<String^>^ FromStringList(PROJ_STRING_LIST lst)
 			{
 				if (!lst || !*lst)
@@ -452,7 +452,7 @@ namespace SharpProj {
 
 			property UsageArea^ UsageArea
 			{
-				Proj::UsageArea^ get()
+				virtual Proj::UsageArea^ get()
 				{
 					double west, south, east, north;
 					const char* name;
@@ -547,6 +547,9 @@ namespace SharpProj {
 		public:
 			static ProjObject^ Create(String^ definition, [Optional]ProjContext^ ctx);
 			static ProjObject^ Create(array<String^>^ from, [Optional]ProjContext^ ctx);
+
+			static ProjObject^ CreateFromWellKnownText(String^ from, [Optional] ProjContext^ ctx);
+			static ProjObject^ CreateFromWellKnownText(String^ from, [Out] array<String^>^% warnings, [Optional] ProjContext^ ctx);
 
 		private protected:
 			void SetCoordinate(PJ_COORD& coord, PPoint% coordinate)

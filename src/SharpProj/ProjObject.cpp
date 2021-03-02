@@ -57,6 +57,60 @@ ProjObject^ ProjContext::Create(...array<String^>^ from)
 	}
 }
 
+ProjObject^ ProjContext::CreateFromWellKnownText(String^ from)
+{
+	array<String^>^ wars = nullptr;
+
+	return CreateFromWellKnownText(from, wars);
+}
+
+ProjObject^ ProjContext::CreateFromWellKnownText(String^ from, [Out] array<String^>^% warnings)
+{
+	if (String::IsNullOrWhiteSpace(from))
+		throw gcnew ArgumentNullException("from");
+
+	PROJ_STRING_LIST wrs = nullptr;
+	PROJ_STRING_LIST errs = nullptr;
+	const char* options[32] = {};
+
+	std::string fromStr = utf8_string(from);
+	PJ* pj = proj_create_from_wkt(this, fromStr.c_str(), options, &wrs, &errs);
+
+	warnings = ProjObject::FromStringList(wrs);
+	array<String^>^ errors = ProjObject::FromStringList(errs);
+
+	if (wrs)
+		proj_string_list_destroy(wrs);
+	if (errs)
+		proj_string_list_destroy(errs);
+
+	if (!pj)
+	{
+		Exception^ ex = ConstructException();
+		if (errors && errors->Length)
+		{
+			Exception^ ex2 = (ex && ex->Message->Length) ? ex : nullptr;
+
+			for each (String ^ msg in errors)
+			{
+				ex2 = gcnew ProjException(msg, ex2);
+			}
+
+			if (ex2)
+				throw ex2;
+		}
+		throw ex;
+	}
+
+	if (!proj_is_crs(pj))
+	{
+		proj_destroy(pj);
+		throw gcnew ProjException(String::Format("'{0}' doesn't describe a coordinate system", from));
+	}
+
+	return Create<CoordinateReferenceSystem^>(pj);
+}
+
 ProjObject^ ProjContext::Create(PJ* pj)
 {
 	if (!pj)
@@ -160,6 +214,22 @@ ProjObject^ ProjObject::Create(array<String^>^ from, [Optional]ProjContext^ ctx)
 		ctx = gcnew ProjContext();
 
 	return ctx->Create(from);
+}
+
+ProjObject^ ProjObject::CreateFromWellKnownText(String^ from, [Optional] ProjContext^ ctx)
+{
+	if (!ctx)
+		ctx = gcnew ProjContext();
+
+	return ctx->CreateFromWellKnownText(from);
+}
+
+ProjObject^ ProjObject::CreateFromWellKnownText(String^ from, [Out] array<String^>^% warnings, [Optional] ProjContext^ ctx)
+{
+	if (!ctx)
+		ctx = gcnew ProjContext();
+
+	return ctx->CreateFromWellKnownText(from, warnings);
 }
 
 IdentifierList^ ProjObject::Identifiers::get()
@@ -322,7 +392,22 @@ SharpProj::PPoint UsageArea::NorthEastCorner::get()
 double UsageArea::MinY::get()
 {
 	if (!m_minY.HasValue)
+	{
 		m_minY = Math::Min(Math::Min(NorthEastCorner.Y, NorthWestCorner.Y), Math::Min(SouthEastCorner.Y, SouthWestCorner.Y));
+
+		if (m_minY.HasValue)
+		{
+			if (double::IsNaN(m_minY.Value))
+				m_minY = Nullable<double>();
+			else
+			{
+				auto ll = GetLatLonConvert();
+
+				if (ll->Accuraracy.HasValue && ll->Accuraracy.Value > 0)
+					m_minY = CoordinateTransform::ApplyAccuracy(m_minY.Value, ll->Accuraracy.Value);
+			}
+		}
+	}
 
 	return m_minY.Value;
 }
@@ -330,7 +415,22 @@ double UsageArea::MinY::get()
 double UsageArea::MaxY::get()
 {
 	if (!m_maxY.HasValue)
+	{
 		m_maxY = Math::Max(Math::Max(NorthEastCorner.Y, NorthWestCorner.Y), Math::Max(SouthEastCorner.Y, SouthWestCorner.Y));
+
+		if (m_maxY.HasValue)
+		{
+			if (double::IsNaN(m_maxY.Value))
+				m_maxY = Nullable<double>();
+			else
+			{
+				auto ll = GetLatLonConvert();
+
+				if (ll->Accuraracy.HasValue && ll->Accuraracy.Value > 0)
+					m_maxY = CoordinateTransform::ApplyAccuracy(m_maxY.Value, ll->Accuraracy.Value);
+			}
+		}
+	}
 
 	return m_maxY.Value;
 }
@@ -338,7 +438,22 @@ double UsageArea::MaxY::get()
 double UsageArea::MinX::get()
 {
 	if (!m_minX.HasValue)
+	{
 		m_minX = Math::Min(Math::Min(NorthEastCorner.X, NorthWestCorner.X), Math::Min(SouthEastCorner.X, SouthWestCorner.X));
+
+		if (m_minX.HasValue)
+		{
+			if (double::IsNaN(m_minX.Value))
+				m_minX = Nullable<double>();
+			else
+			{
+				auto ll = GetLatLonConvert();
+
+				if (ll->Accuraracy.HasValue && ll->Accuraracy.Value > 0)
+					m_minX = CoordinateTransform::ApplyAccuracy(m_minX.Value, ll->Accuraracy.Value);
+			}
+		}
+	}
 
 	return m_minX.Value;
 }
@@ -346,7 +461,22 @@ double UsageArea::MinX::get()
 double UsageArea::MaxX::get()
 {
 	if (!m_maxX.HasValue)
+	{
 		m_maxX = Math::Max(Math::Max(NorthEastCorner.X, NorthWestCorner.X), Math::Max(SouthEastCorner.X, SouthWestCorner.X));
+
+		if (m_maxX.HasValue)
+		{
+			if (double::IsNaN(m_maxX.Value))
+				m_maxX = Nullable<double>();
+			else
+			{
+				auto ll = GetLatLonConvert();
+
+				if (ll->Accuraracy.HasValue && ll->Accuraracy.Value > 0)
+					m_maxX = CoordinateTransform::ApplyAccuracy(m_maxX.Value, ll->Accuraracy.Value);
+			}
+		}
+	}
 
 	return m_maxX.Value;
 }

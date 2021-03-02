@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTopologySuite.Geometries;
 using SharpProj.NTS;
@@ -9,6 +10,7 @@ namespace SharpProj.Tests
     [TestClass]
     public class SridTests
     {
+        public TestContext TestContext { get; set; }
         enum Epsg //
         {
             Netherlands = 28992,
@@ -124,10 +126,6 @@ namespace SharpProj.Tests
             Assert.AreEqual(4330957964.64, Math.Round(srid.CRS.DistanceTransform.GeoArea(t3.Coordinates), 2));
 
             Assert.AreEqual(4330957964.64, Math.Round(t3.MeterArea().Value, 2)); // Not using backing data yet
-
-
-
         }
-
     }
 }

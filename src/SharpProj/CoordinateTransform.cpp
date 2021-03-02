@@ -153,6 +153,29 @@ CoordinateTransform^ CoordinateTransform::Create(CoordinateReferenceSystem^ sour
 	return gcnew ChooseCoordinateTransform(ctx, P, op_list);
 }
 
+CoordinateTransform^ CoordinateTransform::Create(String^ from, ProjContext^ ctx)
+{
+	ProjObject^ po = ProjObject::Create(from, ctx);
+
+	CoordinateTransform^ ct = dynamic_cast<CoordinateTransform^>(po);
+	if (ct)
+		return ct;
+
+	throw gcnew ProjException("Proj Object is no CoordinateTransform");
+}
+
+CoordinateTransform^ CoordinateTransform::Create(array<String^>^ definition, ProjContext^ ctx)
+{
+	ProjObject^ po = ProjObject::Create(definition, ctx);
+
+	CoordinateTransform^ ct = dynamic_cast<CoordinateTransform^>(po);
+	if (ct)
+		return ct;
+
+	throw gcnew ProjException("Proj Object is no CoordinateTransform");
+}
+
+
 double CoordinateTransform::RoundTrip(bool forward, int transforms, PPoint coordinate)
 {
 	PJ_COORD coord;

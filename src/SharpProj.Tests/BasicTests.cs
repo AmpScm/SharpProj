@@ -526,5 +526,20 @@ namespace SharpProj.Tests
             Assert.AreEqual(180.0, PJ.ToDeg(2.0 * PI / 2.0));
             Assert.AreEqual(270.0, PJ.ToDeg(3.0 * PI / 2.0));
         }
+
+        [TestMethod]
+        public void WalkAmersfoort()
+        {
+            using (var nlOfficial = CoordinateReferenceSystem.Create("EPSG:28992"))
+            using (var wgs84Mercator = CoordinateReferenceSystem.Create("EPSG:900913"))
+            using (var t = CoordinateTransform.Create(nlOfficial, wgs84Mercator))
+            {
+                for (double x = nlOfficial.UsageArea.MinX; x < nlOfficial.UsageArea.MaxX; x += 5000 /* Meter */)
+                    for (double y = nlOfficial.UsageArea.MinY; y < nlOfficial.UsageArea.MaxY; y += 5000 /* Meter */)
+                    {
+                        t.Apply(new PPoint(x, y));
+                    }
+            }
+        }
     }
 }

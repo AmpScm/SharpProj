@@ -17,8 +17,13 @@ namespace SharpProj {
 		ref class GeometricCRS;
 
 		ref class CoordinateSystem;
+		ref class UsageArea;
 	}
 
+	/// <summary>
+	/// A coordinate reference system (CRS) refers to the way in which spatial data that represent the earth’s surface (which is round / 3 dimensional) 
+	/// is represented in a mathematical 2 or 3 dimensional way.
+	/// </summary>
 	public ref class CoordinateReferenceSystem : ProjObject
 	{
 	private:
@@ -30,6 +35,7 @@ namespace SharpProj {
 		Proj::PrimeMeridian^ m_primeMeridian;
 		CoordinateReferenceSystem^ m_baseCrs;
 		CoordinateTransform^ m_distanceTransform;
+		WeakReference<Proj::UsageArea^>^ m_usageArea;
 		int m_axis;
 
 		~CoordinateReferenceSystem();
@@ -102,6 +108,27 @@ namespace SharpProj {
 		property CoordinateTransform^ DistanceTransform
 		{
 			CoordinateTransform^ get();
+		}
+
+		property Proj::UsageArea^ UsageArea
+		{
+			virtual Proj::UsageArea^ get() override
+			{
+				Proj::UsageArea^ t = nullptr;
+
+				if (m_usageArea && m_usageArea->TryGetTarget(t))
+					return t;
+				else
+				{
+					t = __super::UsageArea;
+					if (t)
+						m_usageArea = gcnew WeakReference<Proj::UsageArea^>(t);
+					else
+						m_usageArea = nullptr;
+
+					return t;
+				}
+			}
 		}
 
 	public:

@@ -445,6 +445,10 @@ namespace SharpProj {
 			return CoordinateTransform::Create(sourceCrs, targetCrs, (CoordinateTransformOptions^)nullptr, nullptr);
 		}
 
+		static CoordinateTransform^ Create(String^ from, [Optional] ProjContext^ ctx);
+		static CoordinateTransform^ Create(array<String^>^ definition, [Optional] ProjContext^ ctx);
+
+
 	public:
 		double RoundTrip(bool forward, int transforms, PPoint coordinate);
 		double RoundTrip(bool forward, int transforms, array<double>^ ordinates) { return RoundTrip(forward, transforms, PPoint(ordinates)); }
@@ -465,6 +469,23 @@ namespace SharpProj {
 		static double ToDeg(double rad)
 		{
 			return rad * _radToDeg; //return proj_todeg(rad); // Inlineable by .Net CLR
+		}
+
+		static double ApplyAccuracy(double value, double accuracy)
+		{
+			if (accuracy <= 0)
+				return value;
+
+			double acc = Math::Log10(accuracy);
+
+			if (acc <= 0)
+				return Math::Round(value, (int)-acc);
+			else
+			{
+				double f = Math::Pow(10, (int)acc);
+
+				return f * Math::Round(value / f);
+			}
 		}
 	};
 

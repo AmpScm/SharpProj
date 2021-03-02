@@ -102,6 +102,8 @@ namespace SharpProj {
 	public:
 		ProjObject^ Create(String^ definition);
 		ProjObject^ Create(...array<String^>^ from);
+		ProjObject^ CreateFromWellKnownText(String^ from);
+		ProjObject^ CreateFromWellKnownText(String^ from, [Out] array<String^>^% warnings);
 
 	internal:
 		ProjObject^ Create(PJ* pj);
