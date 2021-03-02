@@ -1,7 +1,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
   <metadata>
     <id>SharpProj.NetTopologySuite</id>
-    <version>7.2001.10</version>
+    <version>8.0000.0</version>
     <authors>SharpSvn</authors>
     <owners>SharpSvn</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -12,7 +12,7 @@
     <tags>NTS Topology PROJ CRS</tags>
     <dependencies>
       <group targetFramework="net45">
-        <dependency id="SharpProj.Core" version="[7.2001.10]" />
+        <dependency id="SharpProj.Core" version="[8.0000.0]" />
         <dependency id="NetTopologySuite" version="2.1.0" />
       </group>
     </dependencies>
