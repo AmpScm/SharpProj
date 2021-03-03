@@ -210,6 +210,16 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <_EmbedManagedResourceFile Include="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*">
+      <Visible>false</Visible>
+    </_EmbedManagedResourceFile>
+    <_EmbedManagedResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\proj.*" />
+    <_EmbedManagedResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\proj-*" />
+    <_EmbedManagedResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\proj4*" />
+    <_EmbedManagedResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\vcpkg*" />
+    <_EmbedManagedResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\copyright" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\packages\SharpSvn.AnnotateAssembly.0.25.2\build\SharpSvn.AnnotateAssembly.targets" Condition="Exists('..\..\packages\SharpSvn.AnnotateAssembly.0.25.2\build\SharpSvn.AnnotateAssembly.targets')" />

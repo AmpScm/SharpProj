@@ -99,7 +99,7 @@ CoordinateTransform^ CoordinateTransform::Create(CoordinateReferenceSystem^ sour
 
 	proj_operation_factory_context_set_grid_availability_use(
 		ctx, operation_ctx,
-		proj_context_is_network_enabled(ctx)
+		ctx->AllowNetworkConnections
 		? PROJ_GRID_AVAILABILITY_KNOWN_AVAILABLE
 		: (options->NoDiscardIfMissing
 			? PROJ_GRID_AVAILABILITY_USED_FOR_SORTING

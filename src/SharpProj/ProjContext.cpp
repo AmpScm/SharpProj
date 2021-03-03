@@ -7,6 +7,7 @@
 
 using namespace SharpProj;
 using namespace System::IO;
+using System::Collections::Generic::List;
 
 std::string utf8_string(String^ v)
 {
@@ -60,8 +61,7 @@ static const char* my_file_finder(PJ_CONTEXT* ctx, const char* file, void* user_
 	{
 		String^ origFile = Utf8_PtrToString(file);
 
-		String^ newFile;
-		pc->OnFindFile(origFile, newFile);
+		String^ newFile = pc->FindFile(origFile);
 
 		if (newFile && !origFile->Equals(newFile))
 			return pc->utf8_string(newFile);
@@ -164,6 +164,30 @@ Version^ ProjContext::EpsgVersion::get()
 	return nullptr;
 }
 
+ProjException^ ProjContext::CreateException(int err, String^ message, System::Exception^ inner)
+{
+	if (err >= PROJ_ERR_INVALID_OP && err < PROJ_ERR_COORD_TRANSFM)
+	{
+		if (inner)
+			return gcnew ProjOperationException(message, inner);
+		else
+			return gcnew ProjOperationException(message);
+	}
+	else if (err >= PROJ_ERR_COORD_TRANSFM && err < PROJ_ERR_OTHER)
+	{
+		if (inner)
+			return gcnew ProjTransformException(message, inner);
+		else
+			return gcnew ProjTransformException(message);
+	}
+	else
+	{
+		if (inner)
+			return gcnew ProjException(message, inner);
+		else
+			return gcnew ProjException(message);
+	}
+}
 
 Exception^ ProjContext::ConstructException()
 {
@@ -174,12 +198,12 @@ Exception^ ProjContext::ConstructException()
 	if (msg)
 	{
 		m_lastError = nullptr;
-		return gcnew ProjException(Utf8_PtrToString(proj_errno_string(err)),
-			gcnew ProjException(msg));
+		return CreateException(err, Utf8_PtrToString(proj_context_errno_string(this, err)),
+			CreateException(err, msg, nullptr));
 	}
 	else
 	{
-		return gcnew ProjException(Utf8_PtrToString(proj_errno_string(err)));
+		return CreateException(err, Utf8_PtrToString(proj_context_errno_string(this, err)), nullptr);
 	}
 }
 
@@ -199,50 +223,106 @@ String^ ProjContext::EnvCombine(String^ envVar, String^ file)
 	}
 }
 
-void ProjContext::OnFindFile(String^ file, [Out] String^% foundFile)
+bool ProjContext::CanWriteFromResource(String^ file, String^ resultFile)
+{
+	auto stream = ProjContext::typeid->Assembly->GetManifestResourceStream(file);
+
+	if (stream)
+	{
+		FileStream fs(resultFile, FileMode::CreateNew);
+		stream->CopyTo(%fs);
+
+		return true;
+	}
+
+	return false;
+}
+
+System::Collections::Generic::IEnumerable<String^>^ ProjContext::AssemblyDirs::get()
+{
+	if (!_assemblyDirs)
+	{
+		List<String^>^ dirs = gcnew List<String^>();
+
+		auto asb = ProjContext::typeid->Assembly;
+
+		if (asb && asb->Location)
+			dirs->Add(Path::GetDirectoryName(asb->Location));
+
+		try
+		{
+			if (asb && asb->CodeBase)
+			{
+				auto p = (gcnew System::Uri(asb->CodeBase))->LocalPath;
+
+				if (p)
+					p = Path::GetDirectoryName(p);
+
+				if (!dirs->Contains(p))
+					dirs->Add(p);
+			}
+		}
+		catch (Exception^)
+		{ /* Assembly security restrictions */
+		}
+
+		if (AppDomain::CurrentDomain->BaseDirectory && !dirs->Contains(AppDomain::CurrentDomain->BaseDirectory))
+			dirs->Add(AppDomain::CurrentDomain->BaseDirectory);
+
+
+		_assemblyDirs = dirs->ToArray();
+	}
+
+	return static_cast<System::Collections::Generic::IEnumerable<String^>^>(_assemblyDirs);
+}
+
+String^ ProjContext::FindFile(String^ file)
 {
 	String^ testFile;
+
+	for each (String ^ dir in AssemblyDirs)
+	{
+		if (File::Exists(testFile = Path::Combine(dir, file)))
+			return testFile;
+	}
+
+	if (File::Exists(testFile = EnvCombine("PROJ_LIB", file)))
+		return testFile;
+
 	const char* pUserDir = proj_context_get_user_writable_directory(this, false);
 	String^ userDir = Utf8_PtrToString(pUserDir);
 
 	if (File::Exists(testFile = Path::Combine(userDir, file)))
-		foundFile = Path::GetFullPath(testFile);
-	else if (File::Exists(testFile = EnvCombine("PROJ_LIB", file)))
-		foundFile = Path::GetFullPath(testFile);
-	else if (File::Exists(testFile = Path::Combine(userDir, ("proj" PROJ_VERSION "-") + file)))
-		foundFile = Path::GetFullPath(testFile);
-	else if (File::Exists(file))
-		foundFile = Path::GetFullPath(file);
-	else if (File::Exists(file = Path::Combine("..", file)))
-		foundFile = Path::GetFullPath(file);
-	else if (proj_context_is_network_enabled(this))
+		return testFile;
+	else if (File::Exists(testFile = Path::Combine(userDir, ("proj" "-" PROJ_VERSION "-") + file)))
+		return testFile;
+	else if (CanWriteFromResource(file, testFile /* = Path::Combine(userDir, ("proj" "-" PROJ_VERSION "-") + file)*/))
+		return testFile;
+	else if (file == "proj.db" && AllowNetworkConnections)
 	{
-		testFile = testFile = Path::Combine(userDir, ("proj" PROJ_VERSION "-") + file);
+		testFile = Path::Combine(userDir, ("proj" PROJ_VERSION "-") + file);
 		try
 		{
 			DownloadProjDB(testFile);
 		}
 		catch (IOException^)
 		{
-			foundFile = nullptr;
-			return;
+			return nullptr;
 		}
 		catch (System::Net::WebException^)
 		{
-			foundFile = nullptr;
-			return;
+			return nullptr;
 		}
 		catch (InvalidOperationException^)
 		{
-			foundFile = nullptr;
-			return;
+			return nullptr;
 		}
 
 		if (File::Exists(testFile))
-			foundFile = Path::GetFullPath(testFile);
+			return testFile;
 	}
-	else
-		foundFile = nullptr;
+
+	return nullptr;
 }
 
 void ProjContext::OnLogMessage(ProjLogLevel level, String^ message)

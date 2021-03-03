@@ -49,7 +49,7 @@ PPoint ChooseCoordinateTransform::DoTransform(bool forward, PPoint% coordinate)
 		c->Context->ClearError(c);
 		PJ_COORD res = proj_trans(c, dir, coord);
 
-		if (proj_errno(c) == -62 /*PJD_ERR_NETWORK_ERROR*/) 
+		if (proj_errno(c) == PROJ_ERR_OTHER_NETWORK_ERROR)
 		{
 			throw c->Context->ConstructException();
 		}

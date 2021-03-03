@@ -9,9 +9,21 @@ namespace SharpProj {
 	public value class PPoint : IEquatable<PPoint>
 	{
 	public:
+		/// <summary>
+		/// First ordinate of point
+		/// </summary>
 		double X;
+		/// <summary>
+		/// Second ordinate of point
+		/// </summary>
 		double Y;
+		/// <summary>
+		/// Third ordinate of point
+		/// </summary>
 		double Z;
+		/// <summary>
+		/// Time component of point
+		/// </summary>
 		double T;
 	private:
 		Byte m_axis;

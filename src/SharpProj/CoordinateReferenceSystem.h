@@ -52,7 +52,15 @@ namespace SharpProj {
 		{
 			bool get()
 			{
-				return proj_is_deprecated(this);
+				return proj_is_deprecated(this) != 0;
+			}
+		}
+
+		property bool IsDerived
+		{
+			bool get()
+			{
+				return proj_crs_is_derived(Context, this) != 0;
 			}
 		}
 

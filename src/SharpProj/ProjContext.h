@@ -3,6 +3,7 @@
 using namespace System;
 
 namespace SharpProj {
+	ref class ProjException;
 	namespace Proj {
 		ref class ProjObject;
 	}
@@ -95,8 +96,16 @@ namespace SharpProj {
 			proj_grid_cache_clear(this);
 		}
 
+	private:
+		static array<String^>^ _assemblyDirs;
+		bool CanWriteFromResource(String^ file, String^ userDir);
+		property System::Collections::Generic::IEnumerable<String^>^ AssemblyDirs
+		{
+			System::Collections::Generic::IEnumerable<String^>^ get();
+		}
+
 	protected public:
-		void OnFindFile(String^ file, [Out] String^% foundFile);
+		String^ FindFile(String^ file);
 		void OnLogMessage(ProjLogLevel level, String^ message);
 
 	public:
@@ -179,5 +188,6 @@ namespace SharpProj {
 		}
 
 		System::Exception^ ConstructException();
+		ProjException^ CreateException(int err, String^ message, System::Exception^ inner);
 	};
 }
