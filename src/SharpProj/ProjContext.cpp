@@ -149,20 +149,40 @@ String^ ProjContext::GetMetaData(String^ key)
 
 	return Utf8_PtrToString(v);
 }
+
 Version^ ProjContext::EpsgVersion::get()
 {
-	try
-	{
-		String^ md = GetMetaData("EPSG.VERSION");
+	String^ md = GetMetaData("EPSG.VERSION");
+	System::Version^ v = nullptr;
 
-		if (md->StartsWith("v"))
-			return gcnew System::Version(md->Substring(1));
-	}
-	catch (ArgumentException^)
-	{
-	}
-	return nullptr;
+	if (md->StartsWith("v") && System::Version::TryParse(md->Substring(1), v))
+		return v;
+	else
+		return nullptr;
 }
+
+Version^ ProjContext::EsriVersion::get()
+{
+	String^ md = GetMetaData("ESRI.VERSION");
+	System::Version^ v = nullptr;
+
+	if (md->StartsWith("ArcMap") && System::Version::TryParse(md->Substring(6)->Trim(), v))
+		return v;
+	else
+		return nullptr;
+}
+
+Version^ ProjContext::IgnfVersion::get()
+{
+	String^ md = GetMetaData("IGNF.VERSION");
+	System::Version^ v = nullptr;
+
+	if (md && System::Version::TryParse(md, v))
+		return v;
+	else
+		return nullptr;
+}
+
 
 ProjException^ ProjContext::CreateException(int err, String^ message, System::Exception^ inner)
 {

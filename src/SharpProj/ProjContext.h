@@ -165,6 +165,18 @@ namespace SharpProj {
 			System::Version ^ get();
 		}
 
+		/// <summary>ESRI Version. As stored in Proj Database</summary>
+		property System::Version^ EsriVersion
+		{
+			System::Version^ get();
+		}
+
+		/// <summary>IGNF Version. As stored in Proj Database</summary>
+		property System::Version^ IgnfVersion
+		{
+			System::Version^ get();
+		}
+
 	protected:
 		virtual void OnLog(ProjLogLevel level, String^ message)
 		{

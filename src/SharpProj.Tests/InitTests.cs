@@ -19,8 +19,8 @@ namespace SharpProj.Tests
             // If it is used from the embedded resources, it will be installed as '$userdir/proj-<projversion>-ITRF2000'
             // and from then on used from there
 
-            using(var pc = new ProjContext())
-                using(var p = pc.Create("+init=ITRF2000:ITRF2005 +t_obs=2010.5"))
+            using (var pc = new ProjContext())
+            using (var p = pc.Create("+init=ITRF2000:ITRF2005 +t_obs=2010.5"))
             {
 
                 Assert.IsInstanceOfType(p, typeof(CoordinateTransform));

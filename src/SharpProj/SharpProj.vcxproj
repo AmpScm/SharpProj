@@ -103,6 +103,8 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\..\vcpkg\installed\x86-windows-static-md\include</AdditionalIncludeDirectories>
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies />
@@ -117,6 +119,8 @@
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\..\vcpkg\installed\x64-windows-static-md\include</AdditionalIncludeDirectories>
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies />
@@ -132,6 +136,8 @@
       <AdditionalIncludeDirectories>..\..\..\vcpkg\installed\x86-windows-static-md\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies />
@@ -146,6 +152,8 @@
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\..\vcpkg\installed\x64-windows-static-md\include</AdditionalIncludeDirectories>
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies />
@@ -219,6 +227,8 @@
     <_EmbedManagedResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\proj4*" />
     <_EmbedManagedResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\vcpkg*" />
     <_EmbedManagedResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\copyright" />
+    <_EmbedManagedResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*.json" />
+    <_EmbedManagedResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*.lst" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

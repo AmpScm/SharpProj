@@ -77,13 +77,15 @@ static PROJ_NETWORK_HANDLE* my_network_open(
 	if (hrp && hrp->StatusCode == HttpStatusCode::PartialContent)
 	{
 		System::IO::Stream^ s = hrp->GetResponseStream();
-		array<unsigned char>^ buf = gcnew array<unsigned char>(size_to_read);
 
-		int r = s->Read(buf, 0, size_to_read);
+		int to_read = (int)Math::Min((long long)size_to_read, (long long)int::MaxValue);
+		array<unsigned char>^ buf = gcnew array<unsigned char>(to_read);
 
-		while (r > 0 && r < size_to_read)
+		int r = s->Read(buf, 0, to_read);
+
+		while (r > 0 && r < to_read)
 		{
-			int n = s->Read(buf, r, size_to_read - r);
+			int n = s->Read(buf, r, to_read - r);
 
 			if (n > 0)
 				r += n;
@@ -207,13 +209,15 @@ size_t my_network_read_range(
 	{
 		d->rp = rp;
 		System::IO::Stream^ s = hrp->GetResponseStream();
-		array<unsigned char>^ buf = gcnew array<unsigned char>(size_to_read);
 
-		int r = s->Read(buf, 0, size_to_read);
+		int to_read = (int)Math::Min((long long)size_to_read, (long long)int::MaxValue);
+		array<unsigned char>^ buf = gcnew array<unsigned char>(to_read);
 
-		while (r > 0 && r < size_to_read)
+		int r = s->Read(buf, 0, to_read);
+
+		while (r > 0 && r < to_read)
 		{
-			int n = s->Read(buf, r, size_to_read - r);
+			int n = s->Read(buf, r, to_read - r);
 
 			if (n > 0)
 				r += n;
