@@ -1,7 +1,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
   <metadata>
     <id>SharpProj.Core</id>
-    <version>8.0000.0</version>
+    <version>8.0000.1</version>
     <authors>SharpSvn</authors>
     <owners>SharpSvn</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -12,6 +12,7 @@
     and the wrapping. As Such SharProj 7.2001.3 is based on PROJ 7.2.1 (7.2001) and is SharpProj build 3 for
     this version.
     Please use the SharpProj nuget package unless you explicitly want to ignore the database.</description>
+    <repository type="git" url="https://github.com/ampscm/SharpProj.git" branch="main" />
   </metadata>
   <files>
     <file src="..\src\SharpProj\bin\Win32_release\SharpProj.dll" target="runtimes/win-x86/lib/net45" />
