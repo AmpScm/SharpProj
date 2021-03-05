@@ -321,95 +321,88 @@ namespace SharpProj.NTS
             }
         }
 
-        static readonly Func<Geometry, GeometryFactory, Func<CoordinateSequence, CoordinateSequence>, Geometry> GenericTransform =
-                            (s, f, t) => new MyGeometryTransformer(t).Transform(s, f);
+        //static readonly Func<Geometry, GeometryFactory, Func<CoordinateSequence, CoordinateSequence>, Geometry> GenericTransform =
+        //                    (s, f, t) => new MyGeometryTransformer(t).Transform(s, f);
 
-        /// <summary>
-        /// Allows registering custom geometries in a reprojectable way
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="reproject"></param>
-        public static void AddReproject<T>(Func<T, Func<CoordinateSequence, CoordinateSequence>, GeometryFactory, T> reproject)
-        {
-            lock (_reprojects)
-            {
-                if (_reprojects.Count == 0)
-                    _reprojects.Add(typeof(Geometry), GenericTransform);
-                else if (_reprojects.ContainsKey(typeof(T)))
-                    throw new ArgumentOutOfRangeException();
+        ///// <summary>
+        ///// Allows registering custom geometries in a reprojectable way
+        ///// </summary>
+        ///// <typeparam name="T"></typeparam>
+        ///// <param name="reproject"></param>
+        //public static void AddReproject<T>(Func<T, Func<CoordinateSequence, CoordinateSequence>, GeometryFactory, T> reproject)
+        //{
+        //    lock (_reprojects)
+        //    {
+        //        if (_reprojects.Count == 0)
+        //            _reprojects.Add(typeof(Geometry), GenericTransform);
+        //        else if (_reprojects.ContainsKey(typeof(T)))
+        //            throw new ArgumentOutOfRangeException();
 
-                _reprojects.Add(typeof(T), reproject);
-            }
-        }
+        //        _reprojects.Add(typeof(T), reproject);
+        //    }
+        //}
 
-        sealed class MyGeometryTransformer : Utils.NTSAdditions.GeometryTransformer
-        {
-            readonly Func<CoordinateSequence, CoordinateSequence> _transform;
+        //sealed class MyGeometryTransformer : Utils.NTSAdditions.GeometryTransformer
+        //{
+        //    readonly Func<CoordinateSequence, CoordinateSequence> _transform;
 
-            public MyGeometryTransformer(Func<CoordinateSequence, CoordinateSequence> transform)
-            {
-                _transform = transform;
-            }
+        //    public MyGeometryTransformer(Func<CoordinateSequence, CoordinateSequence> transform)
+        //    {
+        //        _transform = transform;
+        //    }
 
-            protected override CoordinateSequence TransformCoordinates(CoordinateSequence coords, Geometry parent)
-            {
-                return _transform(coords);
-            }
-        }
+        //    protected override CoordinateSequence TransformCoordinates(CoordinateSequence coords, Geometry parent)
+        //    {
+        //        return _transform(coords);
+        //    }
+        //}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source"></param>
-        /// <param name="toFactory"></param>
-        /// <param name="coordinateTransform"></param>
-        /// <returns></returns>
-        public static T ReProject<T>(T source, GeometryFactory toFactory, Func<CoordinateSequence, CoordinateSequence> coordinateTransform)
-            where T : Geometry
-        {
-            if (source is null)
-                throw new ArgumentNullException(nameof(source));
-            else if (toFactory is null)
-                throw new ArgumentNullException(nameof(toFactory));
-            else if (coordinateTransform is null)
-                throw new ArgumentNullException(nameof(coordinateTransform));
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <typeparam name="T"></typeparam>
+        ///// <param name="source"></param>
+        ///// <param name="toFactory"></param>
+        ///// <param name="coordinateTransform"></param>
+        ///// <returns></returns>
+        //public static T ReProject<T>(T source, GeometryFactory toFactory, Func<CoordinateSequence, CoordinateSequence> coordinateTransform)
+        //    where T : Geometry
+        //{
+        //    Type t = source.GetType();
+        //    Delegate dlg = null;
 
-            Type t = source.GetType();
-            Delegate dlg = null;
+        //    lock (_reprojects)
+        //    {
+        //        while (true)
+        //        {
+        //            if (_reprojects.TryGetValue(t, out dlg))
+        //                break;
 
-            lock (_reprojects)
-            {
-                while (true)
-                {
-                    if (_reprojects.TryGetValue(t, out dlg))
-                        break;
+        //            if (t == typeof(Geometry))
+        //                break;
 
-                    if (t == typeof(Geometry))
-                        break;
+        //            t = t.BaseType;
+        //        }
+        //    }
 
-                    t = t.BaseType;
-                }
-            }
+        //    if (dlg == null)
+        //        return (T)GenericTransform(source, toFactory, coordinateTransform);
 
-            if (dlg == null)
-                return (T)GenericTransform(source, toFactory, coordinateTransform);
+        //    // Two cases where we can handle things nicer than the dynamic invoke below
+        //    if (typeof(T) == t)
+        //    {
+        //        var f = (Func<T, GeometryFactory, Func<CoordinateSequence, CoordinateSequence>, T>)dlg;
 
-            // Two cases where we can handle things nicer than the dynamic invoke below
-            if (typeof(T) == t)
-            {
-                var f = (Func<T, GeometryFactory, Func<CoordinateSequence, CoordinateSequence>, T>)dlg;
+        //        return f(source, toFactory, coordinateTransform);
+        //    }
+        //    else if (typeof(Geometry) == t)
+        //    {
+        //        var f = (Func<Geometry, GeometryFactory, Func<CoordinateSequence, CoordinateSequence>, Geometry>)dlg ?? GenericTransform;
 
-                return f(source, toFactory, coordinateTransform);
-            }
-            else if (typeof(Geometry) == t)
-            {
-                var f = (Func<Geometry, GeometryFactory, Func<CoordinateSequence, CoordinateSequence>, Geometry>)dlg ?? GenericTransform;
+        //        return (T)f(source, toFactory, coordinateTransform);
+        //    }
 
-                return (T)f(source, toFactory, coordinateTransform);
-            }
-
-            return (T)dlg.DynamicInvoke(source, toFactory, coordinateTransform);
-        }
+        //    return (T)dlg.DynamicInvoke(source, toFactory, coordinateTransform);
+        //}
     }
 }

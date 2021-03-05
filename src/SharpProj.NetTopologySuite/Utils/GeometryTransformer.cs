@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using NetTopologySuite.Geometries;
 
@@ -7,6 +7,7 @@ namespace SharpProj.Utils.NTSAdditions
     /// <summary>
     /// 
     /// </summary>
+    [Obsolete("Use ReProjectFilter w/ Geometry.Apply")]
     public class GeometryTransformer : global::NetTopologySuite.Geometries.Utilities.GeometryTransformer
     {
         /// <summary>
