@@ -343,10 +343,13 @@ namespace SharpProj.Tests
         {
             using (var c = new ProjContext())
             {
-                using (var wgs84 = CoordinateReferenceSystem.Create("EPSG:4326", c))
+                c.AllowNetworkConnections = true;
+                c.LogLevel = ProjLogLevel.Trace;
+                c.Log += (_, m) => Debug.WriteLine(m);
+                using (var wgs84 = CoordinateReferenceSystem.CreateFromDatabase("EPSG", "4326", c))
                 using (var google = CoordinateReferenceSystem.Create("EPSG:3857", c))
-                using (var q1 = CoordinateReferenceSystem.Create("EPSG:23030"))
-                using (var q2 = CoordinateReferenceSystem.Create("EPSG:2062"))
+                using (var q1 = CoordinateReferenceSystem.Create("EPSG:23030", c))
+                using (var q2 = CoordinateReferenceSystem.Create("EPSG:2062", c))
                 {
                     Assert.AreEqual("Engineering survey, topographic mapping.", q1.Scope);
                     Assert.AreEqual("Engineering survey, topographic mapping.", q2.Scope);
@@ -411,7 +414,7 @@ namespace SharpProj.Tests
                         CoordinateTransform t;
                         try
                         {
-                            t = CoordinateTransform.Create(wgs84, crs, new CoordinateTransformOptions { NoBallparkConversions = false });
+                            t = CoordinateTransform.Create(crs, wgs84, new CoordinateTransformOptions { NoBallparkConversions = false });
                         }
                         catch (ProjException)
                         {
@@ -425,20 +428,20 @@ namespace SharpProj.Tests
                         {
                             var a = crs.UsageArea;
 
-                            double[] center;
+                            PPoint center;
                             try
                             {
-                                center = t.Apply((a.EastLongitude + a.WestLongitude) / 2, (a.NorthLatitude + a.SouthLatitude) / 2);
+                                center = t.Apply(new PPoint((a.MinX + a.MaxX) / 2.0, (a.MinX + a.MaxY) / 2.0));
                             }
                             catch (ProjException)
                             {
-                                center = null;
+                                center = new PPoint();
                             }
 
 
-                            if (center != null && t.HasInverse && !(t is ChooseCoordinateTransform))
+                            if (center.HasValues && t.HasInverse && !(t is ChooseCoordinateTransform))
                             {
-                                double[] ret = t.ApplyReversed(center);
+                                PPoint ret = t.ApplyReversed(center);
                             }
                         }
                     }

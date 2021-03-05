@@ -179,6 +179,33 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(array<String^>^ fro
 	}
 }
 
+CoordinateReferenceSystem^ CoordinateReferenceSystem::CreateFromDatabase(String^ authority, String^ code, [Optional] ProjContext^ ctx)
+{
+	if (String::IsNullOrWhiteSpace(authority))
+		throw gcnew ArgumentNullException("authority");
+	else if (String::IsNullOrWhiteSpace(code))
+		throw gcnew ArgumentNullException("code");
+
+	if (!ctx)
+		ctx = gcnew ProjContext();
+
+	std::string authStr = utf8_string(authority);
+	std::string codeStr = utf8_string(code);
+	PJ* pj = proj_create_from_database(ctx, authStr.c_str(), codeStr.c_str(), PJ_CATEGORY_CRS, false, nullptr);
+
+	if (pj)
+		return ctx->Create<CoordinateReferenceSystem^>(pj);
+
+	try
+	{
+		throw ctx->ConstructException();
+	}
+	finally
+	{
+		delete ctx;
+	}
+}
+
 Proj::GeodeticCRS^ CoordinateReferenceSystem::GeodeticCRS::get()
 {
 	if (!m_geodCRS && this)

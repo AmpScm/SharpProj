@@ -107,7 +107,9 @@ ProjContext::ProjContext()
 		SetupNetworkHandling();
 
 		if (EnableNetworkConnectionsOnNewContexts)
+		{
 			AllowNetworkConnections = true;
+		}
 	}
 }
 

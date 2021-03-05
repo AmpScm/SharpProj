@@ -61,6 +61,14 @@ namespace SharpProj {
 			void set(bool value)
 			{
 				proj_context_set_enable_network(this, value);
+
+				if (value)
+				{
+					const char* c = proj_context_get_url_endpoint(m_ctx);
+
+					if (!c || !*c)
+						proj_context_set_url_endpoint(m_ctx, "https://cdn.proj.org");
+				}
 			}
 		}
 

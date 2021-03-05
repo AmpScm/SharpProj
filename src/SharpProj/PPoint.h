@@ -167,7 +167,7 @@ namespace SharpProj {
 		}
 
 	public:
-		static operator array<double> ^ (PPoint v)
+		static explicit operator array<double> ^ (PPoint v)
 		{
 			return v.ToArray();
 		}
