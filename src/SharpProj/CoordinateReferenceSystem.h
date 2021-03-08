@@ -3,6 +3,7 @@
 
 namespace SharpProj {
 	using System::Collections::ObjectModel::ReadOnlyCollection;
+	using System::Collections::Generic::List;
 	ref class CoordinateTransform;
 
 	namespace Proj
@@ -18,6 +19,101 @@ namespace SharpProj {
 
 		ref class CoordinateSystem;
 		ref class UsageArea;
+
+		public ref class CoordinateReferenceSystemInfo
+		{
+			initonly ProjContext^ _ctx;
+			initonly String^ _authName;
+			initonly String^ _code;
+			initonly ProjType _type;
+			initonly bool _deprecated;
+			initonly String^ _areaName;
+			initonly String^ _projectionName;
+
+		internal:
+			CoordinateReferenceSystemInfo(const PROJ_CRS_INFO* info, ProjContext^ ctx)
+			{
+				_ctx = ctx;
+				_authName = Utf8_PtrToString(info->auth_name);
+				_code = Utf8_PtrToString(info->code);
+				_type = (ProjType)info->type;
+				_deprecated = (0 != info->deprecated);
+				_areaName = Utf8_PtrToString(info->area_name);
+				_projectionName = Utf8_PtrToString(info->projection_method_name);
+			}
+
+		public:
+			property String^ Authority
+			{
+				String^ get()
+				{
+					return _authName;
+				}
+			}
+			property String^ Code
+			{
+				String^ get()
+				{
+					return _code;
+				}
+			}
+
+			property ProjType Type
+			{
+				ProjType get()
+				{
+					return _type;
+				}
+			}
+
+			property bool IsDeprecated
+			{
+				bool get()
+				{
+					return _deprecated;
+				}
+			}
+
+			property String^ AreaName
+			{
+				String^ get()
+				{
+					return _areaName;
+				}
+			}
+			property String^ ProjectionName
+			{
+				String^ get()
+				{
+					return _projectionName;
+				}
+			}
+
+			CoordinateReferenceSystem^ Create([Optional] ProjContext^ ctx);
+		};
+
+		public ref class CoordinateReferenceSystemFilter
+		{
+			initonly List<ProjType>^ _types;
+
+		public:
+			CoordinateReferenceSystemFilter()
+			{
+				_types = gcnew List<ProjType>();
+			}
+
+			property String^ Authority;
+			property List<ProjType>^ Types
+			{
+				List<ProjType>^ get()
+				{
+					return _types;
+				}
+			}
+
+			property bool AllowDeprecated;
+
+		};
 	}
 
 	/// <summary>

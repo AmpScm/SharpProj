@@ -92,10 +92,10 @@ CoordinateTransform^ CoordinateTransform::Create(CoordinateReferenceSystem^ sour
 	}
 
 	proj_operation_factory_context_set_spatial_criterion(
-			ctx, operation_ctx,
-			(options && options->StrictContains)
-			? PROJ_SPATIAL_CRITERION_STRICT_CONTAINMENT
-			: PROJ_SPATIAL_CRITERION_PARTIAL_INTERSECTION);
+		ctx, operation_ctx,
+		(options && options->StrictContains)
+		? PROJ_SPATIAL_CRITERION_STRICT_CONTAINMENT
+		: PROJ_SPATIAL_CRITERION_PARTIAL_INTERSECTION);
 
 	proj_operation_factory_context_set_grid_availability_use(
 		ctx, operation_ctx,
@@ -126,7 +126,7 @@ CoordinateTransform^ CoordinateTransform::Create(CoordinateReferenceSystem^ sour
 	proj_operation_factory_context_destroy(operation_ctx);
 
 	if (!op_list) {
-		return nullptr;
+		throw gcnew ProjException("Failed to obtain operations");
 	}
 
 	auto op_count = proj_list_get_count(op_list);
@@ -175,6 +175,33 @@ CoordinateTransform^ CoordinateTransform::Create(array<String^>^ definition, Pro
 	throw gcnew ProjException("Proj Object is no CoordinateTransform");
 }
 
+CoordinateTransform^ CoordinateTransform::CreateFromDatabase(String^ authority, String^ code, ProjContext^ ctx)
+{
+	if (String::IsNullOrWhiteSpace(authority))
+		throw gcnew ArgumentNullException("authority");
+	else if (String::IsNullOrWhiteSpace(code))
+		throw gcnew ArgumentNullException("code");
+
+	if (!ctx)
+		ctx = gcnew ProjContext();
+
+	std::string authStr = utf8_string(authority);
+	std::string codeStr = utf8_string(code);
+	PJ* pj = proj_create_from_database(ctx, authStr.c_str(), codeStr.c_str(), PJ_CATEGORY_COORDINATE_OPERATION, false, nullptr);
+
+	if (pj)
+		return ctx->Create<CoordinateTransform^>(pj);
+
+	try
+	{
+		throw ctx->ConstructException();
+	}
+	finally
+	{
+		delete ctx;
+	}
+}
+
 
 double CoordinateTransform::RoundTrip(bool forward, int transforms, PPoint coordinate)
 {
@@ -205,6 +232,44 @@ PPoint CoordinateTransform::DoTransform(bool forward, PPoint% coordinate)
 		throw Context->ConstructException();
 
 	return FromCoordinate(coord, forward);
+}
+
+void CoordinateTransform::ApplyGeneric(array<double>^ xVals, int xOffset, int xStep,
+	array<double>^ yVals, int yOffset, int yStep,
+	array<double>^ zVals, int zOffset, int zStep,
+	array<double>^ tVals, int tOffset, int tStep,
+	int count)
+{
+	if (!xVals || !yVals || !zVals || !tVals)
+		throw gcnew ArgumentNullException();
+	else if (xOffset < 0 || yOffset < 0 || zOffset < 0 || tOffset < 0)
+		throw gcnew ArgumentOutOfRangeException();
+	else if (xStep < 0 || yStep < 0 || zStep < 0 || tStep < 0)
+		throw gcnew ArgumentOutOfRangeException();
+
+	pin_ptr<double> pX = &xVals[0];
+	pin_ptr<double> pY = &yVals[0];
+	pin_ptr<double> pZ = &zVals[0];
+	pin_ptr<double> pT = &tVals[0];
+
+	int xCount = xVals->Length ? count : 0;
+	int yCount = yVals->Length ? count : 0;
+	int zCount = zVals->Length ? count : 0;
+	int tCount = tVals->Length ? count : 0;
+
+	if ((xCount * xStep + xOffset >= xVals->Length)
+		|| (yCount * yStep + yOffset >= yVals->Length)
+		|| (zCount * zStep + zOffset >= zVals->Length)
+		|| (tCount * tStep + tOffset >= tVals->Length))
+	{
+		throw gcnew InvalidOperationException();
+	}
+
+	proj_trans_generic(this, PJ_FWD,
+		pX + xOffset, xStep, count,
+		pY + yOffset, yStep, count,
+		pZ + zOffset, zStep, zCount,
+		pT + tOffset, tStep, tCount);
 }
 
 PPoint CoordinateTransform::FromCoordinate(const PJ_COORD& coord, bool forward)

@@ -49,6 +49,9 @@ namespace SharpProj {
 					return m_unit_name;
 				}
 			}
+
+		public:
+			static PrimeMeridian^ CreateFromDatabase(String^ authority, String^ code, [Optional] ProjContext^ ctx);
 		};
 	}
 }

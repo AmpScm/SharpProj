@@ -14,6 +14,7 @@ namespace SharpProj {
             }
 
         public:
+            static Datum^ CreateFromDatabase(String^ authority, String^ code, [Optional] ProjContext^ ctx);
         };
     }
 }

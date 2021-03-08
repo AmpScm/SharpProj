@@ -547,5 +547,29 @@ namespace SharpProj.Tests
                     }
             }
         }
+
+        [TestMethod]
+        public void TestNLTransform()
+        {
+            using (ProjContext pc = new ProjContext())
+            {
+                pc.AllowNetworkConnections = true;
+                using (var epsg7000 = CoordinateTransform.CreateFromDatabase("EPSG", "7000", pc))
+                using (var epsg1112 = CoordinateTransform.CreateFromDatabase("EPSG", "1112", pc))
+                {
+                    Console.WriteLine(epsg7000.SourceCRS?.ToString());
+                    Console.WriteLine(epsg7000.TargetCRS?.ToString());
+                    Console.WriteLine(epsg1112.SourceCRS?.ToString());
+                    Console.WriteLine(epsg1112.TargetCRS?.ToString());
+                }
+
+                foreach(var p in pc.GetCoordinateReferenceSystems())
+                {
+                    Assert.IsNotNull(p.Authority);
+                    Assert.IsNotNull(p.Code);
+                    Console.WriteLine($"{p.Authority}:{p.Code} ({p.Type}) / {p.ProjectionName}");
+                }
+            }
+        }
     }
 }

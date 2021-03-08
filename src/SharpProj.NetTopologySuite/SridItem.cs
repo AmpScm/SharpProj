@@ -80,7 +80,18 @@ namespace SharpProj.NTS
             SRID = srid;
             CRS = crs;
 
-            _factory = new Lazy<GeometryFactory>(() => NtsGeometryServices.Instance.CreateGeometryFactory(srid));
+            _factory = new Lazy<GeometryFactory>(() => NtsGeometryServices.CreateGeometryFactory(srid));
+        }
+
+        static NtsGeometryServices _ntsGeometryServices;
+
+        /// <summary>
+        /// The NTS Geometry servic to create new Geometry factories
+        /// </summary>
+        public static NtsGeometryServices NtsGeometryServices
+        {
+            get { return _ntsGeometryServices ?? NtsGeometryServices.Instance; }
+            set { _ntsGeometryServices = value; }
         }
 
         /// <summary>

@@ -4,8 +4,11 @@ using namespace System;
 
 namespace SharpProj {
 	ref class ProjException;
+	ref class CoordinateReferenceSystem;
 	namespace Proj {
 		ref class ProjObject;
+		ref class CoordinateReferenceSystemFilter;
+		ref class CoordinateReferenceSystemInfo;
 	}
 
 	public enum class ProjLogLevel
@@ -184,6 +187,14 @@ namespace SharpProj {
 		{
 			System::Version^ get();
 		}
+
+		/// <summary>
+		/// Gets all <see cref="CoordinateReferenceSystem"/>s matching the filter
+		/// </summary>
+		/// <param name="filter"></param>
+		/// <returns></returns>
+		System::Collections::ObjectModel::ReadOnlyCollection<CoordinateReferenceSystemInfo^>^ GetCoordinateReferenceSystems(CoordinateReferenceSystemFilter^ filter);
+		System::Collections::ObjectModel::ReadOnlyCollection<CoordinateReferenceSystemInfo^>^ GetCoordinateReferenceSystems();
 
 	protected:
 		virtual void OnLog(ProjLogLevel level, String^ message)

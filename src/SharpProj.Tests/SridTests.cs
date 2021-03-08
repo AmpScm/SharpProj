@@ -2,6 +2,7 @@
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries.Implementation;
 using SharpProj.NTS;
 using SharpProj.Testing;
 
@@ -51,7 +52,8 @@ namespace SharpProj.Tests
             Assert.AreEqual((int)Epsg.BelgiumLambert, pp.SRID);
             Assert.AreEqual(new Point(719706, 816781), new Point(pp.Coordinate.RoundAll(0)));
 
-            using (CoordinateTransform t = CoordinateTransform.Create(SridRegister.GetByValue(p.SRID), SridRegister.GetById(Epsg.BelgiumLambert), new CoordinateTransformOptions { NoBallparkConversions = true }))
+            using(var pc = new ProjContext())
+            using (CoordinateTransform t = CoordinateTransform.Create(SridRegister.GetByValue(p.SRID), SridRegister.GetById(Epsg.BelgiumLambert), new CoordinateTransformOptions { NoBallparkConversions = true }, pc))
             {
                 if (t is CoordinateTransformList mc)
                 {
@@ -126,6 +128,26 @@ namespace SharpProj.Tests
             Assert.AreEqual(4330957964.64, Math.Round(srid.CRS.DistanceTransform.GeoArea(t3.Coordinates), 2));
 
             Assert.AreEqual(4330957964.64, Math.Round(t3.MeterArea().Value, 2)); // Not using backing data yet
+        }
+
+        [TestMethod]
+        public void ReprojectViaSequence()
+        {
+            PPoint amersfoortRD = new PPoint(155000, 463000);
+
+            var srid = SridRegister.GetById(Epsg.Netherlands);
+            var t = CreateTriangle(srid.Factory, amersfoortRD.Offset(-50000, 0).ToCoordinate(), 5000);
+
+            CoordinateSequence cs = srid.Factory.CoordinateSequenceFactory.Create(t.Coordinates);
+            CoordinateSequence pcs = new PackedCoordinateSequenceFactory().Create(t.Coordinates);
+
+            var packedFactory = new GeometryFactory(srid.Factory.PrecisionModel, srid.Factory.SRID, new PackedCoordinateSequenceFactory());
+
+            Polygon p_cs = srid.Factory.CreatePolygon(cs);
+            Polygon p_pcs = packedFactory.CreatePolygon(pcs);
+
+            Assert.IsNotNull(p_cs.Reproject(SridRegister.GetById(Epsg.BelgiumLambert)));
+            Assert.IsNotNull(p_pcs.Reproject(SridRegister.GetById(Epsg.BelgiumLambert)));
         }
     }
 }

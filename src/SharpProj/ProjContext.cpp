@@ -233,7 +233,12 @@ String^ ProjContext::EnvCombine(String^ envVar, String^ file)
 {
 	try
 	{
-		return Path::GetFullPath(Path::Combine(Environment::GetEnvironmentVariable("PROJ_LIB"), file));
+		String^ ev = Environment::GetEnvironmentVariable("PROJ_LIB");
+
+		if (String::IsNullOrEmpty(ev))
+			return file;
+
+		return Path::GetFullPath(Path::Combine(ev, file));
 	}
 	catch(IOException^)
 	{

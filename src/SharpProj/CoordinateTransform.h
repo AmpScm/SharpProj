@@ -248,6 +248,12 @@ namespace SharpProj {
 		PPoint ApplyReversed(PPoint coord) { return DoTransform(false, coord); }
 		array<double>^ ApplyReversed(...array<double>^ ordinates) { return DoTransform(false, PPoint(ordinates)).ToArray(); }
 
+
+		void ApplyGeneric(array<double>^ xVals, int xOffset, int xStep,
+						  array<double>^ yVals, int yOffset, int yStep,
+						  array<double>^ zVals, int zOffset, int zStep,
+						  array<double>^ tVals, int tOffset, int tStep,
+					      int count);
 	protected:
 		virtual PPoint DoTransform(bool forward, PPoint% coords);
 
@@ -447,6 +453,7 @@ namespace SharpProj {
 
 		static CoordinateTransform^ Create(String^ from, [Optional] ProjContext^ ctx);
 		static CoordinateTransform^ Create(array<String^>^ definition, [Optional] ProjContext^ ctx);
+		static CoordinateTransform^ CreateFromDatabase(String^ authority, String^ code, [Optional] ProjContext^ ctx);
 
 
 	public:

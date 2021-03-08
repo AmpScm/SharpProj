@@ -13,8 +13,15 @@ namespace SharpProj.Utils.NTSAdditions
     /// </remarks>
     public class ReProjectFilter : IEntireCoordinateSequenceFilter
     {
-        private readonly CoordinateTransform _ct;
-        private readonly PrecisionModel _pm;
+        /// <summary>
+        /// The transform behind this reproject
+        /// </summary>
+        protected CoordinateTransform CoordinateTransform { get; }
+
+        /// <summary>
+        /// The precision model behind this reproject
+        /// </summary>
+        protected PrecisionModel PrecisionModel { get; }
 
         /// <summary>
         /// Creates an instance of this class
@@ -23,8 +30,8 @@ namespace SharpProj.Utils.NTSAdditions
         /// <param name="pm">A precision model for the coordinates</param>
         public ReProjectFilter(CoordinateTransform ct, PrecisionModel pm)
         {
-            _ct = ct;
-            _pm = pm;
+            CoordinateTransform = ct ?? throw new ArgumentNullException(nameof(ct));
+            PrecisionModel = pm ?? throw new ArgumentNullException(nameof(pm));
         }
 
         /// <summary>
@@ -33,47 +40,49 @@ namespace SharpProj.Utils.NTSAdditions
         /// <param name="seq">The sequenc</param>
         public virtual void Filter(CoordinateSequence seq)
         {
-            for (int i = 0; i < seq.Count; i++)
+            if (seq is PackedDoubleCoordinateSequence doubleSequence)
+                FilterPacked(doubleSequence);
+            else
+                for (int i = 0; i < seq.Count; i++)
+                {
+                    var c = CoordinateTransform.Apply(seq.GetCoordinate(i));
+                    PrecisionModel.MakePrecise(c);
+                    for (int j = 0; j < seq.Dimension; j++)
+                        seq.SetOrdinate(i, j, c[j]);
+                }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="doubleSequence"></param>
+        protected void FilterPacked(PackedDoubleCoordinateSequence doubleSequence)
+        {
+            double[] coords = doubleSequence.GetRawCoordinates();
+            int dimension = doubleSequence.Dimension;
+
+            // We would really like to use System.Span<> here, but that isn't supported in .Net 4.6 yet
+            // which we would like to stick to for some time. For now use something similar
+            CoordinateTransform.ApplyGeneric(
+                coords, 0, dimension,
+                    coords, 1, dimension,
+                    doubleSequence.HasZ ? coords : Array.Empty<double>(), doubleSequence.HasZ ? 2 : 0, dimension,
+                    Array.Empty<double>(), 0, dimension,
+                    doubleSequence.Count);
+
+            // We only make X and Y precise, just like PrecisionModel.MakePrecise()
+            for (int i = 0; i < coords.Length; i += dimension)
             {
-                var c = _ct.Apply(seq.GetCoordinate(i));
-                _pm.MakePrecise(c);
-                for (int j = 0; j < seq.Dimension; j++)
-                    seq.SetOrdinate(i, j, c[j]);
+                coords[i] = PrecisionModel.MakePrecise(coords[i]);
+                coords[i + 1] = PrecisionModel.MakePrecise(coords[i + 1]);
             }
         }
 
-        /// <inheritdoc cref="IEntireCoordinateSequenceFilter.Done"/>
-        public bool Done { get => false; }
+    /// <inheritdoc cref="IEntireCoordinateSequenceFilter.Done"/>
+    public bool Done { get => false; }
 
         /// <inheritdoc cref="IEntireCoordinateSequenceFilter.GeometryChanged"/>
         public bool GeometryChanged { get => true; }
-    }
-
-    public class ReProjectFilterForPds : ReProjectFilter
-    {
-        public ReProjectFilterForPds(CoordinateTransform ct, PrecisionModel pm)
-            : base(ct, pm)
-        {
-        }
-
-        public override void Filter(CoordinateSequence seq)
-        {
-            base.Filter(seq);
-            return;
-
-            // IF proj_trans_generic was available we could bulk transform here!
-            /*
-            var pds = (PackedDoubleCoordinateSequence) seq;
-            double[] coords = pds.GetRawCoordinates();
-            int dimension = seq.Dimension;
-            var xs = new Span<double>(coords, 0, coords.Length - dimension--);
-            var ys = new Span<double>(coords, 1, coords.Length - dimension--);
-            var zs = seq.HasZ
-                ? new Span<double>(coords, 1, coords.Length - dimension--)
-                : new Span<double>(Array.Empty<double>());
-            _ct.Apply(xs, seq.Dimension, ys, seq.Dimension, zs, seq.Dimension, null, 0);
-            */
-        }
     }
 
 }

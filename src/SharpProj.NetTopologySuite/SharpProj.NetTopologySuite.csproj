@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -57,8 +57,8 @@
     <Compile Include="SridItem.cs" />
     <Compile Include="SridRegister.cs" />
     <Compile Include="Testing\ProjTestExtensions.cs" />
-    <Compile Include="Utils\GeometryTransformer.cs" />
     <Compile Include="Utils\ReProjectFilter.cs" />
+    <Compile Include="Utils\ReProjectFilterForPds.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NetTopologySuite">

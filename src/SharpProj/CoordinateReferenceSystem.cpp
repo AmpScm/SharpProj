@@ -374,3 +374,61 @@ Proj::AxisCollection^ CoordinateReferenceSystem::Axis::get()
 	else
 		return nullptr;
 }
+
+
+ReadOnlyCollection<CoordinateReferenceSystemInfo^>^ ProjContext::GetCoordinateReferenceSystems(CoordinateReferenceSystemFilter^ filter)
+{
+	if (!filter)
+		throw gcnew ArgumentNullException("filter");
+
+	std::string auth_name;
+	if (filter->Authority)
+		auth_name = ::utf8_string(filter->Authority);
+	PROJ_CRS_LIST_PARAMETERS* params = proj_get_crs_list_parameters_create();
+
+	try
+	{
+		auto types = filter->Types->ToArray();
+		pin_ptr<ProjType> pTypes;
+
+		if (types->Length)
+		{
+			pTypes = &types[0];
+			params->typesCount = types->Length;
+			params->types = reinterpret_cast<PJ_TYPE*>(pTypes);
+		}
+
+		params->allow_deprecated = filter->AllowDeprecated;
+
+		int count;
+		PROJ_CRS_INFO** infoList = proj_get_crs_info_list_from_database(this, auth_name.length() ? auth_name.c_str() : nullptr, params, &count);
+
+		auto r = gcnew List<CoordinateReferenceSystemInfo^>(count);
+
+		for (int i = 0; i < count; i++)
+			r->Add(gcnew CoordinateReferenceSystemInfo(infoList[i], this));
+
+		proj_crs_info_list_destroy(infoList);
+
+		return r->AsReadOnly();
+	}
+	finally
+	{
+		proj_get_crs_list_parameters_destroy(params);
+	}
+}
+
+ReadOnlyCollection<CoordinateReferenceSystemInfo^>^ ProjContext::GetCoordinateReferenceSystems()
+{
+	return GetCoordinateReferenceSystems(gcnew CoordinateReferenceSystemFilter());
+}
+
+CoordinateReferenceSystem^ CoordinateReferenceSystemInfo::Create(ProjContext^ ctx)
+{
+	if (!ctx && _ctx)
+		ctx = _ctx;
+	else
+		ctx = gcnew ProjContext();
+
+	return CoordinateReferenceSystem::CreateFromDatabase(Authority, Code, ctx);
+}

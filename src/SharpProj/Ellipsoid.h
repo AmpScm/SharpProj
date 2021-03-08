@@ -60,6 +60,8 @@ namespace SharpProj {
 				}
 			}
 
+		public:
+			static Ellipsoid^ CreateFromDatabase(String^ authority, String^ code, [Optional] ProjContext^ ctx);
 		};
 	}
 
