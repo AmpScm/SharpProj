@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries.Implementation;
 
 namespace SharpProj.NTS
 {
@@ -73,25 +74,46 @@ namespace SharpProj.NTS
             get { return _items ?? (_items = new ItemDict()); }
         }
 
-        internal SridItem(int srid, CoordinateReferenceSystem crs)
+        internal SridItem(CoordinateReferenceSystem crs, int srid, SridItemArgs args)
         {
             if (crs is null)
                 throw new ArgumentNullException(nameof(crs));
+
             SRID = srid;
             CRS = crs;
+            PrecisionModel pm = args.PrecisionModel;
 
-            _factory = new Lazy<GeometryFactory>(() => NtsGeometryServices.CreateGeometryFactory(srid));
+            _factory = new Lazy<GeometryFactory>(() => NtsGeometryServices.CreateGeometryFactory(
+                pm ?? NtsGeometryServices.DefaultPrecisionModel,
+                SRID));
         }
 
-        static NtsGeometryServices _ntsGeometryServices;
+        static Lazy<NtsGeometryServices> _ntsGeometryServices = new Lazy<NtsGeometryServices>(SetupServices);
 
         /// <summary>
         /// The NTS Geometry servic to create new Geometry factories
         /// </summary>
         public static NtsGeometryServices NtsGeometryServices
         {
-            get { return _ntsGeometryServices ?? NtsGeometryServices.Instance; }
-            set { _ntsGeometryServices = value; }
+            get { return _ntsGeometryServices.Value; }
+            set 
+            { 
+                if (value != null && value != NtsGeometryServices)
+                    _ntsGeometryServices = new Lazy<NtsGeometryServices>(() => value); 
+            }
+        }
+
+        private static NtsGeometryServices SetupServices()
+        {
+            NtsGeometryServices defaultInstance = NetTopologySuite.NtsGeometryServices.Instance;
+
+            CoordinateSequenceFactory csf = PackedCoordinateSequenceFactory.DoubleFactory;
+            PrecisionModel pm = defaultInstance.DefaultPrecisionModel;
+            int srid = defaultInstance.DefaultSRID;
+            GeometryOverlay go = GeometryOverlay.NG;
+            CoordinateEqualityComparer c = defaultInstance.CoordinateEqualityComparer;
+
+            return new NtsGeometryServices(csf, pm, srid, go, c);
         }
 
         /// <summary>
@@ -145,5 +167,17 @@ namespace SharpProj.NTS
         /// The factory used to construct new geometries for this <see cref="SridItem"/>
         /// </summary>
         public GeometryFactory Factory => _factory.Value;
+
+
+        /// <summary>
+        /// Setup arguments for <see cref="SridItem"/>
+        /// </summary>
+        public class SridItemArgs
+        {
+            /// <summary>
+            /// 
+            /// </summary>
+            public PrecisionModel PrecisionModel { get; set; }
+        }
     }
 }

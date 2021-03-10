@@ -14,7 +14,7 @@
     <dependencies>
       <group targetFramework="net45">
         <dependency id="SharpProj.Core" version="[8.0000.1]" />
-        <dependency id="NetTopologySuite" version="2.1.0" />
+        <dependency id="NetTopologySuite" version="2.2.0" />
       </group>
     </dependencies>
   </metadata>

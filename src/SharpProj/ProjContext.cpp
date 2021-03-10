@@ -108,7 +108,7 @@ ProjContext::ProjContext()
 
 		if (EnableNetworkConnectionsOnNewContexts)
 		{
-			AllowNetworkConnections = true;
+			EnableNetworkConnections = true;
 		}
 	}
 }
@@ -325,7 +325,7 @@ String^ ProjContext::FindFile(String^ file)
 		return testFile;
 	else if (CanWriteFromResource(file, testFile /* = Path::Combine(userDir, ("proj" "-" PROJ_VERSION "-") + file)*/))
 		return testFile;
-	else if (file == "proj.db" && AllowNetworkConnections)
+	else if (file == "proj.db" && EnableNetworkConnections)
 	{
 		testFile = Path::Combine(userDir, ("proj" PROJ_VERSION "-") + file);
 		try

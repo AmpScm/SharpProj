@@ -14,6 +14,8 @@ namespace SharpProj {
 
 	using System::Collections::ObjectModel::ReadOnlyCollection;
 	using System::Collections::Generic::List;
+	using System::ComponentModel::EditorBrowsableAttribute;
+	using System::ComponentModel::EditorBrowsableState;
 
 	namespace Proj {
 		public ref class CoordinateTransformFactors
@@ -248,14 +250,26 @@ namespace SharpProj {
 		PPoint ApplyReversed(PPoint coord) { return DoTransform(false, coord); }
 		array<double>^ ApplyReversed(...array<double>^ ordinates) { return DoTransform(false, PPoint(ordinates)).ToArray(); }
 
+		[EditorBrowsableAttribute(EditorBrowsableState::Never)]
+		void Apply(
+			double* xVals, int xStep, int xCount,
+			double* yVals, int yStep, int yCount,
+			double* zVals, int zStep, int zCount,
+			double* tVals, int tStep, int tCount);
 
-		void ApplyGeneric(array<double>^ xVals, int xOffset, int xStep,
-						  array<double>^ yVals, int yOffset, int yStep,
-						  array<double>^ zVals, int zOffset, int zStep,
-						  array<double>^ tVals, int tOffset, int tStep,
-					      int count);
+		[EditorBrowsableAttribute(EditorBrowsableState::Never)]
+		void ApplyReversed(
+			double* xVals, int xStep, int xCount,
+			double* yVals, int yStep, int yCount,
+			double* zVals, int zStep, int zCount,
+			double* tVals, int tStep, int tCount);
 	protected:
 		virtual PPoint DoTransform(bool forward, PPoint% coords);
+		virtual void DoTransform(bool forward,
+			double* xVals, int xStep, int xCount,
+			double* yVals, int yStep, int yCount,
+			double* zVals, int zStep, int zCount,
+			double* tVals, int tStep, int tCount);
 
 	internal:
 		PPoint FromCoordinate(const PJ_COORD& coord, bool forward);
@@ -448,7 +462,7 @@ namespace SharpProj {
 		static CoordinateTransform^ Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, CoordinateTransformOptions^ options, [Optional] ProjContext^ ctx);
 		static CoordinateTransform^ Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, [Optional] ProjContext^ ctx)
 		{
-			return CoordinateTransform::Create(sourceCrs, targetCrs, (CoordinateTransformOptions^)nullptr, nullptr);
+			return CoordinateTransform::Create(sourceCrs, targetCrs, (CoordinateTransformOptions^)nullptr, ctx);
 		}
 
 		static CoordinateTransform^ Create(String^ from, [Optional] ProjContext^ ctx);

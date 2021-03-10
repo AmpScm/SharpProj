@@ -138,18 +138,30 @@ namespace SharpProj.NTS
         /// <returns></returns>
         public static SridItem Register(CoordinateReferenceSystem crs, int withSrid)
         {
+            return Register(crs, withSrid, new SridItem.SridItemArgs());
+        }
+
+        /// <summary>
+        /// Tries to register the CoordinateReferenceSystem with the specific SRID. Fails if already registered one at this id
+        /// </summary>
+        /// <param name="crs"></param>
+        /// <param name="withSrid"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static SridItem Register(CoordinateReferenceSystem crs, int withSrid, SridItem.SridItemArgs args)
+        {
             if (crs == null)
                 throw new ArgumentNullException(nameof(crs));
 
             using (_rwl.WithWriteLock())
             {
-                return WithinWriteLock_Register(crs, withSrid);
+                return WithinWriteLock_Register(crs, withSrid, args);
             }
         }
 
-        private static SridItem WithinWriteLock_Register(CoordinateReferenceSystem crs, int withSrid)
+        private static SridItem WithinWriteLock_Register(CoordinateReferenceSystem crs, int withSrid, SridItem.SridItemArgs args)
         {
-            SridItem added = new SridItem(withSrid, crs);
+            SridItem added = new SridItem(crs, withSrid, args);
 
             _registered.Add(crs, added);
             _catalog.Add(withSrid, added);
@@ -161,27 +173,40 @@ namespace SharpProj.NTS
         /// Registers the CoordinateReferenceSystem with a new SRID.
         /// </summary>
         /// <param name="crs"></param>
+        /// <param name="args"></param>
         /// <returns></returns>
-        public static SridItem Register(CoordinateReferenceSystem crs)
+        public static SridItem Register(CoordinateReferenceSystem crs, SridItem.SridItemArgs args)
         {
             if (crs == null)
                 throw new ArgumentNullException(nameof(crs));
+            else if (args == null)
+                throw new ArgumentNullException(nameof(args));
 
             using (_rwl.WithWriteLock())
             {
                 if (_registered.ContainsKey(crs))
                     throw new ArgumentException("CRS instance already registered", nameof(crs));
 
-                return WithinWriteLock_Register(crs);
+                return WithinWriteLock_Register(crs, args);
             }
         }
 
-        static SridItem WithinWriteLock_Register(CoordinateReferenceSystem crs)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="crs"></param>
+        /// <returns></returns>
+        public static SridItem Register(CoordinateReferenceSystem crs)
+        {
+            return Register(crs, new SridItem.SridItemArgs());
+        }
+
+        static SridItem WithinWriteLock_Register(CoordinateReferenceSystem crs, SridItem.SridItemArgs args)
         {
             while (_catalog.ContainsKey(_nextId))
                 _nextId--;
 
-            SridItem added = new SridItem(_nextId, crs);
+            SridItem added = new SridItem(crs, _nextId, args);
 
             _registered.Add(crs, added);
             _catalog.Add(_nextId, added);
@@ -269,7 +294,7 @@ namespace SharpProj.NTS
         public static SridItem Ensure<T>(T value, Func<CoordinateReferenceSystem> creator)
             where T : struct, Enum
         {
-            return Ensure(value, creator, null);
+            return Ensure(value, creator, null, new SridItem.SridItemArgs());
         }
 
         /// <summary>
@@ -281,6 +306,20 @@ namespace SharpProj.NTS
         /// <param name="preferredSrid"></param>
         /// <returns></returns>
         public static SridItem Ensure<T>(T value, Func<CoordinateReferenceSystem> creator, int? preferredSrid)
+        where T : struct, Enum
+        {
+            return Ensure(value, creator, preferredSrid, new SridItem.SridItemArgs());
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <param name="creator"></param>
+        /// <param name="preferredSrid"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static SridItem Ensure<T>(T value, Func<CoordinateReferenceSystem> creator, int? preferredSrid, SridItem.SridItemArgs args)
         where T : struct, Enum
         {
             if (preferredSrid.HasValue && preferredSrid == 0)
@@ -307,9 +346,9 @@ namespace SharpProj.NTS
                     }
 
                     if (preferredSrid.HasValue)
-                        item = WithinWriteLock_Register(crs, preferredSrid.Value);
+                        item = WithinWriteLock_Register(crs, preferredSrid.Value, args);
                     else
-                        item = WithinWriteLock_Register(crs);
+                        item = WithinWriteLock_Register(crs, args);
 
                     return item;
                 }

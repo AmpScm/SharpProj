@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.Geometries.Implementation;
 using SharpProj.NTS;
 using SharpProj.Utils.NTSAdditions;
 
@@ -24,17 +23,21 @@ namespace SharpProj
             if (!p.HasValues)
                 return null; //
 
-            switch (p.Axis)
-            {
-                case 1:
-                case 2:
-                    return new Coordinate(p.X, p.Y);
-                case 3:
-                    return new CoordinateZ(p.X, p.Y, p.Z);
-                case 4:
-                default:
-                    return new CoordinateZM(p.X, p.Y, p.Z, p.T);
-            }
+            if (!p.HasT)
+                switch (p.Axis)
+                {
+                    case 1:
+                    case 2:
+                        return new Coordinate(p.X, p.Y);
+                    case 3:
+                    case 4:
+                    default:
+                        return new CoordinateZ(p.X, p.Y, p.Z);
+                }
+            else if (p.Axis <= 2)
+                return new CoordinateM(p.X, p.Y, p.T);
+            else
+                return new CoordinateZM(p.X, p.Y, p.Z, p.T);
         }
 
         /// <summary>
@@ -47,12 +50,21 @@ namespace SharpProj
         {
             if ((object)coordinate == null)
                 return new PPoint(double.NaN, double.NaN);
-            else if (double.IsNaN(coordinate.Z))
-                return new PPoint(coordinate.X, coordinate.Y);
-            if (coordinate is CoordinateZM)
-                return new PPoint(coordinate.X, coordinate.Y, coordinate.Z, coordinate.M);
+
+            if (double.IsNaN(coordinate.M))
+            {
+                if (double.IsNaN(coordinate.Z))
+                    return new PPoint(coordinate.X, coordinate.Y);
+                else
+                    return new PPoint(coordinate.X, coordinate.Y, coordinate.Z);
+            }
             else
-                return new PPoint(coordinate.X, coordinate.Y, coordinate.Z);
+            {
+                if (double.IsNaN(coordinate.Z))
+                    return new PPoint(coordinate.X, coordinate.Y) { T = coordinate.M };
+                else
+                    return new PPoint(coordinate.X, coordinate.Y, coordinate.Z) { T = coordinate.M };
+            }
         }
 
         /// <summary>
@@ -62,10 +74,21 @@ namespace SharpProj
         /// <returns></returns>
         public static IEnumerable<PPoint> ToPPoints(this CoordinateSequence cs)
         {
-            for (int i = 0; i < cs.Count; i++)
+            if (cs.Dimension == 2)
             {
-                yield return cs.GetCoordinate(i).ToPPoint();
+                for (int i = 0; i < cs.Count; i++)
+                    yield return new PPoint(cs.GetX(i), cs.GetY(i));
             }
+            else if (cs.Dimension == 3)
+            {
+                for (int i = 0; i < cs.Count; i++)
+                    yield return new PPoint(cs.GetX(i), cs.GetY(i), cs.GetZ(i));
+            }
+            else
+                for (int i = 0; i < cs.Count; i++)
+                {
+                    yield return cs.GetCoordinate(i).ToPPoint();
+                }
         }
 
         /// <summary>
@@ -117,7 +140,9 @@ namespace SharpProj
             SridItem srcItem = SridRegister.GetByValue(srcSRID);
 
             using (ProjContext pc = toSrid.CRS.Context.Clone()) // Make thread-safe. Use settings from crs
-            using (CoordinateTransform ct = CoordinateTransform.Create(srcItem, toSrid, pc))
+            using (CoordinateTransform ct = CoordinateTransform.Create(srcItem, toSrid,
+                new CoordinateTransformOptions { NoBallparkConversions = true },
+                pc))
             {
                 return Reproject(geometry, ct, toSrid.Factory);
             }
@@ -152,28 +177,14 @@ namespace SharpProj
         public static TGeometry Reproject<TGeometry>(this TGeometry geometry, CoordinateTransform operation, GeometryFactory factory)
             where TGeometry : Geometry
         {
+            // TODO: Add something to support custom geometry types (circles/arcs) as previously
+            // implemented via the SridRegister
             var res = (TGeometry)factory.CreateGeometry(geometry);
 
-            IEntireCoordinateSequenceFilter filter = null;
-            switch (factory.CoordinateSequenceFactory)
-            {
-                case PackedCoordinateSequenceFactory pd:
-                    if (pd.Type == PackedCoordinateSequenceFactory.PackedType.Double)
-                        filter = new ReProjectFilterForPds(operation, factory.PrecisionModel);
-                    break;
-
-            }
-
-            // Default filter
-            if (filter == null)
-                filter = new ReProjectFilter(operation, factory.PrecisionModel);
+            IEntireCoordinateSequenceFilter filter = new ReProjectFilter(operation, factory.PrecisionModel);
 
             res.Apply(filter);
             return res;
-
-
-            //return SridRegister.ReProject(geometry, factory,
-            //    sq => factory.CoordinateSequenceFactory.Create(sq.ToPPoints().Select(x => operation.Apply(x)).ToCoordinates().ToArray()));
         }
 
         /// <summary>
@@ -196,6 +207,126 @@ namespace SharpProj
         public static Coordinate ApplyReversed(this CoordinateTransform op, Coordinate c)
         {
             return op.ApplyReversed(c.ToPPoint()).ToCoordinate();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="op"></param>
+        /// <param name="xSpan"></param>
+        /// <param name="xStep"></param>
+        /// <param name="xCount"></param>
+        /// <param name="ySpan"></param>
+        /// <param name="yStep"></param>
+        /// <param name="yCount"></param>
+        /// <param name="zSpan"></param>
+        /// <param name="zStep"></param>
+        /// <param name="zCount"></param>
+        /// <param name="tSpan"></param>
+        /// <param name="tStep"></param>
+        /// <param name="tCount"></param>
+        public static unsafe void Apply(this CoordinateTransform op,
+            Span<double> xSpan, int xStep, int xCount,
+            Span<double> ySpan, int yStep, int yCount,
+            Span<double> zSpan, int zStep, int zCount,
+            Span<double> tSpan, int tStep, int tCount)
+        {
+            fixed (double* x0 = &xSpan.GetPinnableReference())
+            fixed (double* y0 = &ySpan.GetPinnableReference())
+            fixed (double* z0 = &zSpan.GetPinnableReference())
+            fixed (double* t0 = &tSpan.GetPinnableReference())
+            {
+                op.Apply(
+                    x0, xStep, xCount,
+                    y0, yStep, yCount,
+                    z0, zStep, zCount,
+                    t0, tStep, tCount);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="op"></param>
+        /// <param name="xSpan"></param>
+        /// <param name="xStep"></param>
+        /// <param name="xCount"></param>
+        /// <param name="ySpan"></param>
+        /// <param name="yStep"></param>
+        /// <param name="yCount"></param>
+        /// <param name="zSpan"></param>
+        /// <param name="zStep"></param>
+        /// <param name="zCount"></param>
+        /// <param name="tSpan"></param>
+        /// <param name="tStep"></param>
+        /// <param name="tCount"></param>
+        public static unsafe void ApplyReversed(this CoordinateTransform op,
+            Span<double> xSpan, int xStep, int xCount,
+            Span<double> ySpan, int yStep, int yCount,
+            Span<double> zSpan, int zStep, int zCount,
+            Span<double> tSpan, int tStep, int tCount)
+        {
+            fixed (double* x0 = &xSpan.GetPinnableReference())
+            fixed (double* y0 = &ySpan.GetPinnableReference())
+            fixed (double* z0 = &zSpan.GetPinnableReference())
+            fixed (double* t0 = &tSpan.GetPinnableReference())
+            {
+                op.ApplyReversed(
+                    x0, xStep, xCount,
+                    y0, yStep, yCount,
+                    z0, zStep, zCount,
+                    t0, tStep, tCount);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="op"></param>
+        /// <param name="xSpan"></param>
+        /// <param name="xStep"></param>
+        /// <param name="ySpan"></param>
+        /// <param name="yStep"></param>
+        /// <param name="zSpan"></param>
+        /// <param name="zStep"></param>
+        /// <param name="tSpan"></param>
+        /// <param name="tStep"></param>
+        public static void Apply(this CoordinateTransform op,
+            Span<double> xSpan, int xStep,
+            Span<double> ySpan, int yStep,
+            Span<double> zSpan, int zStep,
+            Span<double> tSpan, int tStep)
+        {
+            op.Apply(
+                    xSpan, xStep, (xStep > 0) ? ((xSpan.Length + xStep - 1) / xStep) : 0,
+                    ySpan, yStep, (yStep > 0) ? ((ySpan.Length + yStep - 1) / yStep) : 0,
+                    zSpan, zStep, (zStep > 0) ? ((zSpan.Length + zStep - 1) / zStep) : 0,
+                    tSpan, tStep, (tStep > 0) ? ((tSpan.Length + tStep - 1) / tStep) : 0);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="op"></param>
+        /// <param name="xSpan"></param>
+        /// <param name="xStep"></param>
+        /// <param name="ySpan"></param>
+        /// <param name="yStep"></param>
+        /// <param name="zSpan"></param>
+        /// <param name="zStep"></param>
+        /// <param name="tSpan"></param>
+        /// <param name="tStep"></param>
+        public static void ApplyReversed(this CoordinateTransform op,
+            Span<double> xSpan, int xStep,
+            Span<double> ySpan, int yStep,
+            Span<double> zSpan, int zStep,
+            Span<double> tSpan, int tStep)
+        {
+            op.ApplyReversed(
+                    xSpan, xStep, (xStep > 0) ? ((xSpan.Length + xStep - 1) / xStep) : 0,
+                    ySpan, yStep, (yStep > 0) ? ((ySpan.Length + yStep - 1) / yStep) : 0,
+                    zSpan, zStep, (zStep > 0) ? ((zSpan.Length + zStep - 1) / zStep) : 0,
+                    tSpan, tStep, (tStep > 0) ? ((tSpan.Length + tStep - 1) / tStep) : 0);
         }
 
         /// <summary>

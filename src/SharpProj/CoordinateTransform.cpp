@@ -99,7 +99,7 @@ CoordinateTransform^ CoordinateTransform::Create(CoordinateReferenceSystem^ sour
 
 	proj_operation_factory_context_set_grid_availability_use(
 		ctx, operation_ctx,
-		ctx->AllowNetworkConnections
+		ctx->EnableNetworkConnections
 		? PROJ_GRID_AVAILABILITY_KNOWN_AVAILABLE
 		: (options->NoDiscardIfMissing
 			? PROJ_GRID_AVAILABILITY_USED_FOR_SORTING
@@ -234,43 +234,45 @@ PPoint CoordinateTransform::DoTransform(bool forward, PPoint% coordinate)
 	return FromCoordinate(coord, forward);
 }
 
-void CoordinateTransform::ApplyGeneric(array<double>^ xVals, int xOffset, int xStep,
-	array<double>^ yVals, int yOffset, int yStep,
-	array<double>^ zVals, int zOffset, int zStep,
-	array<double>^ tVals, int tOffset, int tStep,
-	int count)
+void CoordinateTransform::DoTransform(bool forward,
+	double* xVals, int xStep, int xCount,
+	double* yVals, int yStep, int yCount,
+	double* zVals, int zStep, int zCount,
+	double* tVals, int tStep, int tCount)
 {
-	if (!xVals || !yVals || !zVals || !tVals)
-		throw gcnew ArgumentNullException();
-	else if (xOffset < 0 || yOffset < 0 || zOffset < 0 || tOffset < 0)
-		throw gcnew ArgumentOutOfRangeException();
-	else if (xStep < 0 || yStep < 0 || zStep < 0 || tStep < 0)
-		throw gcnew ArgumentOutOfRangeException();
-
-	pin_ptr<double> pX = &xVals[0];
-	pin_ptr<double> pY = &yVals[0];
-	pin_ptr<double> pZ = &zVals[0];
-	pin_ptr<double> pT = &tVals[0];
-
-	int xCount = xVals->Length ? count : 0;
-	int yCount = yVals->Length ? count : 0;
-	int zCount = zVals->Length ? count : 0;
-	int tCount = tVals->Length ? count : 0;
-
-	if ((xCount * xStep + xOffset >= xVals->Length)
-		|| (yCount * yStep + yOffset >= yVals->Length)
-		|| (zCount * zStep + zOffset >= zVals->Length)
-		|| (tCount * tStep + tOffset >= tVals->Length))
-	{
-		throw gcnew InvalidOperationException();
-	}
-
-	proj_trans_generic(this, PJ_FWD,
-		pX + xOffset, xStep, count,
-		pY + yOffset, yStep, count,
-		pZ + zOffset, zStep, zCount,
-		pT + tOffset, tStep, tCount);
+	proj_trans_generic(this, forward ? PJ_FWD : PJ_INV,
+		xVals, xStep * sizeof(double), xCount,
+		yVals, yStep * sizeof(double), yCount,
+		zVals, zStep * sizeof(double), zCount,
+		tVals, tStep * sizeof(double), tCount);
 }
+
+void CoordinateTransform::Apply(
+	double* xVals, int xStep, int xCount,
+	double* yVals, int yStep, int yCount,
+	double* zVals, int zStep, int zCount,
+	double* tVals, int tStep, int tCount)
+{
+	DoTransform(true,
+		xVals, xStep, xCount,
+		yVals, yStep, yCount,
+		zVals, zStep, zCount,
+		tVals, tStep, tCount);
+}
+
+void CoordinateTransform::ApplyReversed(
+	double* xVals, int xStep, int xCount,
+	double* yVals, int yStep, int yCount,
+	double* zVals, int zStep, int zCount,
+	double* tVals, int tStep, int tCount)
+{
+	DoTransform(false,
+		xVals, xStep, xCount,
+		yVals, yStep, yCount,
+		zVals, zStep, zCount,
+		tVals, tStep, tCount);
+}
+
 
 PPoint CoordinateTransform::FromCoordinate(const PJ_COORD& coord, bool forward)
 {

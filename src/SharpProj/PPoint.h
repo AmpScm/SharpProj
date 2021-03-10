@@ -28,6 +28,7 @@ namespace SharpProj {
 	private:
 		Byte m_axis;
 
+
 	internal:
 		PPoint(int axis, const double* v)
 		{
@@ -38,7 +39,7 @@ namespace SharpProj {
 			X = v[0];
 			Y = (axis > 1) ? v[1] : 0;
 			Z = (axis > 2) ? v[2] : 0;
-			T = (axis > 3) ? v[3] : 0;
+			T = (axis > 3) ? v[3] : double::PositiveInfinity;
 		}
 
 		PPoint(const PJ_COORD& coord)
@@ -49,7 +50,7 @@ namespace SharpProj {
 			r.Z = coord.v[2];
 			r.T = coord.v[3];
 
-			if (r.T != 0)
+			if (r.T != 0 && r.T != double::PositiveInfinity)
 				m_axis = 4;
 			else if (r.Z != 0)
 				m_axis = 3;
@@ -57,11 +58,21 @@ namespace SharpProj {
 				m_axis = 2;
 		}
 	public:
+		PPoint(double x)
+		{
+			X = x;
+			Y = 0;
+			Z = 0;
+			T = double::PositiveInfinity;
+			m_axis = 1;
+		}
+
 		PPoint(double x, double y)
 		{
 			X = x;
 			Y = y;
-			Z = T = 0;
+			Z = 0;
+			T = double::PositiveInfinity;
 			m_axis = 2;
 		}
 
@@ -70,7 +81,7 @@ namespace SharpProj {
 			X = x;
 			Y = y;
 			Z = z;
-			T = 0;
+			T = double::PositiveInfinity;
 			m_axis = 3;
 		}
 
@@ -80,7 +91,7 @@ namespace SharpProj {
 			Y = y;
 			Z = z;
 			T = t;
-			m_axis = (t == 0.0) ? 3 : 4;
+			m_axis = (t == 0.0 || t == double::PositiveInfinity) ? 3 : 4;
 		}
 
 		PPoint(array<double>^ v)
@@ -91,10 +102,22 @@ namespace SharpProj {
 			X = v[0];
 			int n = v->Length;
 
-			Y = (n > 1) ? v[1] : 0;
-			Z = (n > 2) ? v[2] : 0;
-			T = (n > 3) ? v[3] : 0;
-			m_axis = Math::Min(v->Length, 4);
+			Y = (n > 1) ? v[1] : 0.0;
+			Z = (n > 2) ? v[2] : 0.0;
+			T = (n > 3) ? v[3] : double::PositiveInfinity;
+
+			if (n >= 4 && HasT)
+				m_axis = 4;
+			else
+				m_axis = Math::Min(v->Length, 3);
+		}
+
+		property bool HasT
+		{
+			bool get()
+			{
+				return (T != 0.0 && T != double::PositiveInfinity);
+			}
 		}
 
 		property double default[int]
@@ -137,7 +160,7 @@ namespace SharpProj {
 			}
 		}
 
-		array<double>^ ToArray()
+			array<double>^ ToArray()
 		{
 			switch (Axis)
 			{
@@ -154,9 +177,15 @@ namespace SharpProj {
 				return gcnew array<double> {X, Y, Z};
 			}
 			case 4:
-			default:
 			{
 				return gcnew array<double> {X, Y, Z, T};
+			}
+			default:
+			{
+				if (HasT)
+					return gcnew array<double> {X, Y, Z, T};
+				else
+					return gcnew array<double> {X, Y, Z};
 			}
 			}
 		}
@@ -204,23 +233,29 @@ namespace SharpProj {
 
 		virtual int GetHashCode() override sealed
 		{
-			return X.GetHashCode() ^ Y.GetHashCode();
+			return X.GetHashCode() ^ Y.GetHashCode() ^ Z.GetHashCode() ^ T.GetHashCode();
 		}
 
 		virtual System::String^ ToString() override
 		{
+			String^ v;
 			switch (Axis)
 			{
 			case 1:
-				return String::Format("X={0}", X);
+				v = String::Format("X={0}", X);
+				break;
 			case 2:
-				return String::Format("X={0}, Y={1}", X, Y);
+				v = String::Format("X={0}, Y={1}", X, Y);
+				break;
 			case 3:
-				return String::Format("X={0}, Y={1}, Z={2}", X, Y, Z);
 			default:
-			case 4:
-				return String::Format("X={0}, Y={1}, Z={2}, T={3}", X, Y, Z, T);
+				v = String::Format("X={0}, Y={1}, Z={2}", X, Y, Z);
 			}
+
+			if (HasT)
+				return String::Format("{0}, T={1}", v, T);
+			else
+				return v;
 		}
 
 		/// <summary>Alias for Z</summary>
@@ -236,14 +271,14 @@ namespace SharpProj {
 		{
 			int get()
 			{
-				return m_axis ? m_axis : 4;
+				return m_axis ? m_axis : (HasT ? 4 : 3);
 			}
 			void set(int value)
 			{
 				if (value >= 1 && value <= 4)
 					m_axis = value;
 				else if (m_axis == 0)
-					m_axis = 4;
+					m_axis = (HasT ? 4 : 3);
 			}
 		}
 
@@ -269,7 +304,7 @@ namespace SharpProj {
 		{
 			bool get()
 			{
-				return !double::IsNaN(X);
+				return !double::IsNaN(X) && !double::IsInfinity(X);
 			}
 		}
 	};

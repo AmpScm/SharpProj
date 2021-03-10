@@ -18,7 +18,7 @@ namespace SharpProj.Tests
             using (var nlNAP = CoordinateReferenceSystem.Create("EPSG:7415", pc))
             using (var beOstend = CoordinateReferenceSystem.Create("EPSG:8370", pc))
             {
-                pc.AllowNetworkConnections = true;
+                pc.EnableNetworkConnections = true;
                 Assert.AreEqual(3, nlNAP.AxisCount);
                 Assert.AreEqual(3, beOstend.AxisCount);
 
@@ -106,7 +106,7 @@ namespace SharpProj.Tests
         {
             using (ProjContext pc = new ProjContext())
             {
-                pc.AllowNetworkConnections = true;
+                pc.EnableNetworkConnections = true;
 
                 Coordinate dom, servaas;
 

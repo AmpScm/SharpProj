@@ -26,7 +26,7 @@ namespace SharpProj {
 		gcroot<WeakReference<ProjContext^>^>* m_ref;
 		void* m_chain;
 
-		ProjContext(PJ_CONTEXT *ctx)
+		ProjContext(PJ_CONTEXT* ctx)
 		{
 			m_ctx = ctx;
 		}
@@ -55,7 +55,7 @@ namespace SharpProj {
 			return gcnew ProjContext(proj_context_clone(this));
 		}
 
-		property bool AllowNetworkConnections
+		property bool EnableNetworkConnections
 		{
 			bool get()
 			{
@@ -72,6 +72,19 @@ namespace SharpProj {
 					if (!c || !*c)
 						proj_context_set_url_endpoint(m_ctx, "https://cdn.proj.org");
 				}
+			}
+		}
+
+		[ObsoleteAttribute("Use .EnableNetworkConnections")]
+		property bool AllowNetworkConnections
+		{
+			bool get()
+			{
+				return EnableNetworkConnections;
+			}
+			void set(bool value)
+			{
+				EnableNetworkConnections = value;
 			}
 		}
 
@@ -140,7 +153,7 @@ namespace SharpProj {
 		{
 			m_lastError = nullptr;
 			if (pj)
-				proj_errno_reset(pj);			
+				proj_errno_reset(pj);
 		}
 
 	public:
@@ -158,6 +171,7 @@ namespace SharpProj {
 
 		event System::Action<ProjLogLevel, String^>^ Log;
 
+	protected:
 		String^ GetMetaData(String^ key);
 
 	public:
@@ -173,7 +187,7 @@ namespace SharpProj {
 		/// <summary>EPSG Version. As stored in Proj Database</summary>
 		property System::Version^ EpsgVersion
 		{
-			System::Version ^ get();
+			System::Version^ get();
 		}
 
 		/// <summary>ESRI Version. As stored in Proj Database</summary>

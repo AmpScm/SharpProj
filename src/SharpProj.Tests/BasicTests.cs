@@ -343,7 +343,7 @@ namespace SharpProj.Tests
         {
             using (var c = new ProjContext())
             {
-                c.AllowNetworkConnections = true;
+                c.EnableNetworkConnections = true;
                 c.LogLevel = ProjLogLevel.Trace;
                 c.Log += (_, m) => Debug.WriteLine(m);
                 using (var wgs84 = CoordinateReferenceSystem.CreateFromDatabase("EPSG", "4326", c))
@@ -473,8 +473,8 @@ namespace SharpProj.Tests
                     }
 
                     // Now, let's enable gridshifts
-                    Assert.IsFalse(pc.AllowNetworkConnections);
-                    pc.AllowNetworkConnections = true;
+                    Assert.IsFalse(pc.EnableNetworkConnections);
+                    pc.EnableNetworkConnections = true;
                     pc.EndpointUrl = ProjContext.DefaultEndpointUrl;// "https://cdn.proj.org";
                     bool usedHttp = false;
                     pc.Log += (_, x) => { if (x.Contains("https://")) usedHttp = true; };
@@ -553,7 +553,7 @@ namespace SharpProj.Tests
         {
             using (ProjContext pc = new ProjContext())
             {
-                pc.AllowNetworkConnections = true;
+                pc.EnableNetworkConnections = true;
                 using (var epsg7000 = CoordinateTransform.CreateFromDatabase("EPSG", "7000", pc))
                 using (var epsg1112 = CoordinateTransform.CreateFromDatabase("EPSG", "1112", pc))
                 {
@@ -562,12 +562,27 @@ namespace SharpProj.Tests
                     Console.WriteLine(epsg1112.SourceCRS?.ToString());
                     Console.WriteLine(epsg1112.TargetCRS?.ToString());
                 }
+            }
+        }
 
-                foreach(var p in pc.GetCoordinateReferenceSystems())
+        [TestMethod]
+        public void WalkReferenceSystems()
+        {
+            using (ProjContext pc = new ProjContext())
+            {
+                pc.EnableNetworkConnections = true;
+                foreach (var p in pc.GetCoordinateReferenceSystems())
                 {
-                    Assert.IsNotNull(p.Authority);
-                    Assert.IsNotNull(p.Code);
-                    Console.WriteLine($"{p.Authority}:{p.Code} ({p.Type}) / {p.ProjectionName}");
+                    using (var c = p.Create())
+                    {
+                        if (c.Type == ProjType.TemporalCrs)
+                        {
+                            Console.WriteLine("!!Temporal!!");
+                        }
+                        Assert.IsNotNull(p.Authority);
+                        Assert.IsNotNull(p.Code);
+                        Console.WriteLine($"{p.Authority}:{p.Code} ({p.Type}) / {p.ProjectionName} {c.Name}");
+                    }
                 }
             }
         }

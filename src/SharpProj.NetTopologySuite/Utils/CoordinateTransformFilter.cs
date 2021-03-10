@@ -16,7 +16,7 @@ namespace SharpProj.Utils.NTSAdditions
         /// <summary>
         /// The transform behind this reproject
         /// </summary>
-        protected CoordinateTransform CoordinateTransform { get; }
+        protected CoordinateTransform Transform { get; }
 
         /// <summary>
         /// The precision model behind this reproject
@@ -26,12 +26,12 @@ namespace SharpProj.Utils.NTSAdditions
         /// <summary>
         /// Creates an instance of this class
         /// </summary>
-        /// <param name="ct">The coordinate transformation object</param>
-        /// <param name="pm">A precision model for the coordinates</param>
-        public ReProjectFilter(CoordinateTransform ct, PrecisionModel pm)
+        /// <param name="transform">The coordinate transformation object</param>
+        /// <param name="precisionModel">A precision model for the coordinates</param>
+        public ReProjectFilter(CoordinateTransform transform, PrecisionModel precisionModel)
         {
-            CoordinateTransform = ct ?? throw new ArgumentNullException(nameof(ct));
-            PrecisionModel = pm ?? throw new ArgumentNullException(nameof(pm));
+            Transform = transform ?? throw new ArgumentNullException(nameof(transform));
+            PrecisionModel = precisionModel ?? throw new ArgumentNullException(nameof(precisionModel));
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace SharpProj.Utils.NTSAdditions
             else
                 for (int i = 0; i < seq.Count; i++)
                 {
-                    var c = CoordinateTransform.Apply(seq.GetCoordinate(i));
+                    var c = Transform.Apply(seq.GetCoordinate(i));
                     PrecisionModel.MakePrecise(c);
                     for (int j = 0; j < seq.Dimension; j++)
                         seq.SetOrdinate(i, j, c[j]);
@@ -55,20 +55,18 @@ namespace SharpProj.Utils.NTSAdditions
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="doubleSequence"></param>
-        protected void FilterPacked(PackedDoubleCoordinateSequence doubleSequence)
+        /// <param name="seq"></param>
+        protected void FilterPacked(PackedDoubleCoordinateSequence seq)
         {
-            double[] coords = doubleSequence.GetRawCoordinates();
-            int dimension = doubleSequence.Dimension;
-
-            // We would really like to use System.Span<> here, but that isn't supported in .Net 4.6 yet
-            // which we would like to stick to for some time. For now use something similar
-            CoordinateTransform.ApplyGeneric(
-                coords, 0, dimension,
-                    coords, 1, dimension,
-                    doubleSequence.HasZ ? coords : Array.Empty<double>(), doubleSequence.HasZ ? 2 : 0, dimension,
-                    Array.Empty<double>(), 0, dimension,
-                    doubleSequence.Count);
+            double[] coords = seq.GetRawCoordinates();
+            int dimension = seq.Dimension;
+            
+            var xs = new Span<double>(coords, 0, coords.Length - 0);
+            var ys = new Span<double>(coords, 1, coords.Length - 1);
+            var zs = seq.HasZ
+                ? new Span<double>(coords, 2, coords.Length - 2)
+                : Span<double>.Empty;
+            Transform.Apply(xs, seq.Dimension, ys, seq.Dimension, zs, seq.Dimension, null, 0);
 
             // We only make X and Y precise, just like PrecisionModel.MakePrecise()
             for (int i = 0; i < coords.Length; i += dimension)
@@ -78,8 +76,8 @@ namespace SharpProj.Utils.NTSAdditions
             }
         }
 
-    /// <inheritdoc cref="IEntireCoordinateSequenceFilter.Done"/>
-    public bool Done { get => false; }
+        /// <inheritdoc cref="IEntireCoordinateSequenceFilter.Done"/>
+        public bool Done { get => false; }
 
         /// <inheritdoc cref="IEntireCoordinateSequenceFilter.GeometryChanged"/>
         public bool GeometryChanged { get => true; }

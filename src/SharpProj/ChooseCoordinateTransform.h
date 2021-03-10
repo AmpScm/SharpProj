@@ -63,6 +63,11 @@ namespace SharpProj {
 
 	protected:
 		virtual PPoint DoTransform(bool forward, PPoint% coordinate) override;
+		virtual void DoTransform(bool forward,
+			double* xVals, int xStep, int xCount,
+			double* yVals, int yStep, int yCount,
+			double* zVals, int zStep, int zCount,
+			double* tVals, int tStep, int tCount) override;
 	private:
 		virtual System::Collections::IEnumerator^ Obj_GetEnumerator() sealed = System::Collections::IEnumerable::GetEnumerator
 		{
