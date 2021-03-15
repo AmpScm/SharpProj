@@ -1,6 +1,9 @@
 # SharpProj - Wrapping the reall PROJ (previously known as PROJ4) for .Net
 
-Use the real PROJ,implemented the .Net way, reusable and hopefully as simple NuGet package soon.
+Use the real OSGeo PROJ implementation,implemented the .Net way, reusable and available as simple to use package on NuGet
+
+https://www.nuget.org/packages/SharpProj/
+
 
 Setup build environment using:
 
@@ -13,3 +16,7 @@ Setup build environment using:
     vcpkg install proj4:x64-windows-static-md
     cd ..
     git clone https://github.com/AmpScm/SharpProj.git
+
+
+There are still some issues in the vcpkg port of proj that break projection grids in static builds. I use a local
+workaround while I'm working to get these fixes incorporated in vcpkg.
