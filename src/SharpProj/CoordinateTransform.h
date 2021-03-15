@@ -13,6 +13,7 @@ namespace SharpProj {
 	ref class CoordinateTransformOptions;
 
 	using System::Collections::ObjectModel::ReadOnlyCollection;
+	using System::Collections::Generic::IReadOnlyCollection;
 	using System::Collections::Generic::List;
 	using System::ComponentModel::EditorBrowsableAttribute;
 	using System::ComponentModel::EditorBrowsableState;
@@ -468,7 +469,10 @@ namespace SharpProj {
 		static CoordinateTransform^ Create(String^ from, [Optional] ProjContext^ ctx);
 		static CoordinateTransform^ Create(array<String^>^ definition, [Optional] ProjContext^ ctx);
 		static CoordinateTransform^ CreateFromDatabase(String^ authority, String^ code, [Optional] ProjContext^ ctx);
-
+		static CoordinateTransform^ CreateFromDatabase(String^ authority, int code, [Optional] ProjContext^ ctx)
+		{
+			return CoordinateTransform::CreateFromDatabase(authority, code.ToString(), ctx);
+		}
 
 	public:
 		double RoundTrip(bool forward, int transforms, PPoint coordinate);
@@ -507,6 +511,17 @@ namespace SharpProj {
 
 				return f * Math::Round(value / f);
 			}
+		}
+
+	public:
+		virtual IReadOnlyList<CoordinateTransform^>^ Options()
+		{
+			return Array::AsReadOnly(gcnew array<CoordinateTransform^> { this });
+		}
+
+		virtual IReadOnlyList<CoordinateTransform^>^ Steps()
+		{
+			return Array::AsReadOnly(gcnew array<CoordinateTransform^> { this });
 		}
 	};
 

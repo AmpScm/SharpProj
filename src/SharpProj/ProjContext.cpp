@@ -92,28 +92,36 @@ static void my_log_func(void* user_data, int level, const char* message)
 
 
 ProjContext::ProjContext()
+	: ProjContext(proj_context_create())
 {
-	m_ctx = proj_context_create();
+	if (EnableNetworkConnectionsOnNewContexts)
+		EnableNetworkConnections = true;
 
-	if (m_ctx)
-	{
-		WeakReference<ProjContext^>^ wr = gcnew WeakReference<ProjContext^>(this);
-		m_ref = new gcroot<WeakReference<ProjContext^>^>(wr);
-
-		proj_context_set_file_finder(m_ctx, my_file_finder, m_ref);
-		proj_log_func(m_ctx, m_ref, my_log_func);
-		proj_log_level(m_ctx, PJ_LOG_ERROR);
-
-		SetupNetworkHandling();
-
-		if (EnableNetworkConnectionsOnNewContexts)
-		{
-			EnableNetworkConnections = true;
-		}
-	}
+	proj_log_level(m_ctx, PJ_LOG_ERROR);
 }
 
-inline SharpProj::ProjContext::~ProjContext()
+ProjContext::ProjContext(PJ_CONTEXT* ctx)
+{
+	if (!ctx)
+		throw gcnew ArgumentNullException("ctx");
+
+	m_ctx = ctx;
+
+	WeakReference<ProjContext^>^ wr = gcnew WeakReference<ProjContext^>(this);
+	m_ref = new gcroot<WeakReference<ProjContext^>^>(wr);
+
+	proj_context_set_file_finder(m_ctx, my_file_finder, m_ref);
+	proj_log_func(m_ctx, m_ref, my_log_func);
+
+	SetupNetworkHandling();
+}
+
+ProjContext^ ProjContext::Clone()
+{
+	return gcnew ProjContext(proj_context_clone(this));
+}
+
+SharpProj::ProjContext::~ProjContext()
 {
 	if (m_ctx)
 	{
@@ -265,9 +273,9 @@ bool ProjContext::CanWriteFromResource(String^ file, String^ resultFile)
 	return false;
 }
 
-System::Collections::Generic::IEnumerable<String^>^ ProjContext::AssemblyDirs::get()
+System::Collections::Generic::IEnumerable<String^>^ ProjContext::ProjLibDirs::get()
 {
-	if (!_assemblyDirs)
+	if (!_projLibDirs)
 	{
 		List<String^>^ dirs = gcnew List<String^>();
 
@@ -296,25 +304,43 @@ System::Collections::Generic::IEnumerable<String^>^ ProjContext::AssemblyDirs::g
 		if (AppDomain::CurrentDomain->BaseDirectory && !dirs->Contains(AppDomain::CurrentDomain->BaseDirectory))
 			dirs->Add(AppDomain::CurrentDomain->BaseDirectory);
 
+		try
+		{
+			String^ libs = System::Environment::GetEnvironmentVariable("PROJ_LIB");
 
-		_assemblyDirs = dirs->ToArray();
+			if (!String::IsNullOrEmpty(libs))
+			{
+				for each (String ^ p in libs->Split(System::IO::Path::PathSeparator))
+				{
+					if (String::IsNullOrWhiteSpace(p))
+						continue;
+
+					auto pp = Path::GetFullPath(p);
+
+					if (Directory::Exists(pp) && !dirs->Contains(pp))
+						dirs->Add(pp);
+				}
+			}
+		}
+		catch (Exception^)
+		{ /* Assembly security restrictions */
+		}
+
+		_projLibDirs = dirs->ToArray();
 	}
 
-	return static_cast<System::Collections::Generic::IEnumerable<String^>^>(_assemblyDirs);
+	return static_cast<System::Collections::Generic::IEnumerable<String^>^>(_projLibDirs);
 }
 
 String^ ProjContext::FindFile(String^ file)
 {
 	String^ testFile;
 
-	for each (String ^ dir in AssemblyDirs)
+	for each (String ^ dir in ProjLibDirs)
 	{
 		if (File::Exists(testFile = Path::Combine(dir, file)))
 			return testFile;
 	}
-
-	if (File::Exists(testFile = EnvCombine("PROJ_LIB", file)))
-		return testFile;
 
 	const char* pUserDir = proj_context_get_user_writable_directory(this, false);
 	String^ userDir = Utf8_PtrToString(pUserDir);

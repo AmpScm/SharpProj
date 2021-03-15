@@ -19,6 +19,11 @@ namespace SharpProj {
 		Trace = PJ_LOG_TRACE
 	};
 
+	/// <summary>
+	/// Context objects enable safe multi-threaded usage of SharpProj. Each Proj object is connected to some context
+	/// (if not specified, a default related or new context is used). All operations within a context should be
+	/// performed in the same thread.
+	/// </summary>
 	public ref class ProjContext
 	{
 	private:
@@ -26,10 +31,7 @@ namespace SharpProj {
 		gcroot<WeakReference<ProjContext^>^>* m_ref;
 		void* m_chain;
 
-		ProjContext(PJ_CONTEXT* ctx)
-		{
-			m_ctx = ctx;
-		}
+		ProjContext(PJ_CONTEXT* ctx);
 
 		void SetupNetworkHandling();
 
@@ -46,15 +48,22 @@ namespace SharpProj {
 		void free_chain(void*& chain);
 
 	public:
+		/// <summary>
+		/// Creates a new unrelated context
+		/// </summary>
 		ProjContext();
 
 		~ProjContext();
 
-		ProjContext^ Clone()
-		{
-			return gcnew ProjContext(proj_context_clone(this));
-		}
-
+		/// <summary>
+		/// Creates a disconnected copy of this context.
+		/// </summary>
+		/// <returns></returns>
+		ProjContext^ Clone();
+		
+		/// <summary>
+		/// Enable or disable network access. This allows access to not locally available grid transforms, etc.
+		/// </summary>
 		property bool EnableNetworkConnections
 		{
 			bool get()
@@ -88,6 +97,9 @@ namespace SharpProj {
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the URL used to access the proj data
+		/// </summary>
 		property String^ EndpointUrl
 		{
 			String^ get()
@@ -103,6 +115,13 @@ namespace SharpProj {
 			}
 		}
 
+		/// <summary>
+		/// Sets up a specific caching location. By default a standard per user cache in local appdata is used.
+		/// </summary>
+		/// <param name="enabled"></param>
+		/// <param name="path"></param>
+		/// <param name="max_mb"></param>
+		/// <param name="ttl_seconds"></param>
 		void SetGridCache(bool enabled, String^ path, int max_mb, int ttl_seconds)
 		{
 			proj_grid_cache_set_enable(this, enabled);
@@ -115,15 +134,18 @@ namespace SharpProj {
 			proj_grid_cache_set_ttl(this, ttl_seconds > 0 ? ttl_seconds : -1);
 		}
 
+		/// <summary>
+		/// Clears the current grid cache. Grid files will be reloaded when required
+		/// </summary>
 		void ClearGridCache()
 		{
 			proj_grid_cache_clear(this);
 		}
 
 	private:
-		static array<String^>^ _assemblyDirs;
+		static array<String^>^ _projLibDirs;
 		bool CanWriteFromResource(String^ file, String^ userDir);
-		property System::Collections::Generic::IEnumerable<String^>^ AssemblyDirs
+		property System::Collections::Generic::IEnumerable<String^>^ ProjLibDirs
 		{
 			System::Collections::Generic::IEnumerable<String^>^ get();
 		}
@@ -133,9 +155,30 @@ namespace SharpProj {
 		void OnLogMessage(ProjLogLevel level, String^ message);
 
 	public:
+		/// <summary>
+		/// Creates a new proj object from its definition. Definiton could be an auth string, a projstring, wellknowntext or even projjson.
+		/// </summary>
+		/// <param name="definition"></param>
+		/// <returns></returns>
 		ProjObject^ Create(String^ definition);
+		/// <summary>
+		/// Creates a new proj object from its definition. Definiton could be an auth string, a projstring, wellknowntext or even projjson.
+		/// </summary>
+		/// <param name="from"></param>
+		/// <returns></returns>
 		ProjObject^ Create(...array<String^>^ from);
+		/// <summary>
+		/// Creates a new proj object from a Well known text definition.
+		/// </summary>
+		/// <param name="from"></param>
+		/// <returns></returns>
 		ProjObject^ CreateFromWellKnownText(String^ from);
+		/// <summary>
+		/// Creates a new proj object from a Well known text definition.
+		/// </summary>
+		/// <param name="from"></param>
+		/// <param name="warnings"></param>
+		/// <returns></returns>
 		ProjObject^ CreateFromWellKnownText(String^ from, [Out] array<String^>^% warnings);
 
 	internal:
@@ -157,6 +200,9 @@ namespace SharpProj {
 		}
 
 	public:
+		/// <summary>
+		/// Gets or sets the log level
+		/// </summary>
 		property ProjLogLevel LogLevel
 		{
 			ProjLogLevel get()
@@ -219,9 +265,8 @@ namespace SharpProj {
 	private:
 		static String^ EnvCombine(String^ envVar, String^ file);
 
-	public:
-		static void DownloadProjDB(String^ toPath);
 	internal:
+		static void DownloadProjDB(String^ toPath);
 		static operator PJ_CONTEXT* (ProjContext^ me)
 		{
 			if ((Object^)me == nullptr)

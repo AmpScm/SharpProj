@@ -115,5 +115,11 @@ namespace SharpProj {
 				return ProjType::Unknown;
 			}
 		}
+
+	public:
+		virtual IReadOnlyList<CoordinateTransform^>^ Options() override
+		{
+			return this;
+		}
 	};
 }

@@ -1,7 +1,15 @@
 #include "pch.h"
 #include "Datum.h"
+#include "Ellipsoid.h"
 
-
+Datum::~Datum()
+{
+	if ((Object^)m_ellipsoid)
+	{
+		delete m_ellipsoid;
+		m_ellipsoid = nullptr;
+	}
+}
 
 Datum^ Datum::CreateFromDatabase(String^ authority, String^ code, ProjContext^ ctx)
 {
@@ -34,4 +42,19 @@ Datum^ Datum::CreateFromDatabase(String^ authority, String^ code, ProjContext^ c
 	{
 		delete ctx;
 	}
+}
+
+Proj::Ellipsoid^ Datum::Ellipsoid::get()
+{
+	if (!m_ellipsoid && this)
+	{
+		Context->ClearError(this);
+		PJ* pj = proj_get_ellipsoid(Context, this);
+
+		if (!pj)
+			throw Context->ConstructException();
+
+		m_ellipsoid = Context->Create<Proj::Ellipsoid^>(pj);
+	}
+	return m_ellipsoid;
 }

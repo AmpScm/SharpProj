@@ -277,6 +277,16 @@ namespace SharpProj {
 			{
 				double get();
 			}
+
+			property double CenterX
+			{
+				double get();
+			}
+
+			property double CenterY
+			{
+				double get();
+			}
 		};
 
 		[System::Diagnostics::DebuggerDisplayAttribute("[{Type}] {ToString(),nq}")]

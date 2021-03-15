@@ -77,7 +77,7 @@ CoordinateTransform^ CoordinateTransform::Create(CoordinateReferenceSystem^ sour
 
 	proj_operation_factory_context_set_allow_ballpark_transformations(ctx, operation_ctx, !options->NoBallparkConversions);
 
-	if (options->Accuracy.HasValue)
+	if (options->Accuracy.HasValue && options->Accuracy.Value >= 0.0)
 		proj_operation_factory_context_set_desired_accuracy(ctx, operation_ctx, options->Accuracy.Value);
 
 	if (options && options->Area)
@@ -276,12 +276,11 @@ void CoordinateTransform::ApplyReversed(
 
 PPoint CoordinateTransform::FromCoordinate(const PJ_COORD& coord, bool forward)
 {
-	int axis = 4;
-
 	CoordinateReferenceSystem^ crs = forward ? TargetCRS : SourceCRS;
-	axis = crs ? crs->AxisCount : 4;
-
-	return PPoint(axis, &coord.v[0]);
+	if (crs)
+		return PPoint(crs->AxisCount, coord);
+	else
+		return PPoint(coord);
 }
 
 CoordinateReferenceSystem^ CoordinateTransform::SourceCRS::get()

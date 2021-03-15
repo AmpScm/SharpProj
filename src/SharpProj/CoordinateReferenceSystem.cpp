@@ -1,4 +1,6 @@
 #include "pch.h"
+#include <proj_experimental.h>
+
 #include "ProjContext.h"
 #include "ProjException.h"
 #include "CoordinateReferenceSystem.h"
@@ -321,7 +323,6 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::BaseCRS::get()
 {
 	if (!m_baseCrs && this)
 	{
-		Context->ClearError(this);
 		PJ* pj = proj_get_source_crs(Context, this);
 
 		if (!pj)
@@ -332,6 +333,38 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::BaseCRS::get()
 		m_baseCrs = Context->Create<CoordinateReferenceSystem^>(pj);
 	}
 	return m_baseCrs;
+}
+
+CoordinateReferenceSystem^ CoordinateReferenceSystem::PromotedTo3D()
+{
+	if (!m_promotedTo3D && this)
+	{
+		PJ* pj = proj_crs_promote_to_3D(Context, nullptr, this);
+
+		if (!pj)
+		{
+			Context->ClearError(this);
+			return nullptr;
+		}
+		m_promotedTo3D = Context->Create<CoordinateReferenceSystem^>(pj);
+	}
+	return m_promotedTo3D;
+}
+
+CoordinateReferenceSystem^ CoordinateReferenceSystem::DemoteTo2D()
+{
+	if (!m_demotedTo2D && this)
+	{
+		PJ* pj = proj_crs_demote_to_2D(Context, nullptr, this);
+
+		if (!pj)
+		{
+			Context->ClearError(this);
+			return nullptr;
+		}
+		m_demotedTo2D = Context->Create<CoordinateReferenceSystem^>(pj);
+	}
+	return m_demotedTo2D;
 }
 
 CoordinateTransform^ CoordinateReferenceSystem::DistanceTransform::get()

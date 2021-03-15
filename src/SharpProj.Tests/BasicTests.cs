@@ -488,7 +488,7 @@ namespace SharpProj.Tests
                         Assert.IsTrue(cl[0].GridUsageCount > 0);
                         Assert.IsTrue(cl[1].GridUsageCount == 0);
 
-                        Assert.AreEqual(new PPoint(50.999, 4.0), t.Apply(new PPoint(51, 4)).RoundXY(3));
+                        Assert.AreEqual(new PPoint(50.999, 4.0), t.Apply(new PPoint(51, 4)).ToXY(3));
                         var r = t.Apply(51, 4, 0);
                         Assert.IsTrue(usedHttp, "Now http");
 
@@ -584,6 +584,99 @@ namespace SharpProj.Tests
                         Console.WriteLine($"{p.Authority}:{p.Code} ({p.Type}) / {p.ProjectionName} {c.Name}");
                     }
                 }
+            }
+        }
+
+        [TestMethod]
+        public void WithHelmert()
+        {
+            using (ProjContext pc = new ProjContext() { EnableNetworkConnections = true })
+            using (var epsg28992 = CoordinateReferenceSystem.CreateFromDatabase("EPSG", "28992", pc))
+            using (var wgs84mercator = CoordinateReferenceSystem.CreateFromDatabase("EPSG", "3857", pc))
+            using (var t = CoordinateTransform.Create(epsg28992, wgs84mercator, new CoordinateTransformOptions { NoDiscardIfMissing = true, UseSuperseded = true, NoBallparkConversions = true }))
+            {
+                pc.LogLevel = ProjLogLevel.Trace;
+                pc.Log += (_, m) => Console.WriteLine(m);
+
+                ChooseCoordinateTransform cct = t as ChooseCoordinateTransform;
+                var p2000 = new PPoint(646, 308290) { T = 2000 };
+                var p2021 = new PPoint(646, 308290) { T = 2021 };
+
+
+                var pt2000 = t.Apply(p2000);
+                var pt2021 = t.Apply(p2021);
+
+                Assert.AreNotEqual(pt2000, pt2021);
+            }
+        }
+
+        [TestMethod]
+        public void TestTime()
+        {
+            using (ProjContext pc = new ProjContext() { EnableNetworkConnections = true, LogLevel = ProjLogLevel.Trace })
+            using (var epsg6340 = CoordinateReferenceSystem.CreateFromDatabase("EPSG", 6340, pc)) // [ProjectedCrs] NAD83(2011) / UTM zone 11N
+            using (var epsg7665 = CoordinateReferenceSystem.CreateFromDatabase("EPSG", 7665, pc)) // [Geographic3DCrs] WGS 84 (G1762)
+            using (var t = CoordinateTransform.Create(epsg6340, epsg7665, new CoordinateTransformOptions { NoBallparkConversions = true, Accuracy = 1 }))
+            {
+                pc.Log += (_, l) => Console.WriteLine(l);
+
+                double epochYear = (epsg7665.Datum as ReferenceFrame)?.EpochYear ?? -1;
+                Assert.AreEqual(2005.0, epochYear, "If not 2005 the next values are probably bad as well");
+
+                double helmertEpoch = t.Options().SelectMany(x => x.Steps()).SelectMany(x => x.Parameters).FirstOrDefault(x => x.UnitName == "year").Value;
+                Assert.AreEqual(1997.0, helmertEpoch);
+
+                PPoint testVal = new PPoint(350499.911, 3884807.956, 150.072); // From proj/tests/test_c_api.cpp
+
+                Console.WriteLine("-Default");
+                Assert.AreEqual(new PPoint(35.09499807, -118.64016102), t.Apply(testVal).ToXY(8));
+                Assert.AreEqual(new PPoint(35.09499807, -118.64016102), t.Apply(testVal.ToXYZ()).ToXY(8));
+                Console.WriteLine("-AtEpoch verified");
+                Assert.AreEqual(new PPoint(35.09499807, -118.64016102), t.Apply(testVal.WithT(1997)).ToXY(8));
+
+                Console.WriteLine("-0");
+                Assert.AreEqual(new PPoint(35.09521122, -118.63986605), t.Apply(testVal.WithT(0)).ToXY(8));
+
+
+                Console.WriteLine("-2000");
+                Assert.AreEqual(new PPoint(35.09499775, -118.64016146), t.Apply(testVal.WithT(2000)).ToXY(8));
+                Console.WriteLine("-2005");
+                Assert.AreEqual(new PPoint(35.09499722, -118.64016220), t.Apply(testVal.WithT(epochYear /* 2005 */)).ToXY(8));
+                Console.WriteLine("-2010");
+                Assert.AreEqual(new PPoint(35.09499668, -118.64016294), t.Apply(testVal.WithT(2010)).ToXY(8));
+                Console.WriteLine("-2020");
+                Assert.AreEqual(new PPoint(35.09499562, -118.64016442), t.Apply(testVal.WithT(2020)).ToXY(8));
+                Console.WriteLine("-2021");
+                Assert.AreEqual(new PPoint(35.09499551, -118.64016457), t.Apply(testVal.WithT(2021)).ToXY(8));
+                Console.WriteLine("-2022");
+                Assert.AreEqual(new PPoint(35.09499540, -118.64016471), t.Apply(testVal.WithT(2022)).ToXY(8));
+                Console.WriteLine("-year0");
+                var yearStart = t.Apply(testVal.WithT(DateTime.Now.Year));
+                var yearEnd= t.Apply(testVal.WithT(DateTime.Now.Year+1));
+                var today = t.Apply(testVal.WithT(DateTime.Now.ToYearValue()));
+                Assert.IsTrue(yearStart.X >= today.X && today.X >= yearEnd.X);
+                Assert.IsTrue(yearStart.Y >= today.Y && today.Y >= yearEnd.Y);
+                Assert.AreEqual(new PPoint(35.09521122, -118.63986605), t.Apply(testVal.WithT(0)).ToXY(8));
+                Console.WriteLine("-year PositiveInf1");
+                Assert.AreEqual(new PPoint(35.09499807, -118.64016102), t.Apply(testVal.WithT(double.PositiveInfinity)).ToXY(8));
+            }
+        }
+
+        [TestMethod]
+        public void TestAustralia()
+        {
+            using (ProjContext pc = new ProjContext() { EnableNetworkConnections = true })
+            using (var australia = CoordinateReferenceSystem.CreateFromDatabase("EPSG", 7843, pc))
+            using (var epsg7665 = CoordinateReferenceSystem.CreateFromDatabase("EPSG", 7665, pc))
+            using (var t = CoordinateTransform.Create(australia, epsg7665, new CoordinateTransformOptions { IntermediateCrsUsage = IntermediateCrsUsage.Always, NoDiscardIfMissing = true }))
+            {
+                var ua = australia.UsageArea;
+                var r = t.Apply(new PPoint(ua.CenterX, ua.CenterY));
+                var r2 = t.Apply(new PPoint(ua.CenterX, ua.CenterY) { T = 2000 });
+                var r3 = t.Apply(new PPoint(ua.CenterX, ua.CenterY) { T = 2020 });
+
+                Assert.AreNotEqual(r2.ToXY(), r3.ToXY());
+                GC.KeepAlive(t);
             }
         }
     }

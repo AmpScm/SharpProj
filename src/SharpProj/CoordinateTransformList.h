@@ -55,6 +55,12 @@ namespace SharpProj {
 				return m_steps[index];
 			}
 		}
+
+	public:
+		virtual IReadOnlyList<CoordinateTransform^>^ Steps() override
+		{
+			return this;
+		}
 	};
 
 }

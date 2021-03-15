@@ -62,6 +62,11 @@ namespace SharpProj {
 
 		public:
 			static Ellipsoid^ CreateFromDatabase(String^ authority, String^ code, [Optional] ProjContext^ ctx);
+
+			static Ellipsoid^ CreateFromDatabase(String^ authority, int code, [Optional] ProjContext^ ctx)
+			{
+				return Ellipsoid::CreateFromDatabase(authority, code.ToString(), ctx);
+			}
 		};
 	}
 

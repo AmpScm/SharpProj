@@ -68,6 +68,19 @@ namespace SharpProj
         }
 
         /// <summary>
+        /// Converts an NTS <see cref="Point"/> to a SharpProj <see cref="PPoint"/>
+        /// </summary>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        public static PPoint ToPPoint(this Point point)
+        {
+            if (point == null)
+                return new PPoint(double.NaN);
+            else
+                return point.Coordinate.ToPPoint();
+        }
+
+        /// <summary>
         /// Converts sequence
         /// </summary>
         /// <param name="cs"></param>

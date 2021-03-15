@@ -30,29 +30,28 @@ namespace SharpProj {
 
 
 	internal:
-		PPoint(int axis, const double* v)
+		PPoint(int axis, const PJ_COORD& pc)
 		{
 			if (axis < 1 || axis > 4)
 				throw gcnew ArgumentOutOfRangeException("axis");
 
 			m_axis = (Byte)axis;
-			X = v[0];
-			Y = (axis > 1) ? v[1] : 0;
-			Z = (axis > 2) ? v[2] : 0;
-			T = (axis > 3) ? v[3] : double::PositiveInfinity;
+			X = pc.xyzt.x;
+			Y = pc.xyzt.y;
+			Z = pc.xyzt.z;
+			T = pc.xyzt.t;
 		}
 
 		PPoint(const PJ_COORD& coord)
 		{
-			PPoint r;
-			r.X = coord.v[0];
-			r.Y = coord.v[1];
-			r.Z = coord.v[2];
-			r.T = coord.v[3];
+			X = coord.xyzt.x;
+			Y = coord.xyzt.y;
+			Z = coord.xyzt.z;
+			T = coord.xyzt.t;
 
-			if (r.T != 0 && r.T != double::PositiveInfinity)
+			if (coord.xyzt.t != 0 && coord.xyzt.t != double::PositiveInfinity)
 				m_axis = 4;
-			else if (r.Z != 0)
+			else if (coord.xyzt.z != 0)
 				m_axis = 3;
 			else
 				m_axis = 2;
@@ -306,6 +305,57 @@ namespace SharpProj {
 			{
 				return !double::IsNaN(X) && !double::IsInfinity(X);
 			}
+		}
+
+	public:
+		/// <summary>
+		/// Trims values of <see cref="PPoint" /> to just X and Y
+		/// </summary>
+		/// <returns></returns>
+		PPoint ToXY()
+		{
+			return PPoint(X, Y);
+		}
+
+		/// <summary>
+		/// Trims values in <see cref="PPoint" /> to just X and Y. Also rounds these values to <paramref name="decimals"/> decimals.
+		/// </summary>
+		/// <param name="decimals"></param>
+		/// <returns></returns>
+		PPoint ToXY(int decimals)
+		{
+			return PPoint(Math::Round(X, decimals), Math::Round(Y, decimals));
+		}
+
+		/// <summary>
+		/// Trims values in <see cref="PPoint" /> to just X, Y and Z.
+		/// </summary>
+		/// <returns></returns>
+		PPoint ToXYZ()
+		{
+			return PPoint(X, Y, Z);
+		}
+
+		/// <summary>
+		/// Trims values in <see cref="PPoint" /> to just X, Y and Z. Also rounds these values to <paramref name="decimals"/> decimals.
+		/// </summary>
+		/// <param name="decimals"></param>
+		/// <returns></returns>
+		PPoint ToXYZ(int decimals)
+		{
+			return PPoint(Math::Round(X, decimals), Math::Round(Y, decimals), Math::Round(Z, decimals));
+		}
+
+		/// <summary>
+		/// Creates a new <see cref="PPoint"/> with all values copied and <see cref="PPoint::T"/> set to <paramref name="t"/>
+		/// </summary>
+		/// <param name="t"></param>
+		/// <returns></returns>
+		PPoint WithT(double t)
+		{
+			PPoint nw = *this;
+			nw.T = t;
+			return nw;
 		}
 	};
 }

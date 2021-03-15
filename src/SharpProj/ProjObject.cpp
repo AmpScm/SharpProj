@@ -393,19 +393,18 @@ double UsageArea::MinY::get()
 {
 	if (!m_minY.HasValue)
 	{
-		m_minY = Math::Min(Math::Min(NorthEastCorner.Y, NorthWestCorner.Y), Math::Min(SouthEastCorner.Y, SouthWestCorner.Y));
+		double minY = Math::Min(Math::Min(NorthEastCorner.Y, NorthWestCorner.Y), Math::Min(SouthEastCorner.Y, SouthWestCorner.Y));
 
-		if (m_minY.HasValue)
+		if (double::IsNaN(minY) || double::IsInfinity(minY))
+			m_minY = double::NaN;
+		else
 		{
-			if (double::IsNaN(m_minY.Value))
-				m_minY = Nullable<double>();
-			else
-			{
-				auto ll = GetLatLonConvert();
+			auto ll = GetLatLonConvert();
 
-				if (ll->Accuraracy.HasValue && ll->Accuraracy.Value > 0)
-					m_minY = CoordinateTransform::ApplyAccuracy(m_minY.Value, ll->Accuraracy.Value);
-			}
+			if (ll->Accuraracy.HasValue && ll->Accuraracy.Value > 0)
+				m_minY = CoordinateTransform::ApplyAccuracy(minY, ll->Accuraracy.Value);
+			else
+				m_minY = double::NaN;
 		}
 	}
 
@@ -416,19 +415,18 @@ double UsageArea::MaxY::get()
 {
 	if (!m_maxY.HasValue)
 	{
-		m_maxY = Math::Max(Math::Max(NorthEastCorner.Y, NorthWestCorner.Y), Math::Max(SouthEastCorner.Y, SouthWestCorner.Y));
+		double maxY = Math::Max(Math::Max(NorthEastCorner.Y, NorthWestCorner.Y), Math::Max(SouthEastCorner.Y, SouthWestCorner.Y));
 
-		if (m_maxY.HasValue)
+		if (double::IsNaN(maxY) || double::IsInfinity(maxY))
+			m_maxY = double::NaN;
+		else
 		{
-			if (double::IsNaN(m_maxY.Value))
-				m_maxY = Nullable<double>();
-			else
-			{
-				auto ll = GetLatLonConvert();
+			auto ll = GetLatLonConvert();
 
-				if (ll->Accuraracy.HasValue && ll->Accuraracy.Value > 0)
-					m_maxY = CoordinateTransform::ApplyAccuracy(m_maxY.Value, ll->Accuraracy.Value);
-			}
+			if (ll->Accuraracy.HasValue && ll->Accuraracy.Value > 0)
+				m_maxY = CoordinateTransform::ApplyAccuracy(maxY, ll->Accuraracy.Value);
+			else
+				m_maxY = double::NaN;
 		}
 	}
 
@@ -439,19 +437,18 @@ double UsageArea::MinX::get()
 {
 	if (!m_minX.HasValue)
 	{
-		m_minX = Math::Min(Math::Min(NorthEastCorner.X, NorthWestCorner.X), Math::Min(SouthEastCorner.X, SouthWestCorner.X));
+		double minX = Math::Min(Math::Min(NorthEastCorner.X, NorthWestCorner.X), Math::Min(SouthEastCorner.X, SouthWestCorner.X));
 
-		if (m_minX.HasValue)
+		if (double::IsNaN(minX) || double::IsInfinity(minX))
+			m_minX = double::NaN;
+		else
 		{
-			if (double::IsNaN(m_minX.Value))
-				m_minX = Nullable<double>();
-			else
-			{
-				auto ll = GetLatLonConvert();
+			auto ll = GetLatLonConvert();
 
-				if (ll->Accuraracy.HasValue && ll->Accuraracy.Value > 0)
-					m_minX = CoordinateTransform::ApplyAccuracy(m_minX.Value, ll->Accuraracy.Value);
-			}
+			if (ll->Accuraracy.HasValue && ll->Accuraracy.Value > 0)
+				m_minX = CoordinateTransform::ApplyAccuracy(minX, ll->Accuraracy.Value);
+			else
+				m_minX = double::NaN;
 		}
 	}
 
@@ -462,21 +459,36 @@ double UsageArea::MaxX::get()
 {
 	if (!m_maxX.HasValue)
 	{
-		m_maxX = Math::Max(Math::Max(NorthEastCorner.X, NorthWestCorner.X), Math::Max(SouthEastCorner.X, SouthWestCorner.X));
+		double maxX = Math::Max(Math::Max(NorthEastCorner.X, NorthWestCorner.X), Math::Max(SouthEastCorner.X, SouthWestCorner.X));
 
-		if (m_maxX.HasValue)
+		if (double::IsNaN(maxX) || double::IsInfinity(maxX))
+			m_maxX = double::NaN;
+		else
 		{
-			if (double::IsNaN(m_maxX.Value))
-				m_maxX = Nullable<double>();
-			else
-			{
-				auto ll = GetLatLonConvert();
+			auto ll = GetLatLonConvert();
 
-				if (ll->Accuraracy.HasValue && ll->Accuraracy.Value > 0)
-					m_maxX = CoordinateTransform::ApplyAccuracy(m_maxX.Value, ll->Accuraracy.Value);
-			}
+			if (ll->Accuraracy.HasValue && ll->Accuraracy.Value > 0)
+				m_maxX = CoordinateTransform::ApplyAccuracy(maxX, ll->Accuraracy.Value);
+			else
+				m_maxX = double::NaN;
 		}
 	}
 
 	return m_maxX.Value;
+}
+
+double UsageArea::CenterX::get()
+{
+	if (!double::IsNaN(MinX) && !double::IsNaN(MaxX))
+		return (MinX + MaxX) / 2;
+	else
+		return double::NaN;
+}
+
+double UsageArea::CenterY::get()
+{
+	if (!double::IsNaN(MinY) && !double::IsNaN(MaxY))
+		return (MinY + MaxY) / 2;
+	else
+		return double::NaN;
 }

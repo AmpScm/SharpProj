@@ -98,7 +98,7 @@ void ChooseCoordinateTransform::DoTransform(bool forward,
 	double* tVals, int tStep, int tCount)
 {
 	PPoint p;
-    size_t i;
+    int i;
     int nmin;
     double null_broadcast = 0;
 	double invalid_time = HUGE_VAL;

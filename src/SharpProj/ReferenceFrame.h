@@ -8,8 +8,6 @@ namespace SharpProj {
         public ref class ReferenceFrame :
             public Datum
         {
-        private:
-            Ellipsoid^ m_ellipsoid;
         internal:
             ReferenceFrame(ProjContext^ ctx, PJ* pj)
                 : Datum(ctx, pj)
@@ -34,11 +32,6 @@ namespace SharpProj {
                     else
                         return Nullable<double>();
                 }
-            }
-
-            property Ellipsoid^ Ellipsoid
-            {
-                Proj::Ellipsoid^ get();
             }
 
         public:

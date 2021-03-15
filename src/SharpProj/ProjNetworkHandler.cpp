@@ -63,13 +63,15 @@ static PROJ_NETWORK_HANDLE* my_network_open(
 	}
 	catch (System::Net::WebException^ wx)
 	{
-		pc->OnLogMessage(ProjLogLevel::Debug, wx->ToString());
+		pc->OnLogMessage(ProjLogLevel::Error, wx->ToString());
 		rp = wx->Response;
 	}
 	catch (Exception^ ex)
 	{
-		pc->OnLogMessage(ProjLogLevel::Debug, ex->ToString());
-		rp = nullptr;
+		pc->OnLogMessage(ProjLogLevel::Error, ex->ToString());
+		std::string msg = utf8_string(String::Format("HTTP Error: {0}", ex->Message));
+		strncpy_s(out_error_string, error_string_max_size, msg.c_str(), error_string_max_size);
+		return nullptr;
 	}
 
 	HttpWebResponse^ hrp = dynamic_cast<HttpWebResponse^>(rp);
@@ -112,7 +114,13 @@ static PROJ_NETWORK_HANDLE* my_network_open(
 		strncpy_s(out_error_string, error_string_max_size, "No partial web response", error_string_max_size);
 		return nullptr;
 	}
-	else
+	else if (hrp)
+	{
+		std::string msg = utf8_string(String::Format("Unexpected HTTP(s) result {0}: {1}", hrp->StatusCode, hrp->StatusDescription));
+		strncpy_s(out_error_string, error_string_max_size, msg.c_str(), error_string_max_size);
+		return nullptr;
+	}
+	else 
 	{
 		strncpy_s(out_error_string, error_string_max_size, "Http error", error_string_max_size);
 		return nullptr;
@@ -194,13 +202,15 @@ size_t my_network_read_range(
 	}
 	catch (System::Net::WebException^ wx)
 	{
-		d->ctx->OnLogMessage(ProjLogLevel::Debug, wx->ToString());
+		d->ctx->OnLogMessage(ProjLogLevel::Error, wx->ToString());
 		rp = wx->Response;
 	}
 	catch (Exception^ ex)
 	{
-		d->ctx->OnLogMessage(ProjLogLevel::Debug, ex->ToString());
-		rp = nullptr;
+		d->ctx->OnLogMessage(ProjLogLevel::Error, ex->ToString());
+		std::string msg = utf8_string(String::Format("HTTP Error: {0}", ex->Message));
+		strncpy_s(out_error_string, error_string_max_size, msg.c_str(), error_string_max_size);
+		return 0;
 	}
 
 	HttpWebResponse^ hrp = dynamic_cast<HttpWebResponse^>(rp);
@@ -240,6 +250,12 @@ size_t my_network_read_range(
 	else if (!in_error)
 	{
 		strncpy_s(out_error_string, error_string_max_size, "No partial web response", error_string_max_size);
+		return 0;
+	}
+	else if (hrp)
+	{
+		std::string msg = utf8_string(String::Format("Unexpected HTTP(s) result {0}: {1}", hrp->StatusCode, hrp->StatusDescription));
+		strncpy_s(out_error_string, error_string_max_size, msg.c_str(), error_string_max_size);
 		return 0;
 	}
 	else

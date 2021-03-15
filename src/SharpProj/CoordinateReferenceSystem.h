@@ -131,6 +131,8 @@ namespace SharpProj {
 		Proj::PrimeMeridian^ m_primeMeridian;
 		CoordinateReferenceSystem^ m_baseCrs;
 		CoordinateTransform^ m_distanceTransform;
+		CoordinateReferenceSystem^ m_promotedTo3D;
+		CoordinateReferenceSystem^ m_demotedTo2D;
 		WeakReference<Proj::UsageArea^>^ m_usageArea;
 		int m_axis;
 
@@ -214,6 +216,9 @@ namespace SharpProj {
 			CoordinateTransform^ get();
 		}
 
+		CoordinateReferenceSystem^ PromotedTo3D();
+		CoordinateReferenceSystem^ DemoteTo2D();
+
 		property Proj::UsageArea^ UsageArea
 		{
 			virtual Proj::UsageArea^ get() override
@@ -244,8 +249,9 @@ namespace SharpProj {
 		static CoordinateReferenceSystem^ CreateFromWellKnownText(String^ from, [Optional] ProjContext^ ctx);
 		static CoordinateReferenceSystem^ CreateFromWellKnownText(String^ from, [Out] array<String^>^% warnings, [Optional] ProjContext^ ctx);
 		static CoordinateReferenceSystem^ CreateFromDatabase(String^ authority, String^ code, [Optional] ProjContext^ ctx);
-
-
-
+		static CoordinateReferenceSystem^ CreateFromDatabase(String^ authority, int code, [Optional] ProjContext^ ctx)
+		{
+			return CoordinateReferenceSystem::CreateFromDatabase(authority, code.ToString(), ctx);
+		}
 	};
 }
