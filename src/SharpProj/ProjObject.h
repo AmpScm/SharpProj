@@ -5,6 +5,8 @@
 
 namespace SharpProj {
 	using System::Collections::Generic::IReadOnlyList;
+	using System::Diagnostics::DebuggerBrowsableAttribute;
+	using System::Diagnostics::DebuggerBrowsableState;
 	value class PPoint;
 
 	namespace Proj {
@@ -292,13 +294,20 @@ namespace SharpProj {
 		[System::Diagnostics::DebuggerDisplayAttribute("[{Type}] {ToString(),nq}")]
 		public ref class ProjObject
 		{
-		protected:
+		private:
+			[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 			ProjContext^ m_ctx;
+			[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 			PJ* m_pj;
+			[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 			String^ m_infoId;
+			[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 			String^ m_name;
+			[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 			String^ m_infoDefinition;
+			[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 			String^ m_scope;
+			[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 			Proj::IdentifierList^ m_idList;
 
 		private:

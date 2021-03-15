@@ -105,7 +105,7 @@ namespace SharpProj.Tests
 
                 // Needs proj.db
 
-                using (var crs = CoordinateReferenceSystem.Create("EPSG:25832", pc))
+                using (var crs = CoordinateReferenceSystem.CreateFromEpsg(25832, pc))
                 {
                     Assert.AreEqual("ETRS89 / UTM zone 32N", crs.Name);
 
@@ -158,8 +158,8 @@ namespace SharpProj.Tests
         {
             using (var pc = new ProjContext())
             {
-                using (var crs1 = CoordinateReferenceSystem.Create("EPSG:25832", pc))
-                using (var crs2 = CoordinateReferenceSystem.Create("EPSG:25833", pc))
+                using (var crs1 = CoordinateReferenceSystem.CreateFromEpsg(25832, pc))
+                using (var crs2 = CoordinateReferenceSystem.CreateFromEpsg(25833, pc))
                 {
                     Assert.AreEqual(ProjType.ProjectedCrs, crs1.Type);
                     Assert.AreEqual(ProjType.ProjectedCrs, crs2.Type);
@@ -195,9 +195,9 @@ namespace SharpProj.Tests
             using (var pc = new ProjContext())
             {
                 pc.LogLevel = ProjLogLevel.Error;
-                using (var crs1 = CoordinateReferenceSystem.Create("EPSG:3857", pc))
-                using (var crs2 = CoordinateReferenceSystem.Create("EPSG:23095", pc))
-                using (var crs3 = CoordinateReferenceSystem.Create("EPSG:28992", pc))
+                using (var crs1 = CoordinateReferenceSystem.CreateFromEpsg(3857, pc))
+                using (var crs2 = CoordinateReferenceSystem.CreateFromEpsg(23095, pc))
+                using (var crs3 = CoordinateReferenceSystem.CreateFromEpsg(28992, pc))
                 {
                     Assert.AreEqual("WGS 84 / Pseudo-Mercator", crs1.Name);
                     Assert.AreEqual("ED50 / TM 5 NE", crs2.Name);
@@ -274,7 +274,7 @@ namespace SharpProj.Tests
         public void TestCopenhagen()
         {
             var ctx = new ProjContext();
-            var src = CoordinateReferenceSystem.Create("EPSG:4326", ctx);
+            var src = CoordinateReferenceSystem.CreateFromEpsg(4326, ctx);
             var dst = CoordinateReferenceSystem.Create(/*"+proj=utm +zone=32 +datum=WGS84" or */ "EPSG:32632", ctx);
             Assert.AreEqual("WGS 84", src.Name);
             Assert.AreEqual("WGS 84 / UTM zone 32N", dst.Name);
@@ -304,9 +304,9 @@ namespace SharpProj.Tests
         {
             using (var c = new ProjContext())
             {
-                using (var rd = CoordinateReferenceSystem.Create("EPSG:28992", c))
-                using (var wgs84 = CoordinateReferenceSystem.Create("EPSG:4326", c))
-                using (var google = CoordinateReferenceSystem.Create("EPSG:3857", c))
+                using (var rd = CoordinateReferenceSystem.CreateFromEpsg(28992, c))
+                using (var wgs84 = CoordinateReferenceSystem.CreateFromEpsg(4326, c))
+                using (var google = CoordinateReferenceSystem.CreateFromEpsg(3857, c))
                 {
                     var area = rd.UsageArea;
 
@@ -346,10 +346,10 @@ namespace SharpProj.Tests
                 c.EnableNetworkConnections = true;
                 c.LogLevel = ProjLogLevel.Trace;
                 c.Log += (_, m) => Debug.WriteLine(m);
-                using (var wgs84 = CoordinateReferenceSystem.CreateFromDatabase("EPSG", "4326", c))
-                using (var google = CoordinateReferenceSystem.Create("EPSG:3857", c))
-                using (var q1 = CoordinateReferenceSystem.Create("EPSG:23030", c))
-                using (var q2 = CoordinateReferenceSystem.Create("EPSG:2062", c))
+                using (var wgs84 = CoordinateReferenceSystem.CreateFromEpsg(4326, c))
+                using (var google = CoordinateReferenceSystem.CreateFromEpsg(3857, c))
+                using (var q1 = CoordinateReferenceSystem.CreateFromEpsg(23030, c))
+                using (var q2 = CoordinateReferenceSystem.CreateFromEpsg(2062, c))
                 {
                     Assert.AreEqual("Engineering survey, topographic mapping.", q1.Scope);
                     Assert.AreEqual("Engineering survey, topographic mapping.", q2.Scope);
@@ -387,14 +387,14 @@ namespace SharpProj.Tests
         public void FewEpsg()
         {
             bool hasDeprecated = false;
-            using (var wgs84 = CoordinateReferenceSystem.Create("EPSG:4326"))
+            using (var itrf2014 = CoordinateReferenceSystem.CreateFromEpsg(7789))
             {
                 for (int i = 2000; i < 2200; i++)
                 {
                     CoordinateReferenceSystem crs;
                     try
                     {
-                        crs = CoordinateReferenceSystem.Create($"EPSG:{i}");
+                        crs = CoordinateReferenceSystem.CreateFromEpsg(i);
                     }
                     catch (ProjException)
                     {
@@ -414,7 +414,7 @@ namespace SharpProj.Tests
                         CoordinateTransform t;
                         try
                         {
-                            t = CoordinateTransform.Create(crs, wgs84, new CoordinateTransformOptions { NoBallparkConversions = false });
+                            t = CoordinateTransform.Create(crs, itrf2014, new CoordinateTransformOptions { NoBallparkConversions = false });
                         }
                         catch (ProjException)
                         {
@@ -459,8 +459,8 @@ namespace SharpProj.Tests
                 pc.SetGridCache(true, Path.Combine(TestContext.TestResultsDirectory, "proj.cache"), 300, 3600 * 24);
                 pc.LogLevel = ProjLogLevel.Trace;
 
-                using (var crsAmersfoort = CoordinateReferenceSystem.Create(@"EPSG:4289", pc)) // Amersfoort
-                using (var crsETRS89 = CoordinateReferenceSystem.Create(@"EPSG:4258", pc))
+                using (var crsAmersfoort = CoordinateReferenceSystem.CreateFromEpsg(4289, pc)) // Amersfoort
+                using (var crsETRS89 = CoordinateReferenceSystem.CreateFromEpsg(4258, pc))
                 {
                     // Do it the dumb way
                     using (var t = CoordinateTransform.Create(crsAmersfoort, crsETRS89))
@@ -536,8 +536,8 @@ namespace SharpProj.Tests
         [TestMethod]
         public void WalkAmersfoort()
         {
-            using (var nlOfficial = CoordinateReferenceSystem.Create("EPSG:28992"))
-            using (var wgs84Mercator = CoordinateReferenceSystem.Create("EPSG:900913"))
+            using (var nlOfficial = CoordinateReferenceSystem.CreateFromEpsg(28992))
+            using (var wgs84Mercator = CoordinateReferenceSystem.CreateFromEpsg(900913))
             using (var t = CoordinateTransform.Create(nlOfficial, wgs84Mercator))
             {
                 for (double x = nlOfficial.UsageArea.MinX; x < nlOfficial.UsageArea.MaxX; x += 5000 /* Meter */)
@@ -554,8 +554,8 @@ namespace SharpProj.Tests
             using (ProjContext pc = new ProjContext())
             {
                 pc.EnableNetworkConnections = true;
-                using (var epsg7000 = CoordinateTransform.CreateFromDatabase("EPSG", "7000", pc))
-                using (var epsg1112 = CoordinateTransform.CreateFromDatabase("EPSG", "1112", pc))
+                using (var epsg7000 = CoordinateTransform.CreateFromEpsg(7000, pc))
+                using (var epsg1112 = CoordinateTransform.CreateFromEpsg(1112, pc))
                 {
                     Console.WriteLine(epsg7000.SourceCRS?.ToString());
                     Console.WriteLine(epsg7000.TargetCRS?.ToString());
@@ -591,8 +591,8 @@ namespace SharpProj.Tests
         public void WithHelmert()
         {
             using (ProjContext pc = new ProjContext() { EnableNetworkConnections = true })
-            using (var epsg28992 = CoordinateReferenceSystem.CreateFromDatabase("EPSG", "28992", pc))
-            using (var wgs84mercator = CoordinateReferenceSystem.CreateFromDatabase("EPSG", "3857", pc))
+            using (var epsg28992 = CoordinateReferenceSystem.CreateFromEpsg(28992, pc))
+            using (var wgs84mercator = CoordinateReferenceSystem.CreateFromEpsg(3857, pc))
             using (var t = CoordinateTransform.Create(epsg28992, wgs84mercator, new CoordinateTransformOptions { NoDiscardIfMissing = true, UseSuperseded = true, NoBallparkConversions = true }))
             {
                 pc.LogLevel = ProjLogLevel.Trace;
@@ -614,16 +614,19 @@ namespace SharpProj.Tests
         public void TestTime()
         {
             using (ProjContext pc = new ProjContext() { EnableNetworkConnections = true, LogLevel = ProjLogLevel.Trace })
-            using (var epsg6340 = CoordinateReferenceSystem.CreateFromDatabase("EPSG", 6340, pc)) // [ProjectedCrs] NAD83(2011) / UTM zone 11N
-            using (var epsg7665 = CoordinateReferenceSystem.CreateFromDatabase("EPSG", 7665, pc)) // [Geographic3DCrs] WGS 84 (G1762)
+            using (var epsg6340 = CoordinateReferenceSystem.CreateFromEpsg(6340, pc)) // [ProjectedCrs] NAD83(2011) / UTM zone 11N
+            using (var epsg7665 = CoordinateReferenceSystem.CreateFromEpsg(7665, pc)) // [Geographic3DCrs] WGS 84 (G1762)
             using (var t = CoordinateTransform.Create(epsg6340, epsg7665, new CoordinateTransformOptions { NoBallparkConversions = true, Accuracy = 1 }))
             {
                 pc.Log += (_, l) => Console.WriteLine(l);
 
-                double epochYear = (epsg7665.Datum as ReferenceFrame)?.EpochYear ?? -1;
-                Assert.AreEqual(2005.0, epochYear, "If not 2005 the next values are probably bad as well");
 
-                double helmertEpoch = t.Options().SelectMany(x => x.Steps()).SelectMany(x => x.Parameters).FirstOrDefault(x => x.UnitName == "year").Value;
+                var option1 = t.Options()[0];
+
+                // If this is redefined in the EPSG standard, the following test values most likely need updates
+                var helmert = option1.Steps()[2].ProjSteps().First(x => x.Name == "helmert");
+                Assert.AreEqual("helmert", helmert.Name);
+                double helmertEpoch = option1.Steps()[2].Parameters.FirstOrDefault(x => x.UnitName == "year").Value;
                 Assert.AreEqual(1997.0, helmertEpoch);
 
                 PPoint testVal = new PPoint(350499.911, 3884807.956, 150.072); // From proj/tests/test_c_api.cpp
@@ -641,7 +644,7 @@ namespace SharpProj.Tests
                 Console.WriteLine("-2000");
                 Assert.AreEqual(new PPoint(35.09499775, -118.64016146), t.Apply(testVal.WithT(2000)).ToXY(8));
                 Console.WriteLine("-2005");
-                Assert.AreEqual(new PPoint(35.09499722, -118.64016220), t.Apply(testVal.WithT(epochYear /* 2005 */)).ToXY(8));
+                Assert.AreEqual(new PPoint(35.09499722, -118.64016220), t.Apply(testVal.WithT(2005)).ToXY(8));
                 Console.WriteLine("-2010");
                 Assert.AreEqual(new PPoint(35.09499668, -118.64016294), t.Apply(testVal.WithT(2010)).ToXY(8));
                 Console.WriteLine("-2020");
@@ -652,13 +655,18 @@ namespace SharpProj.Tests
                 Assert.AreEqual(new PPoint(35.09499540, -118.64016471), t.Apply(testVal.WithT(2022)).ToXY(8));
                 Console.WriteLine("-year0");
                 var yearStart = t.Apply(testVal.WithT(DateTime.Now.Year));
-                var yearEnd= t.Apply(testVal.WithT(DateTime.Now.Year+1));
-                var today = t.Apply(testVal.WithT(DateTime.Now.ToYearValue()));
+                var yearEnd = t.Apply(testVal.WithT(DateTime.Now.Year + 1));
+                var today = t.Apply(testVal.WithT(DateTime.Now));
                 Assert.IsTrue(yearStart.X >= today.X && today.X >= yearEnd.X);
                 Assert.IsTrue(yearStart.Y >= today.Y && today.Y >= yearEnd.Y);
                 Assert.AreEqual(new PPoint(35.09521122, -118.63986605), t.Apply(testVal.WithT(0)).ToXY(8));
                 Console.WriteLine("-year PositiveInf1");
                 Assert.AreEqual(new PPoint(35.09499807, -118.64016102), t.Apply(testVal.WithT(double.PositiveInfinity)).ToXY(8));
+
+                using (CoordinateTransform ct = CoordinateTransform.Create(t.Steps()[1].AsProjString()))
+                {
+                    GC.KeepAlive(ct);
+                }
             }
         }
 
@@ -666,8 +674,8 @@ namespace SharpProj.Tests
         public void TestAustralia()
         {
             using (ProjContext pc = new ProjContext() { EnableNetworkConnections = true })
-            using (var australia = CoordinateReferenceSystem.CreateFromDatabase("EPSG", 7843, pc))
-            using (var epsg7665 = CoordinateReferenceSystem.CreateFromDatabase("EPSG", 7665, pc))
+            using (var australia = CoordinateReferenceSystem.CreateFromEpsg(7843, pc))
+            using (var epsg7665 = CoordinateReferenceSystem.CreateFromEpsg(7665, pc))
             using (var t = CoordinateTransform.Create(australia, epsg7665, new CoordinateTransformOptions { IntermediateCrsUsage = IntermediateCrsUsage.Always, NoDiscardIfMissing = true }))
             {
                 var ua = australia.UsageArea;

@@ -6,7 +6,9 @@ namespace SharpProj {
 	public ref class CoordinateReferenceSystemList :
 		public CoordinateReferenceSystem, IReadOnlyList<CoordinateReferenceSystem^>
 	{
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		array<CoordinateReferenceSystem^>^ m_crs;
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		Proj::AxisCollection^ m_axis;
 	internal:
 		CoordinateReferenceSystemList(ProjContext^ ctx, PJ* pj)

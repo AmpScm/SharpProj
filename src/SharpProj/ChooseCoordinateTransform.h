@@ -121,5 +121,10 @@ namespace SharpProj {
 		{
 			return this;
 		}
+
+		virtual IReadOnlyList<ProjStep^>^ ProjSteps() override
+		{
+			return Array::AsReadOnly(Array::Empty<Proj::ProjStep^>());
+		}
 	};
 }

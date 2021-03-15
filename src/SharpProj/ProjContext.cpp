@@ -79,12 +79,7 @@ static void my_log_func(void* user_data, int level, const char* message)
 	if (ref->TryGetTarget(pc))
 	{
 		String^ msg = Utf8_PtrToString(message);
-
-		if (level == PJ_LOG_ERROR)
-			pc->m_lastError = msg;
-		else
-			pc->m_lastError = nullptr;
-
+		
 		pc->OnLogMessage((ProjLogLevel)level, msg);
 	}
 }
@@ -380,6 +375,11 @@ String^ ProjContext::FindFile(String^ file)
 
 void ProjContext::OnLogMessage(ProjLogLevel level, String^ message)
 {
+	if (level == ProjLogLevel::Error)
+		m_lastError = message;
+	else
+		m_lastError = nullptr;
+
 #ifdef _DEBUG
 	if (level <= ProjLogLevel::Error)
 		System::Diagnostics::Debug::WriteLine(message);

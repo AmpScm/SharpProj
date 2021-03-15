@@ -178,6 +178,7 @@
     <ClInclude Include="CoordinateReferenceSystem.h" />
     <ClInclude Include="ProjException.h" />
     <ClInclude Include="CoordinateTransform.h" />
+    <ClInclude Include="ProjStep.h" />
     <ClInclude Include="ReferenceFrame.h" />
     <ClInclude Include="Resource.h" />
   </ItemGroup>
@@ -206,6 +207,7 @@
     <ClCompile Include="CoordinateReferenceSystem.cpp" />
     <ClCompile Include="ProjException.cpp" />
     <ClCompile Include="CoordinateTransform.cpp" />
+    <ClCompile Include="ProjStep.cpp" />
     <ClCompile Include="ReferenceFrame.cpp" />
   </ItemGroup>
   <ItemGroup>

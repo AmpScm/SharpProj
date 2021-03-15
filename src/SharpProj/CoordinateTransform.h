@@ -19,6 +19,9 @@ namespace SharpProj {
 	using System::ComponentModel::EditorBrowsableState;
 
 	namespace Proj {
+		ref class ProjStep;
+		ref class ProjStepList;
+
 		public ref class CoordinateTransformFactors
 		{
 		private:
@@ -228,12 +231,19 @@ namespace SharpProj {
 	public ref class CoordinateTransform : ProjObject
 	{
 	private:
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		String^ m_methodName;
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		ReadOnlyCollection<CoordinateTransformParameter^>^ m_params;
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		CoordinateReferenceSystem^ m_source;
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		CoordinateReferenceSystem^ m_target;
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		int m_distanceFlags;
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		struct geod_geodesic* m_pgeod;
+
 	internal:
 		CoordinateTransform(ProjContext^ ctx, PJ* pj)
 			: ProjObject(ctx, pj)
@@ -358,12 +368,12 @@ namespace SharpProj {
 
 					if (cnt >= 0)
 					{
-						List<CoordinateTransformParameter^>^ lst = gcnew List<CoordinateTransformParameter^>(cnt);
+						array<CoordinateTransformParameter^>^ lst = gcnew array<CoordinateTransformParameter^>(cnt);
 
 						for (int i = 0; i < cnt; i++)
-							lst->Add(gcnew CoordinateTransformParameter(this, i));
+							lst[i] = gcnew CoordinateTransformParameter(this, i);
 
-						m_params = lst->AsReadOnly();
+						m_params = Array::AsReadOnly(lst);
 					}
 				}
 				return m_params;
@@ -459,11 +469,17 @@ namespace SharpProj {
 		virtual ProjObject^ DoClone(ProjContext^ ctx) override;
 
 	public:
-		static CoordinateTransform^ Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, CoordinateArea^ area, [Optional] ProjContext^ ctx);
 		static CoordinateTransform^ Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, CoordinateTransformOptions^ options, [Optional] ProjContext^ ctx);
+		static CoordinateTransform^ Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, CoordinateArea^ area, [Optional] ProjContext^ ctx)
+		{
+			auto opts = gcnew CoordinateTransformOptions();
+			opts->Area = area;
+
+			return CoordinateTransform::Create(sourceCrs, targetCrs, opts, ctx);
+		}
 		static CoordinateTransform^ Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, [Optional] ProjContext^ ctx)
 		{
-			return CoordinateTransform::Create(sourceCrs, targetCrs, (CoordinateTransformOptions^)nullptr, ctx);
+			return CoordinateTransform::Create(sourceCrs, targetCrs, gcnew CoordinateTransformOptions(), ctx);
 		}
 
 		static CoordinateTransform^ Create(String^ from, [Optional] ProjContext^ ctx);
@@ -471,7 +487,11 @@ namespace SharpProj {
 		static CoordinateTransform^ CreateFromDatabase(String^ authority, String^ code, [Optional] ProjContext^ ctx);
 		static CoordinateTransform^ CreateFromDatabase(String^ authority, int code, [Optional] ProjContext^ ctx)
 		{
-			return CoordinateTransform::CreateFromDatabase(authority, code.ToString(), ctx);
+			return CreateFromDatabase(authority, code.ToString(), ctx);
+		}
+		static CoordinateTransform^ CreateFromEpsg(int epsgCode, [Optional] ProjContext^ ctx)
+		{
+			return CreateFromDatabase("EPSG", epsgCode, ctx);
 		}
 
 	public:
@@ -523,6 +543,8 @@ namespace SharpProj {
 		{
 			return Array::AsReadOnly(gcnew array<CoordinateTransform^> { this });
 		}
+
+		virtual IReadOnlyList<ProjStep^>^ ProjSteps();
 	};
 
 }

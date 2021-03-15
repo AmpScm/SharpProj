@@ -357,5 +357,17 @@ namespace SharpProj {
 			nw.T = t;
 			return nw;
 		}
+
+		/// <summary>
+		/// Sets the T value to the decimalyear value of <paramref name="date"/>
+		/// </summary>
+		/// <param name="date"></param>
+		/// <returns></returns>
+		PPoint WithT(DateTime date)
+		{
+			int year = date.Year;
+			double daysInYear = DateTime::IsLeapYear(year) ? 366 : 365;
+			return WithT((double)year + (double)(date.DayOfYear - 1) / daysInYear);
+		}
 	};
 }

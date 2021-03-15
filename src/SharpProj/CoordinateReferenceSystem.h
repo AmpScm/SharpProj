@@ -123,17 +123,27 @@ namespace SharpProj {
 	public ref class CoordinateReferenceSystem : ProjObject
 	{
 	private:
-		ProjContext^ m_ctx;
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		CoordinateSystem^ m_cs;
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		GeodeticCRS^ m_geodCRS;
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		Proj::Ellipsoid^ m_ellipsoid;
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		Proj::Datum^ m_datum;
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		Proj::PrimeMeridian^ m_primeMeridian;
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		CoordinateReferenceSystem^ m_baseCrs;
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		CoordinateTransform^ m_distanceTransform;
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		CoordinateReferenceSystem^ m_promotedTo3D;
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		CoordinateReferenceSystem^ m_demotedTo2D;
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		WeakReference<Proj::UsageArea^>^ m_usageArea;
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		int m_axis;
 
 		~CoordinateReferenceSystem();
@@ -251,7 +261,11 @@ namespace SharpProj {
 		static CoordinateReferenceSystem^ CreateFromDatabase(String^ authority, String^ code, [Optional] ProjContext^ ctx);
 		static CoordinateReferenceSystem^ CreateFromDatabase(String^ authority, int code, [Optional] ProjContext^ ctx)
 		{
-			return CoordinateReferenceSystem::CreateFromDatabase(authority, code.ToString(), ctx);
+			return CreateFromDatabase(authority, code.ToString(), ctx);
+		}
+		static CoordinateReferenceSystem^ CreateFromEpsg(int epsgCode, [Optional] ProjContext^ ctx)
+		{
+			return CreateFromDatabase("EPSG", epsgCode, ctx);
 		}
 	};
 }

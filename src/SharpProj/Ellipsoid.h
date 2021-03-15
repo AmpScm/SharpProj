@@ -5,9 +5,14 @@ namespace SharpProj {
 		public ref class Ellipsoid :
 			public ProjObject
 		{
+		private:
+			[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 			initonly double m_semi_major_metre;
+			[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 			initonly double m_semi_minor_metre;
+			[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 			initonly bool m_is_semi_minor_computed;
+			[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 			initonly double m_inv_flattening;
 
 		internal:
@@ -65,7 +70,11 @@ namespace SharpProj {
 
 			static Ellipsoid^ CreateFromDatabase(String^ authority, int code, [Optional] ProjContext^ ctx)
 			{
-				return Ellipsoid::CreateFromDatabase(authority, code.ToString(), ctx);
+				return CreateFromDatabase(authority, code.ToString(), ctx);
+			}
+			static Ellipsoid^ CreateFromEpsg(int epsgCode, [Optional] ProjContext^ ctx)
+			{
+				return CreateFromDatabase("EPSG", epsgCode, ctx);
 			}
 		};
 	}

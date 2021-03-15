@@ -44,15 +44,6 @@ ProjObject^ SharpProj::CoordinateTransform::DoClone(ProjContext^ ctx)
 	return t;
 }
 
-
-CoordinateTransform^ CoordinateTransform::Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, CoordinateArea^ area, ProjContext^ ctx)
-{
-	CoordinateTransformOptions^ opts = gcnew CoordinateTransformOptions();
-	opts->Area = area;
-
-	return CoordinateTransform::Create(sourceCrs, targetCrs, opts, ctx);
-}
-
 CoordinateTransform^ CoordinateTransform::Create(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, CoordinateTransformOptions^ options, ProjContext^ ctx)
 {
 	if (!sourceCrs)

@@ -8,6 +8,7 @@ namespace SharpProj {
             public ProjObject
         {
         private:
+            [DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
             Ellipsoid^ m_ellipsoid;
         internal:
             Datum(ProjContext^ ctx, PJ* pj)
@@ -30,6 +31,10 @@ namespace SharpProj {
             static Datum^ CreateFromDatabase(String^ authority, int code, [Optional] ProjContext^ ctx)
             {
                 return Datum::CreateFromDatabase(authority, code.ToString(), ctx);
+            }
+            static Datum^ CreateFromEpsg(int epsgCode, [Optional] ProjContext^ ctx)
+            {
+                return CreateFromDatabase("EPSG", epsgCode, ctx);
             }
         };
     }

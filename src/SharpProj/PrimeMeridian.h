@@ -55,8 +55,14 @@ namespace SharpProj {
 
 			static PrimeMeridian^ CreateFromDatabase(String^ authority, int code, [Optional] ProjContext^ ctx)
 			{
-				return PrimeMeridian::CreateFromDatabase(authority, code.ToString(), ctx);
+				return CreateFromDatabase(authority, code.ToString(), ctx);
 			}
+
+			static PrimeMeridian^ CreateFromEpsg(int epsgCode, [Optional] ProjContext^ ctx)
+			{
+				return CreateFromDatabase("Epsg", epsgCode, ctx);
+			}
+
 		};
 	}
 }

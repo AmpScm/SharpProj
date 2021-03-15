@@ -436,14 +436,14 @@ ReadOnlyCollection<CoordinateReferenceSystemInfo^>^ ProjContext::GetCoordinateRe
 		int count;
 		PROJ_CRS_INFO** infoList = proj_get_crs_info_list_from_database(this, auth_name.length() ? auth_name.c_str() : nullptr, params, &count);
 
-		auto r = gcnew List<CoordinateReferenceSystemInfo^>(count);
+		auto r = gcnew array<CoordinateReferenceSystemInfo^>(count);
 
 		for (int i = 0; i < count; i++)
-			r->Add(gcnew CoordinateReferenceSystemInfo(infoList[i], this));
+			r[i]  = gcnew CoordinateReferenceSystemInfo(infoList[i], this);
 
 		proj_crs_info_list_destroy(infoList);
 
-		return r->AsReadOnly();
+		return Array::AsReadOnly(r);
 	}
 	finally
 	{

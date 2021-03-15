@@ -3,8 +3,12 @@
 using namespace System;
 
 namespace SharpProj {
+	using System::Diagnostics::DebuggerBrowsableAttribute;
+	using System::Diagnostics::DebuggerBrowsableState;
+
 	ref class ProjException;
 	ref class CoordinateReferenceSystem;
+
 	namespace Proj {
 		ref class ProjObject;
 		ref class CoordinateReferenceSystemFilter;
@@ -27,12 +31,19 @@ namespace SharpProj {
 	public ref class ProjContext
 	{
 	private:
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		PJ_CONTEXT* m_ctx;
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		gcroot<WeakReference<ProjContext^>^>* m_ref;
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		void* m_chain;
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		String^ m_lastError;
+
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		static array<String^>^ _projLibDirs;
 
 		ProjContext(PJ_CONTEXT* ctx);
-
 		void SetupNetworkHandling();
 
 	public:
@@ -40,8 +51,6 @@ namespace SharpProj {
 		static property bool EnableNetworkConnectionsOnNewContexts;
 
 	internal:
-		String^ m_lastError;
-
 		const char* utf8_string(String^ value);
 
 		const char* utf8_chain(String^ value, void*& chain);
@@ -85,6 +94,7 @@ namespace SharpProj {
 		}
 
 		[ObsoleteAttribute("Use .EnableNetworkConnections")]
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		property bool AllowNetworkConnections
 		{
 			bool get()
@@ -142,9 +152,9 @@ namespace SharpProj {
 			proj_grid_cache_clear(this);
 		}
 
-	private:
-		static array<String^>^ _projLibDirs;
+	private:		
 		bool CanWriteFromResource(String^ file, String^ userDir);
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		property System::Collections::Generic::IEnumerable<String^>^ ProjLibDirs
 		{
 			System::Collections::Generic::IEnumerable<String^>^ get();

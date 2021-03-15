@@ -7,6 +7,7 @@ namespace SharpProj {
 	public ref class CoordinateTransformList : CoordinateTransform, IReadOnlyList<CoordinateTransform^>
 	{
 	private:
+		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
 		array<CoordinateTransform^>^ m_steps;
 
 	internal:
@@ -60,6 +61,11 @@ namespace SharpProj {
 		virtual IReadOnlyList<CoordinateTransform^>^ Steps() override
 		{
 			return this;
+		}
+
+		virtual IReadOnlyList<ProjStep^>^ ProjSteps() override
+		{
+			return Array::AsReadOnly(Array::Empty<Proj::ProjStep^>());
 		}
 	};
 

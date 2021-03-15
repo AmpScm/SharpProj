@@ -72,6 +72,9 @@
     <ClInclude Include="PPoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ProjStep.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp">
@@ -134,11 +137,22 @@
     <ClCompile Include="PPoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ProjStep.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <_EmbedManagedResourceFile Include="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*" />
+    <_EmbedManagedResourceFile Include="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*" />
+    <_EmbedManagedResourceFile Include="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*" />
+    <_EmbedManagedResourceFile Include="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*" />
+    <_EmbedManagedResourceFile Include="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*" />
+    <_EmbedManagedResourceFile Include="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*" />
+    <_EmbedManagedResourceFile Include="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*" />
+    <_EmbedManagedResourceFile Include="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*" />
     <_EmbedManagedResourceFile Include="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*" />
   </ItemGroup>
 </Project>
