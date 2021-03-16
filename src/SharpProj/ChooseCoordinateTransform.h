@@ -10,7 +10,7 @@ namespace SharpProj {
 	/// Represents a <see cref="CoordinateTransform"/> which is implemented in a number of ways. The best
 	/// implementation is chosen at runtime, based on some predefined settings.
 	/// </summary>
-	[System::Diagnostics::DebuggerDisplayAttribute("[ChooseCoordinateTransform] Option Count={Count}")]
+	[DebuggerDisplay("[ChooseCoordinateTransform] Option Count={Count}")]
 	public ref class ChooseCoordinateTransform : CoordinateTransform, IReadOnlyList<CoordinateTransform^>
 	{
 	private:
@@ -122,9 +122,9 @@ namespace SharpProj {
 			return this;
 		}
 
-		virtual IReadOnlyList<ProjStep^>^ ProjSteps() override
+		virtual IReadOnlyList<ProjOperation^>^ ProjOperations() override
 		{
-			return Array::AsReadOnly(Array::Empty<Proj::ProjStep^>());
+			return Array::AsReadOnly(Array::Empty<Proj::ProjOperation^>());
 		}
 	};
 }

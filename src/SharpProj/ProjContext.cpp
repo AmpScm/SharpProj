@@ -59,6 +59,8 @@ static const char* my_file_finder(PJ_CONTEXT* ctx, const char* file, void* user_
 	ProjContext^ pc;
 	if (ref->TryGetTarget(pc))
 	{
+		pc->FlushChain();
+
 		String^ origFile = Utf8_PtrToString(file);
 
 		String^ newFile = pc->FindFile(origFile);
@@ -90,9 +92,10 @@ ProjContext::ProjContext()
 	: ProjContext(proj_context_create())
 {
 	if (EnableNetworkConnectionsOnNewContexts)
-		EnableNetworkConnections = true;
+		EnableNetworkConnections = true; // Otherwise follow environment variable
 
-	proj_log_level(m_ctx, PJ_LOG_ERROR);
+	proj_log_level(m_ctx, PJ_LOG_ERROR); // Ignore environment variable!
+	proj_context_use_proj4_init_rules(m_ctx, false); // Ignore environment variable!
 }
 
 ProjContext::ProjContext(PJ_CONTEXT* ctx)
@@ -129,6 +132,11 @@ SharpProj::ProjContext::~ProjContext()
 		m_ref = nullptr;
 	}
 
+	FlushChain();
+}
+
+void SharpProj::ProjContext::FlushChain()
+{
 	void* chain = m_chain;
 	try
 	{
@@ -214,11 +222,12 @@ ProjException^ ProjContext::CreateException(int err, String^ message, System::Ex
 	}
 }
 
-Exception^ ProjContext::ConstructException()
+Exception^ ProjContext::ConstructException(String ^prefix)
 {
 	int err = proj_context_errno(this);
 
-	String^ msg = m_lastError;
+	String^ msg = (prefix && m_lastError) ? (prefix + ": " + m_lastError) :
+		(m_lastError ? m_lastError : prefix);
 
 	if (msg)
 	{
@@ -355,20 +364,23 @@ String^ ProjContext::FindFile(String^ file)
 		}
 		catch (IOException^)
 		{
-			return nullptr;
+			testFile = nullptr;
 		}
 		catch (System::Net::WebException^)
 		{
-			return nullptr;
+			testFile = nullptr;
 		}
 		catch (InvalidOperationException^)
 		{
-			return nullptr;
+			testFile = nullptr;
 		}
 
-		if (File::Exists(testFile))
+		if (testFile && File::Exists(testFile))
 			return testFile;
 	}
+
+	if (!m_lastError)
+		m_lastError = String::Format("File '{0}' not found", file);
 
 	return nullptr;
 }

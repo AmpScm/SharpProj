@@ -1,13 +1,15 @@
 #pragma once
 #include "CoordinateTransform.h"
 namespace SharpProj {
+	using System::Collections::Generic::IEnumerable;
+
 	/// <summary>
 	/// Represents a <see cref="CoordinateTransform"/> which is implemented in a number of discrete steps
 	/// </summary>
 	public ref class CoordinateTransformList : CoordinateTransform, IReadOnlyList<CoordinateTransform^>
 	{
 	private:
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		array<CoordinateTransform^>^ m_steps;
 
 	internal:
@@ -63,9 +65,27 @@ namespace SharpProj {
 			return this;
 		}
 
-		virtual IReadOnlyList<ProjStep^>^ ProjSteps() override
+		virtual IReadOnlyList<ProjOperation^>^ ProjOperations() override
 		{
-			return Array::AsReadOnly(Array::Empty<Proj::ProjStep^>());
+			auto ops = System::Linq::Enumerable::SelectMany<CoordinateTransform^, ProjOperation^>(this, gcnew System::Func<CoordinateTransform^, IEnumerable<ProjOperation^>^>(&Select_Steps));
+			return System::Linq::Enumerable::ToList(ops)->AsReadOnly();
+		}
+
+		virtual CoordinateTransform^ CreateInverse([Optional]ProjContext^ ctx) override
+		{
+			if (!ctx)
+				ctx = Context;
+
+			if (!HasInverse)
+				throw gcnew InvalidOperationException();
+
+			return gcnew CoordinateOperation(ctx, proj_coordoperation_create_inverse(ctx, this));
+		}
+
+	private:
+		static IEnumerable<ProjOperation^>^ Select_Steps(CoordinateTransform^ transform)
+		{
+			return transform->ProjOperations();
 		}
 	};
 

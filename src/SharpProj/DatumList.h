@@ -8,7 +8,7 @@ namespace SharpProj {
 			public Datum, IReadOnlyList<Datum^>
 		{
 		private:
-			[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			array<Datum^>^ m_Items;
 		internal:
 			DatumList(ProjContext^ ctx, PJ* pj)

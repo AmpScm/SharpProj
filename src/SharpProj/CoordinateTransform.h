@@ -11,20 +11,22 @@ namespace SharpProj {
 	ref class CoordinateReferenceSystem;
 	ref class CoordinateArea;
 	ref class CoordinateTransformOptions;
+	ref class CoordinateOperation;
 
 	using System::Collections::ObjectModel::ReadOnlyCollection;
-	using System::Collections::Generic::IReadOnlyCollection;
 	using System::Collections::Generic::List;
 	using System::ComponentModel::EditorBrowsableAttribute;
 	using System::ComponentModel::EditorBrowsableState;
 
 	namespace Proj {
-		ref class ProjStep;
-		ref class ProjStepList;
+		ref class ProjOperation;
+		ref class ProjOperationList;
+		ref class GridUsage;
 
 		public ref class CoordinateTransformFactors
 		{
 		private:
+			
 			initonly double m_meridional_scale;               /* h */
 			initonly double m_parallel_scale;                 /* k */
 			initonly double m_areal_scale;                    /* s */
@@ -103,7 +105,7 @@ namespace SharpProj {
 			}
 		};
 
-		[System::Diagnostics::DebuggerDisplayAttribute("{Name,nq}={ValueString}")]
+		[DebuggerDisplay("{Name,nq}={ValueString}")]
 		public ref class CoordinateTransformParameter
 		{
 		private:
@@ -228,29 +230,27 @@ namespace SharpProj {
 
 	using CoordinateTransformParameter = Proj::CoordinateTransformParameter;
 
-	public ref class CoordinateTransform : ProjObject
+	public ref class CoordinateTransform abstract : ProjObject
 	{
 	private:
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		String^ m_methodName;
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		ReadOnlyCollection<CoordinateTransformParameter^>^ m_params;
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		CoordinateReferenceSystem^ m_source;
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		CoordinateReferenceSystem^ m_target;
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		int m_distanceFlags;
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		struct geod_geodesic* m_pgeod;
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
+		ReadOnlyCollection<GridUsage^>^ m_gridUsages;
 
-	internal:
-		CoordinateTransform(ProjContext^ ctx, PJ* pj)
-			: ProjObject(ctx, pj)
-		{
-
-
-		}
+		
+	protected:
+		CoordinateTransform(ProjContext^ ctx, PJ* pj);
 
 	private:
 		~CoordinateTransform();
@@ -301,12 +301,9 @@ namespace SharpProj {
 			}
 		}
 
-		property int GridUsageCount
+		property ReadOnlyCollection<GridUsage^>^ GridUsages
 		{
-			int get()
-			{
-				return proj_coordoperation_get_grid_used_count(Context, this);
-			}
+			virtual ReadOnlyCollection<GridUsage^>^ get();
 		}
 
 		property Nullable<double> Accuraracy
@@ -366,30 +363,27 @@ namespace SharpProj {
 				{
 					int cnt = proj_coordoperation_get_param_count(Context, this);
 
-					if (cnt >= 0)
+					array<CoordinateTransformParameter^>^ lst;
+					if (cnt > 0)
 					{
-						array<CoordinateTransformParameter^>^ lst = gcnew array<CoordinateTransformParameter^>(cnt);
+						lst = gcnew array<CoordinateTransformParameter^>(cnt);
 
 						for (int i = 0; i < cnt; i++)
 							lst[i] = gcnew CoordinateTransformParameter(this, i);
-
-						m_params = Array::AsReadOnly(lst);
 					}
+					else
+						lst = Array::Empty<CoordinateTransformParameter^>();
+
+					m_params = Array::AsReadOnly(lst);
 				}
 				return m_params;
 			}
 		}
 
 	public:
-		CoordinateTransform^ CreateInverse([Optional]ProjContext^ ctx)
+		virtual CoordinateTransform^ CreateInverse([Optional]ProjContext^ ctx)
 		{
-			if (!ctx)
-				ctx = Context;
-
-			if (!HasInverse)
-				throw gcnew InvalidOperationException();
-
-			return gcnew CoordinateTransform(ctx, proj_coordoperation_create_inverse(ctx, this));
+			throw gcnew InvalidOperationException();			
 		}
 
 	public:
@@ -544,7 +538,30 @@ namespace SharpProj {
 			return Array::AsReadOnly(gcnew array<CoordinateTransform^> { this });
 		}
 
-		virtual IReadOnlyList<ProjStep^>^ ProjSteps();
+		virtual IReadOnlyList<ProjOperation^>^ ProjOperations();
+	};
+
+	// For now internal. Could be made public
+	ref class CoordinateOperation : CoordinateTransform
+	{
+	internal:
+		CoordinateOperation(ProjContext^ ctx, PJ* pj)
+			: CoordinateTransform(ctx, pj)
+		{
+
+		}
+
+	public:
+		virtual CoordinateTransform^ CreateInverse([Optional]ProjContext^ ctx) override
+		{
+			if (!ctx)
+				ctx = Context;
+
+			if (!HasInverse)
+				throw gcnew InvalidOperationException();
+
+			return gcnew CoordinateOperation(ctx, proj_coordoperation_create_inverse(ctx, this));
+		}
 	};
 
 }

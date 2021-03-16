@@ -165,6 +165,7 @@
     <ClInclude Include="CoordinateTransformList.h" />
     <ClInclude Include="ChooseCoordinateTransform.h" />
     <ClInclude Include="CoordinateSystem.h" />
+    <ClInclude Include="GridUsage.h" />
     <ClInclude Include="PPoint.h" />
     <ClInclude Include="DatumList.h" />
     <ClInclude Include="Ellipsoid.h" />
@@ -178,9 +179,10 @@
     <ClInclude Include="CoordinateReferenceSystem.h" />
     <ClInclude Include="ProjException.h" />
     <ClInclude Include="CoordinateTransform.h" />
-    <ClInclude Include="ProjStep.h" />
+    <ClInclude Include="ProjOperation.h" />
     <ClInclude Include="ReferenceFrame.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="UsageArea.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
@@ -188,6 +190,7 @@
     <ClCompile Include="ChooseCoordinateTransform.cpp" />
     <ClCompile Include="CoordinateReferenceSystemList.cpp" />
     <ClCompile Include="CoordinateSystem.cpp" />
+    <ClCompile Include="GridUsage.cpp" />
     <ClCompile Include="PPoint.cpp" />
     <ClCompile Include="DatumList.cpp" />
     <ClCompile Include="Ellipsoid.cpp" />
@@ -207,8 +210,9 @@
     <ClCompile Include="CoordinateReferenceSystem.cpp" />
     <ClCompile Include="ProjException.cpp" />
     <ClCompile Include="CoordinateTransform.cpp" />
-    <ClCompile Include="ProjStep.cpp" />
+    <ClCompile Include="ProjOperation.cpp" />
     <ClCompile Include="ReferenceFrame.cpp" />
+    <ClCompile Include="UsageArea.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

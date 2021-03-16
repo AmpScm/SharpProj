@@ -8,7 +8,7 @@ namespace SharpProj {
             public ProjObject
         {
         private:
-            [DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+            [DebuggerBrowsable(DebuggerBrowsableState::Never)]
             Ellipsoid^ m_ellipsoid;
         internal:
             Datum(ProjContext^ ctx, PJ* pj)

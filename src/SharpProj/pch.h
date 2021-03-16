@@ -47,8 +47,11 @@ using namespace SharpProj::Proj;
 #include <string>
 std::string utf8_string(String^ v);
 
-using Out = System::Runtime::InteropServices::OutAttribute;
-using Optional = System::Runtime::InteropServices::OptionalAttribute;
+using System::Runtime::InteropServices::OutAttribute;
+using System::Runtime::InteropServices::OptionalAttribute;
+using System::Diagnostics::DebuggerBrowsableAttribute;
+using System::Diagnostics::DebuggerBrowsableState;
+using System::Diagnostics::DebuggerDisplayAttribute;
 
 #define LIT2(x) #x
 #define LIT(x) LIT2(x)

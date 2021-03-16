@@ -72,7 +72,13 @@
     <ClInclude Include="PPoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ProjStep.h">
+    <ClInclude Include="ProjOperation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UsageArea.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GridUsage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -137,7 +143,13 @@
     <ClCompile Include="PPoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ProjStep.cpp">
+    <ClCompile Include="ProjOperation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UsageArea.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GridUsage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

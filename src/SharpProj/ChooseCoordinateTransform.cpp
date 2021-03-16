@@ -51,7 +51,7 @@ PPoint ChooseCoordinateTransform::DoTransform(bool forward, PPoint% coordinate)
 
 		if (proj_errno(c) == PROJ_ERR_OTHER_NETWORK_ERROR)
 		{
-			throw c->Context->ConstructException();
+			throw c->Context->ConstructException("Choose transform failed");
 		}
 		else if (res.xyzt.x != HUGE_VAL) 
 		{

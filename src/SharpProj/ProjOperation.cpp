@@ -1,13 +1,13 @@
 #include "pch.h"
-#include "ProjStep.h"
+#include "ProjOperation.h"
 #include "CoordinateTransform.h"
 
-IReadOnlyList<ProjStep^>^ CoordinateTransform::ProjSteps()
+IReadOnlyList<ProjOperation^>^ CoordinateTransform::ProjOperations()
 {
-	return gcnew ProjStepList(this);
+	return gcnew ProjOperationList(this);
 }
 
-ProjStepList::ProjStepList(CoordinateTransform^ transform)
+ProjOperationList::ProjOperationList(CoordinateTransform^ transform)
 {
 	if (!transform)
 		throw gcnew ArgumentNullException("transform");
@@ -15,7 +15,7 @@ ProjStepList::ProjStepList(CoordinateTransform^ transform)
 	m_transform = transform;
 }
 
-void ProjStepList::Ensure()
+void ProjOperationList::Ensure()
 {
 	if (m_items)
 		return;
@@ -35,16 +35,25 @@ void ProjStepList::Ensure()
 
 		const char* start = def;
 		bool in_str = false;
+		bool found_str = false;
 
 		while (*def && (in_str || !Char::IsWhiteSpace(*def)))
 		{
 			if (*def == '\"')
+			{
 				in_str = !in_str;
+				found_str = true;
+			}
 
 			*def++;
 		}
 
-		tokens->Add(Utf8_PtrToString(start, def - start)->Replace("\"\"", "\""));
+		String^ v = Utf8_PtrToString(start, def - start);
+
+		if (found_str)
+			v = v->Replace(L"\"\"", L"\uFFFD")->Replace(L"\"", L"")->Replace(L"\uFFFD", L"\"");
+
+		tokens->Add(v);
 	}
 
 	auto tokenArray = tokens->ToArray();
@@ -56,7 +65,7 @@ void ProjStepList::Ensure()
 		m_iCommonStart = 1;
 		m_iCommonCount = iStep - 1;
 
-		List<ProjStep^>^ steps = gcnew List<ProjStep^>();
+		List<ProjOperation^>^ steps = gcnew List<ProjOperation^>();
 		int iNext;
 		do
 		{
@@ -65,7 +74,7 @@ void ProjStepList::Ensure()
 			if (iNext < 0)
 				iNext = tokenArray->Length;
 
-			steps->Add(gcnew ProjStep(this, iStep + 1, iNext - iStep - 1));
+			steps->Add(gcnew ProjOperation(this, iStep + 1, iNext - iStep - 1));
 			iStep = iNext;
 		} 		
 		while (iNext < tokenArray->Length);
@@ -74,7 +83,7 @@ void ProjStepList::Ensure()
 	}
 	else
 	{
-		m_items = gcnew array<ProjStep^> { gcnew ProjStep(this, 0, m_items->Length)};
+		m_items = gcnew array<ProjOperation^> { gcnew ProjOperation(this, 0, m_tokens->Count)};
 	}
 }
 

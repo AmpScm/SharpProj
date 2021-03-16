@@ -11,7 +11,7 @@ CoordinateReferenceSystem^ BoundCRS::HubCRS::get()
 		PJ* pj = proj_get_source_crs(Context, this);
 
 		if (!pj)
-			throw Context->ConstructException();
+			throw Context->ConstructException("Obtaining HUB CRS failed");
 
 		m_hubCrs = Context->Create<CoordinateReferenceSystem^>(pj);
 	}

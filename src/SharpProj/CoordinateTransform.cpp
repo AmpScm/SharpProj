@@ -9,8 +9,16 @@
 #include "CoordinateArea.h"
 #include "ProjException.h"
 #include "Ellipsoid.h"
+#include "GridUsage.h"
 
-SharpProj::CoordinateTransform::~CoordinateTransform()
+CoordinateTransform::CoordinateTransform(ProjContext^ ctx, PJ* pj)
+	: ProjObject(ctx, pj)
+{
+
+
+}
+
+CoordinateTransform::~CoordinateTransform()
 {
 	if ((Object^)m_source)
 	{
@@ -220,7 +228,7 @@ PPoint CoordinateTransform::DoTransform(bool forward, PPoint% coordinate)
 	coord = proj_trans(this, forward ? PJ_FWD : PJ_INV, coord);
 
 	if (double::IsNaN(coord.v[0]))
-		throw Context->ConstructException();
+		throw Context->ConstructException("Transform failed");
 
 	return FromCoordinate(coord, forward);
 }
@@ -569,3 +577,24 @@ double CoordinateTransform::GeoArea(System::Collections::Generic::IEnumerable<PP
 	return poly_area;
 }
 
+ReadOnlyCollection<GridUsage^>^ CoordinateTransform::GridUsages::get()
+{
+	if (!m_gridUsages)
+	{
+		int n = proj_coordoperation_get_grid_used_count(Context, this);
+
+		array<GridUsage^>^ usages;
+
+		if (n == 0)
+			usages = Array::Empty<GridUsage^>();
+		else
+		{
+			usages = gcnew array<GridUsage^>(n);
+
+			for (int i = 0; i < n; i++)
+				usages[i] = gcnew GridUsage(this, i);
+		}
+		m_gridUsages = Array::AsReadOnly(usages);
+	}
+	return m_gridUsages;
+}

@@ -3,12 +3,16 @@
 namespace SharpProj {
 	using System::Collections::Generic::IReadOnlyList;
 
+	/// <summary>
+	/// A compound CoordinateReference system, based on a combination of more (typically two) base CoordinateReferenceSystems
+	/// </summary>
+	[DebuggerDisplayAttribute("Count={Count}")]
 	public ref class CoordinateReferenceSystemList :
 		public CoordinateReferenceSystem, IReadOnlyList<CoordinateReferenceSystem^>
 	{
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		array<CoordinateReferenceSystem^>^ m_crs;
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		Proj::AxisCollection^ m_axis;
 	internal:
 		CoordinateReferenceSystemList(ProjContext^ ctx, PJ* pj)
@@ -86,7 +90,7 @@ namespace SharpProj {
 			}
 		}
 
-		virtual property int AxisCount
+			virtual property int AxisCount
 		{
 			int get() override;
 		}
@@ -96,5 +100,4 @@ namespace SharpProj {
 			virtual Proj::AxisCollection^ get() override;
 		}
 	};
-
 }

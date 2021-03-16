@@ -24,7 +24,7 @@ namespace SharpProj {
 			TemporalMeasure = PJ_CS_TYPE_TEMPORALMEASURE
 		};
 
-		[System::Diagnostics::DebuggerDisplayAttribute("{Name}")]
+		[DebuggerDisplay("{Name}")]
 		public ref class Axis
 		{
 			initonly CoordinateSystem^ m_cs;
@@ -110,7 +110,7 @@ namespace SharpProj {
 			}
 		};
 
-		[System::Diagnostics::DebuggerDisplayAttribute("{DebuggerDisplay(),nq}")]
+		[DebuggerDisplay("{DebuggerDisplay(),nq}")]
 		public ref class AxisCollection : public System::Collections::ObjectModel::ReadOnlyCollection<Axis^>
 		{
 		public:

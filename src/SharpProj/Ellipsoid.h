@@ -6,13 +6,13 @@ namespace SharpProj {
 			public ProjObject
 		{
 		private:
-			[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly double m_semi_major_metre;
-			[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly double m_semi_minor_metre;
-			[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly bool m_is_semi_minor_computed;
-			[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly double m_inv_flattening;
 
 		internal:

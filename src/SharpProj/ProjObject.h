@@ -1,7 +1,10 @@
 #pragma once
+#include <proj.h>
+
 #include "ProjContext.h"
 #include "CoordinateArea.h"
 #include "PPoint.h"
+#include "UsageArea.h"
 
 namespace SharpProj {
 	using System::Collections::Generic::IReadOnlyList;
@@ -81,7 +84,7 @@ namespace SharpProj {
 			WKT1_SRI = PJ_WKT1_ESRI
 		};
 
-		[System::Diagnostics::DebuggerDisplayAttribute("{Authority,nq}:{Name,nq}")]
+		[DebuggerDisplay("{ToString(),nq}")]
 		public ref class Identifier
 		{
 		internal:
@@ -129,10 +132,12 @@ namespace SharpProj {
 			}
 		};
 
-		[System::Diagnostics::DebuggerDisplayAttribute("Count = {Count}")]
+		[DebuggerDisplay("Count = {Count}")]
 		public ref class IdentifierList : IReadOnlyList<Identifier^>
 		{
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly ProjObject^ m_object;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			array<Identifier^>^ m_Items;
 
 		internal:
@@ -165,150 +170,28 @@ namespace SharpProj {
 			}
 		};
 
-		[System::Diagnostics::DebuggerDisplayAttribute("{Name,nq}")]
-		public ref class UsageArea
-		{
-		private:
-			initonly double m_westLongitude; 
-			initonly double m_southLatitude; 
-			initonly double m_eastLongitude; 
-			initonly double m_northLatitude; 
-			initonly String^ m_name;
-			initonly ProjObject^ m_obj;
-			Nullable<PPoint> m_NE, m_NW, m_SE, m_SW;
-			Nullable<double> m_minX, m_minY, m_maxX, m_maxY;
-			CoordinateTransform^ m_latLonTransform;
+		
 
-		internal:
-
-			UsageArea(ProjObject^ ob, double westLongitude, double southLatitude, double eastLongitude, double northLatitude, String^ name)
-			{
-				m_obj = ob;
-				m_westLongitude = westLongitude;
-				m_southLatitude = southLatitude;
-				m_eastLongitude = eastLongitude;
-				m_northLatitude = northLatitude;
-				m_name = name;
-			}
-
-		private:
-			CoordinateTransform^ GetLatLonConvert();
-
-		public:
-			virtual String^ ToString() override
-			{
-				if (Name)
-					return Name;
-				else
-					return __super::ToString();
-			}
-
-		public:
-			property double WestLongitude
-			{
-				double get()
-				{
-					return m_westLongitude;
-				}
-			}
-			property double SouthLatitude
-			{
-				double get()
-				{
-					return m_southLatitude;
-				}
-			}
-			property double EastLongitude
-			{
-				double get()
-				{
-					return m_eastLongitude;
-				}
-			}
-			property double NorthLatitude
-			{
-				double get()
-				{
-					return m_northLatitude;
-				}
-			}
-			property String^ Name
-			{
-				String^ get()
-				{
-					return m_name;
-				}
-			}
-
-			property PPoint NorthWestCorner
-			{
-				PPoint get();
-			}
-
-			property PPoint SouthEastCorner
-			{
-				PPoint get();
-			}
-
-			property PPoint SouthWestCorner
-			{
-				PPoint get();
-			}
-
-			property PPoint NorthEastCorner
-			{
-				PPoint get();
-			}
-
-			property double MinX
-			{
-				double get();
-			}
-
-			property double MinY
-			{
-				double get();
-			}
-
-			property double MaxX
-			{
-				double get();
-			}
-
-			property double MaxY
-			{
-				double get();
-			}
-
-			property double CenterX
-			{
-				double get();
-			}
-
-			property double CenterY
-			{
-				double get();
-			}
-		};
-
-		[System::Diagnostics::DebuggerDisplayAttribute("[{Type}] {ToString(),nq}")]
+		[DebuggerDisplay("[{Type}] {ToString(),nq}")]
 		public ref class ProjObject
 		{
 		private:
-			[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			ProjContext^ m_ctx;
-			[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			PJ* m_pj;
-			[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			String^ m_infoId;
-			[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			String^ m_name;
-			[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			String^ m_infoDefinition;
-			[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			String^ m_scope;
-			[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			Proj::IdentifierList^ m_idList;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
+			bool m_noProj;
 
 		private:
 			~ProjObject()
@@ -333,6 +216,7 @@ namespace SharpProj {
 				m_name = "?";
 				m_infoDefinition = "?";
 				m_scope = "?";
+				m_noProj = true;
 			}
 
 		internal:
@@ -427,7 +311,7 @@ namespace SharpProj {
 					}
 					return m_name;
 				}
-			internal:
+			protected private:
 				void set(String^ value)
 				{
 					m_name = value;
@@ -445,6 +329,11 @@ namespace SharpProj {
 					}
 					return m_infoDefinition;
 				}
+			protected private:
+				void set(String^ value)
+				{
+					m_infoDefinition = value;
+				}
 			}
 
 			property String^ Scope
@@ -458,6 +347,11 @@ namespace SharpProj {
 						m_scope = Utf8_PtrToString(scope);
 					}
 					return m_scope;
+				}
+			protected private:
+				void set(String^ value)
+				{
+					m_scope = value;
 				}
 			}
 
@@ -486,6 +380,9 @@ namespace SharpProj {
 
 			String^ AsProjJson()
 			{
+				if (m_noProj)
+					return nullptr;
+
 				const char* v = proj_as_projjson(Context, this, nullptr);
 
 				return Utf8_PtrToString(v);
@@ -493,6 +390,8 @@ namespace SharpProj {
 
 			String^ AsWellKnownText(WktOptions^ options)
 			{
+				if (m_noProj)
+					return nullptr;
 				PJ_WKT_TYPE tp = options ? (PJ_WKT_TYPE)options->WktType : PJ_WKT2_2019;
 				const char* opts[30] = {};
 				int nOpts = 0;
@@ -530,6 +429,8 @@ namespace SharpProj {
 
 			String^ AsProjString()
 			{
+				if (m_noProj)
+					return nullptr;
 				const char* v = proj_as_proj_string(Context, this, PJ_PROJ_5/* Last as of 2021-01 */, nullptr);
 
 				return Utf8_PtrToString(v);
@@ -543,7 +444,7 @@ namespace SharpProj {
 
 			bool IsEquivalentTo(ProjObject^ other, [Optional] ProjContext^ ctx)
 			{
-				if (!other)
+				if (!other || m_noProj || other->m_noProj)
 					return false;
 
 				if (!ctx)
@@ -554,7 +455,7 @@ namespace SharpProj {
 
 			bool IsEquivalentToRelaxed(ProjObject^ other, [Optional] ProjContext^ ctx)
 			{
-				if (!other)
+				if (!other || other->m_noProj)
 					return false;
 
 				if (!ctx)

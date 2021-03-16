@@ -47,14 +47,13 @@ Datum^ Datum::CreateFromDatabase(String^ authority, String^ code, ProjContext^ c
 Proj::Ellipsoid^ Datum::Ellipsoid::get()
 {
 	if (!m_ellipsoid && this)
-	{
-		Context->ClearError(this);
+	{	
 		PJ* pj = proj_get_ellipsoid(Context, this);
 
 		if (!pj)
-			throw Context->ConstructException();
-
-		m_ellipsoid = Context->Create<Proj::Ellipsoid^>(pj);
+			Context->ClearError(this);
+		else
+			m_ellipsoid = Context->Create<Proj::Ellipsoid^>(pj);
 	}
 	return m_ellipsoid;
 }

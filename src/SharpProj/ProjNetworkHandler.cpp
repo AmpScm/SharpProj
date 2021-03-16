@@ -116,7 +116,7 @@ static PROJ_NETWORK_HANDLE* my_network_open(
 	}
 	else if (hrp)
 	{
-		std::string msg = utf8_string(String::Format("Unexpected HTTP(s) result {0}: {1}", hrp->StatusCode, hrp->StatusDescription));
+		std::string msg = utf8_string(String::Format("Unexpected HTTP(S) result {0}: {1}", hrp->StatusCode, hrp->StatusDescription));
 		strncpy_s(out_error_string, error_string_max_size, msg.c_str(), error_string_max_size);
 		return nullptr;
 	}

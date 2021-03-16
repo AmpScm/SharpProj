@@ -175,9 +175,19 @@ namespace SharpProj.Tests
 
                         Assert.AreEqual("Inverse of UTM zone 32N + UTM zone 33N", t.Name);
 
+                        Assert.AreEqual("Inverse of UTM zone 32N", steps[0].Name);
+                        using (var tr = steps[0].CreateInverse())
+                        {
+                            Assert.AreEqual("UTM zone 32N", tr.Name);
+                        }
+
                         using (var tr = t.CreateInverse())
                         {
+                            Assert.AreEqual("Inverse of UTM zone 32N + UTM zone 33N", t.Name);
                             Assert.AreEqual("Inverse of UTM zone 33N + UTM zone 32N", tr.Name);
+
+
+                            Assert.IsTrue(tr.CreateInverse().IsEquivalentTo(t));
                         }
                     }
 
@@ -344,7 +354,7 @@ namespace SharpProj.Tests
             using (var c = new ProjContext())
             {
                 c.EnableNetworkConnections = true;
-                c.LogLevel = ProjLogLevel.Trace;
+                c.LogLevel = ProjLogLevel.Debug;
                 c.Log += (_, m) => Debug.WriteLine(m);
                 using (var wgs84 = CoordinateReferenceSystem.CreateFromEpsg(4326, c))
                 using (var google = CoordinateReferenceSystem.CreateFromEpsg(3857, c))
@@ -357,7 +367,7 @@ namespace SharpProj.Tests
                     using (var t = CoordinateTransform.Create(google, wgs84))
                     {
                         var r = t.Apply(-333958.47, 4865942.28);
-                        Assert.AreEqual(0, t.GridUsageCount);
+                        Assert.AreEqual(0, t.GridUsages.Count);
                         Assert.AreEqual(40.0, Math.Round(r[0], 3));
                         Assert.AreEqual(-3, Math.Round(r[1], 3));
                     }
@@ -365,7 +375,7 @@ namespace SharpProj.Tests
                     using (var t = CoordinateTransform.Create(google, q1))
                     {
                         var r = t.Apply(-333958.47, 4865942.28);
-                        Assert.AreEqual(0, t.GridUsageCount);
+                        Assert.AreEqual(0, t.GridUsages.Count);
 
                         Assert.AreEqual(500110.0, Math.Round(r[0], 0));
                         Assert.AreEqual(4427965.0, Math.Round(r[1], 0));
@@ -374,7 +384,7 @@ namespace SharpProj.Tests
                     using (var t = CoordinateTransform.Create(google, q2))
                     {
                         var r = t.Apply(-333958.47, 4865942.28);
-                        Assert.AreEqual(0, t.GridUsageCount);
+                        Assert.AreEqual(0, t.GridUsages.Count);
 
                         Assert.AreEqual(658629.5, Math.Round(r[0], 1));
                         Assert.AreEqual(600226.1, Math.Round(r[1], 1));
@@ -414,7 +424,7 @@ namespace SharpProj.Tests
                         CoordinateTransform t;
                         try
                         {
-                            t = CoordinateTransform.Create(crs, itrf2014, new CoordinateTransformOptions { NoBallparkConversions = false });
+                            t = CoordinateTransform.Create(crs, itrf2014, new CoordinateTransformOptions { NoBallparkConversions = false, NoDiscardIfMissing = true });
                         }
                         catch (ProjException)
                         {
@@ -428,20 +438,23 @@ namespace SharpProj.Tests
                         {
                             var a = crs.UsageArea;
 
-                            PPoint center;
-                            try
+                            if (a.Center.HasValues)
                             {
-                                center = t.Apply(new PPoint((a.MinX + a.MaxX) / 2.0, (a.MinX + a.MaxY) / 2.0));
-                            }
-                            catch (ProjException)
-                            {
-                                center = new PPoint();
-                            }
+                                PPoint center;
+                                try
+                                {
+                                    center = t.Apply(a.Center);
+                                }
+                                catch (ProjException)
+                                {
+                                    center = new PPoint();
+                                }
 
 
-                            if (center.HasValues && t.HasInverse && !(t is ChooseCoordinateTransform))
-                            {
-                                PPoint ret = t.ApplyReversed(center);
+                                if (center.HasValues && t.HasInverse && !(t is ChooseCoordinateTransform))
+                                {
+                                    PPoint ret = t.ApplyReversed(center);
+                                }
                             }
                         }
                     }
@@ -466,16 +479,14 @@ namespace SharpProj.Tests
                     using (var t = CoordinateTransform.Create(crsAmersfoort, crsETRS89))
                     {
                         Assert.IsFalse(t is ChooseCoordinateTransform);
-                        var r = t.Apply(51, 4, 0);
+                        var r = t.Apply(new PPoint(51, 4, 0));
 
-                        Assert.AreEqual(50.999, Math.Round(r[0], 3));
-                        Assert.AreEqual(4.0, Math.Round(r[1], 3));
+                        Assert.AreEqual(new PPoint(50.999, 4.000), r.ToXY(3));
                     }
 
                     // Now, let's enable gridshifts
                     Assert.IsFalse(pc.EnableNetworkConnections);
                     pc.EnableNetworkConnections = true;
-                    pc.EndpointUrl = ProjContext.DefaultEndpointUrl;// "https://cdn.proj.org";
                     bool usedHttp = false;
                     pc.Log += (_, x) => { if (x.Contains("https://")) usedHttp = true; };
 
@@ -485,8 +496,9 @@ namespace SharpProj.Tests
                         Assert.IsNotNull(cl);
                         Assert.AreEqual(2, cl.Count);
 
-                        Assert.IsTrue(cl[0].GridUsageCount > 0);
-                        Assert.IsTrue(cl[1].GridUsageCount == 0);
+                        Assert.IsTrue(cl[0].GridUsages.Count > 0);
+                        Assert.IsNotNull(cl[0].GridUsages[0].Name);
+                        Assert.IsTrue(cl[1].GridUsages.Count == 0);
 
                         Assert.AreEqual(new PPoint(50.999, 4.0), t.Apply(new PPoint(51, 4)).ToXY(3));
                         var r = t.Apply(51, 4, 0);
@@ -588,29 +600,6 @@ namespace SharpProj.Tests
         }
 
         [TestMethod]
-        public void WithHelmert()
-        {
-            using (ProjContext pc = new ProjContext() { EnableNetworkConnections = true })
-            using (var epsg28992 = CoordinateReferenceSystem.CreateFromEpsg(28992, pc))
-            using (var wgs84mercator = CoordinateReferenceSystem.CreateFromEpsg(3857, pc))
-            using (var t = CoordinateTransform.Create(epsg28992, wgs84mercator, new CoordinateTransformOptions { NoDiscardIfMissing = true, UseSuperseded = true, NoBallparkConversions = true }))
-            {
-                pc.LogLevel = ProjLogLevel.Trace;
-                pc.Log += (_, m) => Console.WriteLine(m);
-
-                ChooseCoordinateTransform cct = t as ChooseCoordinateTransform;
-                var p2000 = new PPoint(646, 308290) { T = 2000 };
-                var p2021 = new PPoint(646, 308290) { T = 2021 };
-
-
-                var pt2000 = t.Apply(p2000);
-                var pt2021 = t.Apply(p2021);
-
-                Assert.AreNotEqual(pt2000, pt2021);
-            }
-        }
-
-        [TestMethod]
         public void TestTime()
         {
             using (ProjContext pc = new ProjContext() { EnableNetworkConnections = true, LogLevel = ProjLogLevel.Trace })
@@ -624,10 +613,10 @@ namespace SharpProj.Tests
                 var option1 = t.Options()[0];
 
                 // If this is redefined in the EPSG standard, the following test values most likely need updates
-                var helmert = option1.Steps()[2].ProjSteps().First(x => x.Name == "helmert");
+                var helmert = option1.ProjOperations().First(x => x.Name == "helmert");
                 Assert.AreEqual("helmert", helmert.Name);
-                double helmertEpoch = option1.Steps()[2].Parameters.FirstOrDefault(x => x.UnitName == "year").Value;
-                Assert.AreEqual(1997.0, helmertEpoch);
+                int helmertEpoch = int.Parse(helmert["t_epoch"]);
+                Assert.AreEqual(1997, helmertEpoch);
 
                 PPoint testVal = new PPoint(350499.911, 3884807.956, 150.072); // From proj/tests/test_c_api.cpp
 
@@ -635,7 +624,7 @@ namespace SharpProj.Tests
                 Assert.AreEqual(new PPoint(35.09499807, -118.64016102), t.Apply(testVal).ToXY(8));
                 Assert.AreEqual(new PPoint(35.09499807, -118.64016102), t.Apply(testVal.ToXYZ()).ToXY(8));
                 Console.WriteLine("-AtEpoch verified");
-                Assert.AreEqual(new PPoint(35.09499807, -118.64016102), t.Apply(testVal.WithT(1997)).ToXY(8));
+                Assert.AreEqual(new PPoint(35.09499807, -118.64016102), t.Apply(testVal.WithT(helmertEpoch)).ToXY(8));
 
                 Console.WriteLine("-0");
                 Assert.AreEqual(new PPoint(35.09521122, -118.63986605), t.Apply(testVal.WithT(0)).ToXY(8));
@@ -685,6 +674,74 @@ namespace SharpProj.Tests
 
                 Assert.AreNotEqual(r2.ToXY(), r3.ToXY());
                 GC.KeepAlive(t);
+            }
+        }
+
+        [TestMethod]
+        public void TestNewZealand_defmodel()
+        {
+            // New Zealand (EPSG:2105) uses a defmodel to correct specific parts at specific points in time (new in proj 7.1.0)
+            using (ProjContext pc = new ProjContext() { EnableNetworkConnections = true, LogLevel = ProjLogLevel.Debug })
+            {
+                pc.Log += (_, m) => Console.WriteLine(m);
+                using (var newZealand = CoordinateReferenceSystem.CreateFromEpsg(2105, pc))
+                using (var itrf2014 = CoordinateReferenceSystem.CreateFromEpsg(9000, pc))
+                {
+                    var centerPoint = newZealand.UsageArea.Center;
+
+
+                    using (var t = CoordinateTransform.Create(newZealand, itrf2014))
+                    {
+                        Assert.IsNotNull(t.ProjOperations().SingleOrDefault(x => x.Name == "defmodel"), "New Zealand has defmodel step");
+                        Assert.IsNotNull(t.ProjOperations().SingleOrDefault(x => x.Name == "helmert"), "New Zealand has helmert step");
+
+                        PPoint rLast = t.Apply(centerPoint.WithT(1999));
+
+                        for (int year = 2000; year < 2020; year++)
+                        {
+                            PPoint rNow = t.Apply(centerPoint.WithT(year));
+
+                            Assert.AreNotEqual(rLast.ToXY(), rNow.ToXY());
+                            double distance = itrf2014.DistanceTransform.GeoDistance(rNow, rLast);
+
+                            Assert.IsTrue(distance >= 0.04, "Distance > 4cm / year");
+
+                            if (year == 2017)
+                                Assert.IsTrue(distance >= 0.045, "Huge step in 2017");
+                            else
+                                Assert.IsTrue(distance < 0.045, "Small step when not 2017");
+                            Console.WriteLine($"{year}: {distance} m");
+                            rLast = rNow;
+                        }
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void TestFinland_tinshift()
+        {
+            // Finland uses a tinshift when converting EPSG:2393 to EPSG 3067
+            using (ProjContext pc = new ProjContext() { EnableNetworkConnections = true, LogLevel = ProjLogLevel.Debug })
+            {
+                pc.Log += (_, m) => Console.WriteLine(m);
+                using (var finland = CoordinateReferenceSystem.CreateFromEpsg(2393, pc))
+                using (var etrs89_finland = CoordinateReferenceSystem.CreateFromEpsg(3067, pc))
+                {
+                    var centerPoint = finland.UsageArea.Center;
+
+
+                    using (var tBase = CoordinateTransform.Create(finland, etrs89_finland) as ChooseCoordinateTransform)
+                    {
+                        Assert.IsNotNull(tBase[0].ProjOperations().SingleOrDefault(x => x.Name == "tinshift"), "Finland option 1 has tinshift step");
+                        Assert.IsNotNull(tBase[1].ProjOperations().SingleOrDefault(x => x.Name == "helmert"), "Finland option 2 has helmert step");
+
+                        foreach (var t in tBase)
+                        {
+                            PPoint rLast = t.Apply(centerPoint);
+                        }
+                    }
+                }
             }
         }
     }

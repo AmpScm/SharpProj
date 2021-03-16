@@ -114,7 +114,7 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::CreateFromWellKnownText(St
 
 	if (!pj)
 	{
-		Exception^ ex = ctx->ConstructException();
+		Exception^ ex = ctx->ConstructException("CRS from WKT failed");
 		if (errors && errors->Length)
 		{
 			Exception^ ex2 = (ex && ex->Message->Length) ? ex : nullptr;
@@ -223,7 +223,7 @@ Proj::GeodeticCRS^ CoordinateReferenceSystem::GeodeticCRS::get()
 			PJ* pj = proj_crs_get_geodetic_crs(Context, this);
 
 			if (!pj)
-				throw Context->ConstructException();
+				throw Context->ConstructException("Get Geodetic CRS failed");
 
 			m_geodCRS = Context->Create<Proj::GeodeticCRS^>(pj);
 		}
@@ -283,7 +283,7 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::WithAxisNormalized(ProjCon
 	PJ* pj = proj_normalize_for_visualization(context, this);
 
 	if (!pj)
-		throw context->ConstructException();
+		throw context->ConstructException("Axis normalization failed");
 
 	return context->Create<CoordinateReferenceSystem^>(pj);
 }
@@ -292,13 +292,12 @@ Proj::Ellipsoid^ CoordinateReferenceSystem::Ellipsoid::get()
 {
 	if (!m_ellipsoid && this)
 	{
-		Context->ClearError(this);
 		PJ* pj = proj_get_ellipsoid(Context, this);
 
 		if (!pj)
-			throw Context->ConstructException();
-
-		m_ellipsoid = Context->Create<Proj::Ellipsoid^>(pj);
+			Context->ClearError(this);			
+		else
+			m_ellipsoid = Context->Create<Proj::Ellipsoid^>(pj);
 	}
 	return m_ellipsoid;
 }
@@ -306,15 +305,13 @@ Proj::Ellipsoid^ CoordinateReferenceSystem::Ellipsoid::get()
 Proj::PrimeMeridian^ CoordinateReferenceSystem::PrimeMeridian::get()
 {
 	if (!m_primeMeridian && this)
-	{
-		Context->ClearError(this);
-
+	{		
 		PJ* pj = proj_get_prime_meridian(Context, this);
 
 		if (!pj)
-			throw Context->ConstructException();
-
-		m_primeMeridian = Context->Create<Proj::PrimeMeridian^>(pj);
+			Context->ClearError(this);
+		else
+			m_primeMeridian = Context->Create<Proj::PrimeMeridian^>(pj);
 	}
 	return m_primeMeridian;
 }
@@ -330,7 +327,8 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::BaseCRS::get()
 			Context->ClearError(this);
 			return nullptr;
 		}
-		m_baseCrs = Context->Create<CoordinateReferenceSystem^>(pj);
+		else
+			m_baseCrs = Context->Create<CoordinateReferenceSystem^>(pj);
 	}
 	return m_baseCrs;
 }
@@ -342,11 +340,9 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::PromotedTo3D()
 		PJ* pj = proj_crs_promote_to_3D(Context, nullptr, this);
 
 		if (!pj)
-		{
 			Context->ClearError(this);
-			return nullptr;
-		}
-		m_promotedTo3D = Context->Create<CoordinateReferenceSystem^>(pj);
+		else
+			m_promotedTo3D = Context->Create<CoordinateReferenceSystem^>(pj);
 	}
 	return m_promotedTo3D;
 }
@@ -358,11 +354,9 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::DemoteTo2D()
 		PJ* pj = proj_crs_demote_to_2D(Context, nullptr, this);
 
 		if (!pj)
-		{
 			Context->ClearError(this);
-			return nullptr;
-		}
-		m_demotedTo2D = Context->Create<CoordinateReferenceSystem^>(pj);
+		else
+			m_demotedTo2D = Context->Create<CoordinateReferenceSystem^>(pj);
 	}
 	return m_demotedTo2D;
 }
@@ -432,6 +426,18 @@ ReadOnlyCollection<CoordinateReferenceSystemInfo^>^ ProjContext::GetCoordinateRe
 		}
 
 		params->allow_deprecated = filter->AllowDeprecated;
+
+		if (filter->CoordinateArea)
+		{
+			params->bbox_valid = true;
+
+			params->west_lon_degree = filter->CoordinateArea->WestLongitude;
+			params->south_lat_degree = filter->CoordinateArea->SouthLatitude;
+			params->east_lon_degree = filter->CoordinateArea->EastLongitude;
+			params->north_lat_degree = filter->CoordinateArea->NorthLatitude;
+
+			params->crs_area_of_use_contains_bbox = filter->CompletelyContainsArea;
+		}
 
 		int count;
 		PROJ_CRS_INFO** infoList = proj_get_crs_info_list_from_database(this, auth_name.length() ? auth_name.c_str() : nullptr, params, &count);

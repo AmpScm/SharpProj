@@ -5,6 +5,7 @@ namespace SharpProj {
 	using System::Collections::ObjectModel::ReadOnlyCollection;
 	using System::Collections::Generic::List;
 	ref class CoordinateTransform;
+	ref class CoordinateArea;
 
 	namespace Proj
 	{
@@ -22,12 +23,19 @@ namespace SharpProj {
 
 		public ref class CoordinateReferenceSystemInfo
 		{
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly ProjContext^ _ctx;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly String^ _authName;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly String^ _code;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly ProjType _type;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly bool _deprecated;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly String^ _areaName;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly String^ _projectionName;
 
 		internal:
@@ -103,6 +111,7 @@ namespace SharpProj {
 			}
 
 			property String^ Authority;
+
 			property List<ProjType>^ Types
 			{
 				List<ProjType>^ get()
@@ -111,8 +120,16 @@ namespace SharpProj {
 				}
 			}
 
-			property bool AllowDeprecated;
+			property CoordinateArea^ CoordinateArea;
 
+			/// <summary>
+			/// Gets or sets a boolean indicating whether <see cref="CoordinateArea"/> must be completely inside the usage area of the <see cref="CoordinateReferenceSystem" />.
+			/// False implies that the area must (just) intersect the area.
+			/// </summary>
+			property bool CompletelyContainsArea;
+
+
+			property bool AllowDeprecated;
 		};
 	}
 
@@ -123,27 +140,27 @@ namespace SharpProj {
 	public ref class CoordinateReferenceSystem : ProjObject
 	{
 	private:
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		CoordinateSystem^ m_cs;
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		GeodeticCRS^ m_geodCRS;
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		Proj::Ellipsoid^ m_ellipsoid;
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		Proj::Datum^ m_datum;
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		Proj::PrimeMeridian^ m_primeMeridian;
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		CoordinateReferenceSystem^ m_baseCrs;
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		CoordinateTransform^ m_distanceTransform;
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		CoordinateReferenceSystem^ m_promotedTo3D;
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		CoordinateReferenceSystem^ m_demotedTo2D;
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		WeakReference<Proj::UsageArea^>^ m_usageArea;
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		int m_axis;
 
 		~CoordinateReferenceSystem();

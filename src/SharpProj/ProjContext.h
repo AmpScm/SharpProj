@@ -31,16 +31,16 @@ namespace SharpProj {
 	public ref class ProjContext
 	{
 	private:
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		PJ_CONTEXT* m_ctx;
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		gcroot<WeakReference<ProjContext^>^>* m_ref;
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		void* m_chain;
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		String^ m_lastError;
 
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		static array<String^>^ _projLibDirs;
 
 		ProjContext(PJ_CONTEXT* ctx);
@@ -55,6 +55,7 @@ namespace SharpProj {
 
 		const char* utf8_chain(String^ value, void*& chain);
 		void free_chain(void*& chain);
+		void FlushChain();
 
 	public:
 		/// <summary>
@@ -94,7 +95,7 @@ namespace SharpProj {
 		}
 
 		[ObsoleteAttribute("Use .EnableNetworkConnections")]
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		property bool AllowNetworkConnections
 		{
 			bool get()
@@ -154,7 +155,7 @@ namespace SharpProj {
 
 	private:		
 		bool CanWriteFromResource(String^ file, String^ userDir);
-		[DebuggerBrowsableAttribute(DebuggerBrowsableState::Never)]
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		property System::Collections::Generic::IEnumerable<String^>^ ProjLibDirs
 		{
 			System::Collections::Generic::IEnumerable<String^>^ get();
@@ -190,6 +191,12 @@ namespace SharpProj {
 		/// <param name="warnings"></param>
 		/// <returns></returns>
 		ProjObject^ CreateFromWellKnownText(String^ from, [Out] array<String^>^% warnings);
+		/// <summary>
+		/// Similar to <see cref="Create(String)"/> but follows more strict Proj4 compatibility
+		/// </summary>
+		/// <param name="definition"></param>
+		/// <returns></returns>
+		ProjObject^ CreateProj4Compatible(String^ definition);
 
 	internal:
 		ProjObject^ Create(PJ* pj);
@@ -287,7 +294,11 @@ namespace SharpProj {
 			return me->m_ctx;
 		}
 
-		System::Exception^ ConstructException();
+		System::Exception^ ConstructException(String^ prefix);
+		System::Exception^ ConstructException()
+		{
+			return ConstructException(nullptr);
+		}
 		ProjException^ CreateException(int err, String^ message, System::Exception^ inner);
 	};
 }

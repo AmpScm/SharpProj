@@ -5,8 +5,11 @@ namespace SharpProj {
 		public ref class PrimeMeridian :
 			public ProjObject
 		{
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly double m_longitude;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly double m_unit_conv_factor;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly String^ m_unit_name;
 
 		internal:
