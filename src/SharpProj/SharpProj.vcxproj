@@ -225,16 +225,16 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <_EmbedManagedResourceFile Include="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*">
+    <_ProjResourceFile Include="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*">
       <Visible>false</Visible>
-    </_EmbedManagedResourceFile>
-    <_EmbedManagedResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\proj.*" />
-    <_EmbedManagedResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\proj-*" />
-    <_EmbedManagedResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\proj4*" />
-    <_EmbedManagedResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\vcpkg*" />
-    <_EmbedManagedResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\copyright" />
-    <_EmbedManagedResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*.json" />
-    <_EmbedManagedResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*.lst" />
+    </_ProjResourceFile>
+    <_ProjResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\proj.*" />
+    <_ProjResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\proj-*" />
+    <_ProjResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\proj4*" />
+    <_ProjResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\vcpkg*" />
+    <_ProjResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\copyright" />
+    <_ProjResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*.json" />
+    <_ProjResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*.lst" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
@@ -246,5 +246,10 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\packages\SharpSvn.AnnotateAssembly.0.25.2\build\SharpSvn.AnnotateAssembly.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\SharpSvn.AnnotateAssembly.0.25.2\build\SharpSvn.AnnotateAssembly.props'))" />
     <Error Condition="!Exists('..\..\packages\SharpSvn.AnnotateAssembly.0.25.2\build\SharpSvn.AnnotateAssembly.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\SharpSvn.AnnotateAssembly.0.25.2\build\SharpSvn.AnnotateAssembly.targets'))" />
+  </Target>
+  <Target Name="AddWildCardItems" AfterTargets="BuildGenerateSources">
+    <ItemGroup>
+      <_EmbedManagedResourceFile Include="@(_ProjResourceFile)" />
+    </ItemGroup>
   </Target>
 </Project>

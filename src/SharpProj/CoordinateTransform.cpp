@@ -228,7 +228,7 @@ PPoint CoordinateTransform::DoTransform(bool forward, PPoint% coordinate)
 	coord = proj_trans(this, forward ? PJ_FWD : PJ_INV, coord);
 
 	if (double::IsNaN(coord.v[0]))
-		throw Context->ConstructException("Transform failed");
+		throw Context->ConstructException("Transform failed; Check Coordinates");
 
 	return FromCoordinate(coord, forward);
 }
