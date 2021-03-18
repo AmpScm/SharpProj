@@ -12,9 +12,10 @@
     <tags>Topology PROJ CRS</tags>
     <dependencies>
       <dependency id="SharpProj.Core" version="[8.0000.4]" />
-      <dependency id="SharpProj.Database" version="[8.0.0]" />
     </dependencies>
   </metadata>
   <files>
+    <file src="obj\proj.ini" target="contentFiles/any/any" />
+    <file src="obj\proj.db" target="contentFiles/any/any" />
   </files>
 </package>

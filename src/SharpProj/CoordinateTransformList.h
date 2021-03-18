@@ -6,6 +6,7 @@ namespace SharpProj {
 	/// <summary>
 	/// Represents a <see cref="CoordinateTransform"/> which is implemented in a number of discrete steps
 	/// </summary>
+	[DebuggerDisplay("[ChooseCoordinateTransform] Step Count={Count}")]
 	public ref class CoordinateTransformList : CoordinateTransform, IReadOnlyList<CoordinateTransform^>
 	{
 	private:

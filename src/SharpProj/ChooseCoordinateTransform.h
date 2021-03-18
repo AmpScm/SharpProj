@@ -14,8 +14,11 @@ namespace SharpProj {
 	public ref class ChooseCoordinateTransform : CoordinateTransform, IReadOnlyList<CoordinateTransform^>
 	{
 	private:
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		PJ_OBJ_LIST* m_list;
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		array<CoordinateTransform^>^ m_operations;
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		CoordinateTransform^ m_last;
 
 	internal:
