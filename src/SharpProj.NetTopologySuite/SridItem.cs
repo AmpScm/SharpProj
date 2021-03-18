@@ -96,10 +96,10 @@ namespace SharpProj.NTS
         public static NtsGeometryServices NtsGeometryServices
         {
             get { return _ntsGeometryServices.Value; }
-            set 
-            { 
+            set
+            {
                 if (value != null && value != NtsGeometryServices)
-                    _ntsGeometryServices = new Lazy<NtsGeometryServices>(() => value); 
+                    _ntsGeometryServices = new Lazy<NtsGeometryServices>(() => value);
             }
         }
 

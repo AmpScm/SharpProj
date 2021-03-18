@@ -1,6 +1,5 @@
 ﻿using System;
 using NetTopologySuite.Geometries;
-using SharpProj;
 
 namespace SharpProj.Testing
 {

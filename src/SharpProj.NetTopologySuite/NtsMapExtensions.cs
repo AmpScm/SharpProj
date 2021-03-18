@@ -194,7 +194,7 @@ namespace SharpProj
             // implemented via the SridRegister
             var res = (TGeometry)factory.CreateGeometry(geometry);
 
-            IEntireCoordinateSequenceFilter filter = new ReProjectFilter(operation, factory.PrecisionModel);
+            IEntireCoordinateSequenceFilter filter = new CoordinateTransformFilter(operation, factory.PrecisionModel);
 
             res.Apply(filter);
             return res;

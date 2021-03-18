@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using NetTopologySuite.Geometries;
-using SharpProj;
 using SharpProj.Implementation;
 
 namespace SharpProj.NTS

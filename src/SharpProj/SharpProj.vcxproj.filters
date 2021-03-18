@@ -156,15 +156,4 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <_EmbedManagedResourceFile Include="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*" />
-    <_EmbedManagedResourceFile Include="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*" />
-    <_EmbedManagedResourceFile Include="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*" />
-    <_EmbedManagedResourceFile Include="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*" />
-    <_EmbedManagedResourceFile Include="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*" />
-    <_EmbedManagedResourceFile Include="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*" />
-    <_EmbedManagedResourceFile Include="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*" />
-    <_EmbedManagedResourceFile Include="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*" />
-    <_EmbedManagedResourceFile Include="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*" />
-  </ItemGroup>
 </Project>

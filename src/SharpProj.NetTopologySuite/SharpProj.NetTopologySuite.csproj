@@ -62,6 +62,11 @@
     <Compile Include="Utils\CoordinateTransformFilter.cs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers">
+      <Version>3.3.2</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="NetTopologySuite">
       <Version>2.2.0</Version>
     </PackageReference>
@@ -88,6 +93,10 @@
       <Project>{50959ccf-0769-4b0d-848b-a0062075b30a}</Project>
       <Name>SharpProj</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="PublicAPI.Shipped.txt" />
+    <Content Include="PublicAPI.Unshipped.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

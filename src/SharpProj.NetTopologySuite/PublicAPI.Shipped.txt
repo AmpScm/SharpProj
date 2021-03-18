@@ -1,0 +1,72 @@
+﻿NetTopologySuite.Geometries.SharpProjNtsExtensions
+SharpProj.NTS.SridItem
+SharpProj.NTS.SridItem.CRS.get -> SharpProj.CoordinateReferenceSystem
+SharpProj.NTS.SridItem.Factory.get -> NetTopologySuite.Geometries.GeometryFactory
+SharpProj.NTS.SridItem.Id<T>() -> T?
+SharpProj.NTS.SridItem.ItemDict
+SharpProj.NTS.SridItem.ItemDict.ItemDict() -> void
+SharpProj.NTS.SridItem.ItemDict.this[object key].get -> object
+SharpProj.NTS.SridItem.ItemDict.this[object key].set -> void
+SharpProj.NTS.SridItem.Items.get -> SharpProj.NTS.SridItem.ItemDict
+SharpProj.NTS.SridItem.SetId<T>(T value) -> void
+SharpProj.NTS.SridItem.SRID.get -> int
+SharpProj.NTS.SridItem.SridItemArgs
+SharpProj.NTS.SridItem.SridItemArgs.PrecisionModel.get -> NetTopologySuite.Geometries.PrecisionModel
+SharpProj.NTS.SridItem.SridItemArgs.PrecisionModel.set -> void
+SharpProj.NTS.SridItem.SridItemArgs.SridItemArgs() -> void
+SharpProj.NTS.SridRegister
+SharpProj.NtsExtensions
+SharpProj.Testing.ProjTestExtensions
+static NetTopologySuite.Geometries.SharpProjNtsExtensions.Equals3D(this NetTopologySuite.Geometries.Coordinate coordinate, NetTopologySuite.Geometries.Coordinate other) -> bool
+static NetTopologySuite.Geometries.SharpProjNtsExtensions.Equals3D(this NetTopologySuite.Geometries.Coordinate coordinate, NetTopologySuite.Geometries.Coordinate other, double tolerance) -> bool
+static NetTopologySuite.Geometries.SharpProjNtsExtensions.IsWithinMeterDistance(this NetTopologySuite.Geometries.Geometry g0, NetTopologySuite.Geometries.Geometry g1, double distanceInMeter) -> bool?
+static NetTopologySuite.Geometries.SharpProjNtsExtensions.MeterArea(this NetTopologySuite.Geometries.GeometryCollection gc) -> double?
+static NetTopologySuite.Geometries.SharpProjNtsExtensions.MeterArea(this NetTopologySuite.Geometries.Polygon p) -> double?
+static NetTopologySuite.Geometries.SharpProjNtsExtensions.MeterDistance(this NetTopologySuite.Geometries.Geometry g0, NetTopologySuite.Geometries.Geometry g1) -> double?
+static NetTopologySuite.Geometries.SharpProjNtsExtensions.MeterLength(this NetTopologySuite.Geometries.GeometryCollection gc) -> double?
+static NetTopologySuite.Geometries.SharpProjNtsExtensions.MeterLength(this NetTopologySuite.Geometries.LineString l) -> double?
+static NetTopologySuite.Geometries.SharpProjNtsExtensions.MeterLength(this NetTopologySuite.Geometries.Polygon p) -> double?
+static SharpProj.NTS.SridItem.implicit operator SharpProj.CoordinateReferenceSystem(SharpProj.NTS.SridItem s) -> SharpProj.CoordinateReferenceSystem
+static SharpProj.NTS.SridItem.NtsGeometryServices.get -> NetTopologySuite.NtsGeometryServices
+static SharpProj.NTS.SridItem.NtsGeometryServices.set -> void
+static SharpProj.NTS.SridRegister.Ensure<T>(T value, System.Func<SharpProj.CoordinateReferenceSystem> creator) -> SharpProj.NTS.SridItem
+static SharpProj.NTS.SridRegister.Ensure<T>(T value, System.Func<SharpProj.CoordinateReferenceSystem> creator, int? preferredSrid) -> SharpProj.NTS.SridItem
+static SharpProj.NTS.SridRegister.Ensure<T>(T value, System.Func<SharpProj.CoordinateReferenceSystem> creator, int? preferredSrid, SharpProj.NTS.SridItem.SridItemArgs args) -> SharpProj.NTS.SridItem
+static SharpProj.NTS.SridRegister.GetById<T>(T key) -> SharpProj.NTS.SridItem
+static SharpProj.NTS.SridRegister.GetByValue(int srid) -> SharpProj.NTS.SridItem
+static SharpProj.NTS.SridRegister.GetByValue(int srid, out SharpProj.NTS.SridItem item) -> bool
+static SharpProj.NTS.SridRegister.Register(SharpProj.CoordinateReferenceSystem crs) -> SharpProj.NTS.SridItem
+static SharpProj.NTS.SridRegister.Register(SharpProj.CoordinateReferenceSystem crs, int withSrid) -> SharpProj.NTS.SridItem
+static SharpProj.NTS.SridRegister.Register(SharpProj.CoordinateReferenceSystem crs, int withSrid, SharpProj.NTS.SridItem.SridItemArgs args) -> SharpProj.NTS.SridItem
+static SharpProj.NTS.SridRegister.Register(SharpProj.CoordinateReferenceSystem crs, SharpProj.NTS.SridItem.SridItemArgs args) -> SharpProj.NTS.SridItem
+static SharpProj.NTS.SridRegister.RegisterId<T>(SharpProj.NTS.SridItem item, T value) -> void
+static SharpProj.NTS.SridRegister.TryGetById<T>(T key, out SharpProj.NTS.SridItem item) -> bool
+static SharpProj.NTS.SridRegister.TryGetByValue(int srid, out SharpProj.NTS.SridItem item) -> bool
+static SharpProj.NTS.SridRegister.TryRegisterId<T>(SharpProj.NTS.SridItem item, T value) -> bool
+static SharpProj.NtsExtensions.Apply(this SharpProj.CoordinateTransform op, NetTopologySuite.Geometries.Coordinate c) -> NetTopologySuite.Geometries.Coordinate
+static SharpProj.NtsExtensions.Apply(this SharpProj.CoordinateTransform op, System.Span<double> xSpan, int xStep, int xCount, System.Span<double> ySpan, int yStep, int yCount, System.Span<double> zSpan, int zStep, int zCount, System.Span<double> tSpan, int tStep, int tCount) -> void
+static SharpProj.NtsExtensions.Apply(this SharpProj.CoordinateTransform op, System.Span<double> xSpan, int xStep, System.Span<double> ySpan, int yStep, System.Span<double> zSpan, int zStep, System.Span<double> tSpan, int tStep) -> void
+static SharpProj.NtsExtensions.ApplyReversed(this SharpProj.CoordinateTransform op, NetTopologySuite.Geometries.Coordinate c) -> NetTopologySuite.Geometries.Coordinate
+static SharpProj.NtsExtensions.ApplyReversed(this SharpProj.CoordinateTransform op, System.Span<double> xSpan, int xStep, int xCount, System.Span<double> ySpan, int yStep, int yCount, System.Span<double> zSpan, int zStep, int zCount, System.Span<double> tSpan, int tStep, int tCount) -> void
+static SharpProj.NtsExtensions.ApplyReversed(this SharpProj.CoordinateTransform op, System.Span<double> xSpan, int xStep, System.Span<double> ySpan, int yStep, System.Span<double> zSpan, int zStep, System.Span<double> tSpan, int tStep) -> void
+static SharpProj.NtsExtensions.GeoArea(this SharpProj.CoordinateTransform operation, System.Collections.Generic.IEnumerable<NetTopologySuite.Geometries.Coordinate> coordinates) -> double
+static SharpProj.NtsExtensions.GeoDistance(this SharpProj.CoordinateTransform operation, NetTopologySuite.Geometries.Coordinate c1, NetTopologySuite.Geometries.Coordinate c2) -> double
+static SharpProj.NtsExtensions.GeoDistance(this SharpProj.CoordinateTransform operation, System.Collections.Generic.IEnumerable<NetTopologySuite.Geometries.Coordinate> coordinates) -> double
+static SharpProj.NtsExtensions.GeoDistanceZ(this SharpProj.CoordinateTransform operation, NetTopologySuite.Geometries.Coordinate c1, NetTopologySuite.Geometries.Coordinate c2) -> double
+static SharpProj.NtsExtensions.GeoDistanceZ(this SharpProj.CoordinateTransform operation, System.Collections.Generic.IEnumerable<NetTopologySuite.Geometries.Coordinate> coordinates) -> double
+static SharpProj.NtsExtensions.Reproject<TGeometry>(this TGeometry geometry, int toSRID) -> TGeometry
+static SharpProj.NtsExtensions.Reproject<TGeometry>(this TGeometry geometry, SharpProj.CoordinateTransform operation, NetTopologySuite.Geometries.GeometryFactory factory) -> TGeometry
+static SharpProj.NtsExtensions.Reproject<TGeometry>(this TGeometry geometry, SharpProj.NTS.SridItem toSrid) -> TGeometry
+static SharpProj.NtsExtensions.ToCoordinate(this SharpProj.PPoint p) -> NetTopologySuite.Geometries.Coordinate
+static SharpProj.NtsExtensions.ToCoordinates(this System.Collections.Generic.IEnumerable<SharpProj.PPoint> points) -> System.Collections.Generic.IEnumerable<NetTopologySuite.Geometries.Coordinate>
+static SharpProj.NtsExtensions.ToPPoint(this NetTopologySuite.Geometries.Coordinate coordinate) -> SharpProj.PPoint
+static SharpProj.NtsExtensions.ToPPoint(this NetTopologySuite.Geometries.Point point) -> SharpProj.PPoint
+static SharpProj.NtsExtensions.ToPPoints(this NetTopologySuite.Geometries.CoordinateSequence cs) -> System.Collections.Generic.IEnumerable<SharpProj.PPoint>
+static SharpProj.NtsExtensions.ToPPoints(this System.Collections.Generic.IEnumerable<NetTopologySuite.Geometries.Coordinate> cs) -> System.Collections.Generic.IEnumerable<SharpProj.PPoint>
+static SharpProj.Testing.ProjTestExtensions.RoundAll(this NetTopologySuite.Geometries.Coordinate coord, int decimals) -> NetTopologySuite.Geometries.Coordinate
+static SharpProj.Testing.ProjTestExtensions.ToXY(this NetTopologySuite.Geometries.Coordinate coord) -> NetTopologySuite.Geometries.Coordinate
+static SharpProj.Testing.ProjTestExtensions.ToXY(this NetTopologySuite.Geometries.Coordinate coord, int decimals) -> NetTopologySuite.Geometries.Coordinate
+static SharpProj.Testing.ProjTestExtensions.ToYearValue(this System.DateTime dt) -> double
+SharpProj.Utils.NTSAdditions.CoordinateTransformFilter
+SharpProj.Utils.NTSAdditions.CoordinateTransformFilter.CoordinateTransformFilter(SharpProj.CoordinateTransform transform, NetTopologySuite.Geometries.PrecisionModel precisionModel) -> void
+virtual SharpProj.Utils.NTSAdditions.CoordinateTransformFilter.Filter(NetTopologySuite.Geometries.CoordinateSequence seq) -> void
