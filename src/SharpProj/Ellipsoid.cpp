@@ -20,13 +20,6 @@ Ellipsoid^ Ellipsoid::CreateFromDatabase(String^ authority, String^ code, ProjCo
 
 	if (pj)
 		return ctx->Create<Ellipsoid^>(pj);
-
-	try
-	{
+	else
 		throw ctx->ConstructException();
-	}
-	finally
-	{
-		delete ctx;
-	}
 }

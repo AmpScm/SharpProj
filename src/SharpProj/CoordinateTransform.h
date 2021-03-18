@@ -256,11 +256,36 @@ namespace SharpProj {
 		~CoordinateTransform();
 
 	public:
-		PPoint Apply(PPoint coord) { return DoTransform(true, coord); }
+		/// <summary>
+		/// Transform a single coordinate
+		/// </summary>
+		/// <param name="coordinate"></param>
+		/// <returns></returns>
+		PPoint Apply(PPoint coordinate) { return DoTransform(true, coordinate); }
+		/// <summary>
+		/// Transform a single coordinate
+		/// </summary>
+		/// <param name="ordinates"></param>
+		/// <returns></returns>
 		array<double>^ Apply(...array<double>^ ordinates) { return DoTransform(true, PPoint(ordinates)).ToArray(); }
+		/// <summary>
+		/// Transform a single coordinate backwards
+		/// </summary>
+		/// <param name="coord"></param>
+		/// <returns></returns>
 		PPoint ApplyReversed(PPoint coord) { return DoTransform(false, coord); }
+		/// <summary>
+		/// Transform a single coordinate backwards
+		/// </summary>
+		/// <param name="ordinates"></param>
+		/// <returns></returns>
 		array<double>^ ApplyReversed(...array<double>^ ordinates) { return DoTransform(false, PPoint(ordinates)).ToArray(); }
 
+		/// <summary>
+		/// Transform a series of coordinates, where the individual coordinate dimension may be represented by an array that
+		/// is either fully populated a null pointer and /or a length of zero, which will be treated as a fully populated array
+		/// of zeroes of length one, i.e.a constant, which will be treated as a fully populated array of that constant value
+		/// </summary>
 		[EditorBrowsableAttribute(EditorBrowsableState::Never)]
 		void Apply(
 			double* xVals, int xStep, int xCount,
@@ -268,6 +293,11 @@ namespace SharpProj {
 			double* zVals, int zStep, int zCount,
 			double* tVals, int tStep, int tCount);
 
+		/// <summary>
+		/// Transform a series of coordinates, where the individual coordinate dimension may be represented by an array that
+		/// is either fully populated a null pointer and /or a length of zero, which will be treated as a fully populated array
+		/// of zeroes of length one, i.e.a constant, which will be treated as a fully populated array of that constant value
+		/// </summary>
 		[EditorBrowsableAttribute(EditorBrowsableState::Never)]
 		void ApplyReversed(
 			double* xVals, int xStep, int xCount,
@@ -275,7 +305,16 @@ namespace SharpProj {
 			double* zVals, int zStep, int zCount,
 			double* tVals, int tStep, int tCount);
 	protected:
-		virtual PPoint DoTransform(bool forward, PPoint% coords);
+		/// <summary>
+		/// Implements <see cref="Apply(PPoint)" /> and <see cref="ApplyReversed(PPoint)" />
+		/// </summary>
+		/// <param name="forward"></param>
+		/// <param name="coordinate"></param>
+		/// <returns></returns>
+		virtual PPoint DoTransform(bool forward, PPoint% coordinate);
+		/// <summary>
+		/// Implements range Apply and ApplyReversed.
+		/// </summary>
 		virtual void DoTransform(bool forward,
 			double* xVals, int xStep, int xCount,
 			double* yVals, int yStep, int yCount,
@@ -489,25 +528,49 @@ namespace SharpProj {
 		}
 
 	public:
+		/// <summary>
+		/// Measure internal consistency of a given transformation. The function performs n round trip transformations starting in either the forward or reverse direction. Returns the euclidean distance of the starting point coo and the resulting coordinate after n iterations back and forth.
+		/// </summary>
+		/// <param name="forward"></param>
+		/// <param name="transforms"></param>
+		/// <param name="coordinate"></param>
+		/// <returns></returns>
 		double RoundTrip(bool forward, int transforms, PPoint coordinate);
+		/// <summary>
+		/// Measure internal consistency of a given transformation. The function performs n round trip transformations starting in either the forward or reverse direction. Returns the euclidean distance of the starting point coo and the resulting coordinate after n iterations back and forth.
+		/// </summary>
+		/// <param name="forward"></param>
+		/// <param name="transforms"></param>
+		/// <param name="ordinates"></param>
+		/// <returns></returns>
 		double RoundTrip(bool forward, int transforms, array<double>^ ordinates) { return RoundTrip(forward, transforms, PPoint(ordinates)); }
+		/// <summary>
+		/// Calculate various cartographic properties, such as scale factors, angular distortion and meridian convergence. Depending on the underlying projection values will be calculated either numerically (default) or analytically.
+		/// </summary>
+		/// <param name="coordinate"></param>
+		/// <returns></returns>
 		Proj::CoordinateTransformFactors^ Factors(PPoint coordinate);
+		/// <summary>
+		/// Calculate various cartographic properties, such as scale factors, angular distortion and meridian convergence. Depending on the underlying projection values will be calculated either numerically (default) or analytically.
+		/// </summary>
+		/// <param name="ordinates"></param>
+		/// <returns></returns>
 		Proj::CoordinateTransformFactors^ Factors(array<double>^ ordinates) { return Factors(PPoint(ordinates)); }
 
 
 	public:
-		static const double _degToRad = (2.0 * System::Math::PI / 360.0);
-		static const double _radToDeg = (360.0 / System::Math::PI / 2.0);
+		literal double DegreesToRadians = (2.0 * System::Math::PI / 360.0);
+		literal double RadiansToDegrees = (360.0 / System::Math::PI / 2.0);
 		// Some helpers that do not really belong here, but are easy to access in a sensible way
 		// if they are here anyway
 		static double ToRad(double deg)
 		{
-			return deg * _degToRad; // proj_torad(deg); // Inlineable by .Net CLR
+			return deg * DegreesToRadians; // proj_torad(deg); // Inlineable by .Net CLR
 		}
 
 		static double ToDeg(double rad)
 		{
-			return rad * _radToDeg; //return proj_todeg(rad); // Inlineable by .Net CLR
+			return rad * RadiansToDegrees; //return proj_todeg(rad); // Inlineable by .Net CLR
 		}
 
 		static double ApplyAccuracy(double value, double accuracy)

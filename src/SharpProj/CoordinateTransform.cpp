@@ -190,15 +190,8 @@ CoordinateTransform^ CoordinateTransform::CreateFromDatabase(String^ authority, 
 
 	if (pj)
 		return ctx->Create<CoordinateTransform^>(pj);
-
-	try
-	{
+	else
 		throw ctx->ConstructException();
-	}
-	finally
-	{
-		delete ctx;
-	}
 }
 
 

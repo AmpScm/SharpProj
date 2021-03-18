@@ -33,15 +33,8 @@ Datum^ Datum::CreateFromDatabase(String^ authority, String^ code, ProjContext^ c
 
 	if (pj)
 		return ctx->Create<Datum^>(pj);
-
-	try
-	{
+	else
 		throw ctx->ConstructException();
-	}
-	finally
-	{
-		delete ctx;
-	}
 }
 
 Proj::Ellipsoid^ Datum::Ellipsoid::get()

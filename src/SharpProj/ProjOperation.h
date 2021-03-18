@@ -139,7 +139,7 @@ namespace SharpProj {
 			{
 				bool get()
 				{
-					return System::Linq::Enumerable::Contains(static_cast<IEnumerable<String^>^>(Tokens), (String^)"inv");
+					return System::Linq::Enumerable::Contains(Tokens, (String^)"inv");
 				}
 			}
 
@@ -147,7 +147,7 @@ namespace SharpProj {
 			{
 				bool get()
 				{
-					return System::Linq::Enumerable::Contains(static_cast<IEnumerable<String^>^>(Tokens), (String^)"omit_fwd");
+					return System::Linq::Enumerable::Contains(Tokens, (String^)"omit_fwd");
 				}
 			}
 
@@ -155,7 +155,7 @@ namespace SharpProj {
 			{
 				bool get()
 				{
-					return System::Linq::Enumerable::Contains(static_cast<IEnumerable<String^>^>(Tokens), (String^)"omit_fwd");
+					return System::Linq::Enumerable::Contains(Tokens, (String^)"omit_fwd");
 				}
 			}
 

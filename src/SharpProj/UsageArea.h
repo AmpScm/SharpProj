@@ -94,26 +94,41 @@ namespace SharpProj {
 				}
 			}
 
+			/// <summary>
+			/// The North-West corner as calculated by Converting NorthLat, WestLon from the Geospatial CRS to the CRS itself.
+			/// </summary>
 			property PPoint NorthWestCorner
 			{
 				PPoint get();
 			}
 
+			/// <summary>
+			/// The SouthEast corner as calculated by Converting SouthLat, EastLon from the Geospatial CRS to the CRS itself.
+			/// </summary>
 			property PPoint SouthEastCorner
 			{
 				PPoint get();
 			}
 
+			/// <summary>
+			/// The SouthEast corner as calculated by Converting SouthLat, WestLon from the Geospatial CRS to the CRS itself.
+			/// </summary>
 			property PPoint SouthWestCorner
 			{
 				PPoint get();
 			}
 
+			/// <summary>
+			/// The SouthEast corner as calculated by Converting NorthLat, EastLon from the Geospatial CRS to the CRS itself.
+			/// </summary>
 			property PPoint NorthEastCorner
 			{
 				PPoint get();
 			}
 
+			/// <summary>
+			/// Gets the point located at the center of <see cref="NorthWestCorner" />, <see cref="SouthEastCorner" />, <see cref="SouthWestCorner" /> and <see cref="NorthEastCorner" />
+			/// </summary>
 			property PPoint Center
 			{
 				PPoint get();

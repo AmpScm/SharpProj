@@ -194,20 +194,8 @@ namespace SharpProj {
 			bool m_noProj;
 
 		private:
-			~ProjObject()
-			{
-				if (m_pj)
-				{
-					try
-					{
-						proj_destroy(m_pj);
-					}
-					finally
-					{
-						m_pj = nullptr;
-					}
-				}
-			}
+			~ProjObject();
+			!ProjObject();
 
 		private protected:
 			void ForceUnknownInfo()

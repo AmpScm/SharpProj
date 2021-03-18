@@ -24,6 +24,10 @@ namespace SharpProj {
 	private:
 		~CoordinateReferenceSystemList()
 		{
+			CoordinateReferenceSystemList::!CoordinateReferenceSystemList();
+		}
+		!CoordinateReferenceSystemList()
+		{
 			if (m_crs)
 				try
 			{

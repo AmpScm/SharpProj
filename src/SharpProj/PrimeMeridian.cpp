@@ -18,13 +18,6 @@ PrimeMeridian^ PrimeMeridian::CreateFromDatabase(String^ authority, String^ code
 
 	if (pj)
 		return ctx->Create<PrimeMeridian^>(pj);
-
-	try
-	{
+	else
 		throw ctx->ConstructException();
-	}
-	finally
-	{
-		delete ctx;
-	}
 }

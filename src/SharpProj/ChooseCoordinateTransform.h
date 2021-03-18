@@ -28,7 +28,7 @@ namespace SharpProj {
 
 			for (int i = 0; i < items->Length; i++)
 			{
-				items[i] = static_cast<CoordinateTransform^>(ctx->Create(proj_list_get(Context, m_list, i)));
+				items[i] = ctx->Create<CoordinateTransform^>(proj_list_get(Context, m_list, i));
 			}
 			m_operations = items;
 
@@ -37,6 +37,15 @@ namespace SharpProj {
 		}
 
 	private:
+		!ChooseCoordinateTransform()
+		{
+			if (m_list)
+			{
+				proj_list_destroy(m_list);
+				m_list = nullptr;
+			}
+		}
+
 		~ChooseCoordinateTransform()
 		{
 			if (m_list)
@@ -100,7 +109,7 @@ namespace SharpProj {
 			}
 		}
 
-		property bool HasInverse
+			property bool HasInverse
 		{
 			virtual bool get() override sealed
 			{

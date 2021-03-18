@@ -16,7 +16,7 @@
 using namespace SharpProj;
 using namespace SharpProj::Proj;
 
-SharpProj::CoordinateReferenceSystem::~CoordinateReferenceSystem()
+CoordinateReferenceSystem::~CoordinateReferenceSystem()
 {
 	if ((Object^)m_cs)
 	{
@@ -197,15 +197,8 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::CreateFromDatabase(String^
 
 	if (pj)
 		return ctx->Create<CoordinateReferenceSystem^>(pj);
-
-	try
-	{
+	else
 		throw ctx->ConstructException();
-	}
-	finally
-	{
-		delete ctx;
-	}
 }
 
 Proj::GeodeticCRS^ CoordinateReferenceSystem::GeodeticCRS::get()
@@ -277,13 +270,23 @@ Proj::CoordinateSystem^ CoordinateReferenceSystem::CoordinateSystem::get()
 
 CoordinateReferenceSystem^ CoordinateReferenceSystem::WithAxisNormalized(ProjContext^ context)
 {
+	bool allowReturnSame = false;
 	if (!context)
+	{
 		context = Context;
+		allowReturnSame = true;
+	}
 
 	PJ* pj = proj_normalize_for_visualization(context, this);
 
 	if (!pj)
 		throw context->ConstructException("Axis normalization failed");
+
+	if (allowReturnSame && proj_is_equivalent_to_with_ctx(context, pj, this, PJ_COMP_STRICT))
+	{
+		proj_destroy(pj);
+		return this;
+	}
 
 	return context->Create<CoordinateReferenceSystem^>(pj);
 }
@@ -365,7 +368,7 @@ CoordinateTransform^ CoordinateReferenceSystem::DistanceTransform::get()
 {
 	if (!m_distanceTransform && this && this->GeodeticCRS)
 	{
-		m_distanceTransform = CoordinateTransform::Create(this, this->GeodeticCRS->WithAxisNormalized(Context), Context);
+		m_distanceTransform = CoordinateTransform::Create(this, this->GeodeticCRS->WithAxisNormalized(nullptr), Context);
 		m_distanceTransform->EnsureDistance();
 	}
 	return m_distanceTransform;
@@ -466,8 +469,6 @@ CoordinateReferenceSystem^ CoordinateReferenceSystemInfo::Create(ProjContext^ ct
 {
 	if (!ctx && _ctx)
 		ctx = _ctx;
-	else
-		ctx = gcnew ProjContext();
 
 	return CoordinateReferenceSystem::CreateFromDatabase(Authority, Code, ctx);
 }

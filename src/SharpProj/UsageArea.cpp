@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "ProjObject.h"
 #include "CoordinateTransform.h"
+#include "GeographicCRS.h"
 #include "UsageArea.h"
 
 CoordinateTransform^ UsageArea::GetLatLonConvert()
@@ -11,14 +12,21 @@ CoordinateTransform^ UsageArea::GetLatLonConvert()
 
 		if (crs)
 		{
-			try
+			// We need a CRS to convert the Lat/Lon coordinates from. Theoretically we should probably use WGS84, but the extent
+			// is usually only set in just a few decimal places, so we take the more efficient Geodetic CRS of the system itself for
+			// the conversion as that doesn't go through all kinds of loops to optimize precision (e.g. gridshifts)
+			//
+			// (See WKT specification on OpenGeoSpatial.org)
+
+			// Let's just use the already cached distance transform if possible
+			m_latLonTransform = crs->DistanceTransform; 
+
+			if (!m_latLonTransform)
 			{
-				CoordinateReferenceSystem^ wgs84 = CoordinateReferenceSystem::CreateFromEpsg(4326, crs->Context)->WithAxisNormalized(crs->Context);
+				// Ok, then we fall back to the WGS84 definition for the coordinate conversion
+
+				CoordinateReferenceSystem^ wgs84 = CoordinateReferenceSystem::CreateFromEpsg(4326, crs->Context)->WithAxisNormalized(nullptr);
 				m_latLonTransform = CoordinateTransform::Create(crs, wgs84, crs->Context);
-			}
-			catch (ProjException^)
-			{
-				m_latLonTransform = crs->DistanceTransform; // Not the expected ellipsoid
 			}
 		}
 	}
@@ -102,7 +110,7 @@ double UsageArea::MinY::get()
 			if (ll->Accuraracy.HasValue && ll->Accuraracy.Value > 0)
 				m_minY = CoordinateTransform::ApplyAccuracy(minY, ll->Accuraracy.Value);
 			else
-				m_minY = double::NaN;
+				m_minY = minY;
 		}
 	}
 
@@ -124,7 +132,7 @@ double UsageArea::MaxY::get()
 			if (ll->Accuraracy.HasValue && ll->Accuraracy.Value > 0)
 				m_maxY = CoordinateTransform::ApplyAccuracy(maxY, ll->Accuraracy.Value);
 			else
-				m_maxY = double::NaN;
+				m_maxY = maxY;
 		}
 	}
 
@@ -146,7 +154,7 @@ double UsageArea::MinX::get()
 			if (ll->Accuraracy.HasValue && ll->Accuraracy.Value > 0)
 				m_minX = CoordinateTransform::ApplyAccuracy(minX, ll->Accuraracy.Value);
 			else
-				m_minX = double::NaN;
+				m_minX = minX;
 		}
 	}
 
@@ -168,7 +176,7 @@ double UsageArea::MaxX::get()
 			if (ll->Accuraracy.HasValue && ll->Accuraracy.Value > 0)
 				m_maxX = CoordinateTransform::ApplyAccuracy(maxX, ll->Accuraracy.Value);
 			else
-				m_maxX = double::NaN;
+				m_maxX = maxX;
 		}
 	}
 

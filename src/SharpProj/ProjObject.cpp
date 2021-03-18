@@ -15,6 +15,39 @@
 #include "Datum.h"
 #include "UsageArea.h"
 
+
+ProjObject::!ProjObject()
+{
+	if (m_pj)
+	{
+		try
+		{
+			proj_assign_context(m_pj, nullptr);
+			proj_destroy(m_pj);
+		}
+		finally
+		{
+			m_pj = nullptr;
+		}
+	}
+}
+
+ProjObject::~ProjObject()
+{
+	if (m_pj)
+	{
+		try
+		{
+			proj_destroy(m_pj);
+		}
+		finally
+		{
+			m_pj = nullptr;
+		}
+	}
+}
+
+
 ProjObject^ ProjContext::Create(String^ definition)
 {
 	if (String::IsNullOrWhiteSpace(definition))
@@ -167,7 +200,7 @@ ProjObject^ ProjContext::Create(PJ* pj)
 	case ProjType::GeodeticCrs:
 	case ProjType::GeocentricCrs:
 		return gcnew GeodeticCRS(this, pj);
-	
+
 	case ProjType::CompoundCrs:
 		return gcnew CoordinateReferenceSystemList(this, pj);
 
@@ -175,7 +208,7 @@ ProjObject^ ProjContext::Create(PJ* pj)
 	case ProjType::VerticalCrs:
 	case ProjType::ProjectedCrs:
 	case ProjType::TemporalCrs:
-	case ProjType::EngineeringCrs:	
+	case ProjType::EngineeringCrs:
 	case ProjType::OtherCrs:
 		return gcnew CoordinateReferenceSystem(this, pj);
 
@@ -199,7 +232,7 @@ ProjObject^ ProjContext::Create(PJ* pj)
 	case ProjType::CoordinateSystem:
 		throw gcnew InvalidOperationException(); // Never returned by proj, but needed for sensible API
 
-	case ProjType::Unknown:		
+	case ProjType::Unknown:
 	default:
 		CoordinateSystemType cst = (CoordinateSystemType)proj_cs_get_type(this, pj);
 
@@ -305,7 +338,7 @@ int IdentifierList::Count::get()
 
 System::Collections::Generic::IEnumerator<Identifier^>^ IdentifierList::GetEnumerator()
 {
-	for(int i = 0; i < Count /* initializes m_Items if necessary */; i++)
+	for (int i = 0; i < Count /* initializes m_Items if necessary */; i++)
 	{
 		if (!m_Items[i])
 			m_Items[i] = gcnew Identifier(m_object, i);

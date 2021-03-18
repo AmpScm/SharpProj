@@ -80,9 +80,12 @@ static void my_log_func(void* user_data, int level, const char* message)
 	ProjContext^ pc;
 	if (ref->TryGetTarget(pc))
 	{
-		String^ msg = Utf8_PtrToString(message);
-		
-		pc->OnLogMessage((ProjLogLevel)level, msg);
+		if (level <= PJ_LOG_ERROR || (ProjLogLevel)level <= pc->LogLevel)
+		{
+			String^ msg = Utf8_PtrToString(message);
+
+			pc->OnLogMessage((ProjLogLevel)level, msg);
+		}
 	}
 }
 
@@ -94,7 +97,7 @@ ProjContext::ProjContext()
 	if (EnableNetworkConnectionsOnNewContexts)
 		EnableNetworkConnections = true; // Otherwise follow environment variable
 
-	proj_log_level(m_ctx, PJ_LOG_ERROR); // Ignore environment variable!
+	LogLevel = ProjLogLevel::Error;
 	proj_context_use_proj4_init_rules(m_ctx, false); // Ignore environment variable!
 }
 
@@ -110,16 +113,21 @@ ProjContext::ProjContext(PJ_CONTEXT* ctx)
 
 	proj_context_set_file_finder(m_ctx, my_file_finder, m_ref);
 	proj_log_func(m_ctx, m_ref, my_log_func);
+	m_logLevel = (ProjLogLevel)proj_log_level(m_ctx, PJ_LOG_TELL);
 
 	SetupNetworkHandling();
 }
 
 ProjContext^ ProjContext::Clone()
 {
-	return gcnew ProjContext(proj_context_clone(this));
+	auto pc = gcnew ProjContext(proj_context_clone(this));
+
+	pc->m_autoCloseSession = m_autoCloseSession;
+	pc->m_logLevel = m_logLevel;
+	return pc;
 }
 
-SharpProj::ProjContext::~ProjContext()
+ProjContext::!ProjContext()
 {
 	if (m_ctx)
 	{
@@ -133,6 +141,11 @@ SharpProj::ProjContext::~ProjContext()
 	}
 
 	FlushChain();
+}
+
+SharpProj::ProjContext::~ProjContext()
+{
+	ProjContext::!ProjContext();
 }
 
 void SharpProj::ProjContext::FlushChain()
@@ -222,23 +235,23 @@ ProjException^ ProjContext::CreateException(int err, String^ message, System::Ex
 	}
 }
 
-Exception^ ProjContext::ConstructException(String ^prefix)
+Exception^ ProjContext::ConstructException(String^ prefix)
 {
 	int err = proj_context_errno(this);
 
 	String^ msg = (prefix && m_lastError) ? (prefix + ": " + m_lastError) :
 		(m_lastError ? m_lastError : prefix);
+	m_lastError = nullptr;
 
-	if (msg)
+	String^ projMsg = Utf8_PtrToString(proj_context_errno_string(this, err));
+
+	if (msg && projMsg && projMsg->StartsWith("Unknown error (code "))
 	{
-		m_lastError = nullptr;
-		return CreateException(err, Utf8_PtrToString(proj_context_errno_string(this, err)),
-			CreateException(err, msg, nullptr));
+		projMsg = msg;
+		msg = nullptr;
 	}
-	else
-	{
-		return CreateException(err, Utf8_PtrToString(proj_context_errno_string(this, err)), nullptr);
-	}
+
+	return CreateException(err, projMsg, msg ? CreateException(err, msg, nullptr) : nullptr);
 }
 
 String^ ProjContext::EnvCombine(String^ envVar, String^ file)
@@ -252,7 +265,7 @@ String^ ProjContext::EnvCombine(String^ envVar, String^ file)
 
 		return Path::GetFullPath(Path::Combine(ev, file));
 	}
-	catch(IOException^)
+	catch (IOException^)
 	{
 		return file;
 	}
@@ -262,14 +275,27 @@ String^ ProjContext::EnvCombine(String^ envVar, String^ file)
 	}
 }
 
-bool ProjContext::CanWriteFromResource(String^ file, String^ resultFile)
+bool ProjContext::CanWriteFromResource(String^ file, String^ userDir, String^ resultFile)
 {
 	auto stream = ProjContext::typeid->Assembly->GetManifestResourceStream(file);
 
 	if (stream)
 	{
+		try
+		{
+			DateTime old = DateTime::Now.Date.AddMonths(-1);
+			for each (FileInfo ^ fi in (gcnew DirectoryInfo(userDir))->GetFiles("#proj-*"))
+			{
+				if (fi->LastWriteTime < old && fi->LastAccessTime < old)
+					fi->Delete();
+			}
+		}
+		catch (Exception^)
+		{
+		}
+
 		FileStream fs(resultFile, FileMode::CreateNew);
-		stream->CopyTo(%fs);
+		stream->CopyTo(% fs);
 
 		return true;
 	}
@@ -336,6 +362,21 @@ System::Collections::Generic::IEnumerable<String^>^ ProjContext::ProjLibDirs::ge
 	return static_cast<System::Collections::Generic::IEnumerable<String^>^>(_projLibDirs);
 }
 
+// Update last write time when last write time more than one day old
+void ProjContext::TouchFile(String^ file)
+{
+	try
+	{
+		if (File::GetLastWriteTime(file) < DateTime::Now.Date.AddDays(-1))
+		{
+			File::SetLastWriteTime(file, DateTime::Now);
+		}
+	}
+	catch (Exception^)
+	{
+	}
+}
+
 String^ ProjContext::FindFile(String^ file)
 {
 	String^ testFile;
@@ -351,13 +392,16 @@ String^ ProjContext::FindFile(String^ file)
 
 	if (File::Exists(testFile = Path::Combine(userDir, file)))
 		return testFile;
-	else if (File::Exists(testFile = Path::Combine(userDir, ("proj" "-" PROJ_VERSION "-") + file)))
+	else if (File::Exists(testFile = Path::Combine(userDir, ("#proj" "-" PROJ_VERSION "-") + file)))
+	{
+		TouchFile(testFile);
 		return testFile;
-	else if (CanWriteFromResource(file, testFile /* = Path::Combine(userDir, ("proj" "-" PROJ_VERSION "-") + file)*/))
+	}
+	else if (CanWriteFromResource(file, userDir, testFile /* = Path::Combine(userDir, ("#proj" "-" PROJ_VERSION "-") + file)*/))
 		return testFile;
 	else if (file == "proj.db" && EnableNetworkConnections)
 	{
-		testFile = Path::Combine(userDir, ("proj" PROJ_VERSION "-") + file);
+		testFile = Path::Combine(userDir, ("#proj" PROJ_VERSION "-") + file);
 		try
 		{
 			DownloadProjDB(testFile);
@@ -379,9 +423,6 @@ String^ ProjContext::FindFile(String^ file)
 			return testFile;
 	}
 
-	if (!m_lastError)
-		m_lastError = String::Format("File '{0}' not found", file);
-
 	return nullptr;
 }
 
@@ -392,10 +433,8 @@ void ProjContext::OnLogMessage(ProjLogLevel level, String^ message)
 	else
 		m_lastError = nullptr;
 
-#ifdef _DEBUG
-	if (level <= ProjLogLevel::Error)
-		System::Diagnostics::Debug::WriteLine(message);
-#endif
+	if (level >= LogLevel)
+		return;
 
 	OnLog(level, message);
 }

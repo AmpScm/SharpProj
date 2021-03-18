@@ -283,30 +283,32 @@ namespace SharpProj.Tests
         [TestMethod]
         public void TestCopenhagen()
         {
-            var ctx = new ProjContext();
-            var src = CoordinateReferenceSystem.CreateFromEpsg(4326, ctx);
-            var dst = CoordinateReferenceSystem.Create(/*"+proj=utm +zone=32 +datum=WGS84" or */ "EPSG:32632", ctx);
-            Assert.AreEqual("WGS 84", src.Name);
-            Assert.AreEqual("WGS 84 / UTM zone 32N", dst.Name);
+            using (var ctx = new ProjContext())
+            {
+                var src = CoordinateReferenceSystem.CreateFromEpsg(4326, ctx);
+                var dst = CoordinateReferenceSystem.Create(/*"+proj=utm +zone=32 +datum=WGS84" or */ "EPSG:32632", ctx);
+                Assert.AreEqual("WGS 84", src.Name);
+                Assert.AreEqual("WGS 84 / UTM zone 32N", dst.Name);
 
-            var t = CoordinateTransform.Create(src, dst, ctx);
+                var t = CoordinateTransform.Create(src, dst, ctx);
 
-            var t2 = CoordinateTransform.Create(src.WithAxisNormalized(), dst.WithAxisNormalized(), ctx);
-
-
-            var p = t2.ApplyReversed(new double[] { 12, 55 });
-
-            Trace.WriteLine($"Easting: {p[0]}, Northing: {p[1]}");
-
-            var r = t2.ApplyReversed(p);
-
-            Trace.WriteLine($"Longitude: {r[0]}, Latitude: {r[1]}");
+                var t2 = CoordinateTransform.Create(src.WithAxisNormalized(), dst.WithAxisNormalized(), ctx);
 
 
-            var tt = CoordinateTransform.Create(src, src, null);
-            Assert.AreEqual("Null geographic offset from WGS 84 to WGS 84", tt.Name);
+                var p = t2.ApplyReversed(new PPoint(12, 55));
 
-            var ss = ctx.Create("+proj=utm +zone=32 +datum=WGS84 +ellps=clrk66");
+                Trace.WriteLine($"Easting: {p.X}, Northing: {p.Y}");
+
+                var r = t2.ApplyReversed(p);
+
+                Trace.WriteLine($"Longitude: {r.X}, Latitude: {r.Y}");
+
+
+                var tt = CoordinateTransform.Create(src, src, null);
+                Assert.AreEqual("Null geographic offset from WGS 84 to WGS 84", tt.Name);
+
+                var ss = ctx.Create("+proj=utm +zone=32 +datum=WGS84 +ellps=clrk66");
+            }
         }
 
         [TestMethod]
@@ -328,19 +330,17 @@ namespace SharpProj.Tests
 
                     using (var t = CoordinateTransform.Create(rd, wgs84))
                     {
-                        var r = t.Apply(155000, 463000);
-                        Assert.AreEqual(52.155, Math.Round(r[0], 3));
-                        Assert.AreEqual(5.387, Math.Round(r[1], 3));
+                        var r = t.Apply(new PPoint(155000, 463000));
+                        Assert.AreEqual(new PPoint(52.155, 5.387), r.ToXY(3));
 
-                        Assert.AreEqual(1, t.Accuraracy);
+                        Assert.AreEqual(1.0, t.Accuraracy);
                     }
 
                     using (var t = CoordinateTransform.Create(rd, google))
                     {
-                        var r = t.Apply(155000, 463000);
+                        var r = t.Apply(new PPoint(155000, 463000));
 
-                        Assert.AreEqual(599701.0, Math.Round(r[0], 0));
-                        Assert.AreEqual(6828231.0, Math.Round(r[1], 0));
+                        Assert.AreEqual(new PPoint(599701, 6828231), r.ToXY(0));
 
                         Assert.AreEqual(1, t.Accuraracy);
                     }
@@ -351,11 +351,10 @@ namespace SharpProj.Tests
         [TestMethod]
         public void TestSpain()
         {
-            using (var c = new ProjContext())
+            using (var c = new ProjContext() { EnableNetworkConnections = true, LogLevel = ProjLogLevel.Debug })
             {
-                c.EnableNetworkConnections = true;
-                c.LogLevel = ProjLogLevel.Debug;
                 c.Log += (_, m) => Debug.WriteLine(m);
+
                 using (var wgs84 = CoordinateReferenceSystem.CreateFromEpsg(4326, c))
                 using (var google = CoordinateReferenceSystem.CreateFromEpsg(3857, c))
                 using (var q1 = CoordinateReferenceSystem.CreateFromEpsg(23030, c))
@@ -366,7 +365,7 @@ namespace SharpProj.Tests
 
                     using (var t = CoordinateTransform.Create(google, wgs84))
                     {
-                        var r = t.Apply(-333958.47, 4865942.28);
+                        var r = t.Apply(new PPoint(-333958.47, 4865942.28));
                         Assert.AreEqual(0, t.GridUsages.Count);
                         Assert.AreEqual(40.0, Math.Round(r[0], 3));
                         Assert.AreEqual(-3, Math.Round(r[1], 3));
@@ -374,7 +373,7 @@ namespace SharpProj.Tests
 
                     using (var t = CoordinateTransform.Create(google, q1))
                     {
-                        var r = t.Apply(-333958.47, 4865942.28);
+                        var r = t.Apply(new PPoint(-333958.47, 4865942.28));
                         Assert.AreEqual(0, t.GridUsages.Count);
 
                         Assert.AreEqual(500110.0, Math.Round(r[0], 0));
@@ -383,7 +382,7 @@ namespace SharpProj.Tests
 
                     using (var t = CoordinateTransform.Create(google, q2))
                     {
-                        var r = t.Apply(-333958.47, 4865942.28);
+                        var r = t.Apply(new PPoint(-333958.47, 4865942.28));
                         Assert.AreEqual(0, t.GridUsages.Count);
 
                         Assert.AreEqual(658629.5, Math.Round(r[0], 1));
@@ -501,22 +500,19 @@ namespace SharpProj.Tests
                         Assert.IsTrue(cl[1].GridUsages.Count == 0);
 
                         Assert.AreEqual(new PPoint(50.999, 4.0), t.Apply(new PPoint(51, 4)).ToXY(3));
-                        var r = t.Apply(51, 4, 0);
+                        var r = t.Apply(new PPoint(51, 4, 0));
                         Assert.IsTrue(usedHttp, "Now http");
 
 
-                        var r0 = cl[0].Apply(51, 4, 0);
+                        var r0 = cl[0].Apply(new PPoint(51, 4, 0));
                         usedHttp = false;
-                        var r1 = cl[1].Apply(51, 4, 0);
+                        var r1 = cl[1].Apply(new PPoint(51, 4, 0));
                         Assert.IsFalse(usedHttp, "No http");
                         Assert.IsNotNull(r0);
                         Assert.IsNotNull(r1);
 
-                        Assert.AreEqual(50.999, Math.Round(r0[0], 3));
-                        Assert.AreEqual(4.0, Math.Round(r0[1], 3));
-
-                        Assert.AreEqual(50.999, Math.Round(r1[0], 3));
-                        Assert.AreEqual(4.0, Math.Round(r1[1], 3));
+                        Assert.AreEqual(new PPoint(50.999, 4.0), r.ToXY(3));
+                        Assert.AreEqual(new PPoint(50.999, 4.0), r1.ToXY(3));
 
                         Assert.IsNotNull(cl[0].MethodName);
                     }
@@ -580,9 +576,8 @@ namespace SharpProj.Tests
         [TestMethod]
         public void WalkReferenceSystems()
         {
-            using (ProjContext pc = new ProjContext())
+            using (ProjContext pc = new ProjContext() { EnableNetworkConnections = true })
             {
-                pc.EnableNetworkConnections = true;
                 foreach (var p in pc.GetCoordinateReferenceSystems())
                 {
                     using (var c = p.Create())
@@ -710,7 +705,7 @@ namespace SharpProj.Tests
                                 Assert.IsTrue(distance >= 0.045, "Huge step in 2017");
                             else
                                 Assert.IsTrue(distance < 0.045, "Small step when not 2017");
-                            Console.WriteLine($"{year}: {distance} m");
+                            Console.WriteLine($"{year}: {Math.Round(distance, 5)} m");
                             rLast = rNow;
                         }
                     }

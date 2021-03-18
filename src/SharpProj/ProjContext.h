@@ -39,9 +39,14 @@ namespace SharpProj {
 		void* m_chain;
 		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		String^ m_lastError;
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
+		ProjLogLevel m_logLevel;
 
 		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		static array<String^>^ _projLibDirs;
+
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
+		bool m_autoCloseSession;
 
 		ProjContext(PJ_CONTEXT* ctx);
 		void SetupNetworkHandling();
@@ -62,7 +67,7 @@ namespace SharpProj {
 		/// Creates a new unrelated context
 		/// </summary>
 		ProjContext();
-
+		!ProjContext();
 		~ProjContext();
 
 		/// <summary>
@@ -70,7 +75,7 @@ namespace SharpProj {
 		/// </summary>
 		/// <returns></returns>
 		ProjContext^ Clone();
-		
+
 		/// <summary>
 		/// Enable or disable network access. This allows access to not locally available grid transforms, etc.
 		/// </summary>
@@ -94,17 +99,19 @@ namespace SharpProj {
 			}
 		}
 
-		[ObsoleteAttribute("Use .EnableNetworkConnections")]
-		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
-		property bool AllowNetworkConnections
+		/// <summary>
+		/// Keeps a reference to the database open after use
+		/// </summary>
+		property bool AutoCloseSession
 		{
 			bool get()
 			{
-				return EnableNetworkConnections;
+				return m_autoCloseSession;
 			}
 			void set(bool value)
 			{
-				EnableNetworkConnections = value;
+				m_autoCloseSession = value;
+				proj_context_set_autoclose_database(this, value);
 			}
 		}
 
@@ -153,15 +160,16 @@ namespace SharpProj {
 			proj_grid_cache_clear(this);
 		}
 
-	private:		
-		bool CanWriteFromResource(String^ file, String^ userDir);
+	private:
+		bool CanWriteFromResource(String^ file, String^ userDir, String^ resultFile);
 		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		property System::Collections::Generic::IEnumerable<String^>^ ProjLibDirs
 		{
 			System::Collections::Generic::IEnumerable<String^>^ get();
 		}
+		void TouchFile(String^ file);
 
-	protected public:
+	internal:
 		String^ FindFile(String^ file);
 		void OnLogMessage(ProjLogLevel level, String^ message);
 
@@ -224,10 +232,11 @@ namespace SharpProj {
 		{
 			ProjLogLevel get()
 			{
-				return (ProjLogLevel)proj_log_level(this, PJ_LOG_TELL);
+				return m_logLevel;
 			}
 			void set(ProjLogLevel value)
 			{
+				m_logLevel = value;
 				proj_log_level(this, (PJ_LOG_LEVEL)value);
 			}
 		}
