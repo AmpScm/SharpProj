@@ -283,7 +283,6 @@ void ProjContext::DownloadProjDB(String^ target)
 	try
 	{
 		WebRequest^ wr = WebRequest::Create("https://www.nuget.org/api/v2/package/SharpProj.Database/" PROJ_VERSION);
-
 		Stream^ stream = wr->GetResponse()->GetResponseStream();
 		Stream^ sz = nullptr;
 		Stream^ tmp = nullptr;
@@ -310,6 +309,13 @@ void ProjContext::DownloadProjDB(String^ target)
 				delete sz;
 			if (stream)
 				delete stream;
+
+			try
+			{
+				File::Delete(target + ".tmp");
+			}
+			catch (Exception^)
+			{ }
 		}
 	}
 	catch (Exception^)

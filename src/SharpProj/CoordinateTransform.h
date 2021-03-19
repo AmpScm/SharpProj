@@ -286,6 +286,7 @@ namespace SharpProj {
 		/// is either fully populated a null pointer and /or a length of zero, which will be treated as a fully populated array
 		/// of zeroes of length one, i.e.a constant, which will be treated as a fully populated array of that constant value
 		/// </summary>
+		/// <remarks>Note that xStep, yStep, ... are in sizeof(double), not byte</remarks>
 		[EditorBrowsableAttribute(EditorBrowsableState::Never)]
 		void Apply(
 			double* xVals, int xStep, int xCount,
@@ -298,6 +299,7 @@ namespace SharpProj {
 		/// is either fully populated a null pointer and /or a length of zero, which will be treated as a fully populated array
 		/// of zeroes of length one, i.e.a constant, which will be treated as a fully populated array of that constant value
 		/// </summary>
+		/// <remarks>Note that xStep, yStep, ... are in sizeof(double), not byte</remarks>
 		[EditorBrowsableAttribute(EditorBrowsableState::Never)]
 		void ApplyReversed(
 			double* xVals, int xStep, int xCount,

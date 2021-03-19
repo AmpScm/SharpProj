@@ -114,6 +114,7 @@ namespace SharpProj.Tests
                     Assert.AreEqual("EPSG", crs.Identifiers[0].Authority);
                     Assert.AreEqual("25832", crs.Identifiers[0].Name);
                     Assert.AreEqual("+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs +type=crs", crs.AsProjString());
+                    Assert.AreEqual("+proj=utm +approx +zone=32 +ellps=GRS80 +units=m +no_defs +type=crs", crs.AsProjString(new ProjStringOptions { MultiLine = true, WriteApproxFlag = true }));
 
                     using (var t = ProjObject.Create(crs.AsProjString()))
                     {
@@ -334,6 +335,10 @@ namespace SharpProj.Tests
                         Assert.AreEqual(new PPoint(52.155, 5.387), r.ToXY(3));
 
                         Assert.AreEqual(1.0, t.Accuraracy);
+
+                        var d = t.RoundTrip(true, 3, new PPoint(155000, 463000));
+
+                        Assert.IsTrue(d < 0.01);
                     }
 
                     using (var t = CoordinateTransform.Create(rd, google))

@@ -1,5 +1,5 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
-  <metadata>
+  <metadata minClientVersion="3.3">
     <id>SharpProj.Database</id>
     <version>8.0.0</version>
     <authors>SharpSvn</authors>

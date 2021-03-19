@@ -72,19 +72,7 @@ namespace SharpProj {
 			 CoordinateSystem
 		};
 
-		public enum class WktType
-		{
-			WKT2_2015 = PJ_WKT2_2015,
-			WKT2_2015_Simplified = PJ_WKT2_2015_SIMPLIFIED,
-			WKT2_2019 = PJ_WKT2_2019,
-			WKT2_2018 = PJ_WKT2_2018, // Alias for 2019 (via PROJ)
-			WKT2_2019_Simplified = PJ_WKT2_2019_SIMPLIFIED,
-			WKT2_2018_Simplified = PJ_WKT2_2018_SIMPLIFIED, // Alias for 2019 (via PROJ)
-			WKT1_GDAL = PJ_WKT1_GDAL,
-			WKT1_SRI = PJ_WKT1_ESRI
-		};
-
-		[DebuggerDisplay("{ToString(),nq}")]
+		[DebuggerDisplay("{String(),nq}")]
 		public ref class Identifier
 		{
 		internal:
@@ -115,6 +103,18 @@ namespace SharpProj {
 			}
 		};
 
+		public enum class WktType
+		{
+			WKT2_2015 = PJ_WKT2_2015,
+			WKT2_2015_Simplified = PJ_WKT2_2015_SIMPLIFIED,
+			WKT2_2019 = PJ_WKT2_2019,
+			WKT2_2018 = PJ_WKT2_2018, // Alias for 2019 (via PROJ)
+			WKT2_2019_Simplified = PJ_WKT2_2019_SIMPLIFIED,
+			WKT2_2018_Simplified = PJ_WKT2_2018_SIMPLIFIED, // Alias for 2019 (via PROJ)
+			WKT1_GDAL = PJ_WKT1_GDAL,
+			WKT1_SRI = PJ_WKT1_ESRI
+		};
+
 		public ref class WktOptions
 		{
 		public:
@@ -129,6 +129,27 @@ namespace SharpProj {
 			WktOptions()
 			{
 				WktType = Proj::WktType::WKT2_2019;
+			}
+		};
+
+		public enum class ProjStringType
+		{
+			Proj5 = PJ_PROJ_5,
+			Proj4 = PJ_PROJ_4
+		};
+
+		public ref class ProjStringOptions
+		{
+		public:
+			property ProjStringType ProjStringType;
+			property bool MultiLine;
+			property bool NoIndentation;
+			property bool WriteApproxFlag;
+
+		public:
+			ProjStringOptions()
+			{
+
 			}
 		};
 
@@ -415,13 +436,37 @@ namespace SharpProj {
 				return AsWellKnownText(nullptr);
 			}
 
-			String^ AsProjString()
+			String^ AsProjString(ProjStringOptions ^options)
 			{
 				if (m_noProj)
 					return nullptr;
-				const char* v = proj_as_proj_string(Context, this, PJ_PROJ_5/* Last as of 2021-01 */, nullptr);
+
+				PJ_PROJ_STRING_TYPE string_type = options ? (PJ_PROJ_STRING_TYPE)options->ProjStringType : PJ_PROJ_5 /* Last as of 2021-01 */;
+
+				const char* opts[30] = {};
+				int nOpts = 0;
+
+				if (options && options->MultiLine)
+				{
+					opts[nOpts++] = "MULTILINE=YES";
+				}
+				if (options && options->NoIndentation)
+				{
+					opts[nOpts++] = "INDENTATION_WIDTH=0";
+				}
+				if (options && options->WriteApproxFlag)
+				{
+					opts[nOpts++] = "USE_APPROX_TMERC=YES";
+				}
+
+				const char* v = proj_as_proj_string(Context, this, string_type, opts);
 
 				return Utf8_PtrToString(v);
+			}
+
+			String^ AsProjString()
+			{
+				return AsProjString(nullptr);
 			}
 
 		public:
