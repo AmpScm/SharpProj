@@ -12,22 +12,35 @@ namespace SharpProj {
 		/// <summary>
 		/// First ordinate of point
 		/// </summary>
-		double X;
+		property double X;
 		/// <summary>
 		/// Second ordinate of point
 		/// </summary>
-		double Y;
+		property double Y;
 		/// <summary>
 		/// Third ordinate of point
 		/// </summary>
-		double Z;
+		property double Z;
 		/// <summary>
 		/// Time component of point
 		/// </summary>
-		double T;
+		property double T
+		{
+			double get()
+			{
+				return m_tv.HasValue ? m_tv.Value : double::PositiveInfinity;
+			}
+			void set(double value)
+			{
+				if (value == double::PositiveInfinity)
+					m_tv = Nullable<double>();
+				else
+					m_tv = value;
+			}
+		}
 	private:
+		Nullable<double> m_tv;
 		Byte m_axis;
-
 
 	internal:
 		PPoint(int axis, const PJ_COORD& pc)
@@ -49,7 +62,7 @@ namespace SharpProj {
 			Z = coord.xyzt.z;
 			T = coord.xyzt.t;
 
-			if (coord.xyzt.t != 0 && coord.xyzt.t != double::PositiveInfinity)
+			if (HasT)
 				m_axis = 4;
 			else if (coord.xyzt.z != 0)
 				m_axis = 3;
@@ -90,13 +103,13 @@ namespace SharpProj {
 			Y = y;
 			Z = z;
 			T = t;
-			m_axis = (t == 0.0 || t == double::PositiveInfinity) ? 3 : 4;
+			m_axis = HasT ? 4 : 3;
 		}
 
 		PPoint(array<double>^ v)
 		{
-			if (!v || v->Length < 1)
-				throw gcnew ArgumentException("Ordinate array needs at least one element");
+			if (!v || v->Length < 1 || v->Length > 4)
+				throw gcnew ArgumentException("Ordinate array needs 1-4 elements");
 
 			X = v[0];
 			int n = v->Length;
@@ -115,7 +128,7 @@ namespace SharpProj {
 		{
 			bool get()
 			{
-				return (T != 0.0 && T != double::PositiveInfinity);
+				return m_tv.HasValue;
 			}
 		}
 
@@ -235,27 +248,7 @@ namespace SharpProj {
 			return X.GetHashCode() ^ Y.GetHashCode() ^ Z.GetHashCode() ^ T.GetHashCode();
 		}
 
-		virtual System::String^ ToString() override
-		{
-			String^ v;
-			switch (Axis)
-			{
-			case 1:
-				v = String::Format("X={0}", X);
-				break;
-			case 2:
-				v = String::Format("X={0}, Y={1}", X, Y);
-				break;
-			case 3:
-			default:
-				v = String::Format("X={0}, Y={1}, Z={2}", X, Y, Z);
-			}
-
-			if (HasT)
-				return String::Format("{0}, T={1}", v, T);
-			else
-				return v;
-		}
+		virtual System::String^ ToString() override sealed;
 
 		/// <summary>Alias for Z</summary>
 		[System::ComponentModel::BrowsableAttribute(false)]
