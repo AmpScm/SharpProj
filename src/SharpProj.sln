@@ -3,17 +3,23 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2E5D2332-FEE9-4F2D-8225-22B84BF9D7CC}"
-	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-		..\README.md = ..\README.md
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SharpProj", "SharpProj\SharpProj.vcxproj", "{50959CCF-0769-4B0D-848B-A0062075B30A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpProj.Tests", "SharpProj.Tests\SharpProj.Tests.csproj", "{98A6C576-E642-4C8B-BEDB-6F38BBADD0A6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpProj.NetTopologySuite", "SharpProj.NetTopologySuite\SharpProj.NetTopologySuite.csproj", "{2AEB2118-5F21-4459-A44C-F3583962DEC9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpProj.CrsExplorer", "SharpProj.CrsExplorer\SharpProj.CrsExplorer.csproj", "{692CDC4F-B1B9-4BF1-B8E9-2CFC835CA877}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Library", "Library", "{9397DB39-B58C-4A18-AB92-ED5D45022CDB}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		..\README.md = ..\README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{451EF126-2B16-4939-ADE7-B2770E5BC7D9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools and Demos", "Tools and Demos", "{C1B62F96-ED8A-44F0-8F10-1FD52F135D67}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,6 +38,7 @@ Global
 		{50959CCF-0769-4B0D-848B-A0062075B30A}.Release|x86.ActiveCfg = Release|Win32
 		{50959CCF-0769-4B0D-848B-A0062075B30A}.Release|x86.Build.0 = Release|Win32
 		{98A6C576-E642-4C8B-BEDB-6F38BBADD0A6}.Debug|x64.ActiveCfg = Debug|x64
+		{98A6C576-E642-4C8B-BEDB-6F38BBADD0A6}.Debug|x64.Build.0 = Debug|x64
 		{98A6C576-E642-4C8B-BEDB-6F38BBADD0A6}.Debug|x86.ActiveCfg = Debug|x86
 		{98A6C576-E642-4C8B-BEDB-6F38BBADD0A6}.Debug|x86.Build.0 = Debug|x86
 		{98A6C576-E642-4C8B-BEDB-6F38BBADD0A6}.Release|x64.ActiveCfg = Release|x64
@@ -46,9 +53,23 @@ Global
 		{2AEB2118-5F21-4459-A44C-F3583962DEC9}.Release|x64.Build.0 = Release|Any CPU
 		{2AEB2118-5F21-4459-A44C-F3583962DEC9}.Release|x86.ActiveCfg = Release|Any CPU
 		{2AEB2118-5F21-4459-A44C-F3583962DEC9}.Release|x86.Build.0 = Release|Any CPU
+		{692CDC4F-B1B9-4BF1-B8E9-2CFC835CA877}.Debug|x64.ActiveCfg = Debug|x64
+		{692CDC4F-B1B9-4BF1-B8E9-2CFC835CA877}.Debug|x64.Build.0 = Debug|x64
+		{692CDC4F-B1B9-4BF1-B8E9-2CFC835CA877}.Debug|x86.ActiveCfg = Debug|x86
+		{692CDC4F-B1B9-4BF1-B8E9-2CFC835CA877}.Debug|x86.Build.0 = Debug|x86
+		{692CDC4F-B1B9-4BF1-B8E9-2CFC835CA877}.Release|x64.ActiveCfg = Release|x64
+		{692CDC4F-B1B9-4BF1-B8E9-2CFC835CA877}.Release|x64.Build.0 = Release|x64
+		{692CDC4F-B1B9-4BF1-B8E9-2CFC835CA877}.Release|x86.ActiveCfg = Release|x86
+		{692CDC4F-B1B9-4BF1-B8E9-2CFC835CA877}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{50959CCF-0769-4B0D-848B-A0062075B30A} = {9397DB39-B58C-4A18-AB92-ED5D45022CDB}
+		{98A6C576-E642-4C8B-BEDB-6F38BBADD0A6} = {451EF126-2B16-4939-ADE7-B2770E5BC7D9}
+		{2AEB2118-5F21-4459-A44C-F3583962DEC9} = {9397DB39-B58C-4A18-AB92-ED5D45022CDB}
+		{692CDC4F-B1B9-4BF1-B8E9-2CFC835CA877} = {C1B62F96-ED8A-44F0-8F10-1FD52F135D67}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7D1AC4A7-7041-4DED-B168-AE0C282FB4DD}

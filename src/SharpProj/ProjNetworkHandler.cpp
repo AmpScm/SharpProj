@@ -65,6 +65,14 @@ static PROJ_NETWORK_HANDLE* my_network_open(
 	{
 		pc->OnLogMessage(ProjLogLevel::Error, wx->ToString());
 		rp = wx->Response;
+
+		if (!rp)
+		{
+			pc->OnLogMessage(ProjLogLevel::Error, wx->ToString());
+			std::string msg = utf8_string(String::Format("WebException/open: {0}", wx->Message));
+			strncpy_s(out_error_string, error_string_max_size, msg.c_str(), error_string_max_size);
+			return nullptr;
+		}
 	}
 	catch (Exception^ ex)
 	{
@@ -120,9 +128,10 @@ static PROJ_NETWORK_HANDLE* my_network_open(
 		strncpy_s(out_error_string, error_string_max_size, msg.c_str(), error_string_max_size);
 		return nullptr;
 	}
-	else 
+	else if (rp)
 	{
-		strncpy_s(out_error_string, error_string_max_size, "Http error", error_string_max_size);
+		std::string msg = utf8_string(String::Format("Unexpected WebResponse {0}", rp->ToString()));
+		strncpy_s(out_error_string, error_string_max_size, msg.c_str(), error_string_max_size);
 		return nullptr;
 	}
 
@@ -204,6 +213,14 @@ size_t my_network_read_range(
 	{
 		d->ctx->OnLogMessage(ProjLogLevel::Error, wx->ToString());
 		rp = wx->Response;
+
+		if (!rp)
+		{
+			d->ctx->OnLogMessage(ProjLogLevel::Error, wx->ToString());
+			std::string msg = utf8_string(String::Format("WebException/read_range: {0}", wx->Message));
+			strncpy_s(out_error_string, error_string_max_size, msg.c_str(), error_string_max_size);
+			return 0;
+		}
 	}
 	catch (Exception^ ex)
 	{
@@ -258,9 +275,15 @@ size_t my_network_read_range(
 		strncpy_s(out_error_string, error_string_max_size, msg.c_str(), error_string_max_size);
 		return 0;
 	}
+	else if (rp)
+	{
+		std::string msg = utf8_string(String::Format("Unexpected WebResponse {0}", rp->ToString()));
+		strncpy_s(out_error_string, error_string_max_size, msg.c_str(), error_string_max_size);
+		return 0;
+	}
 	else
 	{
-		strncpy_s(out_error_string, error_string_max_size, "Http error", error_string_max_size);
+		strncpy_s(out_error_string, error_string_max_size, "Http error (No HttpWebResponse/readrange)", error_string_max_size);
 		return 0;
 	}
 	return 0;

@@ -73,7 +73,7 @@ namespace SharpProj {
 		};
 
 		[DebuggerDisplay("{String(),nq}")]
-		public ref class Identifier
+		public ref class Identifier sealed
 		{
 		internal:
 			initonly ProjObject^ m_object;
@@ -86,20 +86,53 @@ namespace SharpProj {
 				m_object = object;
 				m_index = index;
 			}
+
+			Identifier(String^ authority, String^ code)
+			{
+				if (!authority)
+					throw gcnew ArgumentNullException("authority");
+				if (!code)
+					throw gcnew ArgumentNullException("code");
+
+				m_authority = authority;
+				m_code = code;
+			}
+
 		public:
 			property String^ Authority
 			{
 				String^ get();
 			}
 
-			property String^ Name
+			property String^ Code
 			{
 				String^ get();
 			}
 
+			[Obsolete("Use .Code"), DebuggerBrowsable(DebuggerBrowsableState::Never)]
+			property String^ Name
+			{
+				String^ get() { return Code; }
+			}
+
 			virtual String^ ToString() override
 			{
-				return Authority + ":" + Name;
+				return Authority + ":" + Code;
+			}
+
+			virtual bool Equals(Object^ other) override
+			{
+				auto idOther = dynamic_cast<Identifier^>(other);
+
+				if (!idOther)
+					return false;
+				else
+					return idOther->Authority == Authority && idOther->Name == Name;
+			}
+
+			virtual int GetHashCode() override
+			{
+				return Code ? Code->GetHashCode() : 0;
 			}
 		};
 

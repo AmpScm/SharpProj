@@ -301,7 +301,7 @@ ProjObject^ ProjObject::CreateFromWellKnownText(String^ from, [Out] array<String
 
 IdentifierList^ ProjObject::Identifiers::get()
 {
-	if (!m_idList && !m_noProj && proj_get_id_auth_name(this, 0))
+	if (!m_idList && !m_noProj && proj_get_id_code(this, 0))
 		m_idList = gcnew IdentifierList(this);
 
 	return m_idList;
@@ -309,7 +309,7 @@ IdentifierList^ ProjObject::Identifiers::get()
 
 Identifier^ IdentifierList::default::get(int index)
 {
-	if (index < 0 || m_Items ? (index >= m_Items->Length) : !proj_get_id_auth_name(m_object, index))
+	if (index < 0 || m_Items ? (index >= m_Items->Length) : !proj_get_id_code(m_object, index))
 		throw gcnew IndexOutOfRangeException();
 
 	if (m_Items)
@@ -333,7 +333,7 @@ int IdentifierList::Count::get()
 
 	for (int i = 0; i < 256 /* some MAX */; i++)
 	{
-		if (!proj_get_id_auth_name(m_object, i))
+		if (!proj_get_id_code(m_object, i))
 		{
 			m_Items = gcnew array<Identifier^>(i);
 			return i;
@@ -365,7 +365,7 @@ String^ Identifier::Authority::get()
 	return m_authority;
 }
 
-String^ Identifier::Name::get()
+String^ Identifier::Code::get()
 {
 	if (!m_code)
 	{

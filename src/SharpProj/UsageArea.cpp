@@ -10,7 +10,7 @@ CoordinateTransform^ UsageArea::GetLatLonConvert()
 	{
 		CoordinateReferenceSystem^ crs = dynamic_cast<CoordinateReferenceSystem^>(m_obj);
 
-		if (crs)
+		if (crs && crs->Type != ProjType::VerticalCrs)
 		{
 			// We need a CRS to convert the Lat/Lon coordinates from. Theoretically we should probably use WGS84, but the extent
 			// is usually only set in just a few decimal places, so we take the more efficient Geodetic CRS of the system itself for
@@ -19,7 +19,7 @@ CoordinateTransform^ UsageArea::GetLatLonConvert()
 			// (See WKT specification on OpenGeoSpatial.org)
 
 			// Let's just use the already cached distance transform if possible
-			m_latLonTransform = crs->DistanceTransform; 
+			m_latLonTransform = crs->DistanceTransform;
 
 			if (!m_latLonTransform)
 			{
@@ -95,92 +95,87 @@ SharpProj::PPoint UsageArea::Center::get()
 	return PPoint((MinX + MaxX) / 2.0, (MinY + MaxY) / 2.0);
 }
 
-double UsageArea::MinY::get()
+void UsageArea::EnsureMinMax()
 {
-	if (!m_minY.HasValue)
+	if (m_hasMinMax)
+		return;
+
+	m_hasMinMax = true;
+
+	m_minX = Double::NaN;
+	m_minY = Double::NaN;
+	m_maxX = Double::NaN;
+	m_maxY = Double::NaN;
+
+	auto llc = UsageArea::GetLatLonConvert();
+
+	if (llc)
 	{
-		double minY = Math::Min(Math::Min(NorthEastCorner.Y, NorthWestCorner.Y), Math::Min(SouthEastCorner.Y, SouthWestCorner.Y));
-
-		if (double::IsNaN(minY) || double::IsInfinity(minY))
-			m_minY = double::NaN;
-		else
+		auto x = gcnew array<double>(21 * 4);
+		auto y = gcnew array<double>(21 * 4);
+		for (int j = 0; j <= 20; j++)
 		{
-			auto ll = GetLatLonConvert();
-
-			if (ll->Accuraracy.HasValue && ll->Accuraracy.Value > 0)
-				m_minY = CoordinateTransform::ApplyAccuracy(minY, ll->Accuraracy.Value);
-			else
-				m_minY = minY;
+			x[j] = m_westLongitude + j * (m_eastLongitude - m_westLongitude) / 20;
+			y[j] = m_southLatitude;
+			x[21 + j] = m_westLongitude + j * (m_eastLongitude - m_westLongitude) / 20;
+			y[21 + j] = m_northLatitude;
+			x[21 * 2 + j] = m_westLongitude;
+			y[21 * 2 + j] = m_southLatitude + j * (m_northLatitude - m_southLatitude) / 20;
+			x[21 * 3 + j] = m_eastLongitude;
+			y[21 * 3 + j] = m_southLatitude + j * (m_northLatitude - m_southLatitude) / 20;
+		}
+		{
+			pin_ptr<double> px = &x[0];
+			pin_ptr<double> py = &y[0];
+			llc->ApplyReversed(
+				px, 1, x->Length,
+				py, 1, y->Length,
+				nullptr, 0, 0,
+				nullptr, 0, 0);
+		}
+		m_minX = Double::PositiveInfinity;
+		m_minY = Double::PositiveInfinity;
+		m_maxX = Double::NegativeInfinity;
+		m_maxY = Double::NegativeInfinity;
+		for (int j = 0; j < 21 * 4; j++)
+		{
+			if (x[j] != HUGE_VAL && y[j] != HUGE_VAL)
+			{
+				m_minX = Math::Min(m_minX, x[j]);
+				m_minY = Math::Min(m_minY, y[j]);
+				m_maxX = Math::Max(m_maxX, x[j]);
+				m_maxY = Math::Max(m_maxY, y[j]);
+			}
 		}
 	}
+}
 
-	return m_minY.Value;
+double UsageArea::MinY::get()
+{
+	EnsureMinMax();
+
+	return m_minY;
 }
 
 double UsageArea::MaxY::get()
 {
-	if (!m_maxY.HasValue)
-	{
-		double maxY = Math::Max(Math::Max(NorthEastCorner.Y, NorthWestCorner.Y), Math::Max(SouthEastCorner.Y, SouthWestCorner.Y));
+	EnsureMinMax();
 
-		if (double::IsNaN(maxY) || double::IsInfinity(maxY))
-			m_maxY = double::NaN;
-		else
-		{
-			auto ll = GetLatLonConvert();
-
-			if (ll->Accuraracy.HasValue && ll->Accuraracy.Value > 0)
-				m_maxY = CoordinateTransform::ApplyAccuracy(maxY, ll->Accuraracy.Value);
-			else
-				m_maxY = maxY;
-		}
-	}
-
-	return m_maxY.Value;
+	return m_maxY;
 }
 
 double UsageArea::MinX::get()
 {
-	if (!m_minX.HasValue)
-	{
-		double minX = Math::Min(Math::Min(NorthEastCorner.X, NorthWestCorner.X), Math::Min(SouthEastCorner.X, SouthWestCorner.X));
+	EnsureMinMax();
 
-		if (double::IsNaN(minX) || double::IsInfinity(minX))
-			m_minX = double::NaN;
-		else
-		{
-			auto ll = GetLatLonConvert();
-
-			if (ll->Accuraracy.HasValue && ll->Accuraracy.Value > 0)
-				m_minX = CoordinateTransform::ApplyAccuracy(minX, ll->Accuraracy.Value);
-			else
-				m_minX = minX;
-		}
-	}
-
-	return m_minX.Value;
+	return m_minX;
 }
 
 double UsageArea::MaxX::get()
 {
-	if (!m_maxX.HasValue)
-	{
-		double maxX = Math::Max(Math::Max(NorthEastCorner.X, NorthWestCorner.X), Math::Max(SouthEastCorner.X, SouthWestCorner.X));
+	EnsureMinMax();
 
-		if (double::IsNaN(maxX) || double::IsInfinity(maxX))
-			m_maxX = double::NaN;
-		else
-		{
-			auto ll = GetLatLonConvert();
-
-			if (ll->Accuraracy.HasValue && ll->Accuraracy.Value > 0)
-				m_maxX = CoordinateTransform::ApplyAccuracy(maxX, ll->Accuraracy.Value);
-			else
-				m_maxX = maxX;
-		}
-	}
-
-	return m_maxX.Value;
+	return m_maxX;
 }
 
 double UsageArea::CenterX::get()

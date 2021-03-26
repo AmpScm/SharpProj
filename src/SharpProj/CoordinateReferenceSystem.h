@@ -21,12 +21,15 @@ namespace SharpProj {
 		ref class CoordinateSystem;
 		ref class UsageArea;
 
+		[DebuggerDisplay("[{Identifier}] {Name,nq}")]
 		public ref class CoordinateReferenceSystemInfo
 		{
 			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly ProjContext^ _ctx;
 			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly String^ _authName;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
+			initonly String^ _name;
 			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly String^ _code;
 			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
@@ -37,6 +40,14 @@ namespace SharpProj {
 			initonly String^ _areaName;
 			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly String^ _projectionName;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
+			initonly double _westLon;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
+			initonly double _southLat;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
+			initonly double _eastLon;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
+			initonly double _northLat;
 
 		internal:
 			CoordinateReferenceSystemInfo(const PROJ_CRS_INFO* info, ProjContext^ ctx)
@@ -44,10 +55,15 @@ namespace SharpProj {
 				_ctx = ctx;
 				_authName = Utf8_PtrToString(info->auth_name);
 				_code = Utf8_PtrToString(info->code);
+				_name = Utf8_PtrToString(info->name);
 				_type = (ProjType)info->type;
 				_deprecated = (0 != info->deprecated);
 				_areaName = Utf8_PtrToString(info->area_name);
 				_projectionName = Utf8_PtrToString(info->projection_method_name);
+				_westLon = Math::Abs(info->west_lon_degree) > -200 ? info->west_lon_degree : double::NaN;
+				_southLat = Math::Abs(info->south_lat_degree) > -200 ? info->south_lat_degree : double::NaN;
+				_eastLon = Math::Abs(info->east_lon_degree) > -200 ? info->east_lon_degree : double::NaN;
+				_northLat = Math::Abs(info->north_lat_degree) > -200 ? info->north_lat_degree : double::NaN;
 			}
 
 		public:
@@ -58,11 +74,28 @@ namespace SharpProj {
 					return _authName;
 				}
 			}
+			
 			property String^ Code
 			{
 				String^ get()
 				{
 					return _code;
+				}
+			}
+
+			property Identifier^ Identifier
+			{
+				Proj::Identifier^ get()
+				{
+					return gcnew Proj::Identifier(Authority, Code);
+				}
+			}
+
+			property String^ Name
+			{
+				String^ get()
+				{
+					return _name;
 				}
 			}
 
@@ -95,6 +128,40 @@ namespace SharpProj {
 				{
 					return _projectionName;
 				}
+			}
+
+			property double WestLongitude
+			{
+				double get()
+				{
+					return _westLon;
+				}
+			}
+			property double SouthLatitude
+			{
+				double get()
+				{
+					return _southLat;
+				}
+			}
+			property double EastLongitude
+			{
+				double get()
+				{
+					return _eastLon;
+				}
+			}
+			property double NorthLatitude
+			{
+				double get()
+				{
+					return _northLat;
+				}
+			}
+
+			virtual String^ ToString() override
+			{
+				return Name;
 			}
 
 			CoordinateReferenceSystem^ Create([Optional] ProjContext^ ctx);
@@ -162,6 +229,8 @@ namespace SharpProj {
 		WeakReference<Proj::UsageArea^>^ m_usageArea;
 		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		int m_axis;
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
+		CoordinateReferenceSystem^ m_from;
 
 		~CoordinateReferenceSystem();
 
@@ -257,6 +326,17 @@ namespace SharpProj {
 				else
 				{
 					t = __super::UsageArea;
+
+					if (!t && m_from)
+					{
+						double west, south, east, north;
+						const char* name;
+						if (proj_get_area_of_use(Context, m_from, &west, &south, &east, &north, &name))
+						{
+							t = gcnew Proj::UsageArea(this, west, south, east, north, Utf8_PtrToString(name));
+						}
+					}
+
 					if (t)
 						m_usageArea = gcnew WeakReference<Proj::UsageArea^>(t);
 					else

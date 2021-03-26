@@ -4,8 +4,11 @@ namespace SharpProj {
 	namespace Proj {
 		using System::Collections::Generic::IEnumerable;
 		using System::Collections::Generic::IReadOnlyList;
+		using System::Collections::Generic::Dictionary;
+		using System::Collections::Generic::List;
 		using System::Diagnostics::DebuggerBrowsableAttribute;
 		using System::Diagnostics::DebuggerBrowsableState;
+		using System::Collections::ObjectModel::ReadOnlyCollection;
 		ref class ProjOperation;
 
 		[DebuggerDisplay("Count = {Count}")]
@@ -86,6 +89,15 @@ namespace SharpProj {
 			}
 		};
 
+		public enum class ProjOperationType
+		{
+			Unknown,
+			NoOperation,
+			Projection,
+			Transformation,
+			Pipeline
+		};
+
 		[DebuggerDisplay("[{Name,nq}] {ToString(),nq}")]
 		public ref class ProjOperation
 		{
@@ -97,6 +109,8 @@ namespace SharpProj {
 			initonly int m_count;
 			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			String^ m_name;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
+			ProjOperationType m_type;
 
 		internal:
 			ProjOperation(ProjOperationList^ list, int offset, int count)
@@ -104,6 +118,7 @@ namespace SharpProj {
 				m_list = list;
 				m_offset = offset;
 				m_count = count;
+				m_type = (ProjOperationType)-1;
 			}
 
 		public:
@@ -159,6 +174,11 @@ namespace SharpProj {
 				}
 			}
 
+			property ProjOperationType Type
+			{
+				ProjOperationType get();
+			}
+
 		private:
 			generic<typename T> static IEnumerable<T>^ ListRange(IReadOnlyList<T>^ list, int offset, int count)
 			{
@@ -186,6 +206,118 @@ namespace SharpProj {
 							return s->Substring(key->Length);
 					}
 					return nullptr;
+				}
+			}
+		};
+
+		extern "C"
+		{
+			typedef PJ* (*sproj_init_func)(PJ*);
+		};
+
+		[DebuggerDisplayAttribute("[{Name,nq}] {Title,nq} ({Type})")]
+		public ref class ProjOperationDefinition
+		{
+		private:
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
+			initonly String^ m_name;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
+			initonly String^ m_title;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
+			initonly String^ m_details;
+			initonly ProjOperationType m_type;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
+			initonly sproj_init_func m_constructor;
+
+		internal:
+			ProjOperationDefinition(ProjOperationType type, String^ name, String^ title, String^ details, sproj_init_func constructor)
+			{
+				m_type = type;
+				m_name = name;
+				m_title = title;
+				m_details = details;
+				m_constructor = constructor;
+			}
+
+		public:
+			property String^ Name
+			{
+				String^ get()
+				{
+					return m_name;
+				}
+			}
+
+			property String^ Title
+			{
+				String^ get()
+				{
+					return m_title;
+				}
+			}
+
+			property ProjOperationType Type
+			{
+				ProjOperationType get()
+				{
+					return m_type;
+				}
+			}
+
+			property String^ Details
+			{
+				String^ get()
+				{
+					return m_details;
+				}
+			}
+
+		public:
+			ref class ProjOperationDefinitionCollection : ReadOnlyCollection< ProjOperationDefinition^>
+			{
+			private:
+				initonly Dictionary<String^, ProjOperationDefinition^>^ _dict;
+				static String^ Get_Name(ProjOperationDefinition^ item)
+				{
+					return item->Name;
+				}
+
+			internal:
+				ProjOperationDefinitionCollection(List<ProjOperationDefinition^>^ list)
+					: ReadOnlyCollection< ProjOperationDefinition^>(list)
+				{
+					_dict = System::Linq::Enumerable::ToDictionary(list,
+						gcnew System::Func< ProjOperationDefinition^, String^>(&Get_Name),
+						System::StringComparer::OrdinalIgnoreCase);
+				}
+
+			public:
+				property ProjOperationDefinition^ default[String^]
+				{
+					ProjOperationDefinition ^ get(String ^ name)
+					{
+						return _dict[name];
+					}
+				}
+
+			public:
+				bool TryGetValue(String^ name, [Out] ProjOperationDefinition^% value)
+				{
+					return _dict->TryGetValue(name, value);
+				}
+			};
+
+		public:
+			static ProjOperationDefinitionCollection^ LoadFuncs();
+
+			static initonly Lazy<ProjOperationDefinitionCollection^>^ _fetchOperations
+				= gcnew Lazy<ProjOperationDefinitionCollection^>(gcnew Func<ProjOperationDefinitionCollection^>(&LoadFuncs));
+
+			static property ProjOperationDefinitionCollection^ All
+			{
+				ProjOperationDefinitionCollection^ get()
+				{
+					return _fetchOperations->Value;
 				}
 			}
 		};

@@ -112,7 +112,7 @@ namespace SharpProj.Tests
                     Assert.IsNotNull(crs.Identifiers);
                     Assert.AreEqual(1, crs.Identifiers.Count);
                     Assert.AreEqual("EPSG", crs.Identifiers[0].Authority);
-                    Assert.AreEqual("25832", crs.Identifiers[0].Name);
+                    Assert.AreEqual("25832", crs.Identifiers[0].Code);
                     Assert.AreEqual("+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs +type=crs", crs.AsProjString());
                     Assert.AreEqual("+proj=utm +approx +zone=32 +ellps=GRS80 +units=m +no_defs +type=crs", crs.AsProjString(new ProjStringOptions { MultiLine = true, WriteApproxFlag = true }));
 
@@ -131,7 +131,7 @@ namespace SharpProj.Tests
 
                         Assert.IsNotNull(t.Identifiers);
                         Assert.AreEqual("EPSG", t.Identifiers[0].Authority);
-                        Assert.AreEqual("25832", t.Identifiers[0].Name);
+                        Assert.AreEqual("25832", t.Identifiers[0].Code);
                         Assert.AreEqual("+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs +type=crs", t.AsProjString());
                         Assert.AreEqual(crs.AsProjString(), t.AsProjString());
 
@@ -143,7 +143,7 @@ namespace SharpProj.Tests
 
                         Assert.IsNotNull(t.Identifiers);
                         Assert.AreEqual("EPSG", t.Identifiers[0].Authority);
-                        Assert.AreEqual("25832", t.Identifiers[0].Name);
+                        Assert.AreEqual("25832", t.Identifiers[0].Code);
                         Assert.AreEqual("+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs +type=crs", t.AsProjString());
                         Assert.AreEqual(crs.AsProjString(), t.AsProjString());
                         Assert.IsTrue(t.IsEquivalentTo(crs));
@@ -704,7 +704,7 @@ namespace SharpProj.Tests
                             Assert.AreNotEqual(rLast.ToXY(), rNow.ToXY());
                             double distance = itrf2014.DistanceTransform.GeoDistance(rNow, rLast);
 
-                            Assert.IsTrue(distance >= 0.04, "Distance > 4cm / year");
+                            Assert.IsTrue(distance >= 0.04, "Distance > 4cm / year. check grid file acces (e.g. network) if this fails"); 
 
                             if (year == 2017)
                                 Assert.IsTrue(distance >= 0.045, "Huge step in 2017");
@@ -742,6 +742,33 @@ namespace SharpProj.Tests
                         }
                     }
                 }
+            }
+        }
+
+        [TestMethod]
+        public void TestFrance()
+        {
+            using(var fr = CoordinateReferenceSystem.CreateFromEpsg(2154))
+            using (var crs1 = CoordinateReferenceSystem.CreateFromEpsg(3857))
+                using(var t = CoordinateTransform.Create(fr, crs1))
+            {
+                
+                GC.KeepAlive(fr);
+            }
+        }
+
+
+        [TestMethod]
+        public void WalkAllOperations()
+        {
+            var v = ProjOperationDefinition.All;
+            Assert.IsNotNull(v);
+            Assert.AreNotEqual(0, v.Count, "Has ops");
+            foreach(var m in v)
+            {
+                Assert.AreNotEqual("", m.Name);
+                Assert.AreNotEqual("", m.Title);
+                GC.KeepAlive(m.Details);
             }
         }
     }

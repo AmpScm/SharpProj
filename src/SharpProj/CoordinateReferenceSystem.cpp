@@ -45,6 +45,7 @@ CoordinateReferenceSystem::~CoordinateReferenceSystem()
 		delete m_baseCrs;
 		m_baseCrs = nullptr;
 	}
+	m_from = nullptr;
 }
 
 CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(String^ from, ProjContext^ ctx)
@@ -212,13 +213,12 @@ Proj::GeodeticCRS^ CoordinateReferenceSystem::GeodeticCRS::get()
 		else
 		{
 
-			Context->ClearError(this);
 			PJ* pj = proj_crs_get_geodetic_crs(Context, this);
 
 			if (!pj)
-				throw Context->ConstructException("Get Geodetic CRS failed");
-
-			m_geodCRS = Context->Create<Proj::GeodeticCRS^>(pj);
+				Context->ClearError(this);
+			else
+				m_geodCRS = Context->Create<Proj::GeodeticCRS^>(pj);
 		}
 	}
 	return m_geodCRS;
@@ -288,7 +288,13 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::WithAxisNormalized(ProjCon
 		return this;
 	}
 
-	return context->Create<CoordinateReferenceSystem^>(pj);
+	CoordinateReferenceSystem^ crs = context->Create<CoordinateReferenceSystem^>(pj);
+
+	double lon;
+	if (!proj_get_area_of_use(context, pj, &lon, nullptr, nullptr, nullptr, nullptr))
+		crs->m_from = this;
+
+	return crs;
 }
 
 Proj::Ellipsoid^ CoordinateReferenceSystem::Ellipsoid::get()

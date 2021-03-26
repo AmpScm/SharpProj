@@ -197,10 +197,28 @@ CoordinateTransform^ CoordinateTransform::CreateFromDatabase(String^ authority, 
 
 double CoordinateTransform::RoundTrip(bool forward, int transforms, PPoint coordinate)
 {
-	PJ_COORD coord;
-	SetCoordinate(coord, coordinate);
+	if (transforms < 1)
+		throw gcnew ArgumentOutOfRangeException("transforms", "n should be >= 1");
 
-	return proj_roundtrip(this, forward ? PJ_FWD : PJ_INV, transforms, &coord);
+	PPoint coord = coordinate; // Holds value after each roundtrip
+
+	for (int i = 0; i < transforms; i++)
+	{
+		coord = DoTransform(!forward, DoTransform(forward, coord)); // Do what SharpProj does for ChooseCoordinateTransorm, etc.
+	}
+
+	// checking for angular/degree *input* since we do a roundtrip, and end where we begin
+	if (proj_angular_input(this, forward ? PJ_FWD : PJ_INV) || proj_degree_input(this, forward ? PJ_FWD : PJ_INV))
+		return GeoDistanceZ(coordinate, coord);
+	else
+	{
+		PJ_COORD pj_org, pj_coord;
+
+		SetCoordinate(pj_org, coordinate);
+		SetCoordinate(pj_coord, coord);
+
+		return proj_xyz_dist(pj_org, pj_coord);
+	}
 }
 
 Proj::CoordinateTransformFactors^ CoordinateTransform::Factors(PPoint coordinate)

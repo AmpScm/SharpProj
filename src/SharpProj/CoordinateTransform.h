@@ -26,16 +26,25 @@ namespace SharpProj {
 		public ref class CoordinateTransformFactors
 		{
 		private:
-			
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly double m_meridional_scale;               /* h */
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly double m_parallel_scale;                 /* k */
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly double m_areal_scale;                    /* s */
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly double m_angular_distortion;             /* omega */
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly double m_meridian_parallel_angle;        /* theta-prime */
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly double m_meridian_convergence;           /* alpha */
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly double m_tissot_semimajor;               /* a */
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly double m_tissot_semiminor;               /* b */
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly double m_dx_dlam, m_dx_dphi;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly double m_dy_dlam, m_dy_dphi;
 		internal:
 			CoordinateTransformFactors(CoordinateTransform^ op, PJ_FACTORS* factors)
@@ -109,18 +118,29 @@ namespace SharpProj {
 		public ref class CoordinateTransformParameter
 		{
 		private:
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly CoordinateTransform^ m_op;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly int m_index;
-
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			String^ m_name;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			String^ m_auth_name;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			String^ m_code;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			double m_value;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			String^ m_value_string;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			double m_unit_conv_factor;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			String^ m_unit_name;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			String^ m_unit_auth_name;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			String^ m_unit_code;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			String^ m_unit_category;
 
 		internal:
@@ -248,7 +268,7 @@ namespace SharpProj {
 		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		ReadOnlyCollection<GridUsage^>^ m_gridUsages;
 
-		
+
 	protected:
 		CoordinateTransform(ProjContext^ ctx, PJ* pj);
 
@@ -325,7 +345,7 @@ namespace SharpProj {
 
 	internal:
 		PPoint FromCoordinate(const PJ_COORD& coord, bool forward);
-		
+
 	public:
 		CoordinateTransform^ Clone([Optional]ProjContext^ ctx)
 		{
@@ -360,11 +380,20 @@ namespace SharpProj {
 			}
 		}
 
-		property bool IsInstantiable
+		property bool IsAvailable
 		{
 			bool get()
 			{
 				return 0 != proj_coordoperation_is_instantiable(Context, this);
+			}
+		}
+
+		[Obsolete("Use .IsAvailable"), DebuggerBrowsable(DebuggerBrowsableState::Never)]
+		property bool IsInstantiable
+		{
+			bool get()
+			{
+				return IsAvailable;
 			}
 		}
 
@@ -383,10 +412,8 @@ namespace SharpProj {
 				if (!m_methodName)
 				{
 					const char* method_name;
-					const char* auth_name;
-					const char* auth_code;
 
-					if (proj_coordoperation_get_method_info(Context, this, &method_name, &auth_name, &auth_code))
+					if (proj_coordoperation_get_method_info(Context, this, &method_name, nullptr, nullptr))
 					{
 						m_methodName = Utf8_PtrToString(method_name);
 					}
@@ -424,13 +451,13 @@ namespace SharpProj {
 	public:
 		virtual CoordinateTransform^ CreateInverse([Optional]ProjContext^ ctx)
 		{
-			throw gcnew InvalidOperationException();			
+			throw gcnew InvalidOperationException();
 		}
 
 	public:
 		property CoordinateReferenceSystem^ SourceCRS
 		{
-			CoordinateReferenceSystem ^ get();
+			CoordinateReferenceSystem^ get();
 		}
 
 		property CoordinateReferenceSystem^ TargetCRS

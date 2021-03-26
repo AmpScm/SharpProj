@@ -401,7 +401,7 @@ String^ ProjContext::FindFile(String^ file)
 		return testFile;
 	else if (file == "proj.db" && EnableNetworkConnections)
 	{
-		testFile = Path::Combine(userDir, ("#proj" PROJ_VERSION "-") + file);
+		// testFile = Path::Combine(userDir, ("#proj-" PROJ_VERSION "-") + file);
 		try
 		{
 			DownloadProjDB(testFile);

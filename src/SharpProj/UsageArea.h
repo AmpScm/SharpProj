@@ -30,7 +30,11 @@ namespace SharpProj {
 			Nullable<PPoint> m_SE;
 			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			Nullable<PPoint> m_SW;
-			Nullable<double> m_minX, m_minY, m_maxX, m_maxY;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
+			double m_minX, m_minY, m_maxX, m_maxY;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
+			bool m_hasMinMax;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			CoordinateTransform^ m_latLonTransform;
 
 		internal:
@@ -47,6 +51,7 @@ namespace SharpProj {
 
 		private:
 			CoordinateTransform^ GetLatLonConvert();
+			void EnsureMinMax();
 
 		public:
 			virtual String^ ToString() override
