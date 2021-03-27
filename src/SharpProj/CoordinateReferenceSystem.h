@@ -21,6 +21,9 @@ namespace SharpProj {
 		ref class CoordinateSystem;
 		ref class UsageArea;
 
+		/// <summary>
+		/// Container for CoordinateReference system information obtained from proj.db via <see cref="ProjContext"/>.GetCoordinateReferenceSystems
+		/// </summary>
 		[DebuggerDisplay("[{Identifier}] {Name,nq}")]
 		public ref class CoordinateReferenceSystemInfo
 		{
@@ -60,10 +63,10 @@ namespace SharpProj {
 				_deprecated = (0 != info->deprecated);
 				_areaName = Utf8_PtrToString(info->area_name);
 				_projectionName = Utf8_PtrToString(info->projection_method_name);
-				_westLon = Math::Abs(info->west_lon_degree) > -200 ? info->west_lon_degree : double::NaN;
-				_southLat = Math::Abs(info->south_lat_degree) > -200 ? info->south_lat_degree : double::NaN;
-				_eastLon = Math::Abs(info->east_lon_degree) > -200 ? info->east_lon_degree : double::NaN;
-				_northLat = Math::Abs(info->north_lat_degree) > -200 ? info->north_lat_degree : double::NaN;
+				_westLon = info->bbox_valid ? info->west_lon_degree : double::NaN;
+				_southLat = info->bbox_valid ? info->south_lat_degree : double::NaN;
+				_eastLon = info->bbox_valid ? info->east_lon_degree : double::NaN;
+				_northLat = info->bbox_valid ? info->north_lat_degree : double::NaN;
 			}
 
 		public:
@@ -127,6 +130,14 @@ namespace SharpProj {
 				String^ get()
 				{
 					return _projectionName;
+				}
+			}
+
+			property bool HasBoundingBox
+			{
+				bool get()
+				{
+					return !double::IsNaN(_westLon);
 				}
 			}
 

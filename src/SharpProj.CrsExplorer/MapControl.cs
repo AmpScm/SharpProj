@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -74,26 +75,36 @@ namespace SharpProj.CrsExplorer
 
             foreach (Geometry g in Draw)
             {
-                foreach (Polygon p in Polygons(g))
+                using (Brush b = new SolidBrush(Colors[n++ % Colors.Length]))
                 {
-                    using (Brush b = new SolidBrush(Colors[n % Colors.Length]))
+                    foreach (Polygon p in Polygons(g))
                     {
                         var coords = p.ExteriorRing.Coordinates
                                 .Select(createCoord)
                                 .ToArray();
                         e.Graphics.FillPolygon(b, coords);
-                    }
 
-                    foreach (var r in p.InteriorRings)
-                    {
-                        var coords = r.Coordinates
-                                .Select(createCoord)
-                                .ToArray();
-                        e.Graphics.FillPolygon(SystemBrushes.Highlight, coords);
+                        foreach (var r in p.InteriorRings)
+                        {
+                            coords = r.Coordinates
+                                    .Select(createCoord)
+                                    .ToArray();
+                            e.Graphics.FillPolygon(SystemBrushes.Highlight, coords);
+                        }
                     }
                 }
-                n++;
             }
+
+            using (var blackPen = new Pen(Color.Black, 2))
+                foreach (LineString l in Lines)
+                {
+                    var coords = l.Coordinates.Select(createCoord).ToArray();
+
+                    var path = new GraphicsPath();
+                    path.AddLines(coords);
+
+                    e.Graphics.DrawPath(blackPen, path);
+                }
 
             using (var transp = new SolidBrush(Color.FromArgb(80, 0, 0, 0)))// 0xFF, 0xFF, 0xFF)))
             {
@@ -130,11 +141,14 @@ namespace SharpProj.CrsExplorer
 
         public Color[] Colors { get; private set; }
 
+        List<LineString> Lines = new List<LineString>();
+
         internal void UpdateDisplay(CoordinateReferenceSystem crs, List<CountryShape> want)
         {
             Invalidate();
             _crs = null;
             Draw = null;
+            Lines.Clear();
             if (crs.AxisCount < 2)// || !crs.Axis.All(x => x.UnitName == "metre")) // ??
                 return;
             else if (crs.UsageArea == null || double.IsNaN(crs.UsageArea.MinX))
@@ -153,18 +167,132 @@ namespace SharpProj.CrsExplorer
                         this.Colors = new Color[] { Color.FromArgb(255, 32, 180, 32) };
                     else
                         this.Colors = Utils.Colors.DistinctColorGenerator.GetDistinctColors(Math.Min(Draw.Count, 250), BgColor);
+
+                    var ua = crs.UsageArea;
+
+                    if (ua.EastLongitude > ua.WestLongitude) // Next blocks fails over date line :(
+                    {
+                        HashSet<double> created = new HashSet<double>();
+
+                        foreach (double r in new[] { 30.0, 15.0, 5.0, 1.0, 0.5, 0.25, 0.125, 0.025 })
+                        {
+                            double ll = (Math.Truncate(ua.WestLongitude / r) - 1.0) * r;
+
+                            while (ll < ua.WestLongitude)
+                                ll += r;
+
+                            for (; ll <= ua.EastLongitude; ll += r)
+                            {
+                                if (!created.Contains(ll))
+                                {
+                                    CreateLongitudeLine(ct, ua, ll);
+                                    created.Add(ll);
+                                }
+                            }
+
+                            if (created.Count >= 3)
+                                break;
+                        }
+                    }
+
+                    if (ua.SouthLatitude < ua.NorthLatitude)
+                    {
+                        HashSet<double> created = new HashSet<double>();
+
+                        foreach (double r in new[] { 30.0, 15.0, 5.0, 1.0, 0.5, 0.25, 0.125, 0.025 })
+                        {
+                            double ll = (Math.Truncate(ua.NorthLatitude / r) + 1.0) * r;
+
+                            while (ll > ua.NorthLatitude)
+                                ll -= r;
+
+                            for (; ll >= ua.SouthLatitude; ll -= r)
+                            {
+                                if (!created.Contains(ll))
+                                {
+                                    CreateLatitudeLine(ct, ua, ll);
+                                    created.Add(ll);
+                                }
+                            }
+
+                            if (created.Count >= 3)
+                                break;
+                        }
+                    }
                 }
             }
             catch (ProjException)
             {
-                return;
+                Draw = null;
+                Lines.Clear();
+
             }
+        }
+
+        private void CreateLongitudeLine(CoordinateTransform ct, Proj.UsageArea ua, double lon)
+        {
+            var c = new List<Coordinate>();
+
+            int xPoints = 50;
+            var d = (ua.SouthLatitude - ua.NorthLatitude) / xPoints;
+
+            var north = Math.Min(90, ua.NorthLatitude - d * 5);
+            var south = Math.Max(-90, ua.SouthLatitude + d * 5);
+
+            d = (south - north) / xPoints;
+
+            for (int i = 0; i <= xPoints; i++)
+            {
+                c.Add(new Coordinate(lon, north + d * i));
+            }
+            try
+            {
+                Lines.Add(new LineString(c.ToArray()).Reproject(ct, GeometryFactory.Default));
+            }
+            catch(ProjException)
+            { }
+        }
+
+        private void CreateLatitudeLine(CoordinateTransform ct, Proj.UsageArea ua, double lat)
+        {
+            var c = new List<Coordinate>();
+
+            int xPoints = 50;
+            var d = (ua.EastLongitude - ua.WestLongitude) / xPoints;
+            var west = Math.Max(-180, ua.WestLongitude -d *5);
+            var east = Math.Min(180, ua.EastLongitude + d*5);
+            
+            d = (east - west) / xPoints;
+
+            for (int i = 0; i <= xPoints; i++)
+            {
+                c.Add(new Coordinate(west + d * i, lat));
+            }
+            try
+            {
+                Lines.Add(new LineString(c.ToArray()).Reproject(ct, GeometryFactory.Default));
+            }
+            catch (ProjException)
+            { }
+        }
+
+
+        private static double RoundBetween(double v, double min, double max)
+        {
+            double l1;
+            if ((l1 = Math.Round(v)) > min && l1 < max)
+                v = l1;
+            else if ((l1 = Math.Round(v, 1)) > min && l1 < max)
+                v = l1;
+            else if ((l1 = Math.Round(v, 2)) > min && l1 < max)
+                v = l1;
+            return v;
         }
 
         static ReadOnlyCollection<CountryShape> CreateCountryShapes()
         {
             List<CountryShape> g = new List<CountryShape>();
-            using(var gz = new GZipStream(typeof(CountryShape).Assembly.GetManifestResourceStream("SharpProj.CrsExplorer.mapdata.json.gz"), CompressionMode.Decompress))
+            using (var gz = new GZipStream(typeof(CountryShape).Assembly.GetManifestResourceStream("SharpProj.CrsExplorer.mapdata.json.gz"), CompressionMode.Decompress))
             using (StreamReader sr = new StreamReader(gz))
             {
                 string name = null; ;

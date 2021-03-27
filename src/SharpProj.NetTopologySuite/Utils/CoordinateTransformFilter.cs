@@ -49,9 +49,15 @@ namespace SharpProj.Utils.NTSAdditions
                     for (int i = 0; i < seq.Count; i++)
                     {
                         var c = m_transform.Apply(seq.GetCoordinate(i));
-                        m_precisionModel.MakePrecise(c);
-                        for (int j = 0; j < seq.Dimension; j++)
-                            seq.SetOrdinate(i, j, c[j]);
+
+                        if (c != null)
+                        {
+                            m_precisionModel.MakePrecise(c);
+                            for (int j = 0; j < seq.Dimension; j++)
+                                seq.SetOrdinate(i, j, c[j]);
+                        }
+                        else
+                            throw new ProjException($"Reprojection of {seq.GetCoordinate(i)} failed");
                     }
                     break;
             }

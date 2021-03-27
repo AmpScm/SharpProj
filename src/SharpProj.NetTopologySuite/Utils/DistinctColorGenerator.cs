@@ -323,6 +323,9 @@ namespace SharpProj.Utils.Colors
             double treshold = 16;
             bool notDown = false;
 
+            if (count > 200)
+                treshold /= 2;
+
             if (count == 1)
                 return colors.Take(1).ToArray();
 
