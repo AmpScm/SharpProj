@@ -56,6 +56,7 @@
     <Compile Include="Implementation\ProjImplementationExtensions.cs" />
     <Compile Include="NtsGeoExtensions.cs" />
     <Compile Include="NtsMapExtensions.cs" />
+    <Compile Include="NtsProjException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SridItem.cs" />
     <Compile Include="SridRegister.cs" />

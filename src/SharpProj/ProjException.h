@@ -1,6 +1,6 @@
 #pragma once
 namespace SharpProj {
-	[SerializableAttribute]
+	[Serializable]
 	public ref class ProjException : System::Exception
 	{
 	public:
@@ -30,7 +30,7 @@ namespace SharpProj {
 	};
 
 
-	[SerializableAttribute]
+	[Serializable]
 	public ref class ProjOperationException : ProjException
 	{
 	public:
@@ -59,7 +59,7 @@ namespace SharpProj {
 		}
 	};
 
-	[SerializableAttribute]
+	[Serializable]
 	public ref class ProjTransformException : ProjException
 	{
 	public:

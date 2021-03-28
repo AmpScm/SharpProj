@@ -16,6 +16,11 @@ SharpProj.NTS.SridItem.SridItemArgs.PrecisionModel.set -> void
 SharpProj.NTS.SridItem.SridItemArgs.SridItemArgs() -> void
 SharpProj.NTS.SridRegister
 SharpProj.NtsExtensions
+SharpProj.NtsProjException
+SharpProj.NtsProjException.NtsProjException() -> void
+SharpProj.NtsProjException.NtsProjException(string message) -> void
+SharpProj.NtsProjException.NtsProjException(string message, System.Exception innerException) -> void
+SharpProj.NtsProjException.NtsProjException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) -> void
 SharpProj.Testing.ProjTestExtensions
 static NetTopologySuite.Geometries.SharpProjNtsExtensions.Equals3D(this NetTopologySuite.Geometries.Coordinate coordinate, NetTopologySuite.Geometries.Coordinate other) -> bool
 static NetTopologySuite.Geometries.SharpProjNtsExtensions.Equals3D(this NetTopologySuite.Geometries.Coordinate coordinate, NetTopologySuite.Geometries.Coordinate other, double tolerance) -> bool

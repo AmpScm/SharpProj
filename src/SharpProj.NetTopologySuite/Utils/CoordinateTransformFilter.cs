@@ -48,16 +48,12 @@ namespace SharpProj.Utils.NTSAdditions
                 default:
                     for (int i = 0; i < seq.Count; i++)
                     {
-                        var c = m_transform.Apply(seq.GetCoordinate(i));
+                        var nc = seq.GetCoordinate(i);
+                        var c = m_transform.Apply(nc) ?? throw new NtsProjException($"Reprojection of {nc} failed");
 
-                        if (c != null)
-                        {
-                            m_precisionModel.MakePrecise(c);
-                            for (int j = 0; j < seq.Dimension; j++)
-                                seq.SetOrdinate(i, j, c[j]);
-                        }
-                        else
-                            throw new ProjException($"Reprojection of {seq.GetCoordinate(i)} failed");
+                        m_precisionModel.MakePrecise(c);
+                        for (int j = 0; j < seq.Dimension; j++)
+                            seq.SetOrdinate(i, j, c[j]);
                     }
                     break;
             }
