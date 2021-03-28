@@ -25,7 +25,7 @@ namespace SharpProj {
 		/// Container for CoordinateReference system information obtained from proj.db via <see cref="ProjContext"/>.GetCoordinateReferenceSystems
 		/// </summary>
 		[DebuggerDisplay("[{Identifier}] {Name,nq}")]
-		public ref class CoordinateReferenceSystemInfo
+		public ref class CoordinateReferenceSystemInfo : ILatitudeLongitudeArea
 		{
 			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly ProjContext^ _ctx;
@@ -143,28 +143,28 @@ namespace SharpProj {
 
 			property double WestLongitude
 			{
-				double get()
+				virtual double get() sealed
 				{
 					return _westLon;
 				}
 			}
 			property double SouthLatitude
 			{
-				double get()
+				virtual double get() sealed
 				{
 					return _southLat;
 				}
 			}
 			property double EastLongitude
 			{
-				double get()
+				virtual double get() sealed
 				{
 					return _eastLon;
 				}
 			}
 			property double NorthLatitude
 			{
-				double get()
+				virtual double get() sealed
 				{
 					return _northLat;
 				}

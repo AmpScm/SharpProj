@@ -170,23 +170,26 @@ namespace SharpProj.CrsExplorer
 
                     var ua = crs.UsageArea;
 
-                    if (ua.EastLongitude > ua.WestLongitude) // Next blocks fails over date line :(
+                    if (ua.EastLongitude != ua.WestLongitude) // Next blocks fails over date line :(
                     {
                         HashSet<double> created = new HashSet<double>();
 
                         foreach (double r in new[] { 30.0, 15.0, 5.0, 1.0, 0.5, 0.25, 0.125, 0.025 })
                         {
-                            double ll = (Math.Truncate(ua.WestLongitude / r) - 1.0) * r;
-
-                            while (ll < ua.WestLongitude)
-                                ll += r;
-
-                            for (; ll <= ua.EastLongitude; ll += r)
+                            foreach ((double west, double east) in NormalizeLongitude(ua.WestLongitude, ua.EastLongitude))
                             {
-                                if (!created.Contains(ll))
+                                double ll = (Math.Truncate(west / r) - 1.0) * r;
+
+                                while (ll < west)
+                                    ll += r;
+
+                                for (; ll <= east; ll += r)
                                 {
-                                    CreateLongitudeLine(ct, ua, ll);
-                                    created.Add(ll);
+                                    if (!created.Contains(ll))
+                                    {
+                                        CreateLongitudeLine(ct, ua, ll);
+                                        created.Add(ll);
+                                    }
                                 }
                             }
 
@@ -195,7 +198,7 @@ namespace SharpProj.CrsExplorer
                         }
                     }
 
-                    if (ua.SouthLatitude < ua.NorthLatitude)
+                    if (ua.SouthLatitude != ua.NorthLatitude)
                     {
                         HashSet<double> created = new HashSet<double>();
 
@@ -229,6 +232,17 @@ namespace SharpProj.CrsExplorer
             }
         }
 
+        private IEnumerable<(double, double)> NormalizeLongitude(double westLongitude, double eastLongitude)
+        {
+            if (westLongitude < eastLongitude)
+                yield return (westLongitude, eastLongitude);
+            else
+            {
+                yield return (eastLongitude, 180.0);
+                yield return (-180.0, westLongitude);
+            }
+        }
+
         private void CreateLongitudeLine(CoordinateTransform ct, Proj.UsageArea ua, double lon)
         {
             var c = new List<Coordinate>();
@@ -253,40 +267,30 @@ namespace SharpProj.CrsExplorer
             { }
         }
 
-        private void CreateLatitudeLine(CoordinateTransform ct, Proj.UsageArea ua, double lat)
+        private void CreateLatitudeLine(CoordinateTransform ct, Proj.ILatitudeLongitudeArea ua, double lat)
         {
             var c = new List<Coordinate>();
 
-            int xPoints = 50;
-            var d = (ua.EastLongitude - ua.WestLongitude) / xPoints;
-            var west = Math.Max(-180, ua.WestLongitude -d *5);
-            var east = Math.Min(180, ua.EastLongitude + d*5);
-            
-            d = (east - west) / xPoints;
-
-            for (int i = 0; i <= xPoints; i++)
+            foreach ((double wl, double el) in NormalizeLongitude(ua.WestLongitude, ua.EastLongitude))
             {
-                c.Add(new Coordinate(west + d * i, lat));
-            }
-            try
-            {
-                Lines.Add(new LineString(c.ToArray()).Reproject(ct, GeometryFactory.Default));
-            }
-            catch (ProjException)
-            { }
-        }
+                int xPoints = 50;
+                var d = (el - wl) / xPoints;
+                var west = Math.Max(-180, wl - d * 5);
+                var east = Math.Min(180, el + d * 5);
 
+                d = (east - west) / xPoints;
 
-        private static double RoundBetween(double v, double min, double max)
-        {
-            double l1;
-            if ((l1 = Math.Round(v)) > min && l1 < max)
-                v = l1;
-            else if ((l1 = Math.Round(v, 1)) > min && l1 < max)
-                v = l1;
-            else if ((l1 = Math.Round(v, 2)) > min && l1 < max)
-                v = l1;
-            return v;
+                for (int i = 0; i <= xPoints; i++)
+                {
+                    c.Add(new Coordinate(west + d * i, lat));
+                }
+                try
+                {
+                    Lines.Add(new LineString(c.ToArray()).Reproject(ct, GeometryFactory.Default));
+                }
+                catch (ProjException)
+                { }
+            }
         }
 
         static ReadOnlyCollection<CountryShape> CreateCountryShapes()

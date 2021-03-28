@@ -5,9 +5,29 @@ namespace SharpProj {
 
 	namespace Proj {
 
+		public interface class ILatitudeLongitudeArea
+		{
+			property double WestLongitude
+			{
+				double get();
+			}
+			property double SouthLatitude
+			{
+				double get();
+			}
+			property double EastLongitude
+			{
+				double get();
+			}
+			property double NorthLatitude
+			{
+				double get();
+			}
+		};
+
 
 		[DebuggerDisplay("{Name,nq}")]
-		public ref class UsageArea
+		public ref class UsageArea : ILatitudeLongitudeArea
 		{
 		private:
 			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
@@ -59,34 +79,34 @@ namespace SharpProj {
 				if (Name)
 					return Name;
 				else
-					return __super::ToString();
+					return Object::ToString();
 			}
 
 		public:
 			property double WestLongitude
 			{
-				double get()
+				virtual double get() sealed
 				{
 					return m_westLongitude;
 				}
 			}
 			property double SouthLatitude
 			{
-				double get()
+				virtual double get() sealed
 				{
 					return m_southLatitude;
 				}
 			}
 			property double EastLongitude
 			{
-				double get()
+				virtual double get() sealed
 				{
 					return m_eastLongitude;
 				}
 			}
 			property double NorthLatitude
 			{
-				double get()
+				virtual double get()
 				{
 					return m_northLatitude;
 				}

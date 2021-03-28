@@ -771,5 +771,16 @@ namespace SharpProj.Tests
                 GC.KeepAlive(m.Details);
             }
         }
+
+        [TestMethod]
+        public void Epsg3851Bounds()
+        {
+            using(CoordinateReferenceSystem crs3851 = CoordinateReferenceSystem.CreateFromEpsg(3851))
+            {
+                var ua = crs3851.UsageArea;
+
+                Assert.IsTrue(ua.MinX > 0);
+            }
+        }
     }
 }

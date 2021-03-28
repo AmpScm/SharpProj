@@ -111,18 +111,32 @@ void UsageArea::EnsureMinMax()
 
 	if (llc)
 	{
-		auto x = gcnew array<double>(21 * 4);
-		auto y = gcnew array<double>(21 * 4);
-		for (int j = 0; j <= 20; j++)
+		const int steps = 21;
+		auto x = gcnew array<double>(steps * 4);
+		auto y = gcnew array<double>(steps * 4);
+
+		double east_step;
+
+		if (m_eastLongitude >= m_westLongitude)
+			east_step = (m_eastLongitude - m_westLongitude) / (steps - 1);
+		else
+			east_step = (m_eastLongitude + 360.0 - m_westLongitude) / (steps - 1);
+
+		for (int j = 0; j < steps; j++)
 		{
-			x[j] = m_westLongitude + j * (m_eastLongitude - m_westLongitude) / 20;
+			double test_lon = m_westLongitude + j * east_step;
+
+			if (test_lon > 180.0)
+				test_lon -= 360.0;
+
+			x[j] = test_lon;
 			y[j] = m_southLatitude;
-			x[21 + j] = m_westLongitude + j * (m_eastLongitude - m_westLongitude) / 20;
-			y[21 + j] = m_northLatitude;
-			x[21 * 2 + j] = m_westLongitude;
-			y[21 * 2 + j] = m_southLatitude + j * (m_northLatitude - m_southLatitude) / 20;
-			x[21 * 3 + j] = m_eastLongitude;
-			y[21 * 3 + j] = m_southLatitude + j * (m_northLatitude - m_southLatitude) / 20;
+			x[steps + j] = test_lon;
+			y[steps + j] = m_northLatitude;
+			x[steps * 2 + j] = m_westLongitude;
+			y[steps * 2 + j] = m_southLatitude + j * (m_northLatitude - m_southLatitude) / 20;
+			x[steps * 3 + j] = m_eastLongitude;
+			y[steps * 3 + j] = m_southLatitude + j * (m_northLatitude - m_southLatitude) / 20;
 		}
 		{
 			pin_ptr<double> px = &x[0];
