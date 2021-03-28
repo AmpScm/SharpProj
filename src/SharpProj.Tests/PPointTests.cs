@@ -31,14 +31,14 @@ namespace SharpProj.Tests
             Assert.AreEqual(2, new PPoint(0, 1).Axis);
             Assert.AreEqual(3, new PPoint(0, 1, 2).Axis);
             Assert.AreEqual(3, new PPoint(0, 1, 2, double.PositiveInfinity).Axis);
-            Assert.AreEqual(3, new PPoint(0, 1, 2, 0).Axis);
+            Assert.AreEqual(4, new PPoint(0, 1, 2, 0).Axis);
             Assert.AreEqual(4, new PPoint(0, 1, 2, 3).Axis);
 
             Assert.AreEqual(1, new PPoint(new double[] { 0 }).Axis);
             Assert.AreEqual(2, new PPoint(new double[] { 0, 1 }).Axis);
             Assert.AreEqual(3, new PPoint(new double[] { 0, 1, 2 }).Axis);
             Assert.AreEqual(3, new PPoint(new double[] { 0, 1, 2, double.PositiveInfinity }).Axis);
-            Assert.AreEqual(3, new PPoint(new double[] { 0, 1, 2, 0 }).Axis);
+            Assert.AreEqual(4, new PPoint(new double[] { 0, 1, 2, 0 }).Axis);
             Assert.AreEqual(4, new PPoint(new double[] { 0, 1, 2, 3 }).Axis);
 
             Assert.AreEqual("X=1, T=4", new PPoint(1) { T = 4 }.ToString());
@@ -53,6 +53,22 @@ namespace SharpProj.Tests
             Assert.AreEqual(double.PositiveInfinity, new PPoint(new double[] { 0, 1 }).T);
             Assert.AreEqual(double.PositiveInfinity, new PPoint(new double[] { 0, 1, 2 }).T);
             Assert.AreEqual(3, new PPoint(new double[] { 0, 1, 2, 3 }).T);
+
+
+            Assert.AreNotEqual(new PPoint(), new PPoint() { T = 0 });
+            Assert.AreEqual(new PPoint(), new PPoint() { T = double.PositiveInfinity });
+            Assert.AreNotEqual(new PPoint(), new PPoint().WithT(0));
+            Assert.AreEqual(new PPoint(), new PPoint().WithT(double.PositiveInfinity));
+
+            Assert.AreEqual(new PPoint(0, 0, 0, 0), new PPoint() { T = 0 });
+            Assert.AreNotEqual(new PPoint(0, 0, 0, 0), new PPoint() { T = double.PositiveInfinity });
+            Assert.AreEqual(new PPoint(0, 0, 0, 0), new PPoint().WithT(0));
+            Assert.AreNotEqual(new PPoint(0, 0, 0, 0), new PPoint().WithT(double.PositiveInfinity));
+
+            Assert.AreNotEqual(new PPoint(0, 0, 0, double.PositiveInfinity), new PPoint() { T = 0 });
+            Assert.AreEqual(new PPoint(0, 0, 0, double.PositiveInfinity), new PPoint() { T = double.PositiveInfinity });
+            Assert.AreNotEqual(new PPoint(0, 0, 0, double.PositiveInfinity), new PPoint().WithT(0));
+            Assert.AreEqual(new PPoint(0, 0, 0, double.PositiveInfinity), new PPoint().WithT(double.PositiveInfinity));
         }
 
         [TestMethod]
