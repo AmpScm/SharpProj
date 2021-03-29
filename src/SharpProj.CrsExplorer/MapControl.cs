@@ -238,8 +238,8 @@ namespace SharpProj.CrsExplorer
                 yield return (westLongitude, eastLongitude);
             else
             {
-                yield return (eastLongitude, 180.0);
-                yield return (-180.0, westLongitude);
+                yield return (westLongitude, 180);
+                yield return (-180, eastLongitude);
             }
         }
 
@@ -263,7 +263,7 @@ namespace SharpProj.CrsExplorer
             {
                 Lines.Add(new LineString(c.ToArray()).Reproject(ct, GeometryFactory.Default));
             }
-            catch(ProjException)
+            catch (ProjException)
             { }
         }
 
