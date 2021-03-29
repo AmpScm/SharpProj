@@ -380,7 +380,7 @@ namespace SharpProj {
 			}
 		}
 
-		property bool IsAvailable
+		property virtual bool IsAvailable
 		{
 			bool get()
 			{

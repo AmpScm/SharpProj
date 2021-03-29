@@ -126,11 +126,25 @@ namespace SharpProj {
 			}
 		}
 
+		property virtual bool IsAvailable
+		{
+			virtual bool get() override sealed
+			{
+				for each (auto c in this)
+				{
+					if (c->IsAvailable)
+						return true;
+				}
+
+				return false;
+			}
+		}
+
 		property ProjType Type
 		{
 			virtual ProjType get() override
 			{
-				return ProjType::Unknown;
+				return ProjType::ChooseTransform;
 			}
 		}
 

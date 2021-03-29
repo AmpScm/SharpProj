@@ -43,6 +43,7 @@ static PROJ_NETWORK_HANDLE* my_network_open(
 
 	String^ sUrl = Utf8_PtrToString(url);
 	WebRequest^ rq = WebRequest::Create(sUrl);
+
 	HttpWebRequest^ hrq = dynamic_cast<HttpWebRequest^>(rq);
 
 	if (hrq != nullptr)
@@ -53,8 +54,9 @@ static PROJ_NETWORK_HANDLE* my_network_open(
 	else
 		rq->Headers->Add(String::Format("Range: bytes={0}-{1}", offset, offset + size_to_read - 1));
 
-	WebResponse^ rp;
+
 	bool in_error = true;
+	WebResponse^ rp;
 
 	try
 	{
@@ -113,6 +115,7 @@ static PROJ_NETWORK_HANDLE* my_network_open(
 		{
 			strncpy_s(out_error_string, error_string_max_size, "Read error", error_string_max_size);
 			*out_size_read = 0;
+			delete rp;
 			return nullptr;
 		}
 
@@ -120,18 +123,21 @@ static PROJ_NETWORK_HANDLE* my_network_open(
 	else if (!in_error)
 	{
 		strncpy_s(out_error_string, error_string_max_size, "No partial web response", error_string_max_size);
+		delete rp;
 		return nullptr;
 	}
 	else if (hrp)
 	{
 		std::string msg = utf8_string(String::Format("Unexpected HTTP(S) result {0}: {1}", hrp->StatusCode, hrp->StatusDescription));
 		strncpy_s(out_error_string, error_string_max_size, msg.c_str(), error_string_max_size);
+		delete rp;
 		return nullptr;
 	}
 	else if (rp)
 	{
 		std::string msg = utf8_string(String::Format("Unexpected WebResponse {0}", rp->ToString()));
 		strncpy_s(out_error_string, error_string_max_size, msg.c_str(), error_string_max_size);
+		delete rp;
 		return nullptr;
 	}
 
@@ -149,6 +155,13 @@ static void my_network_close(
 	void* user_data)
 {
 	my_network_data* d = (my_network_data*)handle;
+
+	WebResponse^ rp = d->rp;
+	if (rp)
+	{
+		d->rp = nullptr;
+		delete rp;
+	}
 
 	d->ctx->free_chain(d->chain);
 
@@ -303,10 +316,12 @@ void ProjContext::SetupNetworkHandling()
 void ProjContext::DownloadProjDB(String^ target)
 {
 	using namespace System::IO::Compression;
+	WebResponse^ rp = nullptr;
 	try
 	{
 		WebRequest^ wr = WebRequest::Create("https://www.nuget.org/api/v2/package/SharpProj.Database/" PROJ_VERSION);
-		Stream^ stream = wr->GetResponse()->GetResponseStream();
+		rp = wr->GetResponse();
+		Stream^ stream = rp->GetResponseStream();
 		Stream^ sz = nullptr;
 		Stream^ tmp = nullptr;
 		try
@@ -338,10 +353,13 @@ void ProjContext::DownloadProjDB(String^ target)
 				File::Delete(target + ".tmp");
 			}
 			catch (Exception^)
-			{ }
+			{
+			}
 		}
 	}
 	catch (Exception^)
 	{
+		if (rp)
+			delete rp;
 	}
 }
