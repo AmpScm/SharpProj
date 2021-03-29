@@ -27,7 +27,7 @@ namespace SharpProj.CrsExplorer
         {
             base.OnLoad(e);
 
-            var systems = ProjContext.GetCoordinateReferenceSystems(new Proj.CoordinateReferenceSystemFilter { Authority = "EPSG" });
+            var systems = ProjContext.GetCoordinateReferenceSystems();// new Proj.CoordinateReferenceSystemFilter { Authority = "EPSG" });
 
             _allItems = systems.Where(x => x.Type != ProjType.VerticalCrs).Select(x => new CRSItem { Info = x }).OrderBy(x => int.TryParse(x.Info.Code, out var v) ? v : 0).ToArray();
 
@@ -68,7 +68,7 @@ namespace SharpProj.CrsExplorer
                 if (CRS != null)
                     CRS.Dispose();
                 CRS = Current.Info.Create();
-                
+
                 var ua = CRS.UsageArea;
 
                 IdBox.Text = string.Join(", ", CRS.Identifiers);
@@ -79,7 +79,7 @@ namespace SharpProj.CrsExplorer
                     if ((CRS.Axis?[0].UnitName?.Equals("metre", StringComparison.OrdinalIgnoreCase) ?? false)
                     || (CRS.Axis?[0].UnitName?.Equals("meter", StringComparison.OrdinalIgnoreCase) ?? false))
                     {
-                        boundsProjectedBox.Text = $"X: {Math.Round(ua.MinX)} - {Math.Round(ua.MaxX)}, Y: {Math.Round(ua.MinY)} - {Math.Round(ua.MaxY)}";
+                        boundsProjectedBox.Text = $"X: {Math.Round(ua.MinX)} - {Math.Round(ua.MaxX)} m, Y: {Math.Round(ua.MinY)} - {Math.Round(ua.MaxY)} m";
                     }
                     else
                         boundsProjectedBox.Text = $"X: {ua.MinX} - {ua.MaxX}, Y: {ua.MinY} - {ua.MaxY}";
@@ -163,6 +163,17 @@ namespace SharpProj.CrsExplorer
 
                     if (projection != null)
                         mp = ProjOperationDefinition.All[projection.Name].Title;
+                    else if (!CRS.DistanceTransform.IsAvailable || !CRS.DistanceTransform.HasInverse)
+                    {
+                        string method = CRS.DistanceTransform.AsWellKnownText()?.Split('\n').Select(x => x.Trim()).FirstOrDefault(x => x.StartsWith("METHOD["));
+
+                        if (method != null)
+                        {
+                            method = method.Substring("METHOD[".Length).Trim(',', '\"', ']');
+
+                            mp = $">>Projection '{method}' unavailable<<";
+                        }
+                    }
                 }
 
                 if (contained.Count > 0)

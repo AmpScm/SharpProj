@@ -594,6 +594,9 @@ namespace SharpProj.Tests
                         Assert.IsNotNull(p.Authority);
                         Assert.IsNotNull(p.Code);
                         Console.WriteLine($"{p.Authority}:{p.Code} ({p.Type}) / {p.ProjectionName} {c.Name}");
+
+                        if (!c.DistanceTransform?.IsAvailable ?? false)
+                            Console.WriteLine($"GeoTransform not available for: {c.AsWellKnownText()}");
                     }
                 }
             }
@@ -704,7 +707,7 @@ namespace SharpProj.Tests
                             Assert.AreNotEqual(rLast.ToXY(), rNow.ToXY());
                             double distance = itrf2014.DistanceTransform.GeoDistance(rNow, rLast);
 
-                            Assert.IsTrue(distance >= 0.04, "Distance > 4cm / year. check grid file acces (e.g. network) if this fails"); 
+                            Assert.IsTrue(distance >= 0.04, "Distance > 4cm / year. check grid file acces (e.g. network) if this fails");
 
                             if (year == 2017)
                                 Assert.IsTrue(distance >= 0.045, "Huge step in 2017");
@@ -748,11 +751,11 @@ namespace SharpProj.Tests
         [TestMethod]
         public void TestFrance()
         {
-            using(var fr = CoordinateReferenceSystem.CreateFromEpsg(2154))
+            using (var fr = CoordinateReferenceSystem.CreateFromEpsg(2154))
             using (var crs1 = CoordinateReferenceSystem.CreateFromEpsg(3857))
-                using(var t = CoordinateTransform.Create(fr, crs1))
+            using (var t = CoordinateTransform.Create(fr, crs1))
             {
-                
+
                 GC.KeepAlive(fr);
             }
         }
@@ -764,7 +767,7 @@ namespace SharpProj.Tests
             var v = ProjOperationDefinition.All;
             Assert.IsNotNull(v);
             Assert.AreNotEqual(0, v.Count, "Has ops");
-            foreach(var m in v)
+            foreach (var m in v)
             {
                 Assert.AreNotEqual("", m.Name);
                 Assert.AreNotEqual("", m.Title);
@@ -775,11 +778,36 @@ namespace SharpProj.Tests
         [TestMethod]
         public void Epsg3851Bounds()
         {
-            using(CoordinateReferenceSystem crs3851 = CoordinateReferenceSystem.CreateFromEpsg(3851))
+            using (CoordinateReferenceSystem crs3851 = CoordinateReferenceSystem.CreateFromEpsg(3851))
             {
                 var ua = crs3851.UsageArea;
 
                 Assert.IsTrue(ua.MinX > 0);
+            }
+        }
+
+        [TestMethod]
+        public void Epsg2218Bounds()
+        {
+            using (ProjContext pc = new ProjContext() { EnableNetworkConnections = true })
+            using (CoordinateReferenceSystem crs2218 = CoordinateReferenceSystem.CreateFromEpsg(2218, pc))
+            {
+                var ua = crs2218.UsageArea;
+
+
+                Assert.IsFalse(crs2218.DistanceTransform.IsAvailable, "Projection not supported yet");
+
+                CoordinateReferenceSystem wgs84 = CoordinateReferenceSystem.CreateFromEpsg(4326, pc);
+
+                using (var t = CoordinateTransform.Create(wgs84, crs2218))
+                {
+                    Assert.IsFalse(t.IsAvailable);
+                }
+
+                double minx = ua.MinX;
+
+                Assert.IsTrue(double.IsNaN(ua.MinX));
+                Assert.IsTrue(double.IsNaN(ua.MaxX));
             }
         }
     }

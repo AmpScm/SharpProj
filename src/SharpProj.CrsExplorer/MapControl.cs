@@ -135,19 +135,19 @@ namespace SharpProj.CrsExplorer
         static readonly Lazy<ReadOnlyCollection<CountryShape>> _geoms = new Lazy<ReadOnlyCollection<CountryShape>>(CreateCountryShapes);
         public ReadOnlyCollection<CountryShape> CountryShapes => _geoms.Value;
 
-        public List<Geometry> Draw { get; private set; }
+        readonly List<Geometry> Draw = new();
 
         CoordinateReferenceSystem _crs;
 
         public Color[] Colors { get; private set; }
 
-        List<LineString> Lines = new List<LineString>();
+        readonly List<LineString> Lines = new();
 
         internal void UpdateDisplay(CoordinateReferenceSystem crs, List<CountryShape> want)
         {
             Invalidate();
             _crs = null;
-            Draw = null;
+            Draw.Clear();
             Lines.Clear();
             if (crs.AxisCount < 2)// || !crs.Axis.All(x => x.UnitName == "metre")) // ??
                 return;
@@ -160,8 +160,8 @@ namespace SharpProj.CrsExplorer
             {
                 using (var ct = CoordinateTransform.Create(crs.GeodeticCRS.WithAxisNormalized(), crs))
                 {
-                    this.Draw = want.Select(x => x.Geometry).Select(x => x.Reproject(ct, GeometryFactory.Default)).ToList();
                     _crs = crs;
+                    Draw.AddRange(want.Select(x => x.Geometry).Select(x => x.Reproject(ct, GeometryFactory.Default)));
 
                     if (Draw.Count <= 1)
                         this.Colors = new Color[] { Color.FromArgb(255, 32, 180, 32) };
@@ -226,9 +226,8 @@ namespace SharpProj.CrsExplorer
             }
             catch (ProjException)
             {
-                Draw = null;
+                Draw.Clear();
                 Lines.Clear();
-
             }
         }
 
