@@ -1,43 +1,16 @@
 #pragma once
+
+#include "LatititudeLongitudeArea.h"
 namespace SharpProj {
 	value class PPoint;
 
 
 	namespace Proj {
 
-		public interface class ILatitudeLongitudeArea
-		{
-			property double WestLongitude
-			{
-				double get();
-			}
-			property double SouthLatitude
-			{
-				double get();
-			}
-			property double EastLongitude
-			{
-				double get();
-			}
-			property double NorthLatitude
-			{
-				double get();
-			}
-		};
-
-
 		[DebuggerDisplay("{Name,nq}")]
-		public ref class UsageArea : ILatitudeLongitudeArea
+		public ref class UsageArea : LatitudeLongitudeArea
 		{
 		private:
-			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
-			initonly double m_westLongitude;
-			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
-			initonly double m_southLatitude;
-			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
-			initonly double m_eastLongitude;
-			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
-			initonly double m_northLatitude;
 			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly String^ m_name;
 			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
@@ -62,10 +35,10 @@ namespace SharpProj {
 			UsageArea(ProjObject^ ob, double westLongitude, double southLatitude, double eastLongitude, double northLatitude, String^ name)
 			{
 				m_obj = ob;
-				m_westLongitude = westLongitude;
-				m_southLatitude = southLatitude;
-				m_eastLongitude = eastLongitude;
-				m_northLatitude = northLatitude;
+				LatitudeLongitudeArea::WestLongitude = westLongitude <= -1000 ? double::NaN : westLongitude;
+				LatitudeLongitudeArea::SouthLatitude = southLatitude <= -1000 ? double::NaN : southLatitude;
+				LatitudeLongitudeArea::EastLongitude = eastLongitude <= -1000 ? double::NaN : eastLongitude;
+				LatitudeLongitudeArea::NorthLatitude = northLatitude <= -1000 ? double::NaN : northLatitude;
 				m_name = name;
 			}
 
@@ -83,34 +56,6 @@ namespace SharpProj {
 			}
 
 		public:
-			property double WestLongitude
-			{
-				virtual double get() sealed
-				{
-					return m_westLongitude;
-				}
-			}
-			property double SouthLatitude
-			{
-				virtual double get() sealed
-				{
-					return m_southLatitude;
-				}
-			}
-			property double EastLongitude
-			{
-				virtual double get() sealed
-				{
-					return m_eastLongitude;
-				}
-			}
-			property double NorthLatitude
-			{
-				virtual double get()
-				{
-					return m_northLatitude;
-				}
-			}
 			property String^ Name
 			{
 				String^ get()

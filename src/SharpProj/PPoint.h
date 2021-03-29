@@ -296,7 +296,8 @@ namespace SharpProj {
 		{
 			bool get()
 			{
-				return !double::IsNaN(X) && !double::IsInfinity(X);
+				return !double::IsNaN(X) && !double::IsInfinity(X)
+					&& !double::IsNaN(Y) && !double::IsInfinity(Y);
 			}
 		}
 

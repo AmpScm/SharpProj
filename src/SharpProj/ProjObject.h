@@ -29,50 +29,47 @@ namespace SharpProj {
 			DynamicVerticalReferenceFrame = PJ_TYPE_DYNAMIC_VERTICAL_REFERENCE_FRAME,
 			DatumEnsamble = PJ_TYPE_DATUM_ENSEMBLE,
 
-			/** Abstract type, not returned by proj_get_type() */
+			/// <summary>
+			/// Abstract type, not returned by <see cref="ProjObject" />.Type.
+			/// </summary>
 			CRS = PJ_TYPE_CRS,
 
 			GeodeticCrs = PJ_TYPE_GEODETIC_CRS,
 			GeocentricCrs = PJ_TYPE_GEOCENTRIC_CRS,
 
-			/** proj_get_type() will never return that type, but
-			 * PJ_TYPE_GEOGRAPHIC_2D_CRS or PJ_TYPE_GEOGRAPHIC_3D_CRS. */
-			 GeographicCrs = PJ_TYPE_GEOGRAPHIC_CRS,
+			/// <summary>
+			/// Abstract type, not returned by <see cref="ProjObject" />.Type. Will return Geographic2DCrs or Geographic3DCrs instead.
+			/// </summary>
+			GeographicCrs = PJ_TYPE_GEOGRAPHIC_CRS,
 
-			 Geographic2DCrs = PJ_TYPE_GEOGRAPHIC_2D_CRS,
-			 Geographic3DCrs = PJ_TYPE_GEOGRAPHIC_3D_CRS,
-			 VerticalCrs = PJ_TYPE_VERTICAL_CRS,
-			 ProjectedCrs = PJ_TYPE_PROJECTED_CRS,
-			 CompoundCrs = PJ_TYPE_COMPOUND_CRS,
-			 TemporalCrs = PJ_TYPE_TEMPORAL_CRS,
-			 EngineeringCrs = PJ_TYPE_ENGINEERING_CRS,
-			 BoundCrs = PJ_TYPE_BOUND_CRS,
-			 OtherCrs = PJ_TYPE_OTHER_CRS,
+			Geographic2DCrs = PJ_TYPE_GEOGRAPHIC_2D_CRS,
+			Geographic3DCrs = PJ_TYPE_GEOGRAPHIC_3D_CRS,
+			VerticalCrs = PJ_TYPE_VERTICAL_CRS,
+			ProjectedCrs = PJ_TYPE_PROJECTED_CRS,
+			CompoundCrs = PJ_TYPE_COMPOUND_CRS,
+			TemporalCrs = PJ_TYPE_TEMPORAL_CRS,
+			EngineeringCrs = PJ_TYPE_ENGINEERING_CRS,
+			BoundCrs = PJ_TYPE_BOUND_CRS,
+			OtherCrs = PJ_TYPE_OTHER_CRS,
 
-			 Conversion = PJ_TYPE_CONVERSION,
-			 Transformation = PJ_TYPE_TRANSFORMATION,
-			 ConcatenatedOperation = PJ_TYPE_CONCATENATED_OPERATION,
-			 OtherCoordinateTransform = PJ_TYPE_OTHER_COORDINATE_OPERATION,
+			Conversion = PJ_TYPE_CONVERSION,
+			Transformation = PJ_TYPE_TRANSFORMATION,
+			ConcatenatedOperation = PJ_TYPE_CONCATENATED_OPERATION,
+			OtherCoordinateTransform = PJ_TYPE_OTHER_COORDINATE_OPERATION,
 
-			 TemporalDatum = PJ_TYPE_TEMPORAL_DATUM,
-			 EngineeringDatum = PJ_TYPE_ENGINEERING_DATUM,
-			 ParametricDatum = PJ_TYPE_PARAMETRIC_DATUM,
-
-
-
+			TemporalDatum = PJ_TYPE_TEMPORAL_DATUM,
+			EngineeringDatum = PJ_TYPE_ENGINEERING_DATUM,
+			ParametricDatum = PJ_TYPE_PARAMETRIC_DATUM,
 
 
 
 
-
-
-
-			 // Local types
-			 ChooseTransform = 1001,
-			 CoordinateSystem
+			// Local types
+			ChooseTransform = 1001,
+			CoordinateSystem
 		};
 
-		[DebuggerDisplay("{String(),nq}")]
+		[DebuggerDisplay("{ToString(),nq}")]
 		public ref class Identifier sealed
 		{
 		internal:
@@ -224,7 +221,7 @@ namespace SharpProj {
 			}
 		};
 
-		
+
 
 		[DebuggerDisplay("[{Type}] {ToString(),nq}")]
 		public ref class ProjObject
@@ -469,7 +466,7 @@ namespace SharpProj {
 				return AsWellKnownText(nullptr);
 			}
 
-			String^ AsProjString(ProjStringOptions ^options)
+			String^ AsProjString(ProjStringOptions^ options)
 			{
 				if (m_noProj)
 					return nullptr;

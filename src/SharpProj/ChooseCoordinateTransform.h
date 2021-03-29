@@ -112,11 +112,17 @@ namespace SharpProj {
 			}
 		}
 
-			property bool HasInverse
+		property bool HasInverse
 		{
 			virtual bool get() override sealed
 			{
-				return false; // Unable to fetch if the operation is really inverted
+				for each (auto c in this)
+				{
+					if (c->HasInverse)
+						return true;
+				}
+
+				return false;
 			}
 		}
 

@@ -21,12 +21,15 @@ CoordinateTransform^ UsageArea::GetLatLonConvert()
 			// Let's just use the already cached distance transform if possible
 			m_latLonTransform = crs->DistanceTransform;
 
-			if (!m_latLonTransform)
+			if (!m_latLonTransform || !m_latLonTransform->HasInverse)
 			{
 				// Ok, then we fall back to the WGS84 definition for the coordinate conversion
 
 				CoordinateReferenceSystem^ wgs84 = CoordinateReferenceSystem::CreateFromEpsg(4326, crs->Context)->WithAxisNormalized(nullptr);
 				m_latLonTransform = CoordinateTransform::Create(crs, wgs84, crs->Context);
+
+				if (!m_latLonTransform->HasInverse)
+					m_latLonTransform = nullptr;
 			}
 		}
 	}
@@ -117,26 +120,26 @@ void UsageArea::EnsureMinMax()
 
 		double east_step;
 
-		if (m_eastLongitude >= m_westLongitude)
-			east_step = (m_eastLongitude - m_westLongitude) / (steps - 1);
+		if (EastLongitude >= WestLongitude)
+			east_step = (EastLongitude - WestLongitude) / (steps - 1);
 		else
-			east_step = (m_eastLongitude + 360.0 - m_westLongitude) / (steps - 1);
+			east_step = (EastLongitude + 360.0 - WestLongitude) / (steps - 1);
 
 		for (int j = 0; j < steps; j++)
 		{
-			double test_lon = m_westLongitude + j * east_step;
+			double test_lon = WestLongitude + j * east_step;
 
 			if (test_lon > 180.0)
 				test_lon -= 360.0;
 
-			x[j] = test_lon;
-			y[j] = m_southLatitude;
-			x[steps + j] = test_lon;
-			y[steps + j] = m_northLatitude;
-			x[steps * 2 + j] = m_westLongitude;
-			y[steps * 2 + j] = m_southLatitude + j * (m_northLatitude - m_southLatitude) / 20;
-			x[steps * 3 + j] = m_eastLongitude;
-			y[steps * 3 + j] = m_southLatitude + j * (m_northLatitude - m_southLatitude) / 20;
+			x[steps * 0 + j] = test_lon;
+			y[steps * 0 + j] = SouthLatitude;
+			x[steps * 1 + j] = test_lon;
+			y[steps * 1 + j] = NorthLatitude;
+			x[steps * 2 + j] = WestLongitude;
+			y[steps * 2 + j] = SouthLatitude + j * (NorthLatitude - SouthLatitude) / (steps -1);
+			x[steps * 3 + j] = EastLongitude;
+			y[steps * 3 + j] = SouthLatitude + j * (NorthLatitude - SouthLatitude) / (steps - 1);
 		}
 		{
 			pin_ptr<double> px = &x[0];
@@ -153,12 +156,63 @@ void UsageArea::EnsureMinMax()
 		m_maxY = Double::NegativeInfinity;
 		for (int j = 0; j < 21 * 4; j++)
 		{
-			if (x[j] != HUGE_VAL && y[j] != HUGE_VAL)
+			if (!double::IsInfinity(x[j]) && !double::IsInfinity(y[j]))
 			{
 				m_minX = Math::Min(m_minX, x[j]);
 				m_minY = Math::Min(m_minY, y[j]);
 				m_maxX = Math::Max(m_maxX, x[j]);
 				m_maxY = Math::Max(m_maxY, y[j]);
+			}
+		}
+
+
+		if (WestLongitude == -180 && EastLongitude == 180)
+		{
+			// We project the entire world east to west. Ugly corner cases ahead.
+			// Some projections have the boundaries on the inside, so the previous calculations fail.
+			// Eg. ESRI:54026 "World_Stereographic" does bad things without this.
+
+			// Similar things happen when we are handling the poles. E.g. in ESRI:102036 "South_Pole_Gnomonic"
+
+			for (int j = 0; j < steps; j++)
+			{
+				double test_lon = WestLongitude + j * east_step;
+
+				if (test_lon > 180.0)
+					test_lon -= 360.0;
+
+				// Equator
+				x[steps * 0 + j] = test_lon;
+				y[steps * 0 + j] = 0;
+
+				// 2 diagonal lines
+				x[steps * 1 + j] = test_lon;
+				y[steps * 1 + j] = SouthLatitude + j * (NorthLatitude - SouthLatitude) / (steps -1);
+				x[steps * 2 + j] = test_lon;
+				y[steps * 2 + j] = NorthLatitude - j * (NorthLatitude - SouthLatitude) / (steps -1);
+
+				// Greenwich (longitude 0) line
+				x[steps * 3 + j] = 0;
+				y[steps * 3 + j] = SouthLatitude + j * (NorthLatitude - SouthLatitude) / (steps -1);
+			}
+			{
+				pin_ptr<double> px = &x[0];
+				pin_ptr<double> py = &y[0];
+				llc->ApplyReversed(
+					px, 1, x->Length,
+					py, 1, y->Length,
+					nullptr, 0, 0,
+					nullptr, 0, 0);
+			}
+			for (int j = 0; j < 21 * 4; j++)
+			{
+				if (!double::IsInfinity(x[j]) && !double::IsInfinity(y[j]))
+				{
+					m_minX = Math::Min(m_minX, x[j]);
+					m_minY = Math::Min(m_minY, y[j]);
+					m_maxX = Math::Max(m_maxX, x[j]);
+					m_maxY = Math::Max(m_maxY, y[j]);
+				}
 			}
 		}
 	}

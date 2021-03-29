@@ -161,11 +161,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CoordinateReferenceSystemInfo.h" />
     <ClInclude Include="CoordinateReferenceSystemList.h" />
     <ClInclude Include="CoordinateTransformList.h" />
     <ClInclude Include="ChooseCoordinateTransform.h" />
     <ClInclude Include="CoordinateSystem.h" />
     <ClInclude Include="GridUsage.h" />
+    <ClInclude Include="LatititudeLongitudeArea.h" />
     <ClInclude Include="PPoint.h" />
     <ClInclude Include="DatumList.h" />
     <ClInclude Include="Ellipsoid.h" />
@@ -186,6 +188,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
+    <ClCompile Include="CoordinateReferenceSystemInfo.cpp" />
     <ClCompile Include="CoordinateTransformList.cpp" />
     <ClCompile Include="ChooseCoordinateTransform.cpp" />
     <ClCompile Include="CoordinateReferenceSystemList.cpp" />
