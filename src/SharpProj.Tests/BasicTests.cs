@@ -787,28 +787,79 @@ namespace SharpProj.Tests
         }
 
         [TestMethod]
-        public void Epsg2218Bounds()
+        public void MissingProjections()
         {
             using (ProjContext pc = new ProjContext() { EnableNetworkConnections = true })
-            using (CoordinateReferenceSystem crs2218 = CoordinateReferenceSystem.CreateFromEpsg(2218, pc))
             {
-                var ua = crs2218.UsageArea;
-
-
-                Assert.IsFalse(crs2218.DistanceTransform.IsAvailable, "Projection not supported yet");
-
-                CoordinateReferenceSystem wgs84 = CoordinateReferenceSystem.CreateFromEpsg(4326, pc);
-
-                using (var t = CoordinateTransform.Create(wgs84, crs2218))
+                int missing = 0;
+                foreach (var i in pc.GetCoordinateReferenceSystems(new CoordinateReferenceSystemFilter { Authority = "ESRI" }).Where(x => int.TryParse(x.Code, out var c) && c >= 53000 && c < 55000))
                 {
-                    Assert.IsFalse(t.IsAvailable);
+                    using (var crs = i.Create())
+                    {
+                        if (RunMissing(crs, i.ToString()))
+                            missing++;
+                    }
+                }
+                Assert.AreEqual(13, missing, "Expected that this many ESRI test projections between 53000-54999 fail. Fix assumption");
+
+                foreach (int epsg in new[] {2218, 2221, 2296, 2299, 2301, 2303, 2304, 2305, 2306, 2307, 2963, 2985, 2986, 3052,
+                    3053, 3139, 3144, 3145, 3173, 5017, 5224, 5225, 5515, 5516, 22300, 22700, 32600, 32700})
+                {
+                    using (var crs = CoordinateReferenceSystem.CreateFromEpsg(epsg, pc))
+                    {
+                        if (!RunMissing(crs, crs.Name))
+                        {
+                            Assert.Inconclusive($"{crs.Identifiers[0]}: Expected to be failing. Fix test assumptions");
+                        }
+                    }
                 }
 
-                double minx = ua.MinX;
-
-                Assert.IsTrue(double.IsNaN(ua.MinX));
-                Assert.IsTrue(double.IsNaN(ua.MaxX));
+                foreach (int esri in new[] { 53044, 102299, 102460 })
+                {
+                    using (var crs = CoordinateReferenceSystem.CreateFromDatabase("ESRI", esri, pc))
+                    {
+                        if (!RunMissing(crs, crs.Name))
+                        {
+                            Assert.Inconclusive($"{crs.Identifiers[0]}: Expected to be failing. Fix test assumptions");
+                        }
+                    }
+                }
             }
+        }
+
+        bool RunMissing(CoordinateReferenceSystem crs, string i)
+        {
+            if (crs.DistanceTransform == null)
+                Console.WriteLine($"{crs.Identifiers[0]}: Distance transform Null for {i}");
+            else if (!crs.DistanceTransform.IsAvailable)
+                Console.WriteLine($"{crs.Identifiers[0]}: Distance transform not available for {i}");
+            else if (!crs.DistanceTransform.HasInverse)
+                Console.WriteLine($"{crs.Identifiers[0]}: Distance transform not reversable for {i}");
+            else
+                return false;
+
+            string projection = null;
+            if (crs.DistanceTransform != null)
+            {
+                var p = crs.DistanceTransform.Options().SelectMany(x => x.ProjOperations()).FirstOrDefault(x => x.Type == ProjOperationType.Projection);
+
+                if (projection != null)
+                    projection = ProjOperationDefinition.All[p.Name].Title;
+
+                if (projection == null)
+                {
+                    string method = crs.DistanceTransform.AsWellKnownText()?.Split('\n').Select(x => x.Trim()).FirstOrDefault(x => x.StartsWith("METHOD["));
+
+                    if (method != null)
+                    {
+                        projection = method.Substring("METHOD[".Length).Trim(',', '\"', ']');
+                    }
+                }
+            }
+            if (projection != null)
+                Console.WriteLine($" - Projection: {projection}");
+
+            return true;
         }
     }
 }
