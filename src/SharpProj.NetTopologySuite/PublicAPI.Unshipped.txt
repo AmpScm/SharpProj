@@ -2,4 +2,5 @@ SharpProj.Utils.Colors.DistinctColorGenerator
 static readonly SharpProj.Utils.Colors.DistinctColorGenerator.DifferentColorCount -> int
 static SharpProj.Utils.Colors.DistinctColorGenerator.GetDifferentColors() -> System.Collections.Generic.IEnumerable<System.Drawing.Color>
 static SharpProj.Utils.Colors.DistinctColorGenerator.GetDistinctColors(int count) -> System.Drawing.Color[]
-static SharpProj.Utils.Colors.DistinctColorGenerator.GetDistinctColors(int count, System.Drawing.Color? bgColor) -> System.Drawing.Color[]
+static SharpProj.Utils.Colors.DistinctColorGenerator.GetDistinctColors(int count, System.Collections.Generic.IEnumerable<System.Drawing.Color> existingColors) -> System.Drawing.Color[]
+static SharpProj.Utils.Colors.DistinctColorGenerator.GetDistinctColors(int count, System.Drawing.Color bgColor) -> System.Drawing.Color[]

@@ -14,6 +14,7 @@ struct my_network_data
 	gcroot<ProjContext^> ctx;
 	gcroot<String^> url;
 	gcroot<System::Net::WebResponse^> rp;
+	gcroot<String^> etag;
 	void* chain;
 };
 
@@ -176,11 +177,12 @@ const char* my_network_get_header_value(
 {
 	my_network_data* d = (my_network_data*)handle;
 
-	String^ h = d->rp->Headers->Get(Utf8_PtrToString(header_name));
-
-	if (h)
+	if (nullptr != (Object^)d->rp)
 	{
-		return d->ctx->utf8_chain(h, d->chain);
+		String^ h = d->rp->Headers->Get(Utf8_PtrToString(header_name));
+
+		if (h)
+			return d->ctx->utf8_chain(h, d->chain);
 	}
 
 	return nullptr;
@@ -201,8 +203,15 @@ size_t my_network_read_range(
 	if (error_string_max_size > 0 && out_error_string)
 		out_error_string[0] = '\0';
 
-	delete d->rp;
+	if ((Object^)d->rp != nullptr)
+	{
+		if ((String^)d->etag == nullptr)
+			d->etag = d->rp->Headers->Get("ETag");
+
+		delete d->rp;
+	}
 	d->rp = nullptr;
+
 
 	WebRequest^ rq = WebRequest::Create(d->url);
 	HttpWebRequest^ hrq = dynamic_cast<HttpWebRequest^>(rq);
@@ -213,6 +222,9 @@ size_t my_network_read_range(
 	}
 	else
 		rq->Headers->Add(String::Format("Range: bytes={0}-{1}", offset, offset + size_to_read - 1));
+
+	if ((String^)d->etag != nullptr)
+		rq->Headers->Add("If-Match: " + d->etag);
 
 	WebResponse^ rp;
 	bool in_error = true;
@@ -274,6 +286,7 @@ size_t my_network_read_range(
 		else
 		{
 			strncpy_s(out_error_string, error_string_max_size, "Read error", error_string_max_size);
+			delete rp;
 			return 0;
 		}
 	}
@@ -286,12 +299,14 @@ size_t my_network_read_range(
 	{
 		std::string msg = utf8_string(String::Format("Unexpected HTTP(s) result {0}: {1}", hrp->StatusCode, hrp->StatusDescription));
 		strncpy_s(out_error_string, error_string_max_size, msg.c_str(), error_string_max_size);
+		delete rp;
 		return 0;
 	}
 	else if (rp)
 	{
 		std::string msg = utf8_string(String::Format("Unexpected WebResponse {0}", rp->ToString()));
 		strncpy_s(out_error_string, error_string_max_size, msg.c_str(), error_string_max_size);
+		delete rp;
 		return 0;
 	}
 	else

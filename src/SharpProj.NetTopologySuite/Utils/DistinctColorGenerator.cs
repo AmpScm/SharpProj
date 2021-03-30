@@ -311,9 +311,9 @@ namespace SharpProj.Utils.Colors
         /// Gets <paramref name="count"/> colors that are as distinct as possible.
         /// </summary>
         /// <param name="count"></param>
-        /// <param name="bgColor"></param>
+        /// <param name="existingColors"></param>
         /// <returns></returns>
-        public static Color[] GetDistinctColors(int count, Color? bgColor)
+        public static Color[] GetDistinctColors(int count, IEnumerable<Color> existingColors)
         {
             if (count < 1 || count > DifferentColorCount)
                 throw new ArgumentOutOfRangeException();
@@ -333,10 +333,12 @@ namespace SharpProj.Utils.Colors
             {
                 foreach (var c in colors)
                 {
-                    if (bgColor.HasValue && ColorLab.ColorDifference(bgColor.Value, c, ColorLab.DefaultLightness, ColorLab.DefaultChroma*1.1) < treshold)
+                    if (existingColors?.Any(x => ColorLab.ColorDifference(x, c, ColorLab.DefaultLightness, ColorLab.DefaultChroma * 1.1) < treshold) ?? false)
                         continue;
-                    if (!results.Any(x => ColorLab.ColorDifference(x, c, ColorLab.DefaultLightness, ColorLab.DefaultChroma * 1.1) < treshold))
-                        results.Add(c);
+                    if (results.Any(x => ColorLab.ColorDifference(x, c, ColorLab.DefaultLightness, ColorLab.DefaultChroma * 1.1) < treshold))
+                        continue;
+
+                    results.Add(c);
                 }
 
                 if (results.Count < count)
@@ -355,6 +357,17 @@ namespace SharpProj.Utils.Colors
 
             int factor = Math.Min(5, results.Count);
             return Enumerable.Range(0, count).Select(x => results[GetInterleaved(x, factor, results.Count)]).ToArray();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="count"></param>
+        /// <param name="bgColor"></param>
+        /// <returns></returns>
+        public static Color[] GetDistinctColors(int count, Color bgColor)
+        {
+            return GetDistinctColors(count, new Color[] { bgColor });
         }
 
         internal static int GetInterleaved(int index, int factor, int count)
