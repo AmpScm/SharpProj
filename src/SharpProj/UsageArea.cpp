@@ -98,7 +98,7 @@ SharpProj::PPoint UsageArea::Center::get()
 	return PPoint((MinX + MaxX) / 2.0, (MinY + MaxY) / 2.0);
 }
 
-void UsageArea::EnsureMinMax()
+void UsageArea::CalculateBounds()
 {
 	if (m_hasMinMax)
 		return;
@@ -181,9 +181,9 @@ void UsageArea::EnsureMinMax()
 				if (test_lon > 180.0)
 					test_lon -= 360.0;
 
-				// Equator
+				// Equator or equivalent
 				x[steps * 0 + j] = test_lon;
-				y[steps * 0 + j] = 0;
+				y[steps * 0 + j] = (NorthLatitude + SouthLatitude) /2;
 
 				// 2 diagonal lines
 				x[steps * 1 + j] = test_lon;
@@ -220,28 +220,28 @@ void UsageArea::EnsureMinMax()
 
 double UsageArea::MinY::get()
 {
-	EnsureMinMax();
+	CalculateBounds();
 
 	return m_minY;
 }
 
 double UsageArea::MaxY::get()
 {
-	EnsureMinMax();
+	CalculateBounds();
 
 	return m_maxY;
 }
 
 double UsageArea::MinX::get()
 {
-	EnsureMinMax();
+	CalculateBounds();
 
 	return m_minX;
 }
 
 double UsageArea::MaxX::get()
 {
-	EnsureMinMax();
+	CalculateBounds();
 
 	return m_maxX;
 }

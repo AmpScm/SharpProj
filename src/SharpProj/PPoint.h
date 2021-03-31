@@ -6,7 +6,7 @@ namespace SharpProj {
 	/// .Net wrapper for proj coordinate, containing at most 4 ordinates conveniently called: X, Y, Z, T. (or V[0] upto V[3]).
 	/// What these coordinates mean (and if they are swapped, etc.) is all defined by their usage.
 	/// </summary>
-	public value class PPoint : IEquatable<PPoint>
+	public value class PPoint : IEquatable<PPoint>, IFormattable
 	{
 	public:
 		/// <summary>
@@ -248,8 +248,6 @@ namespace SharpProj {
 			return X.GetHashCode() ^ Y.GetHashCode() ^ Z.GetHashCode() ^ T.GetHashCode();
 		}
 
-		virtual System::String^ ToString() override sealed;
-
 		/// <summary>Alias for Z</summary>
 		[System::ComponentModel::BrowsableAttribute(false)]
 		property double M
@@ -362,6 +360,17 @@ namespace SharpProj {
 			int year = date.Year;
 			double daysInYear = DateTime::IsLeapYear(year) ? 366 : 365;
 			return WithT((double)year + (double)(date.DayOfYear - 1) / daysInYear);
+		}
+
+		virtual String^ ToString() override sealed
+		{
+			return ToString("G", System::Globalization::CultureInfo::CurrentCulture);
+		}
+		virtual String^ ToString(String^ format, IFormatProvider^ formatProvider) sealed;
+
+		String^ ToString(String^ format)
+		{
+			return ToString(format, System::Globalization::CultureInfo::CurrentCulture);
 		}
 	};
 }

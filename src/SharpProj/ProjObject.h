@@ -500,11 +500,35 @@ namespace SharpProj {
 			}
 
 		public:
+			/// <summary>
+			/// Gets the list of declared identifiers of this proj object. (Most commonly filled from the database or WKT)
+			/// </summary>
 			property Proj::IdentifierList^ Identifiers
 			{
 				Proj::IdentifierList^ get();
 			}
 
+			/// <summary>
+			/// Gets the first (primary) <see cref="Proj::Identifier" /> from the <see cref="Identifiers"/> list.
+			/// </summary>
+			property Proj::Identifier^ Identifier
+			{
+				Proj::Identifier^ get()
+				{
+					auto a = Identifiers;
+					if (a)
+						return a[0];
+					else
+						return nullptr;
+				}
+			}
+
+			/// <summary>
+			/// Checks if this Object is equivalent to the other proj object.
+			/// </summary>
+			/// <param name="other"></param>
+			/// <param name="ctx"></param>
+			/// <returns></returns>
 			bool IsEquivalentTo(ProjObject^ other, [Optional] ProjContext^ ctx)
 			{
 				if (!other || m_noProj || other->m_noProj)
@@ -516,6 +540,12 @@ namespace SharpProj {
 				return 0 != proj_is_equivalent_to_with_ctx(ctx, this, other, PJ_COMP_EQUIVALENT);
 			}
 
+			/// <summary>
+			/// Checks if this Object is equivalent to the other proj object with the axis in any order.
+			/// </summary>
+			/// <param name="other"></param>
+			/// <param name="ctx"></param>
+			/// <returns></returns>
 			bool IsEquivalentToRelaxed(ProjObject^ other, [Optional] ProjContext^ ctx)
 			{
 				if (!other || other->m_noProj)
@@ -528,10 +558,34 @@ namespace SharpProj {
 			}
 
 		public:
+			/// <summary>
+			/// Creates a proj object from its definition. Shortcut for <see cref="ProjContext::Create(String^)" />
+			/// </summary>
+			/// <param name="definition"></param>
+			/// <param name="ctx"></param>
+			/// <returns></returns>
 			static ProjObject^ Create(String^ definition, [Optional]ProjContext^ ctx);
+			/// <summary>
+			/// Creates a proj object from its definition. Shortcut for <see cref="ProjContext"/>.Create" />
+			/// </summary>
+			/// <param name="from"></param>
+			/// <param name="ctx"></param>
+			/// <returns></returns>
 			static ProjObject^ Create(array<String^>^ from, [Optional]ProjContext^ ctx);
 
+			/// <summary>
+			/// Creates a proj object from its definition. Shortcut for <see cref="ProjContext"/>.CreateFromWellKnownText" />
+			/// </summary>
+			/// <param name="from"></param>
+			/// <param name="ctx"></param>
+			/// <returns></returns>
 			static ProjObject^ CreateFromWellKnownText(String^ from, [Optional] ProjContext^ ctx);
+			/// <summary>
+			/// Creates a proj object from its definition. Shortcut for <see cref="ProjContext"/>.CreateFromWellKnownText" />
+			/// </summary>
+			/// <param name="from"></param>
+			/// <param name="ctx"></param>
+			/// <returns></returns>
 			static ProjObject^ CreateFromWellKnownText(String^ from, [Out] array<String^>^% warnings, [Optional] ProjContext^ ctx);
 
 		private protected:

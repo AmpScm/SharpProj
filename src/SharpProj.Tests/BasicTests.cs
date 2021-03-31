@@ -594,9 +594,6 @@ namespace SharpProj.Tests
                         Assert.IsNotNull(p.Authority);
                         Assert.IsNotNull(p.Code);
                         Console.WriteLine($"{p.Authority}:{p.Code} ({p.Type}) / {p.ProjectionName} {c.Name}");
-
-                        if (!c.DistanceTransform?.IsAvailable ?? false)
-                            Console.WriteLine($"GeoTransform not available for: {c.AsWellKnownText()}");
                     }
                 }
             }

@@ -44,7 +44,7 @@ namespace SharpProj {
 
 		private:
 			CoordinateTransform^ GetLatLonConvert();
-			void EnsureMinMax();
+			void CalculateBounds();
 
 		public:
 			virtual String^ ToString() override

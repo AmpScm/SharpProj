@@ -161,7 +161,15 @@ namespace SharpProj.CrsExplorer
                 using (var ct = CoordinateTransform.Create(crs.GeodeticCRS.WithAxisNormalized(), crs))
                 {
                     _crs = crs;
-                    Draw.AddRange(want.Select(x => x.Geometry).Select(x => x.Reproject(ct, GeometryFactory.Default)));
+                    foreach (var countryGeo in want.Select(x => x.Geometry))
+                    {
+                        try
+                        {
+                            Draw.Add(countryGeo.Reproject(ct, GeometryFactory.Default));
+                        }
+                        catch (NtsProjException)
+                        { }
+                    }
 
                     if (Draw.Count <= 1)
                         this.Colors = new Color[] { Color.FromArgb(255, 32, 180, 32) };
@@ -242,7 +250,7 @@ namespace SharpProj.CrsExplorer
             }
         }
 
-        private void CreateLongitudeLine(CoordinateTransform ct, Proj.UsageArea ua, double lon)
+        private void CreateLongitudeLine(CoordinateTransform ct, Proj.LatitudeLongitudeArea ua, double lon)
         {
             var c = new List<Coordinate>();
 
@@ -252,21 +260,34 @@ namespace SharpProj.CrsExplorer
             var north = Math.Min(90, ua.NorthLatitude - d * 5);
             var south = Math.Max(-90, ua.SouthLatitude + d * 5);
 
-            d = (south - north) / xPoints;
+            for (int n = 0; n < 2; n++)
+            {
+                d = (south - north) / xPoints;
 
-            for (int i = 0; i <= xPoints; i++)
-            {
-                c.Add(new Coordinate(lon, north + d * i));
+                for (int i = 0; i <= xPoints; i++)
+                {
+                    c.Add(new Coordinate(lon, north + d * i));
+                }
+                try
+                {
+                    Lines.Add(new LineString(c.ToArray()).Reproject(ct, GeometryFactory.Default));
+                }
+                catch (SharpProj.NtsProjException)
+                {
+                    // Retry with north, south in the boundaries
+                    c.Clear();
+                    north = ua.NorthLatitude + 0.1 * d;
+                    south = ua.SouthLatitude - 0.1 * d;
+                    continue;
+                }
+                catch (ProjException)
+                { }
+
+                break;
             }
-            try
-            {
-                Lines.Add(new LineString(c.ToArray()).Reproject(ct, GeometryFactory.Default));
-            }
-            catch (ProjException)
-            { }
         }
 
-        private void CreateLatitudeLine(CoordinateTransform ct, Proj.ILatitudeLongitudeArea ua, double lat)
+        private void CreateLatitudeLine(CoordinateTransform ct, Proj.LatitudeLongitudeArea ua, double lat)
         {
             var c = new List<Coordinate>();
 
@@ -274,21 +295,33 @@ namespace SharpProj.CrsExplorer
             {
                 int xPoints = 50;
                 var d = (el - wl) / xPoints;
+
                 var west = Math.Max(-180, wl - d * 5);
                 var east = Math.Min(180, el + d * 5);
 
-                d = (east - west) / xPoints;
+                for (int n = 0; n < 2; n++)
+                {
+                    d = (east - west) / xPoints;
 
-                for (int i = 0; i <= xPoints; i++)
-                {
-                    c.Add(new Coordinate(west + d * i, lat));
+                    for (int i = 0; i <= xPoints; i++)
+                    {
+                        c.Add(new Coordinate(west + d * i, lat));
+                    }
+                    try
+                    {
+                        Lines.Add(new LineString(c.ToArray()).Reproject(ct, GeometryFactory.Default));
+                    }
+                    catch (NtsProjException)
+                    {
+                        c.Clear();
+                        west = wl + 0.1 * d;
+                        east = el - 0.1 * d;
+                        continue;
+                    }
+                    catch (ProjException)
+                    { }
+                    break;
                 }
-                try
-                {
-                    Lines.Add(new LineString(c.ToArray()).Reproject(ct, GeometryFactory.Default));
-                }
-                catch (ProjException)
-                { }
             }
         }
 
