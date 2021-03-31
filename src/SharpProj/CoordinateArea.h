@@ -1,15 +1,15 @@
 #pragma once
-#include "LatititudeLongitudeArea.h"
+#include "ProjArea.h"
 namespace SharpProj {
 
-	public ref class CoordinateArea : LatitudeLongitudeArea
+	public ref class CoordinateArea : ProjArea
 	{
 	public:
 		CoordinateArea()
 		{}
 
 		CoordinateArea(double westLongitude, double southLatitude, double eastLongitude, double northLatitude)
-			: LatitudeLongitudeArea(westLongitude, southLatitude, eastLongitude, northLatitude)
+			: ProjArea(westLongitude, southLatitude, eastLongitude, northLatitude)
 		{
 		}
 
@@ -18,53 +18,53 @@ namespace SharpProj {
 		{
 			virtual double get() override
 			{
-				return LatitudeLongitudeArea::WestLongitude;
+				return ProjArea::WestLongitude;
 			}
 		public:
 			void set(double value) new
 			{
-				LatitudeLongitudeArea::WestLongitude = value;
+				ProjArea::WestLongitude = value;
 			}
 		}
 		virtual property double SouthLatitude
 		{
 			virtual double get() override
 			{
-				return LatitudeLongitudeArea::SouthLatitude;
+				return ProjArea::SouthLatitude;
 			}
 		public:
 			void set(double value) new
 			{
-				LatitudeLongitudeArea::SouthLatitude = value;
+				ProjArea::SouthLatitude = value;
 			}
 		}
 		virtual property double EastLongitude
 		{
 			virtual double get() override
 			{
-				return LatitudeLongitudeArea::EastLongitude;
+				return ProjArea::EastLongitude;
 			}
 		public:
 			void set(double value) new
 			{
-				LatitudeLongitudeArea::EastLongitude = value;
+				ProjArea::EastLongitude = value;
 			}
 		}
 		virtual property double NorthLatitude
 		{
 			virtual double get() override
 			{
-				return LatitudeLongitudeArea::NorthLatitude;
+				return ProjArea::NorthLatitude;
 			}
 		public:
 			void set(double value) new
 			{
-				LatitudeLongitudeArea::NorthLatitude = value;
+				ProjArea::NorthLatitude = value;
 			}
 		}
 
 	public:
-		static operator CoordinateArea^ (ILatitudeLongitudeArea^ area)
+		static operator CoordinateArea^ (IProjArea^ area)
 		{
 			if (!area)
 				return nullptr;

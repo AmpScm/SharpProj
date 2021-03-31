@@ -81,7 +81,7 @@
     <ClInclude Include="GridUsage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LatititudeLongitudeArea.h">
+    <ClInclude Include="ProjArea.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CoordinateReferenceSystemInfo.h">

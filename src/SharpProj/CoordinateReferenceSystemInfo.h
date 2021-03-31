@@ -42,7 +42,7 @@ namespace SharpProj {
 			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly String^ _projectionName;
 			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
-			initonly LatitudeLongitudeArea^ _bbox;
+			initonly ProjArea^ _bbox;
 
 		internal:
 			CoordinateReferenceSystemInfo(const PROJ_CRS_INFO* info, ProjContext^ ctx)
@@ -56,7 +56,7 @@ namespace SharpProj {
 				_areaName = Utf8_PtrToString(info->area_name);
 				_projectionName = Utf8_PtrToString(info->projection_method_name);
 				if (info->bbox_valid)
-					_bbox = gcnew LatitudeLongitudeArea(info->west_lon_degree, info->south_lat_degree, info->east_lon_degree, info->north_lat_degree);
+					_bbox = gcnew ProjArea(info->west_lon_degree, info->south_lat_degree, info->east_lon_degree, info->north_lat_degree);
 			}
 
 		public:
@@ -123,9 +123,9 @@ namespace SharpProj {
 				}
 			}
 
-			property LatitudeLongitudeArea^ BoundingBox
+			property ProjArea^ BoundingBox
 			{
-				virtual LatitudeLongitudeArea^ get() sealed
+				virtual ProjArea^ get() sealed
 				{
 					return _bbox;
 				}

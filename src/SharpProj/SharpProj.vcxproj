@@ -167,7 +167,7 @@
     <ClInclude Include="ChooseCoordinateTransform.h" />
     <ClInclude Include="CoordinateSystem.h" />
     <ClInclude Include="GridUsage.h" />
-    <ClInclude Include="LatititudeLongitudeArea.h" />
+    <ClInclude Include="ProjArea.h" />
     <ClInclude Include="PPoint.h" />
     <ClInclude Include="DatumList.h" />
     <ClInclude Include="Ellipsoid.h" />

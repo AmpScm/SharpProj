@@ -858,5 +858,56 @@ namespace SharpProj.Tests
 
             return true;
         }
+
+        [TestMethod]
+        public void GnomoricBounds()
+        {
+            foreach (int esri in new[] { 102034, 102036 })
+            {
+                using (var crs = CoordinateReferenceSystem.CreateFromDatabase("ESRI", esri).WithAxisNormalized())
+                {
+                    var ua = crs.UsageArea;
+                    var dt = crs.DistanceTransform;
+
+                    List<PPoint> points = new List<PPoint>();
+
+                    for (double x = ua.WestLongitude; x <= ua.EastLongitude; x+=1)
+                    {
+                        for (double y = Math.Min(ua.SouthLatitude, ua.NorthLatitude); y <= Math.Max(ua.SouthLatitude, ua.NorthLatitude); y+=1)
+                        {
+                            points.Add(new PPoint(x, y));
+                        }
+                    }
+
+                    List<PPoint> pTransformed = new List<PPoint>(points.Select(x => dt.ApplyReversed(x)));
+
+                    double xMin = pTransformed.Where(x => x.HasValues).Min(x => x.X);
+                    double xMax = pTransformed.Where(x => x.HasValues).Max(x => x.X);
+                    double yMin = pTransformed.Where(x => x.HasValues).Min(x => x.Y);
+                    double yMax = pTransformed.Where(x => x.HasValues).Max(x => x.Y);
+
+                    int nXMin = pTransformed.IndexOf(pTransformed.FirstOrDefault(x => x.X == xMin));
+                    int nXMax = pTransformed.IndexOf(pTransformed.FirstOrDefault(x => x.X == xMax));
+                    int nYMin = pTransformed.IndexOf(pTransformed.FirstOrDefault(x => x.Y == yMin));
+                    int nYMax = pTransformed.IndexOf(pTransformed.FirstOrDefault(x => x.Y == yMax));
+
+                    Console.WriteLine($"xMin: {xMin} at {points[nXMin]} -> {pTransformed[nXMin]}");
+                    Console.WriteLine($"xMax: {xMax} at {points[nXMax]} -> {pTransformed[nXMax]}");
+                    Console.WriteLine($"yMin: {yMin} at {points[nYMin]} -> {pTransformed[nYMin]}");
+                    Console.WriteLine($"yMax: {yMax} at {points[nYMax]} -> {pTransformed[nYMax]}");
+
+                    ProjRange usageRange = new ProjRange(crs.UsageArea);
+                    ProjRange range = new ProjRange(xMin, yMin, xMax, yMax);
+
+                    //Assert.AreEqual(usageRange, range);
+                    //
+                    //Assert.AreEqual(ua.MinX, xMin, $"XMin out of bounds for {points[pTransformed.IndexOf(pTransformed.FirstOrDefault(x => x.X == xMin))]}");
+                    //Assert.AreEqual(ua.MaxX, xMax, $"XMax out of bounds for {points[pTransformed.IndexOf(pTransformed.FirstOrDefault(x => x.X == xMax))]}");
+                    //Assert.AreEqual(ua.MinY, yMin, $"YMin out of bounds for {points[pTransformed.IndexOf(pTransformed.FirstOrDefault(x => x.X == yMin))]}");
+                    //Assert.AreEqual(ua.MaxY, yMax, $"YMax out of bounds for {points[pTransformed.IndexOf(pTransformed.FirstOrDefault(x => x.X == yMax))]}");
+                }
+                Console.WriteLine("---");
+            }
+        }
     }
 }

@@ -118,12 +118,14 @@ void UsageArea::CalculateBounds()
 		auto x = gcnew array<double>(steps * 4);
 		auto y = gcnew array<double>(steps * 4);
 
-		double east_step;
+		double east_step, north_step;
 
 		if (EastLongitude >= WestLongitude)
 			east_step = (EastLongitude - WestLongitude) / (steps - 1);
 		else
 			east_step = (EastLongitude + 360.0 - WestLongitude) / (steps - 1);
+
+		north_step = (NorthLatitude - SouthLatitude) / (steps - 1);
 
 		for (int j = 0; j < steps; j++)
 		{
@@ -137,10 +139,48 @@ void UsageArea::CalculateBounds()
 			x[steps * 1 + j] = test_lon;
 			y[steps * 1 + j] = NorthLatitude;
 			x[steps * 2 + j] = WestLongitude;
-			y[steps * 2 + j] = SouthLatitude + j * (NorthLatitude - SouthLatitude) / (steps -1);
+			y[steps * 2 + j] = SouthLatitude + j * north_step;
 			x[steps * 3 + j] = EastLongitude;
-			y[steps * 3 + j] = SouthLatitude + j * (NorthLatitude - SouthLatitude) / (steps - 1);
+			y[steps * 3 + j] = SouthLatitude + j * north_step;
 		}
+
+		if (WestLongitude == -180 && EastLongitude == 180)
+		{
+			// We project the entire world west->east
+			// And we have some duplicated points
+#ifdef _DEBUG
+			const int dup0 = steps * 2 + 0;
+			const int dupA = steps * 0 + 0;
+			const int dup1 = steps * 2 + steps-1;
+			const int dupB = steps * 1 + 0;
+			const int dup2 = steps * 3 + 0;
+			const int dupC = steps * 0 + steps - 1;
+			const int dup3 = steps * 3 + steps - 1;
+			const int dupD = steps * 1 + steps - 1;
+
+
+			if (x[dup0] != x[dupA] || y[dup0] != y[dupA] || dup0 == dupA)
+				throw gcnew InvalidOperationException("P1");
+			if (x[dup1] != x[dupB] || y[dup1] != y[dupB] || dup1 == dupB)
+				throw gcnew InvalidOperationException("P2");
+			if (x[dup2] != x[dupC] || y[dup2] != y[dupC] || dup2 == dupC)
+				throw gcnew InvalidOperationException("P3");
+			if (x[dup3] != x[dupD] || y[dup3] != y[dupD] || dup3 == dupD)
+				throw gcnew InvalidOperationException("P4");
+#endif
+
+			double miniStep = Math::Min(east_step, north_step) / 2;
+
+			x[dup0] = WestLongitude + miniStep;
+			y[dup0] = NorthLatitude - miniStep;
+			x[dup1] = EastLongitude - miniStep;
+			y[dup1] = NorthLatitude - miniStep;
+			x[dup2] = WestLongitude + miniStep;
+			y[dup2] = SouthLatitude + miniStep;
+			x[dup3] = EastLongitude - miniStep;
+			y[dup3] = SouthLatitude + miniStep;
+		}
+
 		{
 			pin_ptr<double> px = &x[0];
 			pin_ptr<double> py = &y[0];
@@ -154,6 +194,8 @@ void UsageArea::CalculateBounds()
 		m_minY = Double::PositiveInfinity;
 		m_maxX = Double::NegativeInfinity;
 		m_maxY = Double::NegativeInfinity;
+
+		int nNoResult = 0;
 		for (int j = 0; j < 21 * 4; j++)
 		{
 			if (!double::IsInfinity(x[j]) && !double::IsInfinity(y[j]))
@@ -163,6 +205,8 @@ void UsageArea::CalculateBounds()
 				m_maxX = Math::Max(m_maxX, x[j]);
 				m_maxY = Math::Max(m_maxY, y[j]);
 			}
+			else
+				nNoResult++;
 		}
 
 
@@ -183,17 +227,17 @@ void UsageArea::CalculateBounds()
 
 				// Equator or equivalent
 				x[steps * 0 + j] = test_lon;
-				y[steps * 0 + j] = (NorthLatitude + SouthLatitude) /2;
+				y[steps * 0 + j] = (NorthLatitude + SouthLatitude) / 2;
 
 				// 2 diagonal lines
 				x[steps * 1 + j] = test_lon;
-				y[steps * 1 + j] = SouthLatitude + j * (NorthLatitude - SouthLatitude) / (steps -1);
+				y[steps * 1 + j] = SouthLatitude + j * (NorthLatitude - SouthLatitude) / (steps - 1);
 				x[steps * 2 + j] = test_lon;
-				y[steps * 2 + j] = NorthLatitude - j * (NorthLatitude - SouthLatitude) / (steps -1);
+				y[steps * 2 + j] = NorthLatitude - j * (NorthLatitude - SouthLatitude) / (steps - 1);
 
-				// Greenwich (longitude 0) line
+				// Prime meridian
 				x[steps * 3 + j] = 0;
-				y[steps * 3 + j] = SouthLatitude + j * (NorthLatitude - SouthLatitude) / (steps -1);
+				y[steps * 3 + j] = SouthLatitude + j * (NorthLatitude - SouthLatitude) / (steps - 1);
 			}
 			{
 				pin_ptr<double> px = &x[0];

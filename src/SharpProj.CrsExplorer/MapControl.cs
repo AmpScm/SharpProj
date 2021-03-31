@@ -15,6 +15,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using NetTopologySuite.Geometries;
+using SharpProj.Proj;
 
 namespace SharpProj.CrsExplorer
 {
@@ -250,7 +251,7 @@ namespace SharpProj.CrsExplorer
             }
         }
 
-        private void CreateLongitudeLine(CoordinateTransform ct, Proj.LatitudeLongitudeArea ua, double lon)
+        private void CreateLongitudeLine(CoordinateTransform ct, ProjArea ua, double lon)
         {
             var c = new List<Coordinate>();
 
@@ -287,7 +288,7 @@ namespace SharpProj.CrsExplorer
             }
         }
 
-        private void CreateLatitudeLine(CoordinateTransform ct, Proj.LatitudeLongitudeArea ua, double lat)
+        private void CreateLatitudeLine(CoordinateTransform ct, ProjArea ua, double lat)
         {
             var c = new List<Coordinate>();
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "LatititudeLongitudeArea.h"
+#include "ProjArea.h"
 namespace SharpProj {
 	value class PPoint;
 
@@ -8,7 +8,7 @@ namespace SharpProj {
 	namespace Proj {
 
 		[DebuggerDisplay("{Name,nq}")]
-		public ref class UsageArea : LatitudeLongitudeArea
+		public ref class UsageArea : ProjArea, IProjRange
 		{
 		private:
 			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
@@ -35,10 +35,10 @@ namespace SharpProj {
 			UsageArea(ProjObject^ ob, double westLongitude, double southLatitude, double eastLongitude, double northLatitude, String^ name)
 			{
 				m_obj = ob;
-				LatitudeLongitudeArea::WestLongitude = westLongitude <= -1000 ? double::NaN : westLongitude;
-				LatitudeLongitudeArea::SouthLatitude = southLatitude <= -1000 ? double::NaN : southLatitude;
-				LatitudeLongitudeArea::EastLongitude = eastLongitude <= -1000 ? double::NaN : eastLongitude;
-				LatitudeLongitudeArea::NorthLatitude = northLatitude <= -1000 ? double::NaN : northLatitude;
+				ProjArea::WestLongitude = westLongitude <= -1000 ? double::NaN : westLongitude;
+				ProjArea::SouthLatitude = southLatitude <= -1000 ? double::NaN : southLatitude;
+				ProjArea::EastLongitude = eastLongitude <= -1000 ? double::NaN : eastLongitude;
+				ProjArea::NorthLatitude = northLatitude <= -1000 ? double::NaN : northLatitude;
 				m_name = name;
 			}
 
@@ -106,22 +106,22 @@ namespace SharpProj {
 
 			property double MinX
 			{
-				double get();
+				virtual double get();
 			}
 
 			property double MinY
 			{
-				double get();
+				virtual double get();
 			}
 
 			property double MaxX
 			{
-				double get();
+				virtual double get();
 			}
 
 			property double MaxY
 			{
-				double get();
+				virtual double get();
 			}
 
 			property double CenterX
