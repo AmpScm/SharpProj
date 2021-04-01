@@ -1,6 +1,6 @@
-# SharpProj - Wrapping the reall PROJ (previously known as PROJ4) for .Net
+# SharpProj - Wrapping the real PROJ (previously known as PROJ4) for .Net
 
-Use the real OSGeo PROJ implementation,implemented the .Net way, reusable and available as simple to use package on NuGet
+Use the real OSGeo PROJ implementation, implemented the .Net way, reusable and available as simple to use package on NuGet
 
 https://www.nuget.org/packages/SharpProj/
 
