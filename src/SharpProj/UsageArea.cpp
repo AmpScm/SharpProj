@@ -147,11 +147,10 @@ void UsageArea::CalculateBounds()
 		if (WestLongitude == -180 && EastLongitude == 180)
 		{
 			// We project the entire world west->east
-			// And we have some duplicated points
-#ifdef _DEBUG
+			// And we have some duplicated corner points. Let's use these to avoid infinite results in a few cases
 			const int dup0 = steps * 2 + 0;
 			const int dupA = steps * 0 + 0;
-			const int dup1 = steps * 2 + steps-1;
+			const int dup1 = steps * 2 + steps - 1;
 			const int dupB = steps * 1 + 0;
 			const int dup2 = steps * 3 + 0;
 			const int dupC = steps * 0 + steps - 1;
@@ -159,6 +158,7 @@ void UsageArea::CalculateBounds()
 			const int dupD = steps * 1 + steps - 1;
 
 
+#ifdef _DEBUG
 			if (x[dup0] != x[dupA] || y[dup0] != y[dupA] || dup0 == dupA)
 				throw gcnew InvalidOperationException("P1");
 			if (x[dup1] != x[dupB] || y[dup1] != y[dupB] || dup1 == dupB)
@@ -169,16 +169,27 @@ void UsageArea::CalculateBounds()
 				throw gcnew InvalidOperationException("P4");
 #endif
 
-			double miniStep = Math::Min(east_step, north_step) / 2;
+			double smallStep = Math::Min(east_step, north_step);
 
-			x[dup0] = WestLongitude + miniStep;
-			y[dup0] = NorthLatitude - miniStep;
-			x[dup1] = EastLongitude - miniStep;
-			y[dup1] = NorthLatitude - miniStep;
-			x[dup2] = WestLongitude + miniStep;
-			y[dup2] = SouthLatitude + miniStep;
-			x[dup3] = EastLongitude - miniStep;
-			y[dup3] = SouthLatitude + miniStep;
+			// Note: We don't correct for overflow at 180/-180 degrees as the
+			// bounds are constant in this block.
+
+			x[dup0] = WestLongitude + smallStep;
+			y[dup0] = NorthLatitude - smallStep;
+			x[dup1] = EastLongitude - smallStep;
+			y[dup1] = NorthLatitude - smallStep;
+			x[dup2] = WestLongitude + smallStep;
+			y[dup2] = SouthLatitude + smallStep;
+			x[dup3] = EastLongitude - smallStep;
+			y[dup3] = SouthLatitude + smallStep;
+
+			// And replace the one after south and north center points with a point slightly
+			// off the center point to also avoid asymptots here
+			x[steps * 0 + (steps / 2) + 1] = x[steps * 0 + (steps / 2)];
+			y[steps * 0 + (steps / 2) + 1] = y[steps * 0 + (steps / 2)] + smallStep;
+
+			x[steps * 1 + (steps / 2) + 1] = x[steps * 1 + (steps / 2)];
+			y[steps * 1 + (steps / 2) + 1] = y[steps * 1 + (steps / 2)] - smallStep;
 		}
 
 		{
@@ -195,8 +206,7 @@ void UsageArea::CalculateBounds()
 		m_maxX = Double::NegativeInfinity;
 		m_maxY = Double::NegativeInfinity;
 
-		int nNoResult = 0;
-		for (int j = 0; j < 21 * 4; j++)
+		for (int j = 0; j < x->Length; j++)
 		{
 			if (!double::IsInfinity(x[j]) && !double::IsInfinity(y[j]))
 			{
@@ -204,59 +214,6 @@ void UsageArea::CalculateBounds()
 				m_minY = Math::Min(m_minY, y[j]);
 				m_maxX = Math::Max(m_maxX, x[j]);
 				m_maxY = Math::Max(m_maxY, y[j]);
-			}
-			else
-				nNoResult++;
-		}
-
-
-		if (WestLongitude == -180 && EastLongitude == 180)
-		{
-			// We project the entire world east to west. Ugly corner cases ahead.
-			// Some projections have the boundaries on the inside, so the previous calculations fail.
-			// Eg. ESRI:54026 "World_Stereographic" does bad things without this.
-
-			// Similar things happen when we are handling the poles. E.g. in ESRI:102036 "South_Pole_Gnomonic"
-
-			for (int j = 0; j < steps; j++)
-			{
-				double test_lon = WestLongitude + j * east_step;
-
-				if (test_lon > 180.0)
-					test_lon -= 360.0;
-
-				// Equator or equivalent
-				x[steps * 0 + j] = test_lon;
-				y[steps * 0 + j] = (NorthLatitude + SouthLatitude) / 2;
-
-				// 2 diagonal lines
-				x[steps * 1 + j] = test_lon;
-				y[steps * 1 + j] = SouthLatitude + j * (NorthLatitude - SouthLatitude) / (steps - 1);
-				x[steps * 2 + j] = test_lon;
-				y[steps * 2 + j] = NorthLatitude - j * (NorthLatitude - SouthLatitude) / (steps - 1);
-
-				// Prime meridian
-				x[steps * 3 + j] = 0;
-				y[steps * 3 + j] = SouthLatitude + j * (NorthLatitude - SouthLatitude) / (steps - 1);
-			}
-			{
-				pin_ptr<double> px = &x[0];
-				pin_ptr<double> py = &y[0];
-				llc->ApplyReversed(
-					px, 1, x->Length,
-					py, 1, y->Length,
-					nullptr, 0, 0,
-					nullptr, 0, 0);
-			}
-			for (int j = 0; j < 21 * 4; j++)
-			{
-				if (!double::IsInfinity(x[j]) && !double::IsInfinity(y[j]))
-				{
-					m_minX = Math::Min(m_minX, x[j]);
-					m_minY = Math::Min(m_minY, y[j]);
-					m_maxX = Math::Max(m_maxX, x[j]);
-					m_maxY = Math::Max(m_maxY, y[j]);
-				}
 			}
 		}
 	}
