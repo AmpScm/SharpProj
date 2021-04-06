@@ -3,8 +3,11 @@ namespace SharpProj {
 	ref class CoordinateTransform;
 	namespace Proj {
 		using System::Collections::Generic::IEnumerable;
+		using System::Collections::Generic::IEnumerator;
 		using System::Collections::Generic::IReadOnlyList;
+		using System::Collections::Generic::IReadOnlyDictionary;
 		using System::Collections::Generic::Dictionary;
+		using System::Collections::Generic::KeyValuePair;
 		using System::Collections::Generic::List;
 		using System::Diagnostics::DebuggerBrowsableAttribute;
 		using System::Diagnostics::DebuggerBrowsableState;
@@ -228,6 +231,8 @@ namespace SharpProj {
 			initonly ProjOperationType m_type;
 			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			initonly sproj_init_func m_constructor;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
+			IReadOnlyList<String^>^ m_rqArgs;
 
 		internal:
 			ProjOperationDefinition(ProjOperationType type, String^ name, String^ title, String^ details, sproj_init_func constructor)
@@ -273,7 +278,13 @@ namespace SharpProj {
 			}
 
 		public:
-			ref class ProjOperationDefinitionCollection : ReadOnlyCollection< ProjOperationDefinition^>
+			property IReadOnlyList<String^>^ RequiredArguments
+			{
+				IReadOnlyList<String^>^ get();
+			}
+
+		public:
+			ref class ProjOperationDefinitionCollection sealed : ReadOnlyCollection<ProjOperationDefinition^>
 			{
 			private:
 				initonly Dictionary<String^, ProjOperationDefinition^>^ _dict;
@@ -287,32 +298,47 @@ namespace SharpProj {
 					: ReadOnlyCollection< ProjOperationDefinition^>(list)
 				{
 					_dict = System::Linq::Enumerable::ToDictionary(list,
-						gcnew System::Func< ProjOperationDefinition^, String^>(&Get_Name),
+						gcnew System::Func<ProjOperationDefinition^, String^>(&ProjOperationDefinitionCollection::Get_Name),
 						System::StringComparer::OrdinalIgnoreCase);
 				}
 
 			public:
 				property ProjOperationDefinition^ default[String^]
 				{
-					ProjOperationDefinition ^ get(String ^ name)
+					virtual ProjOperationDefinition ^ get(String ^ name)
 					{
 						return _dict[name];
 					}
 				}
 
 			public:
-				bool TryGetValue(String^ name, [Out] ProjOperationDefinition^% value)
+				virtual bool TryGetValue(String^ name, [Out] ProjOperationDefinition^% value)
 				{
 					return _dict->TryGetValue(name, value);
 				}
+
+				// Inherited via IReadOnlyDictionary
+				property System::Collections::Generic::IEnumerable<System::String^>^ Keys
+				{
+					virtual System::Collections::Generic::IEnumerable<System::String^>^ get()
+					{
+						return _dict->Keys;
+					}
+				}
+
+				virtual bool ContainsKey(System::String^ key)
+				{
+					return _dict->ContainsKey(key);
+				}
 			};
 
-		public:
+		private:
 			static ProjOperationDefinitionCollection^ LoadFuncs();
 
 			static initonly Lazy<ProjOperationDefinitionCollection^>^ _fetchOperations
 				= gcnew Lazy<ProjOperationDefinitionCollection^>(gcnew Func<ProjOperationDefinitionCollection^>(&LoadFuncs));
 
+		public:
 			static property ProjOperationDefinitionCollection^ All
 			{
 				ProjOperationDefinitionCollection^ get()

@@ -27,6 +27,7 @@
     <RootNamespace>SharpProj</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <SharpSvnUpdateVersionResource>true</SharpSvnUpdateVersionResource>
+    <VCPKG_ROOT Condition="'$(VCPKG_ROOT)' == ''">..\..\..\vcpkg</VCPKG_ROOT>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -101,14 +102,14 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\vcpkg\installed\x86-windows-static-md\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VCPKG_ROOT)\installed\x86-windows-static-md\include</AdditionalIncludeDirectories>
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies />
-      <AdditionalLibraryDirectories>..\..\..\vcpkg\installed\x86-windows-static-md\lib;..\..\..\vcpkg\installed\x86-windows-static-md\debug\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(VCPKG_ROOT)\installed\x86-windows-static-md\debug\lib;$(VCPKG_ROOT)\installed\x86-windows-static-md\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -117,14 +118,14 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\vcpkg\installed\x64-windows-static-md\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VCPKG_ROOT)\installed\x64-windows-static-md\include</AdditionalIncludeDirectories>
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies />
-      <AdditionalLibraryDirectories>..\..\..\vcpkg\installed\x64-windows-static-md\lib;..\..\..\vcpkg\installed\x64-windows-static-md\debug\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(VCPKG_ROOT)\installed\x64-windows-static-md\debug\lib;$(VCPKG_ROOT)\installed\x64-windows-static-md\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -133,7 +134,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\vcpkg\installed\x86-windows-static-md\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VCPKG_ROOT)\installed\x86-windows-static-md\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
@@ -141,7 +142,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies />
-      <AdditionalLibraryDirectories>..\..\..\vcpkg\installed\x86-windows-static-md\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(VCPKG_ROOT)\installed\x86-windows-static-md\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -150,14 +151,14 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\vcpkg\installed\x64-windows-static-md\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VCPKG_ROOT)\installed\x64-windows-static-md\include</AdditionalIncludeDirectories>
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies />
-      <AdditionalLibraryDirectories>..\..\..\vcpkg\installed\x64-windows-static-md\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(VCPKG_ROOT)\installed\x64-windows-static-md\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -228,16 +229,16 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <_ProjResourceFile Include="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*">
+    <_ProjResourceFile Include="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\proj4\*">
       <Visible>false</Visible>
     </_ProjResourceFile>
-    <_ProjResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\proj.*" />
-    <_ProjResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\proj-*" />
-    <_ProjResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\proj4*" />
-    <_ProjResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\vcpkg*" />
-    <_ProjResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\copyright" />
-    <_ProjResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*.json" />
-    <_ProjResourceFile Remove="..\..\..\vcpkg\installed\x64-windows-static-md\share\proj4\*.lst" />
+    <_ProjResourceFile Remove="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\proj4\proj.*" />
+    <_ProjResourceFile Remove="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\proj4\proj-*" />
+    <_ProjResourceFile Remove="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\proj4\proj4*" />
+    <_ProjResourceFile Remove="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\proj4\vcpkg*" />
+    <_ProjResourceFile Remove="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\proj4\copyright" />
+    <_ProjResourceFile Remove="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\proj4\*.json" />
+    <_ProjResourceFile Remove="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\proj4\*.lst" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

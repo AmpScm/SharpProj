@@ -9,6 +9,10 @@ CoordinateTransform^ UsageArea::GetLatLonConvert()
 	if (!m_latLonTransform)
 	{
 		CoordinateReferenceSystem^ crs = dynamic_cast<CoordinateReferenceSystem^>(m_obj);
+		CoordinateTransform^ ct;
+
+		if (!crs && (ct = dynamic_cast<CoordinateTransform^>(m_obj)) && ct->SourceCRS)
+			crs = ct->SourceCRS;
 
 		if (crs && crs->Type != ProjType::VerticalCrs)
 		{
@@ -114,48 +118,50 @@ void UsageArea::CalculateBounds()
 
 	if (llc)
 	{
-		const int steps = 21;
-		auto x = gcnew array<double>(steps * 4);
-		auto y = gcnew array<double>(steps * 4);
+		const int n_steps = 20;
+		const int n_steps_p1 = n_steps + 1;
+
+		auto x = gcnew array<double>(n_steps_p1 * 4);
+		auto y = gcnew array<double>(n_steps_p1 * 4);
 
 		double east_step, north_step;
 
 		if (EastLongitude >= WestLongitude)
-			east_step = (EastLongitude - WestLongitude) / (steps - 1);
+			east_step = (EastLongitude - WestLongitude) / n_steps;
 		else
-			east_step = (EastLongitude + 360.0 - WestLongitude) / (steps - 1);
+			east_step = (EastLongitude + 360.0 - WestLongitude) / n_steps;
 
-		north_step = (NorthLatitude - SouthLatitude) / (steps - 1);
+		north_step = (NorthLatitude - SouthLatitude) / n_steps;
 
-		for (int j = 0; j < steps; j++)
+		for (int j = 0; j < n_steps_p1; j++)
 		{
 			double test_lon = WestLongitude + j * east_step;
 
 			if (test_lon > 180.0)
 				test_lon -= 360.0;
 
-			x[steps * 0 + j] = test_lon;
-			y[steps * 0 + j] = SouthLatitude;
-			x[steps * 1 + j] = test_lon;
-			y[steps * 1 + j] = NorthLatitude;
-			x[steps * 2 + j] = WestLongitude;
-			y[steps * 2 + j] = SouthLatitude + j * north_step;
-			x[steps * 3 + j] = EastLongitude;
-			y[steps * 3 + j] = SouthLatitude + j * north_step;
+			x[n_steps_p1 * 0 + j] = test_lon;
+			y[n_steps_p1 * 0 + j] = SouthLatitude;
+			x[n_steps_p1 * 1 + j] = test_lon;
+			y[n_steps_p1 * 1 + j] = NorthLatitude;
+			x[n_steps_p1 * 2 + j] = WestLongitude;
+			y[n_steps_p1 * 2 + j] = SouthLatitude + j * north_step;
+			x[n_steps_p1 * 3 + j] = EastLongitude;
+			y[n_steps_p1 * 3 + j] = SouthLatitude + j * north_step;
 		}
 
 		if (WestLongitude == -180 && EastLongitude == 180)
 		{
 			// We project the entire world west->east
 			// And we have some duplicated corner points. Let's use these to avoid infinite results in a few cases
-			const int dup0 = steps * 2 + 0;
-			const int dupA = steps * 0 + 0;
-			const int dup1 = steps * 2 + steps - 1;
-			const int dupB = steps * 1 + 0;
-			const int dup2 = steps * 3 + 0;
-			const int dupC = steps * 0 + steps - 1;
-			const int dup3 = steps * 3 + steps - 1;
-			const int dupD = steps * 1 + steps - 1;
+			const int dup0 = n_steps_p1 * 2 + 0;
+			const int dupA = n_steps_p1 * 0 + 0;
+			const int dup1 = n_steps_p1 * 2 + n_steps_p1 - 1;
+			const int dupB = n_steps_p1 * 1 + 0;
+			const int dup2 = n_steps_p1 * 3 + 0;
+			const int dupC = n_steps_p1 * 0 + n_steps_p1 - 1;
+			const int dup3 = n_steps_p1 * 3 + n_steps_p1 - 1;
+			const int dupD = n_steps_p1 * 1 + n_steps_p1 - 1;
 
 
 #ifdef _DEBUG
@@ -185,11 +191,11 @@ void UsageArea::CalculateBounds()
 
 			// And replace the one after south and north center points with a point slightly
 			// off the center point to also avoid asymptots here
-			x[steps * 0 + (steps / 2) + 1] = x[steps * 0 + (steps / 2)];
-			y[steps * 0 + (steps / 2) + 1] = y[steps * 0 + (steps / 2)] + smallStep;
+			x[n_steps_p1 * 0 + (n_steps_p1 / 2) + 1] = x[n_steps_p1 * 0 + (n_steps_p1 / 2)];
+			y[n_steps_p1 * 0 + (n_steps_p1 / 2) + 1] = y[n_steps_p1 * 0 + (n_steps_p1 / 2)] + smallStep;
 
-			x[steps * 1 + (steps / 2) + 1] = x[steps * 1 + (steps / 2)];
-			y[steps * 1 + (steps / 2) + 1] = y[steps * 1 + (steps / 2)] - smallStep;
+			x[n_steps_p1 * 1 + (n_steps_p1 / 2) + 1] = x[n_steps_p1 * 1 + (n_steps_p1 / 2)];
+			y[n_steps_p1 * 1 + (n_steps_p1 / 2) + 1] = y[n_steps_p1 * 1 + (n_steps_p1 / 2)] - smallStep;
 		}
 
 		{

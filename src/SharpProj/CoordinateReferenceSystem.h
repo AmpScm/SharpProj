@@ -48,8 +48,6 @@ namespace SharpProj {
 		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		CoordinateReferenceSystem^ m_demotedTo2D;
 		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
-		Proj::UsageArea^ m_usageArea;
-		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		int m_axis;
 		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		CoordinateReferenceSystem^ m_from;
@@ -141,25 +139,20 @@ namespace SharpProj {
 		{
 			virtual Proj::UsageArea^ get() override
 			{
-				Proj::UsageArea^ t = nullptr;
+				Proj::UsageArea^ t = __super::UsageArea;
 
-				if (!m_usageArea)
+				if (!t && m_from)
 				{
-					t = __super::UsageArea;
-
-					if (!t && m_from)
+					// Work around the issue that WithAxisNormalized() currently loses this information
+					double west, south, east, north;
+					const char* name;
+					if (proj_get_area_of_use(Context, m_from, &west, &south, &east, &north, &name))
 					{
-						double west, south, east, north;
-						const char* name;
-						if (proj_get_area_of_use(Context, m_from, &west, &south, &east, &north, &name) && west > -1000) // -1000 is unavailable
-						{
-							t = gcnew Proj::UsageArea(this, west, south, east, north, Utf8_PtrToString(name));
-						}
+						__super::UsageArea = t = gcnew Proj::UsageArea(this, west, south, east, north, Utf8_PtrToString(name));
 					}
-					m_usageArea = t;
 				}
 
-				return m_usageArea;
+				return t;
 			}
 		}
 

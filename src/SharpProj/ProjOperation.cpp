@@ -48,7 +48,7 @@ void ProjOperationList::Ensure()
 			*def++;
 		}
 
-		String^ v = Utf8_PtrToString(start, def - start);
+		String^ v = Utf8_PtrToString(start, (int)(def - start));
 
 		if (found_str)
 			v = v->Replace(L"\"\"", L"\uFFFD")->Replace(L"\"", L"")->Replace(L"\uFFFD", L"\"");
@@ -102,7 +102,7 @@ ProjOperationDefinition::ProjOperationDefinitionCollection^ ProjOperationDefinit
 
 		if (nl)
 		{
-			title = Utf8_PtrToString(desc, (ptrdiff_t)nl - (ptrdiff_t)desc);
+			title = Utf8_PtrToString(desc, (int)(nl - desc));
 
 			if (nl[1] == 0 || (nl[1] == '\t' && nl[2] == 0))
 			{
@@ -151,4 +151,66 @@ ProjOperationType ProjOperation::Type::get()
 			m_type = ProjOperationType::Unknown;
 	}
 	return m_type;
+}
+
+IReadOnlyList<String^>^ ProjOperationDefinition::RequiredArguments::get()
+{
+	if (!m_rqArgs)
+	{
+		auto dl = Details;
+
+		if (!String::IsNullOrEmpty(dl))
+		{
+			auto lines = dl->Split('\n', 3);
+
+			if (lines->Length >= 2)
+			{
+				auto info = lines[1]->Trim();
+
+				int n;
+				while (0 <= (n = info->IndexOf('[')))
+				{
+					int nn = info->IndexOf(']', n + 1);
+
+					if (nn >= 0)
+						info = info->Remove(n, nn - n+1);
+					else
+						break;
+				}
+
+				if (!String::IsNullOrWhiteSpace(info))
+				{
+					List<String^>^ args = gcnew List<String^>();
+
+					for each (auto w in info->Split(' '))
+					{
+						w = w->Trim();
+
+						int n = w->IndexOf('=');
+
+						if (n < 0)
+							continue;
+						
+						args->Add(w->Substring(0, n));
+					}
+
+					if (Name == "labrd") // Not encoded in info line :(
+					{
+						args->Add("lat_0");
+						args->Add("lon_0");
+					}
+
+					if (args->Count)
+						m_rqArgs = Array::AsReadOnly(args->ToArray());
+					else
+						m_rqArgs = Array::AsReadOnly(Array::Empty<String^>());
+				}				
+			}
+		}
+
+		if (!m_rqArgs)
+			m_rqArgs = Array::AsReadOnly(Array::Empty<String^>());
+	}
+
+	return m_rqArgs;
 }

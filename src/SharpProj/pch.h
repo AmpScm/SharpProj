@@ -63,7 +63,7 @@ inline static String^ Utf8_PtrToString(const char* pTxt)
 	if (!pTxt)
 		return nullptr;
 
-	return gcnew String(pTxt, 0, strlen(pTxt), System::Text::Encoding::UTF8);
+	return gcnew String(pTxt, 0, (int)strlen(pTxt), System::Text::Encoding::UTF8);
 }
 
 inline static String^ Utf8_PtrToString(const char* pTxt, int len)

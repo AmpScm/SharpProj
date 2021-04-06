@@ -40,13 +40,13 @@ namespace SharpProj {
 		}
 
 		ProjOperationException(String^ message)
-			: ProjException(message)
+			: ProjException(StripMessage(message))
 		{
 
 		}
 
 		ProjOperationException(String^ message, System::Exception^ innerException)
-			: ProjException(message, innerException)
+			: ProjException(StripMessage(message), innerException)
 		{
 
 		}
@@ -54,6 +54,46 @@ namespace SharpProj {
 	protected:
 		ProjOperationException(System::Runtime::Serialization::SerializationInfo^ info, System::Runtime::Serialization::StreamingContext context)
 			: ProjException(info, context)
+		{
+
+		}
+
+	private:
+		static String^ StripMessage(String^ s)
+		{
+			if (s)
+			{
+				s = s->Replace("Error 1027 (Invalid value for an argument): ", "")
+					->Replace("Error 1026 (Missing argument): ", "");
+			}
+			return s;
+		}
+	};
+
+	[Serializable]
+	public ref class ProjOperationArgumentException : ProjOperationException
+	{
+	public:
+		ProjOperationArgumentException()
+		{
+
+		}
+
+		ProjOperationArgumentException(String^ message)
+			: ProjOperationException(message)
+		{
+
+		}
+
+		ProjOperationArgumentException(String^ message, System::Exception^ innerException)
+			: ProjOperationException(message, innerException)
+		{
+
+		}
+
+	protected:
+		ProjOperationArgumentException(System::Runtime::Serialization::SerializationInfo^ info, System::Runtime::Serialization::StreamingContext context)
+			: ProjOperationException(info, context)
 		{
 
 		}

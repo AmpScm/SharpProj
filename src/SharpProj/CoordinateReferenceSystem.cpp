@@ -155,7 +155,7 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(array<String^>^ fro
 		std::string fromStr = utf8_string(from[i]);
 		lst[i] = _strdup(fromStr.c_str());
 	}
-	lst[from->Length] = 0;
+	lst[from->Length] = 0; // also used for 'type=crs'
 
 	try
 	{
@@ -166,8 +166,18 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(array<String^>^ fro
 
 		if (!proj_is_crs(pj))
 		{
+			lst[from->Length] = "type=crs";
 			proj_destroy(pj);
-			throw gcnew ProjException(String::Format("'{0}' doesn't describe a coordinate system", from));
+
+			pj = proj_create_argv(ctx, from->Length + 1, lst);
+
+			if (!pj || !proj_is_crs(pj))
+			{
+				if (pj)
+					proj_destroy(pj);
+
+				throw gcnew ProjException(String::Format("'{0}' doesn't describe a coordinate system", String::Join(" ", from)));
+			}
 		}
 
 		return ctx->Create<CoordinateReferenceSystem^>(pj);

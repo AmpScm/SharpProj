@@ -243,6 +243,8 @@ namespace SharpProj {
 			Proj::IdentifierList^ m_idList;
 			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			bool m_noProj;
+			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
+			Proj::UsageArea^ m_usageArea;
 
 		private:
 			~ProjObject();
@@ -406,14 +408,21 @@ namespace SharpProj {
 			{
 				virtual Proj::UsageArea^ get()
 				{
-					double west, south, east, north;
-					const char* name;
-					if (proj_get_area_of_use(Context, this, &west, &south, &east, &north, &name))
+					if (!m_usageArea)
 					{
-						return gcnew Proj::UsageArea(this, west, south, east, north, Utf8_PtrToString(name));
+						double west, south, east, north;
+						const char* name;
+						if (proj_get_area_of_use(Context, this, &west, &south, &east, &north, &name))
+						{
+							m_usageArea = gcnew Proj::UsageArea(this, west, south, east, north, Utf8_PtrToString(name));
+						}
 					}
-					else
-						return nullptr;
+					return m_usageArea;
+				}
+			internal:
+				void set(Proj::UsageArea^ value)
+				{
+					m_usageArea = value;
 				}
 			}
 

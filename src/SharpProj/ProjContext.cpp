@@ -34,7 +34,7 @@ const char* ProjContext::utf8_string(String^ value)
 const char* ProjContext::utf8_chain(String^ value, void*& chain)
 {
 	std::string v = ::utf8_string(value);
-	int slen = v.length() + 1;
+	size_t slen = v.length() + 1;
 	void** pp = (void**)malloc(slen + sizeof(void*));
 	pp[0] = chain;
 	chain = pp;
@@ -214,24 +214,18 @@ ProjException^ ProjContext::CreateException(int err, String^ message, System::Ex
 {
 	if (err >= PROJ_ERR_INVALID_OP && err < PROJ_ERR_COORD_TRANSFM)
 	{
-		if (inner)
-			return gcnew ProjOperationException(message, inner);
+		if (err == PROJ_ERR_INVALID_OP_MISSING_ARG || err == PROJ_ERR_INVALID_OP_ILLEGAL_ARG_VALUE)
+			return gcnew ProjOperationArgumentException(message, inner);
 		else
-			return gcnew ProjOperationException(message);
+			return gcnew ProjOperationException(message, inner);
 	}
 	else if (err >= PROJ_ERR_COORD_TRANSFM && err < PROJ_ERR_OTHER)
 	{
-		if (inner)
-			return gcnew ProjTransformException(message, inner);
-		else
-			return gcnew ProjTransformException(message);
+		return gcnew ProjTransformException(message, inner);
 	}
 	else
 	{
-		if (inner)
-			return gcnew ProjException(message, inner);
-		else
-			return gcnew ProjException(message);
+		return gcnew ProjException(message, inner);
 	}
 }
 
@@ -245,7 +239,7 @@ Exception^ ProjContext::ConstructException(String^ prefix)
 
 	String^ projMsg = Utf8_PtrToString(proj_context_errno_string(this, err));
 
-	if (msg && projMsg && projMsg->StartsWith("Unknown error (code "))
+	if (msg && projMsg && (msg->Contains(projMsg) || projMsg->StartsWith("Unknown error (code ")))
 	{
 		projMsg = msg;
 		msg = nullptr;
