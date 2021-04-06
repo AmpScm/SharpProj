@@ -26,10 +26,14 @@ jobs:
       with:
         vcpkgDirectory: '${{ github.workspace }}/vcpkg'
         vcpkgGitCommitId: 030cfaa24de9ea1bbf0a4d9c615ce7312ba77af1
-        vcpkgArguments: proj4:x64-windows-static-md proj4:x86-windows-static-md
+        vcpkgArguments: --overlay-ports=${{ github.workspace }}\SharpProj\vcpkg_ports proj4:x64-windows-static-md proj4:x86-windows-static-md
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1
+      
+    - name: Restore NuGet package (legacy style, vcxproj only)
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: nuget restore SharpProj\src\SharpProj\SharpProj.vcxproj -SolutionDirectory SharpProj\src
 
     - name: Build-x86
       working-directory: ${{env.GITHUB_WORKSPACE}}
