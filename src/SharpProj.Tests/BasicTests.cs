@@ -678,19 +678,20 @@ namespace SharpProj.Tests
         }
 
         [TestMethod]
+        [TestCategory("NeedsNetwork")]
         public void TestNewZealand_defmodel()
         {
             // New Zealand (EPSG:2105) uses a defmodel to correct specific parts at specific points in time (new in proj 7.1.0)
             using (ProjContext pc = new ProjContext() { EnableNetworkConnections = true, LogLevel = ProjLogLevel.Debug })
             {
                 pc.Log += (_, m) => Console.WriteLine(m);
-                using (var newZealand = CoordinateReferenceSystem.CreateFromEpsg(2105, pc))
+                using (var newZealandNorthIsland = CoordinateReferenceSystem.CreateFromEpsg(2105, pc))
                 using (var itrf2014 = CoordinateReferenceSystem.CreateFromEpsg(9000, pc))
                 {
-                    var centerPoint = newZealand.UsageArea.Center;
+                    var centerPoint = newZealandNorthIsland.UsageArea.Center;
 
 
-                    using (var t = CoordinateTransform.Create(newZealand, itrf2014))
+                    using (var t = CoordinateTransform.Create(newZealandNorthIsland, itrf2014))
                     {
                         Assert.IsNotNull(t.ProjOperations().SingleOrDefault(x => x.Name == "defmodel"), "New Zealand has defmodel step");
                         Assert.IsNotNull(t.ProjOperations().SingleOrDefault(x => x.Name == "helmert"), "New Zealand has helmert step");

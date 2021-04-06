@@ -10,6 +10,7 @@ namespace SharpProj.Tests
         static readonly PPoint StServaasMaastrichtWGS84 = new PPoint(50.84938, 5.687712);
 
         [TestMethod]
+        [TestCategory("NeedsNetwork")]
         public void HeightConversionNLBE()
         {
             using (ProjContext pc = new ProjContext() { EnableNetworkConnections = true })

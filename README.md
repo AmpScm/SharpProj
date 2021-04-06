@@ -10,13 +10,12 @@ Setup build environment using:
     mkdir dev
     cd dev
     git clone https://github.com/Microsoft/vcpkg.git
+    git clone https://github.com/AmpScm/SharpProj.git
     cd vcpkg
     bootstrap-vcpkg.bat
-    vcpkg install proj4:x86-windows-static-md
-    vcpkg install proj4:x64-windows-static-md
+    vcpkg install proj4:x86-windows-static-md proj4:x64-windows-static-md --overlay-ports=../SharpProj/vcpkg-ports
     cd ..
-    git clone https://github.com/AmpScm/SharpProj.git
+    
 
-
-There are still some issues in the vcpkg port of proj that break projection grids in static builds. I use a local
-workaround while I'm working to get these fixes incorporated in vcpkg.
+The '--overlay-ports' argument makes sure that Proj4 is build in a compatible way, and the (current) last
+version of PROJ is used. I'm trying to get these fixes backported in plain vcpkg.
