@@ -64,6 +64,7 @@
     <Compile Include="BasicTests.cs" />
     <Compile Include="InitTests.cs" />
     <Compile Include="PPointTests.cs" />
+    <Compile Include="ProjectionTypesTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SridTests.cs" />
   </ItemGroup>
