@@ -581,7 +581,7 @@ namespace SharpProj.Tests
         [TestMethod]
         public void WalkReferenceSystems()
         {
-            using (ProjContext pc = new ProjContext() { EnableNetworkConnections = true })
+            using (ProjContext pc = new ProjContext() { EnableNetworkConnections = false })
             {
                 foreach (var p in pc.GetCoordinateReferenceSystems())
                 {

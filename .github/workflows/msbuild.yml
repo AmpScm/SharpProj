@@ -9,6 +9,7 @@ on:
 env:
   # Path to the solution file relative to the root of the project.
   SOLUTION_FILE_PATH: SharpProj/src/SharpProj.sln
+  buildDir: '${{ github.workspace }}/build'
 
 jobs:
   build:
@@ -20,6 +21,10 @@ jobs:
       with:
         path: SharpProj
 
+    - name: Get latest CMake and ninja
+      # Using 'latest' branch, the most recent CMake and ninja are installed.
+      uses: lukka/get-cmake@latest
+
     - name: Build proj via VCPKG
       uses: lukka/run-vcpkg@v7
       with:
@@ -30,21 +35,26 @@ jobs:
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1
-      
+
     - name: Setup VSTest Path
       uses: darenm/Setup-VSTest@v1
-      
+
     - name: Restore NuGet package (legacy style, vcxproj only)
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: nuget restore SharpProj\src\SharpProj\SharpProj.vcxproj -SolutionDirectory SharpProj\src
 
+    - name: Setup version
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: cmd.exe /C SharpProj\scripts\gh-version-setup vcpkg\installed\x86-windows-static-md\include\proj.h ${{ github.run_number }}
+
     - name: Build-x86
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: msbuild /m /restore /p:Platform=x86 /p:Configuration=Release ${{env.SOLUTION_FILE_PATH}}
+      run: msbuild /m /restore /p:Platform=x86 /p:Configuration=Release ${{env.SOLUTION_FILE_PATH}} @SharpProj\scripts\msbuild-version.rsp
 
     - name: Build-x64
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: msbuild /m /restore /p:Platform=x64 /p:Configuration=Release ${{env.SOLUTION_FILE_PATH}}
+      run: msbuild /m /restore /p:Platform=x64 /p:Configuration=Release ${{env.SOLUTION_FILE_PATH}} @SharpProj\scripts\msbuild-version.rsp
+
 
     - name: VSTest-x86
       working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -53,3 +63,13 @@ jobs:
     - name: VSTest-x64
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: vstest.console.exe /InIsolation /Platform:x64 SharpProj/src/SharpProj.Tests/bin/x64/Release/SharpProj.Tests.dll "--testcasefilter:TestCategory!=NeedsNetwork"
+
+    - name: Create nupkg files
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: cmd.exe /C SharpProj\scripts\gh-build-nuget.cmd
+
+    - name: Package nupkg files
+      uses: actions/upload-artifact@v2
+      with:
+        name: nupkg-files
+        path: SharpProj/nuspec/bin/*.nupkg

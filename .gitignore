@@ -348,3 +348,7 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+# Buildbot Scripting
+scripts/*.cache.bat
+scripts/msbuild-version.rsp

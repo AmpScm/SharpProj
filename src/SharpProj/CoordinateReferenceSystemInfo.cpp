@@ -66,18 +66,23 @@ ReadOnlyCollection<CoordinateReferenceSystemInfo^>^ ProjContext::GetCoordinateRe
 		}
 
 		int count;
+		array<CoordinateReferenceSystemInfo^> ^result;
+
 		PROJ_CRS_INFO** infoList = proj_get_crs_info_list_from_database(this, auth_name.length() ? auth_name.c_str() : nullptr, params, &count);
+		try
+		{
+			result = gcnew array<CoordinateReferenceSystemInfo^>(count);
 
-		auto r = gcnew array<CoordinateReferenceSystemInfo^>(count);
+			for (int i = 0; i < count; i++)
+				result[i] = gcnew CoordinateReferenceSystemInfo(infoList[i], this);
+		}
+		finally
+		{
+			proj_crs_info_list_destroy(infoList);
+		}
 
-		for (int i = 0; i < count; i++)
-			r[i] = gcnew CoordinateReferenceSystemInfo(infoList[i], this);
-
-		proj_crs_info_list_destroy(infoList);
-
-		Array::Sort(r, CRSComparer::Instance);
-
-		return Array::AsReadOnly(r);
+		Array::Sort(result, CRSComparer::Instance);
+		return Array::AsReadOnly(result);
 	}
 	finally
 	{
