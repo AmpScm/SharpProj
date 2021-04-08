@@ -14,11 +14,7 @@ namespace SharpProj {
 		array<CoordinateTransform^>^ m_steps;
 
 	internal:
-		CoordinateTransformList(ProjContext^ ctx, PJ* pj)
-			:CoordinateTransform(ctx, pj)
-		{
-
-		}
+		CoordinateTransformList(ProjContext^ ctx, PJ* pj);
 	private:
 		~CoordinateTransformList();
 

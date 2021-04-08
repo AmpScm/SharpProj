@@ -334,7 +334,7 @@ namespace SharpProj {
 		}
 
 	internal:
-		ref class CtxHolder
+		ref class CtxHolder sealed
 		{
 		private:
 			ProjContext^ _pc;
@@ -366,7 +366,7 @@ namespace SharpProj {
 				auto pc = _pc;
 				_pc = nullptr;
 
-				if (pc)
+				if ((Object^)pc)
 					pc->Release();
 			}
 

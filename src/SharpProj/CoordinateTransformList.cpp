@@ -1,29 +1,23 @@
 #include "pch.h"
 #include "CoordinateTransformList.h"
 
+CoordinateTransformList::CoordinateTransformList(ProjContext^ ctx, PJ* pj)
+	: CoordinateTransform(ctx, pj)
+{
+
+}
 
 CoordinateTransformList::~CoordinateTransformList()
 {
 	if (m_steps)
 	{
-		try
+		auto steps = m_steps;
+		m_steps = nullptr;
+
+		for each (auto v in steps)
 		{
-			for each (auto v in m_steps)
-			{
-				if (v)
-				{
-					try
-					{
-						delete v;
-					}
-					catch (Exception^)
-					{}
-				}
-			}
-		}
-		finally
-		{
-			m_steps = nullptr;
+			if ((Object^)v)
+				delete v;
 		}
 	}
 }

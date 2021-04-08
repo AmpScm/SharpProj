@@ -19,14 +19,14 @@ ProjObject::!ProjObject()
 {
 	try
 	{
-		if (m_pj)
-			proj_destroy(m_pj);
-
-		m_ctx.Release();
+		auto pj = m_pj;
+		m_pj = nullptr;
+		//proj_assign_context(pj, nullptr); // Avoid segfault on clearing errors, etc.
+		proj_destroy(pj);
 	}
 	finally
 	{
-		m_pj = nullptr;
+		m_ctx.Release();
 	}
 }
 
