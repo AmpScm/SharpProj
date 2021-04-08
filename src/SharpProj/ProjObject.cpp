@@ -15,43 +15,24 @@
 #include "Datum.h"
 #include "UsageArea.h"
 
-#pragma managed(push, off)
-static void ProjDestroyNative(PJ *pj)
+ProjObject::!ProjObject()
 {
 	try
 	{
-		proj_assign_context(pj, nullptr); // Avoid segfault on clearing errors, etc.
-		proj_destroy(pj); // May fail anyway :(
-	}
-	catch (...)
-	{
+		if (m_pj)
+			proj_destroy(m_pj);
 
+		m_ctx.Release();
 	}
-}
-#pragma managed(pop)
-
-ProjObject::!ProjObject()
-{
-	if (m_pj)
+	finally
 	{
-		ProjDestroyNative(m_pj);
 		m_pj = nullptr;
 	}
 }
 
 ProjObject::~ProjObject()
 {
-	if (m_pj)
-	{
-		try
-		{
-			proj_destroy(m_pj);
-		}
-		finally
-		{
-			m_pj = nullptr;
-		}
-	}
+	ProjObject::!ProjObject();
 }
 
 

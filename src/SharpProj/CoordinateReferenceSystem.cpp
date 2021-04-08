@@ -35,6 +35,11 @@ CoordinateReferenceSystem::~CoordinateReferenceSystem()
 		delete m_ellipsoid;
 		m_ellipsoid = nullptr;
 	}
+	if ((Object^)m_datum)
+	{
+		delete m_datum;
+		m_datum = nullptr;
+	}
 	if ((Object^)m_primeMeridian)
 	{
 		delete m_primeMeridian;
@@ -45,6 +50,27 @@ CoordinateReferenceSystem::~CoordinateReferenceSystem()
 		delete m_baseCrs;
 		m_baseCrs = nullptr;
 	}
+	if ((Object^)m_distanceTransform)
+	{
+		delete m_distanceTransform;
+		m_distanceTransform = nullptr;
+	}
+	if ((Object^)m_promotedTo3D)
+	{
+		delete m_promotedTo3D;
+		m_promotedTo3D = nullptr;
+	}
+	if ((Object^)m_demotedTo2D)
+	{
+		delete m_demotedTo2D;
+		m_demotedTo2D = nullptr;
+	}
+	if ((Object^)m_axisNormalizedMe)
+	{
+		delete m_axisNormalizedMe;
+		m_axisNormalizedMe = nullptr;
+	}
+
 	m_from = nullptr;
 }
 
@@ -285,6 +311,9 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::WithAxisNormalized(ProjCon
 	{
 		context = Context;
 		allowReturnSame = true;
+
+		if (m_axisNormalizedMe)
+			return m_axisNormalizedMe;
 	}
 
 	PJ* pj = proj_normalize_for_visualization(context, this);
@@ -301,8 +330,11 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::WithAxisNormalized(ProjCon
 	CoordinateReferenceSystem^ crs = context->Create<CoordinateReferenceSystem^>(pj);
 
 	double lon;
-	if (!proj_get_area_of_use(context, pj, &lon, nullptr, nullptr, nullptr, nullptr) && lon > -1000.0) /* lon = -1000 is unavailable */
+	if (!(proj_get_area_of_use(context, pj, &lon, nullptr, nullptr, nullptr, nullptr) && lon > -1000.0)) /* lon = -1000 is unavailable */
 		crs->m_from = this;
+
+	if (allowReturnSame && !m_axisNormalizedMe)
+		m_axisNormalizedMe = crs;
 
 	return crs;
 }

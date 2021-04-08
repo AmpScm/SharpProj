@@ -228,7 +228,7 @@ namespace SharpProj {
 		{
 		private:
 			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
-			ProjContext^ m_ctx;
+			ProjContext::CtxHolder m_ctx;
 			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 			PJ* m_pj;
 			[DebuggerBrowsable(DebuggerBrowsableState::Never)]
@@ -262,13 +262,13 @@ namespace SharpProj {
 
 		internal:
 			ProjObject(ProjContext^ ctx, PJ* pj)
+				: m_ctx(ctx)
 			{
 				if (!ctx)
 					throw gcnew ArgumentNullException("ctx");
 				else if (!pj)
 					throw gcnew ArgumentNullException("pj");
 
-				m_ctx = ctx;
 				m_pj = pj;
 			}
 
@@ -322,7 +322,7 @@ namespace SharpProj {
 			{
 				ProjContext^ get()
 				{
-					return m_ctx;
+					return m_ctx.Get();
 				}
 			}
 

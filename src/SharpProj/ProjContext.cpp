@@ -107,6 +107,7 @@ ProjContext::ProjContext(PJ_CONTEXT* ctx)
 		throw gcnew ArgumentNullException("ctx");
 
 	m_ctx = ctx;
+	m_nRefs = 1;
 
 	WeakReference<ProjContext^>^ wr = gcnew WeakReference<ProjContext^>(this);
 	m_ref = new gcroot<WeakReference<ProjContext^>^>(wr);
@@ -129,6 +130,17 @@ ProjContext^ ProjContext::Clone()
 
 ProjContext::!ProjContext()
 {
+	if (!m_disposed)
+	{
+		m_disposed = true;
+		Release();
+	}
+	else
+		FlushChain();
+}
+
+void ProjContext::NoMoreReferences()
+{
 	if (m_ctx)
 	{
 		proj_context_destroy(m_ctx);
@@ -145,6 +157,14 @@ ProjContext::!ProjContext()
 
 SharpProj::ProjContext::~ProjContext()
 {
+	if (!m_disposed && m_nRefs > 1)
+	{
+		EnableNetworkConnections = false;
+		AutoCloseSession = true; // Closes db session now
+
+		(*m_ref)->SetTarget(nullptr); // Disables callbacks
+	}
+
 	ProjContext::!ProjContext();
 }
 

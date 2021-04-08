@@ -31,9 +31,8 @@ echo Prepare building SharpProj %PROJ_VERSION_MAJOR%.%SHARPPROJ_MINOR%.%2
 
 (
   echo /p:ForceAssemblyVersion=%SHARPPROJ_MAJOR%.%SHARPPROJ_MINOR%.%SHARPPROJ_PATCH%
-  echo /p:ForceCompany="SharpProj Project, powered by AmpScm, QQn & GitHub"
-  echo /p:ForceCopyright="Apache 2.0 licensed. See https://github.com/ampscm/SharpProj"
-  echo /p:ForceNeutralResourceLanguage="en"
+  echo /p:ForceAssemblyCompany="SharpProj Project, powered by AmpScm, QQn & GitHub"
+  echo /p:ForceAssemblyCopyright="Apache 2.0 licensed. See https://github.com/ampscm/SharpProj"
   echo /p:BuildBotBuild=true
   echo /p:RestoreForce=true
 ) >> %RSPFILE%

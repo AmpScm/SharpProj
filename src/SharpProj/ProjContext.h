@@ -48,6 +48,12 @@ namespace SharpProj {
 		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
 		bool m_autoCloseSession;
 
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
+		int m_nRefs;
+
+		[DebuggerBrowsable(DebuggerBrowsableState::Never)]
+		int m_disposed;
+
 		ProjContext(PJ_CONTEXT* ctx);
 		void SetupNetworkHandling();
 
@@ -67,9 +73,13 @@ namespace SharpProj {
 		/// Creates a new unrelated context
 		/// </summary>
 		ProjContext();
+
+	private:
 		!ProjContext();
 		~ProjContext();
+		void NoMoreReferences();
 
+	public:
 		/// <summary>
 		/// Creates a disconnected copy of this context.
 		/// </summary>
@@ -297,7 +307,7 @@ namespace SharpProj {
 		{
 			if ((Object^)me == nullptr)
 				return nullptr;
-			else if (!me->m_ctx)
+			else if (me->m_disposed || !me->m_ctx)
 				throw gcnew System::ObjectDisposedException("Context already disposed");
 
 			return me->m_ctx;
@@ -309,5 +319,61 @@ namespace SharpProj {
 			return ConstructException(nullptr);
 		}
 		ProjException^ CreateException(int err, String^ message, System::Exception^ inner);
+
+	private:
+		void Release()
+		{
+			int n = System::Threading::Interlocked::Decrement(m_nRefs);
+			if (!n)
+				NoMoreReferences();
+		}
+		ProjContext^ AddRef()
+		{
+			System::Threading::Interlocked::Increment(m_nRefs);
+			return this;
+		}
+
+	internal:
+		ref class CtxHolder
+		{
+		private:
+			ProjContext^ _pc;
+
+		public:
+			CtxHolder(ProjContext^ pc)
+			{
+				_pc = pc->AddRef();
+			}
+
+		private:
+			!CtxHolder()
+			{
+				Release();
+			}
+
+			~CtxHolder()
+			{
+				Release();
+			}
+		public:
+			ProjContext^ Get()
+			{
+				return _pc;
+			}
+
+			void Release()
+			{
+				auto pc = _pc;
+				_pc = nullptr;
+
+				if (pc)
+					pc->Release();
+			}
+
+			static operator ProjContext ^ (CtxHolder^ f)
+			{
+				return f->_pc;
+			}
+		};
 	};
 }

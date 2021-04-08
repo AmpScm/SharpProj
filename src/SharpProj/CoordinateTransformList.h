@@ -20,6 +20,9 @@ namespace SharpProj {
 
 		}
 	private:
+		~CoordinateTransformList();
+
+	private:
 		virtual System::Collections::IEnumerator^ Obj_GetEnumerator() sealed = System::Collections::IEnumerable::GetEnumerator
 		{
 			return GetEnumerator();
