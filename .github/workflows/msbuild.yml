@@ -8,7 +8,7 @@ on:
 
 env:
   # Path to the solution file relative to the root of the project.
-  SOLUTION_FILE_PATH: SharpProj/src/SharpProj.sln
+  SOLUTION_FILE_PATH: build/src/SharpProj.sln
   buildDir: '${{ github.workspace }}/build'
 
 jobs:
@@ -19,7 +19,7 @@ jobs:
     - name: Git Checkout
       uses: actions/checkout@v2
       with:
-        path: SharpProj
+        path: build
 
     - name: Get latest CMake and ninja
       # Using 'latest' branch, the most recent CMake and ninja are installed.
@@ -30,7 +30,7 @@ jobs:
       with:
         vcpkgDirectory: '${{ github.workspace }}/vcpkg'
         vcpkgGitCommitId: 4278a5f9eafbdadfaa65d7aafd914964841cba42
-        vcpkgArguments: --overlay-ports=${{ github.workspace }}\SharpProj\vcpkg_ports proj4:x64-windows-static-md proj4:x86-windows-static-md
+        vcpkgArguments: --overlay-ports=${{ github.workspace }}\build\vcpkg_ports proj4:x64-windows-static-md proj4:x86-windows-static-md
         additionalCachedPaths: ${{ env.buildDir }}/vcpkg_installed
 
     - name: Add MSBuild to PATH
@@ -41,35 +41,35 @@ jobs:
 
     - name: Restore NuGet package (legacy style, vcxproj only)
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: nuget restore SharpProj\src\SharpProj\SharpProj.vcxproj -SolutionDirectory SharpProj\src
+      run: nuget restore build\src\SharpProj\SharpProj.vcxproj -SolutionDirectory build\src
 
     - name: Setup version
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: cmd.exe /C SharpProj\scripts\gh-version-setup vcpkg\installed\x86-windows-static-md\include\proj.h ${{ github.run_number }}
+      run: cmd.exe /C build\scripts\gh-version-setup vcpkg\installed\x86-windows-static-md\include\proj.h ${{ github.run_number }}
 
     - name: Build-x86
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: msbuild /m /restore /p:Platform=x86 /p:Configuration=Release ${{env.SOLUTION_FILE_PATH}} @SharpProj\scripts\msbuild-version.rsp
+      run: msbuild /m /restore /p:Platform=x86 /p:Configuration=Release ${{env.SOLUTION_FILE_PATH}} @build\scripts\msbuild-version.rsp
 
     - name: Build-x64
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: msbuild /m /restore /p:Platform=x64 /p:Configuration=Release ${{env.SOLUTION_FILE_PATH}} @SharpProj\scripts\msbuild-version.rsp
+      run: msbuild /m /restore /p:Platform=x64 /p:Configuration=Release ${{env.SOLUTION_FILE_PATH}} @build\scripts\msbuild-version.rsp
 
 
     - name: VSTest-x86
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: vstest.console.exe /InIsolation /Platform:x86 SharpProj/src/SharpProj.Tests/bin/x86/Release/SharpProj.Tests.dll "--testcasefilter:TestCategory!=NeedsNetwork"
+      run: vstest.console.exe /InIsolation /Platform:x86 build/src/SharpProj.Tests/bin/x86/Release/SharpProj.Tests.dll "--testcasefilter:TestCategory!=NeedsNetwork"
 
     - name: VSTest-x64
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: vstest.console.exe /InIsolation /Platform:x64 SharpProj/src/SharpProj.Tests/bin/x64/Release/SharpProj.Tests.dll "--testcasefilter:TestCategory!=NeedsNetwork"
+      run: vstest.console.exe /InIsolation /Platform:x64 build/src/SharpProj.Tests/bin/x64/Release/SharpProj.Tests.dll "--testcasefilter:TestCategory!=NeedsNetwork"
 
     - name: Create nupkg files
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: cmd.exe /C SharpProj\scripts\gh-build-nuget.cmd
+      run: cmd.exe /C build\scripts\gh-build-nuget.cmd
 
     - name: Package nupkg files
       uses: actions/upload-artifact@v2
       with:
         name: nupkg-files
-        path: SharpProj/nuspec/bin/*.nupkg
+        path: build/nuspec/bin/*.nupkg
