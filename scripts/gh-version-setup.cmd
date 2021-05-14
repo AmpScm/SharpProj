@@ -16,6 +16,12 @@ for /F "usebackq tokens=2,3" %%i in (`"type %1 |findstr /C:_VERSION_"`) do (
   echo SET %%i=%%j>> %CACHE%
 ) 
 
+pushd %0\..
+FOR /F "usebackq" %%i in (`git rev-parse HEAD`) do (
+  SET GIT_SHA=%%i
+)
+popd
+
 set    SHARPPROJ_MAJOR=%PROJ_VERSION_MAJOR%
 set /a SHARPPROJ_MINOR=%PROJ_VERSION_MINOR% * 1000 + %PROJ_VERSION_PATCH%
 set    SHARPPROJ_PATCH=%2
@@ -27,12 +33,14 @@ echo Prepare building SharpProj %PROJ_VERSION_MAJOR%.%SHARPPROJ_MINOR%.%2
   echo SET SHARPPROJ_MAJOR=%SHARPPROJ_MAJOR%
   echo SET SHARPPROJ_MINOR=%SHARPPROJ_MINOR%
   echo SET SHARPPROJ_PATCH=%SHARPPROJ_PATCH%
+  echo SET GIT_SHA=%GIT_SHA%
 ) >> %CACHE%
 
 (
   echo /p:ForceAssemblyVersion=%SHARPPROJ_MAJOR%.%SHARPPROJ_MINOR%.%SHARPPROJ_PATCH%
   echo /p:ForceAssemblyCompany="SharpProj Project, powered by AmpScm, QQn & GitHub"
   echo /p:ForceAssemblyCopyright="Apache 2.0 licensed. See https://github.com/ampscm/SharpProj"
+  echo /p:ForceAssemblyInformationalVersion=%SHARPPROJ_MAJOR%.%SHARPPROJ_MINOR%.%SHARPPROJ_PATCH%-%GIT_SHA%
   echo /p:BuildBotBuild=true
   echo /p:RestoreForce=true
-) >> %RSPFILE%
+) > %RSPFILE%
