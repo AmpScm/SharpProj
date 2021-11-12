@@ -1,11 +1,10 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO OSGeo/PROJ
-    REF 8.0.1
-    SHA512 0e9ba26cd51df434fee3759c69d4c1606c3c77493230d6760783dfbaec9436b4bedbed490711bc614a2f5b187e3d43adc103a0f782436b68095f8a40b38f15c9
+    REF 8.1.0
+    SHA512 c313cf9f22e374da38e506239aada982d64ac7a38d9d8cbe1a3ff631eeb124922a1882a42d934e766d290c4bbf4a62549a94992d74066eb0886fa64bce82ecb5
     HEAD_REF master
     PATCHES
-        fix-sqlite3-bin.patch
         disable-projdb-with-arm-uwp.patch
         fix-win-output-name.patch
         fix-proj4-targets-cmake.patch
