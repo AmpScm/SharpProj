@@ -20,11 +20,21 @@
     <file src="..\src\SharpProj\bin\Win32_release\SharpProj.xml" target="lib/net45" />
 
     <!-- .Net 4.5-4.8 -->
+    <file src="..\src\SharpProj\bin\Win32_release\SharpProj.dll" target="ref/net45" />
+    <file src="..\src\SharpProj\bin\Win32_release\SharpProj.xml" target="ref/net45" />
+
     <file src="..\src\SharpProj\bin\Win32_release\SharpProj.dll" target="runtimes/win-x86/lib/net45" />
     <file src="..\src\SharpProj\bin\Win32_release\SharpProj.xml" target="runtimes/win-x86/lib/net45" />
     <file src="..\src\SharpProj\bin\x64_release\SharpProj.dll" target="runtimes/win-x64/lib/net45" />
     <file src="..\src\SharpProj\bin\x64_release\SharpProj.xml" target="runtimes/win-x64/lib/net45" />
-    <file src="..\src\SharpProj\bin\Win32_release\SharpProj.dll" target="ref/net45" />
-    <file src="..\src\SharpProj\bin\Win32_release\SharpProj.xml" target="ref/net45" />
+
+    <!-- .Net Core 3.1+ -->
+    <file src="..\src\SharpProj\bin\Win32_release\SharpProj.dll" target="ref/netcoreapp" />
+    <file src="..\src\SharpProj\bin\Win32_release\SharpProj.xml" target="ref/netcoreapp" />
+
+    <file src="..\src\SharpProj\bin\Win32_releasecore\SharpProj.dll" target="runtimes/win-x86/lib/netcoreapp" />
+    <file src="..\src\SharpProj\bin\Win32_releasecore\SharpProj.xml" target="runtimes/win-x86/lib/netcoreapp" />
+    <file src="..\src\SharpProj\bin\x64_releasecore\SharpProj.dll" target="runtimes/win-x64/lib/netcoreapp" />
+    <file src="..\src\SharpProj\bin\x64_releasecore\SharpProj.xml" target="runtimes/win-x64/lib/netcoreapp" />
   </files>
 </package>
