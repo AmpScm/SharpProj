@@ -597,7 +597,7 @@ ReadOnlyCollection<GridUsage^>^ CoordinateTransform::GridUsages::get()
 		array<GridUsage^>^ usages;
 
 		if (n == 0)
-			usages = Array::Empty<GridUsage^>();
+			usages = EMPTY_ARRAY(GridUsage^);
 		else
 		{
 			usages = gcnew array<GridUsage^>(n);

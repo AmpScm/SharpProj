@@ -1,5 +1,12 @@
 #pragma once
 
+
+#if 1
+#define EMPTY_ARRAY(T) gcnew array<T> {}
+#else
+#define EMPTY_ARRAY(T) Array::Empty<T>()
+#endif
+
 using namespace System;
 
 namespace SharpProj {

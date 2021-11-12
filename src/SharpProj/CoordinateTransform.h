@@ -440,7 +440,7 @@ namespace SharpProj {
 							lst[i] = gcnew CoordinateTransformParameter(this, i);
 					}
 					else
-						lst = Array::Empty<CoordinateTransformParameter^>();
+						lst = EMPTY_ARRAY(CoordinateTransformParameter^);
 
 					m_params = Array::AsReadOnly(lst);
 				}

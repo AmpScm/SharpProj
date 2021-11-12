@@ -40,7 +40,7 @@ namespace SharpProj {
 					if (n > 0)
 						m_steps = gcnew array<CoordinateTransform^>(n);
 					else
-						m_steps = Array::Empty<CoordinateTransform^>();
+						m_steps = EMPTY_ARRAY(CoordinateTransform^);
 				}
 				return m_steps->Length;
 			}

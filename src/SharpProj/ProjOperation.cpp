@@ -203,13 +203,13 @@ IReadOnlyList<String^>^ ProjOperationDefinition::RequiredArguments::get()
 					if (args->Count)
 						m_rqArgs = Array::AsReadOnly(args->ToArray());
 					else
-						m_rqArgs = Array::AsReadOnly(Array::Empty<String^>());
+						m_rqArgs = Array::AsReadOnly(EMPTY_ARRAY(String^));
 				}				
 			}
 		}
 
 		if (!m_rqArgs)
-			m_rqArgs = Array::AsReadOnly(Array::Empty<String^>());
+			m_rqArgs = Array::AsReadOnly(EMPTY_ARRAY(String^));
 	}
 
 	return m_rqArgs;

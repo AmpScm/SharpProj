@@ -304,7 +304,7 @@ namespace SharpProj {
 			static array<String^>^ FromStringList(PROJ_STRING_LIST lst)
 			{
 				if (!lst || !*lst)
-					return Array::Empty<String^>();
+					return EMPTY_ARRAY(String^);
 
 				auto items = gcnew System::Collections::Generic::List<String^>();
 

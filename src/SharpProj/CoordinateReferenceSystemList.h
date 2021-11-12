@@ -58,7 +58,7 @@ namespace SharpProj {
 			array<CoordinateReferenceSystem^>^ crs;
 
 			if (!Count)
-				crs = Array::Empty<CoordinateReferenceSystem^>();
+				crs = EMPTY_ARRAY(CoordinateReferenceSystem^);
 			else
 				crs = m_crs;
 

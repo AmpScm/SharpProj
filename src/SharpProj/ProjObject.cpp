@@ -320,7 +320,7 @@ int IdentifierList::Count::get()
 			return i;
 		}
 	}
-	m_Items = Array::Empty<Identifier^>();
+	m_Items = EMPTY_ARRAY(Identifier^);
 	return 0;
 }
 

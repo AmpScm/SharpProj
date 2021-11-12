@@ -19,7 +19,7 @@
 #pragma comment(lib, "zlib.lib")
 #else
 #pragma comment(lib, "proj_d.lib")
-#pragma comment(lib, "jpegd.lib")
+#pragma comment(lib, "jpeg.lib")
 #pragma comment(lib, "lzmad.lib")
 #pragma comment(lib, "tiffd.lib")
 #pragma comment(lib, "zlibd.lib")

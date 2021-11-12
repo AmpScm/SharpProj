@@ -156,7 +156,7 @@ namespace SharpProj {
 
 		virtual IReadOnlyList<ProjOperation^>^ ProjOperations() override
 		{
-			return Array::AsReadOnly(Array::Empty<Proj::ProjOperation^>());
+			return Array::AsReadOnly(EMPTY_ARRAY(Proj::ProjOperation^));
 		}
 	};
 }
