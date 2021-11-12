@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,9 +16,9 @@ namespace SharpProj.Tests
         public void BasicPoint()
         {
             Assert.AreEqual("X=1", new PPoint(1).ToString());
-            Assert.AreEqual("X=1, Y=2", new PPoint(1, 2).ToString());
-            Assert.AreEqual("X=1, Y=2, Z=3", new PPoint(1, 2, 3).ToString());
-            Assert.AreEqual("X=1, Y=2, Z=3, T=4", new PPoint(1, 2, 3, 4).ToString());
+            Assert.AreEqual("X=1, Y=2", new PPoint(1, 2).ToString("G", CultureInfo.InvariantCulture));
+            Assert.AreEqual("X=1, Y=2, Z=3", new PPoint(1, 2, 3).ToString("G", CultureInfo.InvariantCulture));
+            Assert.AreEqual("X=1, Y=2, Z=3, T=4", new PPoint(1, 2, 3, 4).ToString("G", CultureInfo.InvariantCulture));
 
             Assert.AreEqual(new PPoint(0), new PPoint(0, 0));
             Assert.AreEqual(new PPoint(0, 1), new PPoint(0, 1));
@@ -41,9 +42,9 @@ namespace SharpProj.Tests
             Assert.AreEqual(4, new PPoint(new double[] { 0, 1, 2, 0 }).Axis);
             Assert.AreEqual(4, new PPoint(new double[] { 0, 1, 2, 3 }).Axis);
 
-            Assert.AreEqual("X=1, T=4", new PPoint(1) { T = 4 }.ToString());
-            Assert.AreEqual("X=1, Y=2, T=4", new PPoint(1, 2) { T = 4 }.ToString());
-            Assert.AreEqual("X=1, Y=2, Z=3, T=4", new PPoint(1, 2, 3) { T = 4 }.ToString());
+            Assert.AreEqual("X=1, T=4", new PPoint(1) { T = 4 }.ToString("G", CultureInfo.InvariantCulture));
+            Assert.AreEqual("X=1, Y=2, T=4", new PPoint(1, 2) { T = 4 }.ToString("G", CultureInfo.InvariantCulture));
+            Assert.AreEqual("X=1, Y=2, Z=3, T=4", new PPoint(1, 2, 3) { T = 4 }.ToString("G", CultureInfo.InvariantCulture));
 
             Assert.AreEqual(double.PositiveInfinity, new PPoint(0).T);
             Assert.AreEqual(double.PositiveInfinity, new PPoint(0, 1).T);

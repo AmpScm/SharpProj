@@ -73,7 +73,7 @@
     <CLRSupport>NetCore</CLRSupport>
     <CharacterSet>Unicode</CharacterSet>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-	<SharpSvnUpdateVersionResource>false</SharpSvnUpdateVersionResource>
+    <SharpSvnUpdateVersionResource>false</SharpSvnUpdateVersionResource>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -93,7 +93,7 @@
     <CLRSupport>NetCore</CLRSupport>
     <CharacterSet>Unicode</CharacterSet>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-	<SharpSvnUpdateVersionResource>false</SharpSvnUpdateVersionResource>
+    <SharpSvnUpdateVersionResource>false</SharpSvnUpdateVersionResource>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -113,7 +113,7 @@
     <CLRSupport>NetCore</CLRSupport>
     <CharacterSet>Unicode</CharacterSet>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-	<SharpSvnUpdateVersionResource>false</SharpSvnUpdateVersionResource>
+    <SharpSvnUpdateVersionResource>false</SharpSvnUpdateVersionResource>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -133,7 +133,7 @@
     <CLRSupport>NetCore</CLRSupport>
     <CharacterSet>Unicode</CharacterSet>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-	<SharpSvnUpdateVersionResource>false</SharpSvnUpdateVersionResource>
+    <SharpSvnUpdateVersionResource>false</SharpSvnUpdateVersionResource>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -215,6 +215,7 @@
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <LanguageStandard>Default</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <AdditionalDependencies />
@@ -231,6 +232,7 @@
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <LanguageStandard>Default</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <AdditionalDependencies>
@@ -248,6 +250,7 @@
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <LanguageStandard>Default</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <AdditionalDependencies />
@@ -264,6 +267,7 @@
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <LanguageStandard>Default</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <AdditionalDependencies>

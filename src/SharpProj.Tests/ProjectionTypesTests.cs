@@ -137,6 +137,9 @@ namespace SharpProj.Tests
                 case "lonc" when (name == "omerc"): return set("0");
                 case "alpha" when (name == "omerc"): return set("90");
 
+
+                case "zone" when (name == "utm"): return set("59");
+
                 default:
                     break;
             }
