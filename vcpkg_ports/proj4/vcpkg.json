@@ -1,6 +1,6 @@
 {
   "name": "proj4",
-  "version-string": "8.1.0",
+  "version-string": "8.1.1",
   "description": "PROJ.4 library for cartographic projections",
   "homepage": "https://github.com/OSGeo/PROJ",
   "dependencies": [

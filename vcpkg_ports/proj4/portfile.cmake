@@ -1,8 +1,8 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO OSGeo/PROJ
-    REF 8.1.0
-    SHA512 c313cf9f22e374da38e506239aada982d64ac7a38d9d8cbe1a3ff631eeb124922a1882a42d934e766d290c4bbf4a62549a94992d74066eb0886fa64bce82ecb5
+    REF 8.1.1
+    SHA512 a26d4191905ac01ce8052290dbd065038bb59bdf5ee4ead0b8ba948de7fcc9d7bffd897533a07ffc2e9824b59210fa2a6cec652e512794a9ef9b07ce40e7e213
     HEAD_REF master
     PATCHES
         disable-projdb-with-arm-uwp.patch
