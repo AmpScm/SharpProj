@@ -29,7 +29,7 @@ jobs:
       uses: lukka/run-vcpkg@v7
       with:
         vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-        vcpkgGitCommitId: 4278a5f9eafbdadfaa65d7aafd914964841cba42
+        vcpkgGitCommitId: c973b499f2ec648d9e7ae6c784f94d0ebc41f788
         vcpkgArguments: --overlay-ports=${{ github.workspace }}\build\vcpkg_ports proj4:x64-windows-static-md proj4:x86-windows-static-md
         additionalCachedPaths: ${{ env.buildDir }}/vcpkg_installed
 

@@ -17,7 +17,7 @@ String^ PPoint::ToString(System::String^ format, System::IFormatProvider^ format
 
 		auto ci = dynamic_cast<System::Globalization::CultureInfo^>(formatProvider);
 
-		String^ gs = (ci && ci->NumberFormat->CurrencyDecimalSeparator == ",") ? ";" : ",";
+		String^ gs = (ci && ci->NumberFormat->NumberDecimalSeparator == ",") ? ";" : ",";
 		switch (Axis)
 		{
 		case 1:
