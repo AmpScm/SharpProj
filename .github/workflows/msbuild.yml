@@ -29,8 +29,8 @@ jobs:
       uses: lukka/run-vcpkg@v7
       with:
         vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-        vcpkgGitCommitId: c973b499f2ec648d9e7ae6c784f94d0ebc41f788
-        vcpkgArguments: --overlay-ports=${{ github.workspace }}\build\vcpkg_ports proj4:x64-windows-static-md proj4:x86-windows-static-md
+        vcpkgGitCommitId: ae91542c8e71634cb937d467f05920653084cc0b
+        vcpkgArguments: --overlay-ports=${{ github.workspace }}\build\vcpkg_ports 'proj4:x64-windows-static-md[tiff]' 'proj4:x86-windows-static-md[tiff]'
         additionalCachedPaths: ${{ env.buildDir }}/vcpkg_installed
 
     - name: Add MSBuild to PATH
@@ -81,3 +81,9 @@ jobs:
       with:
         name: nupkg-files
         path: build/nuspec/bin/*.nupkg
+
+    - name: Package pdb files
+      uses: actions/upload-artifact@v2
+      with:
+        name: pdb-files
+        path: build/src/SharpProj*/**/SharpProj*.pdb
