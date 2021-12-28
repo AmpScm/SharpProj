@@ -70,7 +70,7 @@ namespace SharpProj {
 		};
 
 		[DebuggerDisplay("{ToString(),nq}")]
-		public ref class Identifier sealed
+		public ref class Identifier sealed : IEquatable<Identifier^>
 		{
 		internal:
 			initonly ProjObject^ m_object;
@@ -84,16 +84,21 @@ namespace SharpProj {
 				m_index = index;
 			}
 
+		public:
 			Identifier(String^ authority, String^ code)
 			{
-				if (!authority)
+				if (String::IsNullOrEmpty(authority))
 					throw gcnew ArgumentNullException("authority");
-				if (!code)
+				if (String::IsNullOrEmpty(code))
 					throw gcnew ArgumentNullException("code");
 
 				m_authority = authority;
 				m_code = code;
 			}
+
+			Identifier(String^ authority, int code)
+				: Identifier(authority, code.ToString())
+			{}
 
 		public:
 			property String^ Authority
@@ -119,12 +124,15 @@ namespace SharpProj {
 
 			virtual bool Equals(Object^ other) override
 			{
-				auto idOther = dynamic_cast<Identifier^>(other);
+				return Equals(dynamic_cast<Identifier^>(other));
+			}
 
-				if (!idOther)
+			virtual bool Equals(Identifier^ otherId)
+			{
+				if (otherId == nullptr)
 					return false;
 				else
-					return idOther->Authority == Authority && idOther->Name == Name;
+					return otherId->Authority == Authority && otherId->Name == Name;
 			}
 
 			virtual int GetHashCode() override
@@ -379,16 +387,7 @@ namespace SharpProj {
 
 			property String^ Scope
 			{
-				String^ get()
-				{
-					if (!m_scope)
-					{
-						const char* scope = proj_get_scope(this);
-
-						m_scope = Utf8_PtrToString(scope);
-					}
-					return m_scope;
-				}
+				String^ get();
 			protected private:
 				void set(String^ value)
 				{

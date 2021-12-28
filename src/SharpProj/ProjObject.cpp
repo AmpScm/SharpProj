@@ -288,6 +288,19 @@ IdentifierList^ ProjObject::Identifiers::get()
 	return m_idList;
 }
 
+
+String^ ProjObject::Scope::get()
+{
+	if (!m_scope)
+	{
+		const char* scope = proj_get_scope(this);
+
+		m_scope = Utf8_PtrToString(scope);
+	}
+	return m_scope;
+}
+
+
 Identifier^ IdentifierList::default::get(int index)
 {
 	if (index < 0 || m_Items ? (index >= m_Items->Length) : !proj_get_id_code(m_object, index))
@@ -337,7 +350,7 @@ System::Collections::Generic::IEnumerator<Identifier^>^ IdentifierList::GetEnume
 
 String^ Identifier::Authority::get()
 {
-	if (!m_authority)
+	if (!m_authority && m_object)
 	{
 		const char* auth = proj_get_id_auth_name(m_object, m_index);
 
@@ -348,7 +361,7 @@ String^ Identifier::Authority::get()
 
 String^ Identifier::Code::get()
 {
-	if (!m_code)
+	if (!m_code && m_object)
 	{
 		const char* code = proj_get_id_code(m_object, m_index);
 

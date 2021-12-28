@@ -16,7 +16,7 @@ using namespace System::Security::Permissions;
 [assembly:AssemblyTrademarkAttribute(L"")];
 [assembly:AssemblyCultureAttribute(L"")];
 [assembly:NeutralResourcesLanguageAttribute(L"en-us")]
-[assembly:AssemblyVersionAttribute(PROJ_VERSION ".*")];
+[assembly:AssemblyVersionAttribute(PROJ_VERSION ".0")];
 
 [assembly:ComVisible(false)];
 

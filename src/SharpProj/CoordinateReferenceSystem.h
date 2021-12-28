@@ -23,7 +23,7 @@ namespace SharpProj {
 	}
 
 	/// <summary>
-	/// A coordinate reference system (CRS) refers to the way in which spatial data that represent the earth’s surface (which is round / 3 dimensional) 
+	/// A coordinate reference system (CRS) refers to the way in which spatial data that represent the earth's surface (which is round / 3 dimensional) 
 	/// is represented in a mathematical 2 or 3 dimensional way.
 	/// </summary>
 	public ref class CoordinateReferenceSystem : ProjObject
