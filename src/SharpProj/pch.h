@@ -32,12 +32,12 @@
 #include <proj.h>
 
 namespace SharpProj {
-	ref class ProjContext;
+    ref class ProjContext;
 
-	namespace Proj {
-		ref class Datum;
-		ref class ProjObject;
-	}
+    namespace Proj {
+        ref class Datum;
+        ref class ProjObject;
+    }
 }
 
 using namespace System;
@@ -60,18 +60,18 @@ using System::Diagnostics::DebuggerDisplayAttribute;
 
 inline static String^ Utf8_PtrToString(const char* pTxt)
 {
-	if (!pTxt)
-		return nullptr;
+    if (!pTxt)
+        return nullptr;
 
-	return gcnew String(pTxt, 0, (int)strlen(pTxt), System::Text::Encoding::UTF8);
+    return gcnew String(pTxt, 0, (int)strlen(pTxt), System::Text::Encoding::UTF8);
 }
 
 inline static String^ Utf8_PtrToString(const char* pTxt, int len)
 {
-	if (!pTxt)
-		return nullptr;
+    if (!pTxt)
+        return nullptr;
 
-	return gcnew String(pTxt, 0, len, System::Text::Encoding::UTF8);
+    return gcnew String(pTxt, 0, len, System::Text::Encoding::UTF8);
 }
 
 

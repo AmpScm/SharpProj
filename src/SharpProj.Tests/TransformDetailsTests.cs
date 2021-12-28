@@ -25,9 +25,9 @@ namespace SharpProj.Tests
                 using (CoordinateReferenceSystem crsTo = CoordinateReferenceSystem.CreateFromEpsg(4326, pc))
                 {
                     Assert.AreEqual("NAD27 / Alaska Albers", crsFrom.Name);
-                    Assert.AreEqual(new Proj.Identifier("EPSG", 2964), crsFrom.Identifier);
+                    Assert.AreEqual(new ProjId("EPSG", 2964), crsFrom.Identifier);
                     Assert.AreEqual("WGS 84", crsTo.Name);
-                    Assert.AreEqual(new Proj.Identifier("EPSG", 4326), crsTo.Identifier);
+                    Assert.AreEqual(new ProjId("EPSG", 4326), crsTo.Identifier);
 
                     using (var ct = CoordinateTransform.Create(crsFrom, crsTo))
                     {
@@ -35,8 +35,8 @@ namespace SharpProj.Tests
 
                         Assert.AreEqual("NAD27 / Alaska Albers", ct.SourceCRS.Name);
                         Assert.AreEqual("WGS 84", ct.TargetCRS.Name);
-                        Assert.AreEqual(new Proj.Identifier("EPSG", 2964), ct.SourceCRS.Identifier);
-                        Assert.AreEqual(new Proj.Identifier("EPSG", 4326), ct.TargetCRS.Identifier);
+                        Assert.AreEqual(new ProjId("EPSG", 2964), ct.SourceCRS.Identifier);
+                        Assert.AreEqual(new ProjId("EPSG", 4326), ct.TargetCRS.Identifier);
                         Assert.IsTrue(crsFrom.IsEquivalentTo(ct.SourceCRS));
                         Assert.IsTrue(crsTo.IsEquivalentTo(ct.TargetCRS));
 

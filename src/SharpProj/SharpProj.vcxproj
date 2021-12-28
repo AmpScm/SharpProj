@@ -366,7 +366,6 @@
     <ClInclude Include="CoordinateTransform.h" />
     <ClInclude Include="ProjOperation.h" />
     <ClInclude Include="ReferenceFrame.h" />
-    <ClInclude Include="Resource.h" />
     <ClInclude Include="UsageArea.h" />
   </ItemGroup>
   <ItemGroup>
