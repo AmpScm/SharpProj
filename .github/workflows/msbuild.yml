@@ -86,4 +86,6 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: pdb-files
-        path: build/src/SharpProj*/**/SharpProj*.pdb
+        path: |
+          build/src/SharpProj/bin/*/SharpProj.pdb
+          build/src/SharpProj.NetTopologySuite/bin/**/SharpProj.NetTopologySuite.pdb
