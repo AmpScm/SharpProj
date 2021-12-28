@@ -333,6 +333,32 @@ namespace SharpProj {
             double* yVals, int yStep, int yCount,
             double* zVals, int zStep, int zCount,
             double* tVals, int tStep, int tCount);
+
+        /// <summary>
+        /// Transforms a series of coordinates specified as multiple lists of coordinates in-place, first for x, second for y, etc.
+        /// </summary>
+        /// <param name="ordinateArrays"></param>
+        void Apply(...array<array<double>^>^ ordinateArrays);
+
+        /// <summary>
+        /// Transforms a series of coordinates specified as multiple lists of coordinates in-place
+        /// </summary>
+        /// <param name="ordinateArray"></param>
+        void Apply(array<double, 2>^ ordinateArray);
+ 
+
+        /// <summary>
+        /// Transforms a series of coordinates specified as multiple lists of coordinates in-place, first for x, second for y, etc.
+        /// </summary>
+        /// <param name="ordinateArrays"></param>
+        void ApplyReversed(...array<array<double>^>^ ordinateArrays);
+
+        /// <summary>
+        /// Transforms a series of coordinates specified as multiple lists of coordinates in-place
+        /// </summary>
+        /// <param name="ordinateArray"></param>
+        void ApplyReversed(array<double, 2>^ ordinateArray);
+
     protected:
         /// <summary>
         /// Implements <see cref="Apply(PPoint)" /> and <see cref="ApplyReversed(PPoint)" />

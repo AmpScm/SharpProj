@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SharpProj.Proj;
 using ProjId = SharpProj.Proj.Identifier;
 
 namespace SharpProj.Tests
@@ -40,10 +41,15 @@ namespace SharpProj.Tests
                         Assert.IsTrue(crsFrom.IsEquivalentTo(ct.SourceCRS));
                         Assert.IsTrue(crsTo.IsEquivalentTo(ct.TargetCRS));
 
+                        // Returns best match
+                        Assert.AreEqual(useNetwork ? "United States (USA) - Alaska including EEZ." : "United States (USA) - Alaska mainland.", ct.UsageArea.Name);
+                        Assert.AreEqual("?", ct.Scope);
+
                         var cct = ct as ChooseCoordinateTransform;
                         Assert.IsNotNull("Have Choose coordinate transform");
 
                         Assert.AreEqual(useNetwork ? 10 : 8, cct.Count);
+                        Assert.AreEqual(cct.First().UsageArea.Name, ct.UsageArea.Name);
 
                         foreach (var transform in cct)
                         {
@@ -87,6 +93,51 @@ namespace SharpProj.Tests
 
                     Assert.IsNull(ct.SourceCRS, "No sourceCRS");
                     Assert.IsNull(ct.TargetCRS, "No targetCRS");
+                }
+            }
+        }
+
+        [TestMethod]
+        public void InvokeWays()
+        {
+            using (ProjContext pc = new ProjContext())
+            {
+                pc.EnableNetworkConnections = false;
+
+                using (CoordinateReferenceSystem crsFrom = CoordinateReferenceSystem.CreateFromEpsg(2964, pc))
+                using (CoordinateReferenceSystem crsTo = CoordinateReferenceSystem.CreateFromEpsg(4326, pc))
+                using (var ct = CoordinateTransform.Create(crsFrom, crsTo))
+                {
+                    Assert.AreEqual("United States (USA) - Alaska mainland.", ct.UsageArea.Name);
+
+                    Func<UsageArea, IEnumerable<PPoint>> getPoints =
+                        (ua) => typeof(UsageArea).GetProperties().Where(x => x.PropertyType == typeof(PPoint)).Select(x => (PPoint)x.GetValue(ua)).Where(x => x.HasValues);
+
+                    PPoint[] allPoints = getPoints(crsFrom.UsageArea).ToArray();
+
+                    double[] xs = allPoints.Select(x => x.X).ToArray();
+                    double[] ys = allPoints.Select(x => x.Y).ToArray();
+                    double[,] ranked = new double[allPoints.Length, 2];
+
+                    for (int i = 0; i < allPoints.Length; i++)
+                    {
+                        ranked[i, 0] = allPoints[i].X;
+                        ranked[i, 1] = allPoints[i].Y;
+                    }
+
+
+                    PPoint[] transformedPoints = allPoints.Select(p => ct.Apply(p)).ToArray();
+                    ct.Apply(xs, ys);
+                    ct.Apply(ranked);
+
+                    for (int i = 0; i < allPoints.Length; i++)
+                    {
+                        Assert.AreEqual(transformedPoints[i].X, xs[i]);
+                        Assert.AreEqual(transformedPoints[i].Y, ys[i]);
+
+                        Assert.AreEqual(ranked[i, 0], xs[i]);
+                        Assert.AreEqual(ranked[i, 1], ys[i]);
+                    }
                 }
             }
         }
