@@ -26,7 +26,7 @@ jobs:
       uses: lukka/get-cmake@latest
 
     - name: Build proj via VCPKG
-      uses: lukka/run-vcpkg@v7
+      uses: lukka/run-vcpkg@v10
       with:
         vcpkgDirectory: '${{ github.workspace }}/vcpkg'
         vcpkgGitCommitId: ae91542c8e71634cb937d467f05920653084cc0b
