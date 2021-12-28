@@ -30,7 +30,7 @@ jobs:
       with:
         vcpkgDirectory: '${{ github.workspace }}/vcpkg'
         vcpkgGitCommitId: ae91542c8e71634cb937d467f05920653084cc0b
-        vcpkgArguments: --overlay-ports=${{ github.workspace }}\build\vcpkg_ports 'proj4:x64-windows-static-md[tiff]' 'proj4:x86-windows-static-md[tiff]'
+        vcpkgArguments: --overlay-ports=${{ github.workspace }}\build\vcpkg_overlays 'proj4:x64-windows-static-md[tiff]' 'proj4:x86-windows-static-md[tiff]'
         additionalCachedPaths: ${{ env.buildDir }}/vcpkg_installed
 
     - name: Add MSBuild to PATH
