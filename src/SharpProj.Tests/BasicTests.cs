@@ -801,7 +801,7 @@ namespace SharpProj.Tests
                 Assert.AreEqual(13, missing, "Expected that this many ESRI test projections between 53000-54999 fail. Fix assumption");
 
                 foreach (int epsg in new[] {2218, 2221, 2296, 2299, 2301, 2303, 2304, 2305, 2306, 2307, 2963, 2985, 2986, 3052,
-                    3053, 3139, 3144, 3145, 3173, 5017, 5224, 5225, 5515, 5516, 22300, 22700, 32600, 32700})
+                    3053, 3144, 3145, 3173, 5017, 5224, 5225, 5515, 5516, 22300, 22700, 32600, 32700})
                 {
                     using (var crs = CoordinateReferenceSystem.CreateFromEpsg(epsg, pc))
                     {
