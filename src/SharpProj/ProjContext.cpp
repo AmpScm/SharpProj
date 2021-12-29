@@ -127,17 +127,6 @@ ProjContext^ ProjContext::Clone()
 	return pc;
 }
 
-ProjContext::!ProjContext()
-{
-	if (!m_disposed)
-	{
-		m_disposed = true;
-		Release();
-	}
-	else
-		FlushChain();
-}
-
 void ProjContext::NoMoreReferences()
 {
 	if (m_ctx)
@@ -159,13 +148,26 @@ SharpProj::ProjContext::~ProjContext()
 	if (!m_disposed && m_nRefs > 1)
 	{
 		EnableNetworkConnections = false;
-		AutoCloseSession = true; // Closes db session now
 
 		(*m_ref)->SetTarget(nullptr); // Disables callbacks
 	}
 
-	ProjContext::!ProjContext();
+    FlushChain();
+
+    ProjContext::!ProjContext();
 }
+
+ProjContext::!ProjContext()
+{
+    if (!m_disposed)
+    {
+        m_disposed = true;
+        Release();
+    }
+
+    FlushChain();
+}
+
 
 void SharpProj::ProjContext::FlushChain()
 {
@@ -226,6 +228,17 @@ Version^ ProjContext::IgnfVersion::get()
 		return v;
 	else
 		return nullptr;
+}
+
+Version^ ProjContext::ProjDataVersion::get()
+{
+    String^ md = GetMetaData("PROJ_DATA.VERSION");
+    System::Version^ v = nullptr;
+
+    if (md && System::Version::TryParse(md, v))
+        return v;
+    else
+        return nullptr;
 }
 
 

@@ -40,11 +40,13 @@ namespace SharpProj.Tests
         {
             using (var pc = new ProjContext())
             {
-                Assert.IsTrue(pc.Version >= new Version(8, 0, 0));
+                Assert.IsTrue(pc.Version >= new Version(8, 1, 0));
                 Assert.IsTrue(pc.EpsgVersion >= new Version(10, 15));
 
                 Assert.IsTrue(pc.EsriVersion >= new Version(10, 8, 1));
                 Assert.IsTrue(pc.IgnfVersion >= new Version(3, 1, 0));
+
+                Assert.IsTrue(pc.ProjDataVersion >= new Version(1, 9));
             }
         }
 

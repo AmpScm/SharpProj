@@ -285,6 +285,12 @@ namespace SharpProj {
             System::Version^ get();
         }
 
+        /// <summary>Version of the PROJ-data package with which this database is the most compatible.</summary>
+        property System::Version^ ProjDataVersion
+        {
+            System::Version^ get();
+        }
+
         /// <summary>
         /// Gets all <see cref="CoordinateReferenceSystem"/>s matching the filter
         /// </summary>
