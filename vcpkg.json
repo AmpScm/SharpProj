@@ -1,12 +1,12 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
   "name": "SharpProj",
-  "version": "8.0",
+  "version": "8.2",
   "dependencies": [
     {
       "name": "proj4",
       "default-features": false,
-      "featurs": [ "core", "tiff" ]
+      "features": [ "core", "tiff" ]
     }
   ]
 }

@@ -46,7 +46,7 @@ namespace SharpProj.Tests
                 Assert.IsTrue(pc.EsriVersion >= new Version(10, 8, 1));
                 Assert.IsTrue(pc.IgnfVersion >= new Version(3, 1, 0));
 
-                Assert.IsTrue(pc.ProjDataVersion >= new Version(1, 9));
+                Assert.IsTrue(pc.ProjDataVersion >= new Version(1, 7));
             }
         }
 

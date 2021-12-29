@@ -89,13 +89,3 @@ jobs:
         path: |
           build/src/SharpProj/bin/*/SharpProj.pdb
           build/src/SharpProj.NetTopologySuite/bin/**/SharpProj.NetTopologySuite.pdb
-
-    - name: Generate Documentation
-      uses: FuLagann/csharp-docs-generator@v1.0
-      with:
-        build-tasks: echo
-        cleanup-tasks: echo
-        binaries: build/src/SharpProj/bin/Win32_ReleaseCore/SharpProj.dll
-        output-path: docs/api
-        user-email: csharp.doc.gen@gmail.com
-        user-name: C# Document Generator
