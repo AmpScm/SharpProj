@@ -16,9 +16,12 @@ Setup build environment using:
     git clone https://github.com/AmpScm/SharpProj.git
     cd vcpkg
     bootstrap-vcpkg.bat
-    vcpkg install proj4:x86-windows-static-md[core,tiff] proj4:x64-windows-static-md[core,tiff] --overlay-ports=../SharpProj/vcpkg_overlays
+    vcpkg install proj4[core,tiff]:x86-windows-static-md proj4[core,tiff]:x64-windows-static-md --overlay-ports=../SharpProj/vcpkg_overlays
     cd ..
     
 
 The '--overlay-ports' argument makes sure that Proj4 is build in a compatible way, and the (current) last
 version of PROJ is used. I'm trying to get these fixes backported in plain vcpkg.
+
+We build PROJ without the builtin network support to allow configuring the proxy support the .Net way and to
+shrink the library a bit. The network requests are just forwared to the .Net WebClient class.
