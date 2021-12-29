@@ -54,7 +54,7 @@ void ProjContext::free_chain(void*& chain)
 
 static const char* my_file_finder(PJ_CONTEXT* ctx, const char* file, void* user_data)
 {
-	gcroot<WeakReference<ProjContext^>^>& ref = *(gcroot<WeakReference<ProjContext^>^>*)user_data;
+	const auto& ref = *(gcroot<WeakReference<ProjContext^>^>*)user_data;
 
 	ProjContext^ pc;
 	if (ref->TryGetTarget(pc))
@@ -75,7 +75,7 @@ static const char* my_file_finder(PJ_CONTEXT* ctx, const char* file, void* user_
 
 static void my_log_func(void* user_data, int level, const char* message)
 {
-	gcroot<WeakReference<ProjContext^>^>& ref = *(gcroot<WeakReference<ProjContext^>^>*)user_data;
+	const auto& ref = *(gcroot<WeakReference<ProjContext^>^>*)user_data;
 
 	ProjContext^ pc;
 	if (ref->TryGetTarget(pc))
@@ -123,7 +123,6 @@ ProjContext^ ProjContext::Clone()
 {
 	auto pc = gcnew ProjContext(proj_context_clone(this));
 
-	pc->m_autoCloseSession = m_autoCloseSession;
 	pc->m_logLevel = m_logLevel;
 	return pc;
 }

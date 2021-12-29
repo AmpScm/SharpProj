@@ -12,6 +12,8 @@ using namespace System;
 namespace SharpProj {
     using System::Diagnostics::DebuggerBrowsableAttribute;
     using System::Diagnostics::DebuggerBrowsableState;
+    using System::ComponentModel::EditorBrowsableAttribute;
+    using System::ComponentModel::EditorBrowsableState;
 
     ref class ProjException;
     ref class CoordinateReferenceSystem;
@@ -51,9 +53,6 @@ namespace SharpProj {
 
         [DebuggerBrowsable(DebuggerBrowsableState::Never)]
         static array<String^>^ _projLibDirs;
-
-        [DebuggerBrowsable(DebuggerBrowsableState::Never)]
-        bool m_autoCloseSession;
 
         [DebuggerBrowsable(DebuggerBrowsableState::Never)]
         int m_nRefs;
@@ -119,17 +118,12 @@ namespace SharpProj {
         /// <summary>
         /// Keeps a reference to the database open after use
         /// </summary>
+        [Obsolete("Unused since Proj 8.1")]
+        [EditorBrowsableAttribute(EditorBrowsableState::Never)]
         property bool AutoCloseSession
         {
-            bool get()
-            {
-                return m_autoCloseSession;
-            }
-            void set(bool value)
-            {
-                m_autoCloseSession = value;
-                proj_context_set_autoclose_database(this, value);
-            }
+            bool get() { return false; }
+            void set(bool value) {}
         }
 
         /// <summary>

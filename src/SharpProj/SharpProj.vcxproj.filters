@@ -84,6 +84,9 @@
     <ClInclude Include="CoordinateReferenceSystemInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ProjIdentifier.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp">
@@ -156,6 +159,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CoordinateReferenceSystemInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjIdentifier.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

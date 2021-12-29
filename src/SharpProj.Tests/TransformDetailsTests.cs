@@ -125,7 +125,6 @@ namespace SharpProj.Tests
                         ranked[i, 1] = allPoints[i].Y;
                     }
 
-
                     PPoint[] transformedPoints = allPoints.Select(p => ct.Apply(p)).ToArray();
                     ct.Apply(xs, ys);
                     ct.Apply(ranked);

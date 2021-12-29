@@ -22,6 +22,8 @@ namespace SharpProj {
         ref class UsageArea;
     }
 
+    ref class CoordinateReferenceIdList;
+
     /// <summary>
     /// A coordinate reference system (CRS) refers to the way in which spatial data that represent the earth's surface (which is round / 3 dimensional) 
     /// is represented in a mathematical 2 or 3 dimensional way.
@@ -90,6 +92,9 @@ namespace SharpProj {
         {
             return static_cast<CoordinateReferenceSystem^>(__super::Clone(ctx));
         }
+
+    public:
+        //bool TryIdentify([Out] CoordinateReferenceIdList^% identified);
 
     public:
         property int AxisCount

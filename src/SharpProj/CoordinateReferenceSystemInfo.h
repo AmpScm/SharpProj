@@ -42,6 +42,8 @@ namespace SharpProj {
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
             initonly String^ _projectionName;
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
+            initonly String^ _celestialBodyName;
+            [DebuggerBrowsable(DebuggerBrowsableState::Never)]
             initonly ProjArea^ _bbox;
 
         internal:
@@ -55,6 +57,7 @@ namespace SharpProj {
                 _deprecated = (0 != info->deprecated);
                 _areaName = Utf8_PtrToString(info->area_name);
                 _projectionName = Utf8_PtrToString(info->projection_method_name);
+                _celestialBodyName = Utf8_PtrToString(info->celestial_body_name);
                 if (info->bbox_valid)
                     _bbox = gcnew ProjArea(info->west_lon_degree, info->south_lat_degree, info->east_lon_degree, info->north_lat_degree);
             }
@@ -115,11 +118,20 @@ namespace SharpProj {
                     return _areaName;
                 }
             }
+
             property String^ ProjectionName
             {
                 String^ get()
                 {
                     return _projectionName;
+                }
+            }
+
+            property String^ CelestialBodyName
+            {
+                String^ get()
+                {
+                    return _celestialBodyName;
                 }
             }
 
