@@ -3,11 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SharpProj.Proj;
-using SharpProj.Testing;
 using PJ = SharpProj.CoordinateTransform;
 
 namespace SharpProj.Tests
@@ -336,7 +333,7 @@ namespace SharpProj.Tests
                         var r = t.Apply(new PPoint(155000, 463000));
                         Assert.AreEqual(new PPoint(52.155, 5.387), r.ToXY(3));
 
-                        Assert.AreEqual(1.0, t.Accuraracy);
+                        Assert.AreEqual(1.0, t.Accuracy);
 
                         var d = t.RoundTrip(true, 3, new PPoint(155000, 463000));
 
@@ -349,7 +346,7 @@ namespace SharpProj.Tests
 
                         Assert.AreEqual(new PPoint(599701, 6828231), r.ToXY(0));
 
-                        Assert.AreEqual(1, t.Accuraracy);
+                        Assert.AreEqual(1, t.Accuracy);
                     }
                 }
             }

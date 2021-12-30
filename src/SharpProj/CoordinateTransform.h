@@ -400,7 +400,7 @@ namespace SharpProj {
             virtual ReadOnlyCollection<GridUsage^>^ get();
         }
 
-        property Nullable<double> Accuraracy
+        property Nullable<double> Accuracy
         {
             Nullable<double> virtual get()
             {
@@ -413,6 +413,15 @@ namespace SharpProj {
             }
         }
 
+        [Obsolete("Use .Accuracy. Will be removed after 8.x"), EditorBrowsable(EditorBrowsableState::Never)]
+        property Nullable<double> Accuraracy
+        {
+            Nullable<double> get()
+            {
+                return Accuracy;
+            }
+        }
+
         property virtual bool IsAvailable
         {
             bool get()
@@ -421,7 +430,7 @@ namespace SharpProj {
             }
         }
 
-        [Obsolete("Use .IsAvailable"), DebuggerBrowsable(DebuggerBrowsableState::Never)]
+        [Obsolete("Use .IsAvailable. Will be removed after 8.x"), EditorBrowsable(EditorBrowsableState::Never)]
         property bool IsInstantiable
         {
             bool get()

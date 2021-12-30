@@ -27,11 +27,9 @@ namespace SharpProj.Tests
                     Assert.AreEqual(2, wgs84.AxisCount);
                     Assert.AreEqual(3, wgs84D3.AxisCount);
 
-                    using (var n = wgs84D3.WithAxisNormalized())
-                    {
-                        Assert.IsFalse(wgs84D3.IsEquivalentTo(n));
-                        Assert.IsTrue(wgs84D3.IsEquivalentToRelaxed(n));
-                    }
+                    var n = wgs84D3.WithAxisNormalized();
+                    Assert.IsFalse(wgs84D3.IsEquivalentTo(n));
+                    Assert.IsTrue(wgs84D3.IsEquivalentToRelaxed(n));
 
                     PPoint domWGS84 = DomUtrechtWGS84;
                     PPoint stServaasWGS84 = StServaasMaastrichtWGS84;

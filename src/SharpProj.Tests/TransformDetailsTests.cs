@@ -56,7 +56,7 @@ namespace SharpProj.Tests
                             Assert.IsTrue(crsFrom.IsEquivalentTo(transform.SourceCRS));
                             Assert.IsTrue(crsTo.IsEquivalentTo(transform.TargetCRS));
 
-                            Console.WriteLine($"{transform.Name} - {transform.Accuraracy} m - {transform.UsageArea?.Name}");
+                            Console.WriteLine($"{transform.Name} - {transform.Accuracy} m - {transform.UsageArea?.Name}");
 
                             string ids = transform.Identifier?.ToString();
                             string scopes = transform.Scope;

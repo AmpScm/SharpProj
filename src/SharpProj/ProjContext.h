@@ -32,6 +32,125 @@ namespace SharpProj {
         Trace = PJ_LOG_TRACE
     };
 
+    template<typename TCtx, typename TNetCtx> class ctx_wrapper
+    {
+        TCtx* m_handle;
+        int m_cnt;
+        bool m_meDisposed;
+        TCtx* (*m_close_handle)(TCtx* h);
+        gcroot<WeakReference<TNetCtx^>^> m_netRef;
+
+    public:
+        ctx_wrapper(TCtx* value, TCtx* (*close_handle)(TCtx* h))
+        {
+            m_handle = value;
+            m_close_handle = close_handle;
+            m_cnt = 1;
+            m_meDisposed = false;
+            m_netRef = gcnew WeakReference<TNetCtx^>(nullptr);
+        }
+
+    private:
+        ~ctx_wrapper()
+        {
+            if (!m_handle)
+                return;
+
+            auto h = m_handle;
+            m_handle = nullptr;
+            m_close_handle(h);
+        }
+    public:
+        __inline operator TCtx* () const
+        {
+            return this ? m_handle : nullptr;
+        }
+
+        __inline void AddRef()
+        {
+            System::Threading::Interlocked::Increment(m_cnt);
+        }
+
+        __inline void Release()
+        {
+            if (!System::Threading::Interlocked::Decrement(m_cnt))
+                delete this;
+        }
+
+        __inline void ReleaseMe()
+        {
+            if (m_meDisposed)
+                throw gcnew InvalidOperationException();
+            m_meDisposed = true;
+            Release();
+        }
+
+    public:
+        bool TryGetTarget(TNetCtx^% target) const
+        {
+            if (m_meDisposed)
+            {
+                target = nullptr;
+                return false;
+            }
+
+            return m_netRef->TryGetTarget(target);
+        }
+    
+        void SetTarget(TNetCtx^ target)
+        {
+            m_netRef->SetTarget(target);
+        }
+    };
+
+    template<typename TCtx, typename TNetCtx, typename TItem> class item_wrapper
+    {
+        TItem* m_handle;
+        int m_cnt;
+        ctx_wrapper<TCtx, TNetCtx>* m_ctx;
+        TItem* (*m_close_handle)(TItem* h);
+
+    public:
+        item_wrapper(ctx_wrapper<TCtx, TNetCtx>* ctx, TItem* value, TItem* (*close_handle)(TItem* h))
+        {
+            m_ctx = ctx;
+            m_handle = value;
+            m_close_handle = close_handle;
+            m_cnt = 1;
+            m_ctx->AddRef();
+        }
+
+    private:
+        ~item_wrapper()
+        {
+            if (!m_handle)
+                return;
+
+            auto h = m_handle;
+            m_handle = nullptr;
+            m_close_handle(h);
+            m_ctx->Release();
+            m_ctx = nullptr;
+        }
+
+    public:
+        __inline void AddRef()
+        {
+            System::Threading::Interlocked::Increment(m_cnt);
+        }
+
+        __inline void Release()
+        {
+            if (!System::Threading::Interlocked::Decrement(m_cnt))
+                delete this;
+        }
+    public:
+        __inline operator TItem* () const
+        {
+            return this ? m_handle : nullptr;
+        }
+    };
+
     /// <summary>
     /// Context objects enable safe multi-threaded usage of SharpProj. Each Proj object is connected to some context
     /// (if not specified, a default related or new context is used). All operations within a context should be
@@ -41,9 +160,7 @@ namespace SharpProj {
     {
     private:
         [DebuggerBrowsable(DebuggerBrowsableState::Never)]
-        PJ_CONTEXT* m_ctx;
-        [DebuggerBrowsable(DebuggerBrowsableState::Never)]
-        gcroot<WeakReference<ProjContext^>^>* m_ref;
+        ctx_wrapper<PJ_CONTEXT, ProjContext>& m_ctx;
         [DebuggerBrowsable(DebuggerBrowsableState::Never)]
         void* m_chain;
         [DebuggerBrowsable(DebuggerBrowsableState::Never)]
@@ -55,11 +172,7 @@ namespace SharpProj {
         static array<String^>^ _projLibDirs;
 
         [DebuggerBrowsable(DebuggerBrowsableState::Never)]
-        int m_nRefs;
-
-        [DebuggerBrowsable(DebuggerBrowsableState::Never)]
-        int m_disposed;
-
+        bool m_disposed;
         ProjContext(PJ_CONTEXT* ctx);
         void SetupNetworkHandling();
 
@@ -83,7 +196,6 @@ namespace SharpProj {
     private:
         !ProjContext();
         ~ProjContext();
-        void NoMoreReferences();
 
     public:
         /// <summary>
@@ -320,67 +432,31 @@ namespace SharpProj {
             return me->m_ctx;
         }
 
+        static operator ctx_wrapper<PJ_CONTEXT, ProjContext>* (ProjContext^ me)
+        {
+            if ((Object^)me == nullptr)
+                return nullptr;
+            else if (me->m_disposed || !me->m_ctx)
+                throw gcnew System::ObjectDisposedException("Context already disposed");
+
+            return &me->m_ctx;
+        }
+
+        static bool operator ! (ProjContext^ me)
+        {
+            if ((Object^)me == nullptr)
+                return true;
+            else if (me->m_disposed || !me->m_ctx)
+                return true;
+
+            return false;
+        }
+
         System::Exception^ ConstructException(String^ prefix);
         System::Exception^ ConstructException()
         {
             return ConstructException(nullptr);
         }
         ProjException^ CreateException(int err, String^ message, System::Exception^ inner);
-
-    private:
-        void Release()
-        {
-            int n = System::Threading::Interlocked::Decrement(m_nRefs);
-            if (!n)
-                NoMoreReferences();
-        }
-        ProjContext^ AddRef()
-        {
-            System::Threading::Interlocked::Increment(m_nRefs);
-            return this;
-        }
-
-    internal:
-        ref class CtxHolder sealed
-        {
-        private:
-            ProjContext^ _pc;
-
-        public:
-            CtxHolder(ProjContext^ pc)
-            {
-                _pc = pc->AddRef();
-            }
-
-        private:
-            !CtxHolder()
-            {
-                Release();
-            }
-
-            ~CtxHolder()
-            {
-                Release();
-            }
-        public:
-            ProjContext^ Get()
-            {
-                return _pc;
-            }
-
-            void Release()
-            {
-                auto pc = _pc;
-                _pc = nullptr;
-
-                if ((Object^)pc)
-                    pc->Release();
-            }
-
-            static operator ProjContext ^ (CtxHolder^ f)
-            {
-                return f->_pc;
-            }
-        };
     };
 }

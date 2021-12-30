@@ -127,9 +127,9 @@ namespace SharpProj {
         {
         private:
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
-            ProjContext::CtxHolder m_ctx;
+            ProjContext^ m_ctx;
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
-            PJ* m_pj;
+            item_wrapper<PJ_CONTEXT, ProjContext, PJ> &m_pj;
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
             String^ m_infoId;
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
@@ -147,6 +147,9 @@ namespace SharpProj {
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
             Proj::UsageArea^ m_usageArea;
 
+            [DebuggerBrowsable(DebuggerBrowsableState::Never)]
+            bool _disposed;
+
         private:
             ~ProjObject();
             !ProjObject();
@@ -163,22 +166,13 @@ namespace SharpProj {
             }
 
         internal:
-            ProjObject(ProjContext^ ctx, PJ* pj)
-                : m_ctx(ctx)
-            {
-                if (!ctx)
-                    throw gcnew ArgumentNullException("ctx");
-                else if (!pj)
-                    throw gcnew ArgumentNullException("pj");
-
-                m_pj = pj;
-            }
+            ProjObject(ProjContext^ ctx, PJ* pj);
 
             static operator PJ* (ProjObject^ pj)
             {
                 if ((Object^)pj == nullptr)
                     return nullptr;
-                else if (pj->m_pj == nullptr)
+                else if (pj->_disposed || pj->m_pj == nullptr)
                     throw gcnew ObjectDisposedException("PJ disposed");
 
                 return pj->m_pj;
@@ -224,7 +218,7 @@ namespace SharpProj {
             {
                 ProjContext^ get()
                 {
-                    return m_ctx.Get();
+                    return m_ctx ? m_ctx : nullptr;
                 }
             }
 

@@ -36,9 +36,9 @@ static PROJ_NETWORK_HANDLE* my_network_open(
 	char* out_error_string,
 	void* user_data)
 {
-	gcroot<WeakReference<ProjContext^>^>& ref = *(gcroot<WeakReference<ProjContext^>^>*)user_data;
+    const auto& ref = *(ctx_wrapper<PJ_CONTEXT, ProjContext>*)user_data;
 	ProjContext^ pc;
-	if (!ref->TryGetTarget(pc))
+	if (!ref.TryGetTarget(pc))
 	{
 		strncpy_s(out_error_string, error_string_max_size, "Already disposed", error_string_max_size);
 		return nullptr;
@@ -331,7 +331,7 @@ void ProjContext::SetupNetworkHandling()
 		my_network_close,
 		my_network_get_header_value,
 		my_network_read_range,
-		m_ref);
+		&m_ctx);
 }
 
 void ProjContext::DownloadProjDB(String^ target)

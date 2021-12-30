@@ -52,6 +52,8 @@ namespace SharpProj {
         [DebuggerBrowsable(DebuggerBrowsableState::Never)]
         CoordinateReferenceSystem^ m_axisNormalizedMe;
         [DebuggerBrowsable(DebuggerBrowsableState::Never)]
+        CoordinateReferenceSystem^ m_nonNormalized;
+        [DebuggerBrowsable(DebuggerBrowsableState::Never)]
         int m_axis;
         [DebuggerBrowsable(DebuggerBrowsableState::Never)]
         CoordinateReferenceSystem^ m_from;
