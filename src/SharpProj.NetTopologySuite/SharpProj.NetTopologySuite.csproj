@@ -18,10 +18,13 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <!-- Somehow needed for NuGet restore on VS2019 -->
+        <!-- Somehow needed for NuGet restore -->
         <TargetFramework>net462</TargetFramework>
         <TargetFramework Condition="'$(Configuration)' == 'DebugCore'">netcoreapp3.1</TargetFramework>
         <TargetFramework Condition="'$(Configuration)' == 'ReleaseCore'">netcoreapp3.1</TargetFramework>
+    </PropertyGroup>
+
+    <PropertyGroup>
         <SignAssembly>True</SignAssembly>
         <AssemblyOriginatorKeyFile>../SharpProj.snk</AssemblyOriginatorKeyFile>
     </PropertyGroup>

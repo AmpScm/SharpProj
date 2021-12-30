@@ -18,7 +18,7 @@ using namespace SharpProj::Proj;
 
 // First clear field, then dispose, to avoid loops
 template<typename T>
-void DisposeIfNotNull(T% what) 
+void DisposeIfNotNull(T% what)
 {
     if ((Object^)what != nullptr)
     {
@@ -50,34 +50,49 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(String^ from, ProjC
     if (String::IsNullOrWhiteSpace(from))
         throw gcnew ArgumentNullException("from");
 
+    bool createdCtx;
     if (!ctx)
-        ctx = gcnew ProjContext();
-
-    std::string fromStr = utf8_string(from);
-    PJ* pj = proj_create(ctx, fromStr.c_str());
-
-    if (!pj)
-        throw ctx->ConstructException();
-
-    if (!proj_is_crs(pj))
     {
-        proj_destroy(pj);
-
-        if (from->Trim()->StartsWith("+") && !from->Contains("+type=crs"))
-        {
-            try
-            {
-                return CoordinateReferenceSystem::Create(from + " +type=crs", ctx);
-            }
-            catch (ProjException^)
-            {
-            }
-        }
-
-        throw gcnew ProjException(String::Format("'{0}' doesn't describe a coordinate system", from));
+        ctx = gcnew ProjContext();
+        createdCtx = true;
     }
 
-    return ctx->Create<CoordinateReferenceSystem^>(pj);
+    try
+    {
+
+        std::string fromStr = utf8_string(from);
+        PJ* pj = proj_create(ctx, fromStr.c_str());
+
+        if (!pj)
+            throw ctx->ConstructException();
+
+        if (!proj_is_crs(pj))
+        {
+            proj_destroy(pj);
+
+            if (from->Trim()->StartsWith("+") && !from->Contains("+type=crs"))
+            {
+                try
+                {
+                    return CoordinateReferenceSystem::Create(from + " +type=crs", ctx);
+                }
+                catch (ProjException^)
+                {
+                }
+            }
+
+            throw gcnew ProjException(String::Format("'{0}' doesn't describe a coordinate system", from));
+        }
+
+        return ctx->Create<CoordinateReferenceSystem^>(pj);
+    }
+    catch (Exception^)
+    {
+        if (createdCtx)
+            delete ctx;
+
+        throw;
+    }
 }
 
 CoordinateReferenceSystem^ CoordinateReferenceSystem::CreateFromWellKnownText(String^ from, ProjContext^ ctx)
@@ -92,49 +107,65 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::CreateFromWellKnownText(St
     if (String::IsNullOrWhiteSpace(from))
         throw gcnew ArgumentNullException("from");
 
+    bool createdCtx;
     if (!ctx)
+    {
         ctx = gcnew ProjContext();
+        createdCtx = true;
+    }
 
-    PROJ_STRING_LIST wrs = nullptr;
-    PROJ_STRING_LIST errs = nullptr;
-    const char* options[32] = {};
-
-    std::string fromStr = utf8_string(from);
-    PJ* pj = proj_create_from_wkt(ctx, fromStr.c_str(), options, &wrs, &errs);
-
-    warnings = FromStringList(wrs);
-    array<String^>^ errors = FromStringList(errs);
-
-    if (wrs)
-        proj_string_list_destroy(wrs);
-    if (errs)
-        proj_string_list_destroy(errs);
-
-    if (!pj)
+    try
     {
-        Exception^ ex = ctx->ConstructException("CRS from WKT failed");
-        if (errors && errors->Length)
+
+
+        PROJ_STRING_LIST wrs = nullptr;
+        PROJ_STRING_LIST errs = nullptr;
+        const char* options[32] = {};
+
+        std::string fromStr = utf8_string(from);
+        PJ* pj = proj_create_from_wkt(ctx, fromStr.c_str(), options, &wrs, &errs);
+
+        warnings = FromStringList(wrs);
+        array<String^>^ errors = FromStringList(errs);
+
+        if (wrs)
+            proj_string_list_destroy(wrs);
+        if (errs)
+            proj_string_list_destroy(errs);
+
+        if (!pj)
         {
-            Exception^ ex2 = (ex && ex->Message->Length) ? ex : nullptr;
-
-            for each (String ^ msg in errors)
+            Exception^ ex = ctx->ConstructException("CRS from WKT failed");
+            if (errors && errors->Length)
             {
-                ex2 = gcnew ProjException(msg, ex2);
+                Exception^ ex2 = (ex && ex->Message->Length) ? ex : nullptr;
+
+                for each (String ^ msg in errors)
+                {
+                    ex2 = gcnew ProjException(msg, ex2);
+                }
+
+                if (ex2)
+                    throw ex2;
             }
-
-            if (ex2)
-                throw ex2;
+            throw ex;
         }
-        throw ex;
-    }
 
-    if (!proj_is_crs(pj))
+        if (!proj_is_crs(pj))
+        {
+            proj_destroy(pj);
+            throw gcnew ProjException(String::Format("'{0}' doesn't describe a coordinate system", from));
+        }
+
+        return ctx->Create<CoordinateReferenceSystem^>(pj);
+    }
+    catch (Exception^)
     {
-        proj_destroy(pj);
-        throw gcnew ProjException(String::Format("'{0}' doesn't describe a coordinate system", from));
-    }
+        if (createdCtx)
+            delete ctx;
 
-    return ctx->Create<CoordinateReferenceSystem^>(pj);
+        throw;
+    }
 }
 
 
@@ -143,9 +174,6 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(array<String^>^ fro
     if (!from)
         throw gcnew ArgumentNullException("from");
 
-    if (!ctx)
-        ctx = gcnew ProjContext();
-
     char** lst = new char* [from->Length + 1];
     for (int i = 0; i < from->Length; i++)
     {
@@ -153,6 +181,13 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(array<String^>^ fro
         lst[i] = _strdup(fromStr.c_str());
     }
     lst[from->Length] = 0; // also used for 'type=crs'
+
+    bool createdCtx;
+    if (!ctx)
+    {
+        ctx = gcnew ProjContext();
+        createdCtx = true;
+    }
 
     try
     {
@@ -179,6 +214,13 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(array<String^>^ fro
 
         return ctx->Create<CoordinateReferenceSystem^>(pj);
     }
+    catch (Exception^)
+    {
+        if (createdCtx)
+            delete ctx;
+
+        throw;
+    }
     finally
     {
         for (int i = 0; i < from->Length; i++)
@@ -196,17 +238,30 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::CreateFromDatabase(String^
     else if (String::IsNullOrWhiteSpace(code))
         throw gcnew ArgumentNullException("code");
 
+    bool createdCtx = false;
     if (!ctx)
+    {
         ctx = gcnew ProjContext();
+        createdCtx = true;
+    }
 
-    std::string authStr = utf8_string(authority);
-    std::string codeStr = utf8_string(code);
-    PJ* pj = proj_create_from_database(ctx, authStr.c_str(), codeStr.c_str(), PJ_CATEGORY_CRS, false, nullptr);
+    try
+    {
+        std::string authStr = utf8_string(authority);
+        std::string codeStr = utf8_string(code);
+        PJ* pj = proj_create_from_database(ctx, authStr.c_str(), codeStr.c_str(), PJ_CATEGORY_CRS, false, nullptr);
 
-    if (pj)
-        return ctx->Create<CoordinateReferenceSystem^>(pj);
-    else
-        throw ctx->ConstructException();
+        if (pj)
+            return ctx->Create<CoordinateReferenceSystem^>(pj);
+        else
+            throw ctx->ConstructException();
+    }
+    catch (Exception^)
+    {
+        if (createdCtx)
+            delete ctx;
+        throw;
+    }
 }
 
 Proj::GeodeticCRS^ CoordinateReferenceSystem::GeodeticCRS::get()

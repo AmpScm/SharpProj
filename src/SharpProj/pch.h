@@ -52,6 +52,8 @@ using System::Runtime::InteropServices::OptionalAttribute;
 using System::Diagnostics::DebuggerBrowsableAttribute;
 using System::Diagnostics::DebuggerBrowsableState;
 using System::Diagnostics::DebuggerDisplayAttribute;
+using System::ComponentModel::EditorBrowsableAttribute;
+using System::ComponentModel::EditorBrowsableState;
 
 #define LIT2(x) #x
 #define LIT(x) LIT2(x)

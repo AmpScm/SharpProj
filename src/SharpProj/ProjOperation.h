@@ -9,9 +9,8 @@ namespace SharpProj {
         using System::Collections::Generic::Dictionary;
         using System::Collections::Generic::KeyValuePair;
         using System::Collections::Generic::List;
-        using System::Diagnostics::DebuggerBrowsableAttribute;
-        using System::Diagnostics::DebuggerBrowsableState;
         using System::Collections::ObjectModel::ReadOnlyCollection;
+
         ref class ProjOperation;
 
         [DebuggerDisplay("Count = {Count}")]
@@ -200,16 +199,16 @@ namespace SharpProj {
         public:
             property String^ default[String^]
             {
-                    String ^ get(String ^ key)
-                    {
-                            key += "=";
-                            for each (String ^ s in AllTokens) // Look in specific tokens + common tokens
-                            {
-                                    if (s->StartsWith(key))
-                                            return s->Substring(key->Length);
-                            }
-                            return nullptr;
-                    }
+                String ^ get(String ^ key)
+                {
+                     key += "=";
+                     for each (String ^ s in AllTokens) // Look in specific tokens + common tokens
+                     {
+                             if (s->StartsWith(key))
+                                     return s->Substring(key->Length);
+                     }
+                     return nullptr;
+                }
             }
         };
 

@@ -252,34 +252,90 @@ T ProjContext::Create(PJ* pj)
 
 ProjObject^ ProjObject::Create(String^ definition, [Optional]ProjContext^ ctx)
 {
+    bool createdCtx = false;
     if (!ctx)
+    {
         ctx = gcnew ProjContext();
+        createdCtx = true;
+    }
 
-    return ctx->Create(definition);
+    try
+    {
+        return ctx->Create(definition);
+    }
+    catch (Exception^)
+    {
+        if (createdCtx)
+            delete ctx;
+
+        throw;
+    }
 }
 
 ProjObject^ ProjObject::Create(array<String^>^ from, [Optional]ProjContext^ ctx)
 {
+    bool createdCtx = false;
     if (!ctx)
+    {
         ctx = gcnew ProjContext();
+        createdCtx = true;
+    }
 
-    return ctx->Create(from);
+    try
+    {
+        return ctx->Create(from);
+    }
+    catch (Exception^)
+    {
+        if (createdCtx)
+            delete ctx;
+
+        throw;
+    }
 }
 
 ProjObject^ ProjObject::CreateFromWellKnownText(String^ from, [Optional] ProjContext^ ctx)
 {
+    bool createdCtx = false;
     if (!ctx)
+    {
         ctx = gcnew ProjContext();
+        createdCtx = true;
+    }
 
-    return ctx->CreateFromWellKnownText(from);
+    try
+    {
+        return ctx->CreateFromWellKnownText(from);
+    }
+    catch (Exception^)
+    {
+        if (createdCtx)
+            delete ctx;
+
+        throw;
+    }
 }
 
 ProjObject^ ProjObject::CreateFromWellKnownText(String^ from, [Out] array<String^>^% warnings, [Optional] ProjContext^ ctx)
 {
+    bool createdCtx = false;
     if (!ctx)
+    {
         ctx = gcnew ProjContext();
+        createdCtx = true;
+    }
 
-    return ctx->CreateFromWellKnownText(from, warnings);
+    try
+    {
+        return ctx->CreateFromWellKnownText(from, warnings);
+    }
+    catch (Exception^)
+    {
+        if (createdCtx)
+            delete ctx;
+
+        throw;
+    }
 }
 
 IdentifierList^ ProjObject::Identifiers::get()

@@ -9,8 +9,6 @@
 
 namespace SharpProj {
     using System::Collections::Generic::IReadOnlyList;
-    using System::Diagnostics::DebuggerBrowsableAttribute;
-    using System::Diagnostics::DebuggerBrowsableState;
     value class PPoint;
 
     namespace Proj {
@@ -255,6 +253,7 @@ namespace SharpProj {
                 }
             }
 
+            [EditorBrowsableAttribute(EditorBrowsableState::Never), DebuggerBrowsableAttribute(DebuggerBrowsableState::Never), ObsoleteAttribute("Please use .AsProjString(). Will be removed after 8.x")]
             property String^ Definition
             {
                 String^ get()

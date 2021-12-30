@@ -10,11 +10,6 @@
 using namespace System;
 
 namespace SharpProj {
-    using System::Diagnostics::DebuggerBrowsableAttribute;
-    using System::Diagnostics::DebuggerBrowsableState;
-    using System::ComponentModel::EditorBrowsableAttribute;
-    using System::ComponentModel::EditorBrowsableState;
-
     ref class ProjException;
     ref class CoordinateReferenceSystem;
 
@@ -40,6 +35,8 @@ namespace SharpProj {
         TCtx* (*m_close_handle)(TCtx* h);
         gcroot<WeakReference<TNetCtx^>^> m_netRef;
 
+        const int CTX_Pressure = 2 * 1024 * 1024; // Guess 2 MB memory pressure outside .Net
+
     public:
         ctx_wrapper(TCtx* value, TCtx* (*close_handle)(TCtx* h))
         {
@@ -48,6 +45,7 @@ namespace SharpProj {
             m_cnt = 1;
             m_meDisposed = false;
             m_netRef = gcnew WeakReference<TNetCtx^>(nullptr);
+            GC::AddMemoryPressure(CTX_Pressure);
         }
 
     private:
@@ -59,6 +57,8 @@ namespace SharpProj {
             auto h = m_handle;
             m_handle = nullptr;
             m_close_handle(h);
+
+            GC::RemoveMemoryPressure(CTX_Pressure);
         }
     public:
         __inline operator TCtx* () const

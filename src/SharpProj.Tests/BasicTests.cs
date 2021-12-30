@@ -83,7 +83,6 @@ namespace SharpProj.Tests
   }
 }".Replace("\r", "");
                     Assert.AreEqual(expected, crs.AsProjJson());
-                    Assert.AreEqual("proj=merc ellps=clrk66 lat_ts=33", crs.Definition);
                     Assert.AreEqual("+proj=merc +ellps=clrk66 +lat_ts=33", crs.AsProjString());
                 }
 

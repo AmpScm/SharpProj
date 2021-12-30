@@ -8,7 +8,7 @@ using SharpProj.Testing;
 
 namespace SharpProj.Tests
 {
-    [TestClass]
+    //[TestClass]
     public class SridTests
     {
         public TestContext TestContext { get; set; }

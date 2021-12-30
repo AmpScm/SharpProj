@@ -307,15 +307,6 @@ System::Collections::Generic::IEnumerable<String^>^ ProjContext::ProjLibDirs::ge
     {
         List<String^>^ dirs = gcnew List<String^>();
 
-        auto firstDir = System::Environment::GetEnvironmentVariable("SHARPPROJ_LIB_OVERRIDE");
-
-        if (firstDir && Directory::Exists(firstDir))
-        {
-            dirs->Add(firstDir);
-
-            return static_cast<System::Collections::Generic::IEnumerable<String^>^>(_projLibDirs);
-        }
-
         auto asb = ProjContext::typeid->Assembly;
 
         if (asb && asb->Location)
@@ -328,22 +319,29 @@ System::Collections::Generic::IEnumerable<String^>^ ProjContext::ProjLibDirs::ge
                 auto p = (gcnew System::Uri(asb->CodeBase))->LocalPath;
 
                 if (p)
+                {
                     p = Path::GetDirectoryName(p);
 
-                if (!dirs->Contains(p))
-                    dirs->Add(p);
+                    if (!dirs->Contains(p))
+                        dirs->Add(p);
+                }
             }
         }
         catch (Exception^)
         { /* Assembly security restrictions */
         }
 
-        if (AppDomain::CurrentDomain->BaseDirectory && !dirs->Contains(AppDomain::CurrentDomain->BaseDirectory))
-            dirs->Add(AppDomain::CurrentDomain->BaseDirectory);
+        if (AppDomain::CurrentDomain->BaseDirectory)
+        {
+            auto p = Path::GetDirectoryName(AppDomain::CurrentDomain->BaseDirectory);
+            if (!dirs->Contains(p))
+                dirs->Add(p);
+        }
 
         try
         {
-            String^ libs = System::Environment::GetEnvironmentVariable("PROJ_LIB");
+            PJ_INFO pi = proj_info();
+            String^ libs = Utf8_PtrToString(pi.searchpath);
 
             if (!String::IsNullOrEmpty(libs))
             {
@@ -397,9 +395,9 @@ String^ ProjContext::FindFile(String^ file)
     const char* pUserDir = proj_context_get_user_writable_directory(this, false);
     String^ userDir = Utf8_PtrToString(pUserDir);
 
-    if (File::Exists(testFile = Path::Combine(userDir, file)))
-        return testFile;
-    else if (File::Exists(testFile = Path::Combine(userDir, ("#proj" "-" PROJ_VERSION "-") + file)))
+
+    // UserDir is already contained in ProjLibDirs, so need to probe for the normal name here
+    if (File::Exists(testFile = Path::Combine(userDir, ("#proj" "-" PROJ_VERSION "-") + file)))
     {
         TouchFile(testFile);
         return testFile;
