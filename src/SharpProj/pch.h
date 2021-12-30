@@ -59,6 +59,7 @@ using System::ComponentModel::EditorBrowsableState;
 #define LIT(x) LIT2(x)
 
 #define PROJ_VERSION LIT(PROJ_VERSION_MAJOR) "." LIT(PROJ_VERSION_MINOR) "." LIT(PROJ_VERSION_PATCH)
+#define UNUSED_ALWAYS(x) ((void)x)
 
 inline static String^ Utf8_PtrToString(const char* pTxt)
 {

@@ -50,7 +50,7 @@ namespace SharpProj {
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
             initonly double m_dy_dlam, m_dy_dphi;
         internal:
-            CoordinateTransformFactors(CoordinateTransform^ op, PJ_FACTORS* factors)
+            CoordinateTransformFactors(const PJ_FACTORS* factors)
             {
                 m_meridional_scale = factors->meridional_scale;
                 m_parallel_scale = factors->parallel_scale;
@@ -380,7 +380,7 @@ namespace SharpProj {
         PPoint FromCoordinate(const PJ_COORD& coord, bool forward);
 
     public:
-        CoordinateTransform^ Clone([Optional]ProjContext^ ctx)
+        CoordinateTransform^ Clone([Optional]ProjContext^ ctx) new
         {
             return static_cast<CoordinateTransform^>(__super::Clone(ctx));
         }
@@ -493,6 +493,7 @@ namespace SharpProj {
     public:
         virtual CoordinateTransform^ CreateInverse([Optional]ProjContext^ ctx)
         {
+            UNUSED_ALWAYS(ctx);
             throw gcnew InvalidOperationException();
         }
 

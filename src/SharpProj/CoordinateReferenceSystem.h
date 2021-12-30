@@ -90,7 +90,7 @@ namespace SharpProj {
         }
 
     public:
-        CoordinateReferenceSystem^ Clone([Optional]ProjContext^ ctx)
+        CoordinateReferenceSystem^ Clone([Optional]ProjContext^ ctx) new
         {
             return static_cast<CoordinateReferenceSystem^>(__super::Clone(ctx));
         }

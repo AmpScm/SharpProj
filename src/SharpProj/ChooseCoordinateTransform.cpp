@@ -20,8 +20,6 @@ PPoint ChooseCoordinateTransform::DoTransform(bool forward, PPoint% coordinate)
 	PJ_COORD coord;
 	SetCoordinate(coord, coordinate);
 
-	constexpr int N_MAX_RETRY = 2;
-
 	const int nOperations = Count;
 
 	// We may need several attempts. For example the point at

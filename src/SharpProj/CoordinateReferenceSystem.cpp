@@ -50,7 +50,7 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(String^ from, ProjC
     if (String::IsNullOrWhiteSpace(from))
         throw gcnew ArgumentNullException("from");
 
-    bool createdCtx;
+    bool createdCtx = false;
     if (!ctx)
     {
         ctx = gcnew ProjContext();
@@ -107,7 +107,7 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::CreateFromWellKnownText(St
     if (String::IsNullOrWhiteSpace(from))
         throw gcnew ArgumentNullException("from");
 
-    bool createdCtx;
+    bool createdCtx = false;
     if (!ctx)
     {
         ctx = gcnew ProjContext();
@@ -182,7 +182,7 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(array<String^>^ fro
     }
     lst[from->Length] = 0; // also used for 'type=crs'
 
-    bool createdCtx;
+    bool createdCtx = false;
     if (!ctx)
     {
         ctx = gcnew ProjContext();

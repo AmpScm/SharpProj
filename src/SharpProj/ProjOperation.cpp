@@ -175,8 +175,7 @@ IReadOnlyList<String^>^ ProjOperationDefinition::RequiredArguments::get()
             {
                 auto info = lines[1]->Trim();
 
-                int n;
-                while (0 <= (n = info->IndexOf('[')))
+                for (int n = 0; (0 <= (n = info->IndexOf('[')));)
                 {
                     int nn = info->IndexOf(']', n + 1);
 

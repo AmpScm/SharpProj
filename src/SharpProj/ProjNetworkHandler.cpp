@@ -36,6 +36,7 @@ static PROJ_NETWORK_HANDLE* my_network_open(
     char* out_error_string,
     void* user_data)
 {
+    UNUSED_ALWAYS(ctx);
     const auto& ref = *(ctx_wrapper<PJ_CONTEXT, ProjContext>*)user_data;
     ProjContext^ pc;
     if (!ref.TryGetTarget(pc))
@@ -161,6 +162,8 @@ static void my_network_close(
     PROJ_NETWORK_HANDLE* handle,
     void* user_data)
 {
+    UNUSED_ALWAYS(ctx);
+    UNUSED_ALWAYS(user_data);
     my_network_data* d = (my_network_data*)handle;
 
     WebResponse^ rp = d->rp;
@@ -181,6 +184,8 @@ const char* my_network_get_header_value(
     const char* header_name,
     void* user_data)
 {
+    UNUSED_ALWAYS(ctx);
+    UNUSED_ALWAYS(user_data);
     my_network_data* d = (my_network_data*)handle;
 
     if (nullptr != (Object^)d->rp)
@@ -204,6 +209,8 @@ size_t my_network_read_range(
     char* out_error_string,
     void* user_data)
 {
+    UNUSED_ALWAYS(ctx);
+    UNUSED_ALWAYS(user_data);
     my_network_data* d = (my_network_data*)handle;
 
     if (error_string_max_size > 0 && out_error_string)

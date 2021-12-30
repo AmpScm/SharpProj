@@ -126,7 +126,8 @@ ProjContext^ ProjContext::Clone()
 
 SharpProj::ProjContext::~ProjContext()
 {
-    EnableNetworkConnections = false;
+    if (!m_disposed)
+        EnableNetworkConnections = false;
 
     ProjContext::!ProjContext();
 }
@@ -250,27 +251,6 @@ Exception^ ProjContext::ConstructException(String^ prefix)
     }
 
     return CreateException(err, projMsg, msg ? CreateException(err, msg, nullptr) : nullptr);
-}
-
-String^ ProjContext::EnvCombine(String^ envVar, String^ file)
-{
-    try
-    {
-        String^ ev = Environment::GetEnvironmentVariable("PROJ_LIB");
-
-        if (String::IsNullOrEmpty(ev))
-            return file;
-
-        return Path::GetFullPath(Path::Combine(ev, file));
-    }
-    catch (IOException^)
-    {
-        return file;
-    }
-    catch (ArgumentException^)
-    {
-        return file;
-    }
 }
 
 bool ProjContext::CanWriteFromResource(String^ file, String^ userDir, String^ resultFile)

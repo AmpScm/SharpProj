@@ -235,7 +235,7 @@ namespace SharpProj {
         property bool AutoCloseSession
         {
             bool get() { return false; }
-            void set(bool value) {}
+            void set(bool value) { UNUSED_ALWAYS(value); }
         }
 
         /// <summary>
@@ -416,9 +416,6 @@ namespace SharpProj {
         {
             Log(level, message);
         }
-
-    private:
-        static String^ EnvCombine(String^ envVar, String^ file);
 
     internal:
         static void DownloadProjDB(String^ toPath);

@@ -121,7 +121,7 @@ namespace SharpProj {
             if (n >= 4 && HasT)
                 m_axis = 4;
             else
-                m_axis = Math::Min(v->Length, 3);
+                m_axis = (Byte)Math::Min(v->Length, 3);
         }
 
         property bool HasT
@@ -266,7 +266,7 @@ namespace SharpProj {
             void set(int value)
             {
                 if (value >= 1 && value <= 4)
-                    m_axis = value;
+                    m_axis = (Byte)value;
                 else if (m_axis == 0)
                     m_axis = (HasT ? 4 : 3);
             }

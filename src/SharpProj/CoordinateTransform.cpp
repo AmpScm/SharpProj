@@ -230,7 +230,7 @@ Proj::CoordinateTransformFactors^ CoordinateTransform::Factors(PPoint coordinate
 
     PJ_FACTORS f = proj_factors(this, coord);
 
-    return gcnew Proj::CoordinateTransformFactors(this, &f);
+    return gcnew Proj::CoordinateTransformFactors(&f);
 }
 
 PPoint CoordinateTransform::DoTransform(bool forward, PPoint% coordinate)
