@@ -1,62 +1,73 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
-    <UseWindowsForms>true</UseWindowsForms>
-    <Platforms>x64;x86</Platforms>
-    <Configurations>Debug;Release;DebugCore;ReleaseCore</Configurations>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <UseWindowsForms>true</UseWindowsForms>
+        <Platforms>x64;x86</Platforms>
+        <Configurations>Debug;Release;DebugCore;ReleaseCore</Configurations>
+        <LangVersion>Latest</LangVersion>
+        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-    <PlatformTarget>x86</PlatformTarget>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+        <PlatformTarget>x86</PlatformTarget>
+        <TargetFrameworks>net462</TargetFrameworks>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugCore|x86'">
-    <PlatformTarget>x86</PlatformTarget>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugCore|x86'">
+        <PlatformTarget>x86</PlatformTarget>
+        <TargetFrameworks>net5.0-windows</TargetFrameworks>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <PlatformTarget>x64</PlatformTarget>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+        <PlatformTarget>x64</PlatformTarget>
+        <TargetFrameworks>net462</TargetFrameworks>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugCore|x64'">
-    <PlatformTarget>x64</PlatformTarget>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugCore|x64'">
+        <PlatformTarget>x64</PlatformTarget>
+        <TargetFrameworks>net5.0-windows</TargetFrameworks>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
-    <PlatformTarget>x86</PlatformTarget>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+        <PlatformTarget>x86</PlatformTarget>
+        <TargetFrameworks>net462</TargetFrameworks>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseCore|x86'">
-    <PlatformTarget>x86</PlatformTarget>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseCore|x86'">
+        <PlatformTarget>x86</PlatformTarget>
+        <TargetFrameworks>net5.0-windows</TargetFrameworks>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <PlatformTarget>x64</PlatformTarget>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+        <PlatformTarget>x64</PlatformTarget>
+        <TargetFrameworks>net462</TargetFrameworks>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseCore|x64'">
-    <PlatformTarget>x64</PlatformTarget>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseCore|x64'">
+        <PlatformTarget>x64</PlatformTarget>
+        <TargetFrameworks>net5.0-windows</TargetFrameworks>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="mapdata.json" />
-    <None Remove="mapdata.json.gz" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Remove="mapdata.json" />
+        <None Remove="mapdata.json.gz" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="mapdata.json.gz" />
-  </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="mapdata.json.gz" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="NetTopologySuite" Version="2.4.0" />
-    <PackageReference Include="SharpProj.Database" Version="8.1.0" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="NetTopologySuite" Version="2.4.0" />
+        <PackageReference Include="SharpProj.Database" Version="8.1.1" />
+        <PackageReference Include="System.Text.Json" Version="6.0.1" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\SharpProj.NetTopologySuite\SharpProj.NetTopologySuite.csproj" />
-    <ProjectReference Include="..\SharpProj\SharpProj.vcxproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\SharpProj.NetTopologySuite\SharpProj.NetTopologySuite.csproj" />
+        <ProjectReference Include="..\SharpProj\SharpProj.vcxproj" />
+    </ItemGroup>
 
 </Project>

@@ -37,10 +37,19 @@ echo Prepare building SharpProj %PROJ_VERSION_MAJOR%.%SHARPPROJ_MINOR%.%2
 ) >> %CACHE%
 
 (
+  REM For SDK Projects
+  echo /p:Version=%SHARPPROJ_MAJOR%.%SHARPPROJ_MINOR%.%SHARPPROJ_PATCH%
+  echo /p:Company="SharpProj Project, powered by AmpScm, QQn & GitHub"
+  echo /p:Copyright="Apache 2.0 licensed. See https://github.com/ampscm/SharpProj"
+  echo /p:InformationalVersion=%SHARPPROJ_MAJOR%.%SHARPPROJ_MINOR%.%SHARPPROJ_PATCH%-%GIT_SHA%
+  
+  REM For SharpSvn.AnnotateAssembly
   echo /p:ForceAssemblyVersion=%SHARPPROJ_MAJOR%.%SHARPPROJ_MINOR%.%SHARPPROJ_PATCH%
   echo /p:ForceAssemblyCompany="SharpProj Project, powered by AmpScm, QQn & GitHub"
   echo /p:ForceAssemblyCopyright="Apache 2.0 licensed. See https://github.com/ampscm/SharpProj"
   echo /p:ForceAssemblyInformationalVersion=%SHARPPROJ_MAJOR%.%SHARPPROJ_MINOR%.%SHARPPROJ_PATCH%-%GIT_SHA%
+  
+  REM For scripting
   echo /p:BuildBotBuild=true
   echo /p:RestoreForce=true
 ) > %RSPFILE%

@@ -14,7 +14,9 @@ namespace SharpProj.CrsExplorer
         [STAThread]
         public static void Main()
         {
+#if !NETFRAMEWORK
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
+#endif
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
