@@ -64,7 +64,6 @@ namespace SharpProj.Tests
             {
                 case "lat_0" when (name == "labrd"): return set("-10");
                 case "lat_0" when (name == "lcca"): return set("35");
-                case "lon_0" when (name == "labrd"): return set("40");
                 case "lon_0" when (name == "lcc"): return set("-90");
 
                 case "lat_1" when (name == "aea"): return set("29.5");

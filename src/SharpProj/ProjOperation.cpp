@@ -169,7 +169,7 @@ IReadOnlyList<String^>^ ProjOperationDefinition::RequiredArguments::get()
 
         if (!String::IsNullOrEmpty(dl))
         {
-            auto lines = dl->Split('\n', 3);
+            auto lines = dl->Split('\n', 2);
 
             if (lines->Length >= 2)
             {
@@ -201,12 +201,10 @@ IReadOnlyList<String^>^ ProjOperationDefinition::RequiredArguments::get()
                         args->Add(w->Substring(0, n));
                     }
 
-                    if (Name == "labrd") // Not encoded in info line :(
+                    if (Name == "labrd") // Not encoded in info line in 8.x :(
                     {
                         if (!args->Contains("lat_0"))
                             args->Add("lat_0");
-                        if (!args->Contains("lon_0"))
-                            args->Add("lon_0");
                     }
 
                     if (args->Count)
