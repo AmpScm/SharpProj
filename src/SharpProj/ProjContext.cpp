@@ -54,6 +54,7 @@ void ProjContext::free_chain(void*& chain)
 
 static const char* my_file_finder(PJ_CONTEXT* ctx, const char* file, void* user_data)
 {
+    UNUSED_ALWAYS(ctx);
     const auto& ref = *(ctx_wrapper<PJ_CONTEXT, ProjContext>*)user_data;
 
     ProjContext^ pc;

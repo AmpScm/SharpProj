@@ -396,6 +396,7 @@
     <ClCompile Include="CoordinateReferenceSystemList.cpp" />
     <ClCompile Include="CoordinateSystem.cpp" />
     <ClCompile Include="GridUsage.cpp" />
+    <ClCompile Include="libjpeg-stub.cpp" />
     <ClCompile Include="PPoint.cpp" />
     <ClCompile Include="DatumList.cpp" />
     <ClCompile Include="Ellipsoid.cpp" />

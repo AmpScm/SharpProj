@@ -164,6 +164,9 @@
     <ClCompile Include="ProjIdentifier.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="libjpeg-stub.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

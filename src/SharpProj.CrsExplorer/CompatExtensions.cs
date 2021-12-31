@@ -18,6 +18,10 @@ namespace SharpProj.CrsExplorer
                     on = on.ToUpperInvariant();
                     what = what.ToUpperInvariant();
                     break;
+                case StringComparison.CurrentCultureIgnoreCase:
+                    on = on.ToUpper();
+                    what = what.ToUpper();
+                    break;
             }
 
             return on.Contains(what);

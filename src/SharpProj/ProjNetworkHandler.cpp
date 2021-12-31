@@ -391,9 +391,3 @@ void ProjContext::DownloadProjDB(String^ target)
             delete rp;
     }
 }
-
-#if !defined(_DEBUG) && !defined(NO_LNK4248_SUPPRESSIONS)
-struct pj_ctx {};
-struct PJconsts {};
-struct PROJ_NETWORK_HANDLE {};
-#endif
