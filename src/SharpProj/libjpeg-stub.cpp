@@ -28,17 +28,17 @@ void jpeg_finish_compress(j_compress_ptr cinfo)
 
 JDIMENSION jpeg_write_scanlines(j_compress_ptr cinfo, JSAMPARRAY scanlines, JDIMENSION num_lines)
 {
-    return -1;
+    return (JDIMENSION)-1;
 }
 
 JDIMENSION jpeg_write_raw_data(j_compress_ptr cinfo, JSAMPIMAGE data, JDIMENSION num_lines)
 {
-    return -1;
+    return (JDIMENSION)-1;
 }
 
 void jpeg_suppress_tables(j_compress_ptr cinfo, boolean suppress)
 {
-    
+
 }
 
 struct jpeg_error_mgr* jpeg_std_error(struct jpeg_error_mgr* err)
@@ -56,17 +56,17 @@ boolean jpeg_start_decompress(j_decompress_ptr cinfo)
 
 JDIMENSION jpeg_read_scanlines(j_decompress_ptr cinfo, JSAMPARRAY scanlines, JDIMENSION max_lines)
 {
-    return -1;
+    return (JDIMENSION) - 1;
 }
 
 JDIMENSION jpeg_read_raw_data(j_decompress_ptr cinfo, JSAMPIMAGE data, JDIMENSION max_lines)
 {
-    return -1;
+    return (JDIMENSION) - 1;
 }
 
 boolean jpeg_finish_decompress(j_decompress_ptr cinfo)
 {
-    return -1;
+    return false;
 }
 
 void jpeg_abort(j_common_ptr cinfo)
