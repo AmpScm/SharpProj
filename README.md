@@ -1,13 +1,34 @@
-# SharpProj - Wrapping the real PROJ (previously known as PROJ4) for .Net
+# SharpProj - Wrapping the real [OSGEO](https://www.osgeo.org/projects/proj/) [PROJ](https://proj.org/) for usage in .Net (Core)
 
 [![latest version](https://img.shields.io/nuget/v/SharpProj)](https://www.nuget.org/packages/SharpProj)
-
 
 Use the real OSGeo PROJ implementation, implemented the .Net way, reusable and available as simple to use package on NuGet
 
 https://www.nuget.org/packages/SharpProj/
 
+## Simple example
 
+```csharp
+using SharpProj;
+
+using (var pc = new ProjContext())
+{
+   using (var rd = CoordinateReferenceSystem.CreateFromEpsg(28992, pc))
+   using (var wgs84 = CoordinateReferenceSystem.CreateFromEpsg(4326, pc))
+   {
+       var area = rd.UsageArea;
+       Assert.AreEqual("Netherlands - onshore, including Waddenzee, Dutch Wadden Islands and 12-mile offshore coastal zone.", area.Name);
+
+       using (var t = CoordinateTransform.Create(rd, wgs84))
+       {
+          var r = t.Apply(new PPoint(155000, 463000));
+          Assert.AreEqual(new PPoint(52.155, 5.387), r.ToXY(3)); // Round to 3 decimals for easy testing
+       }
+   }
+}
+```
+
+## Building SharpProj
 Setup build environment using:
 
     mkdir dev
