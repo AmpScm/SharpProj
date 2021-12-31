@@ -22,16 +22,8 @@ CoordinateTransform::CoordinateTransform(ProjContext^ ctx, PJ* pj)
 
 CoordinateTransform::~CoordinateTransform()
 {
-    if ((Object^)m_source)
-    {
-        delete m_source;
-        m_source = nullptr;
-    }
-    if ((Object^)m_target)
-    {
-        delete m_target;
-        m_target = nullptr;
-    }
+    DisposeIfNotNull(m_source);
+    DisposeIfNotNull(m_target);
     if (m_pgeod)
     {
         delete m_pgeod;

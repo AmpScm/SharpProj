@@ -52,7 +52,7 @@ namespace SharpProj {
         [DebuggerBrowsable(DebuggerBrowsableState::Never)]
         CoordinateReferenceSystem^ m_axisNormalizedMe;
         [DebuggerBrowsable(DebuggerBrowsableState::Never)]
-        CoordinateReferenceSystem^ m_nonNormalized;
+        IDisposable^ m_alsoDispose; // Used for ancestor 'variant' or self created-ctx
         [DebuggerBrowsable(DebuggerBrowsableState::Never)]
         int m_axis;
         [DebuggerBrowsable(DebuggerBrowsableState::Never)]
@@ -142,7 +142,7 @@ namespace SharpProj {
         }
 
         CoordinateReferenceSystem^ PromotedTo3D();
-        CoordinateReferenceSystem^ DemoteTo2D();
+        CoordinateReferenceSystem^ DemotedTo2D();
 
         property Proj::UsageArea^ UsageArea
         {
@@ -166,6 +166,14 @@ namespace SharpProj {
         }
 
     public:
+        /// <summary>
+        /// Gets this coordinate system, but now with axis normalized. If <paramref name="context" /> is not NULL, a new
+        /// coordinate system within the specified context is returned. Otherwise the coordinate system itself or a coupled
+        /// variant is returned. If a normalized variant is created disposing either the origin or the normalized version
+        /// will also dispose the other.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         CoordinateReferenceSystem^ WithAxisNormalized([Optional] ProjContext^ context);
 
     public:

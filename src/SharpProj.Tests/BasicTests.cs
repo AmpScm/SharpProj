@@ -585,10 +585,7 @@ namespace SharpProj.Tests
                 {
                     using (var c = p.Create())
                     {
-                        if (c.Type == ProjType.TemporalCrs)
-                        {
-                            Console.WriteLine("!!Temporal!!");
-                        }
+                        Assert.AreEqual(p.Type, c.Type);
                         Assert.IsNotNull(p.Authority);
                         Assert.IsNotNull(p.Code);
                         Console.WriteLine($"{p.Authority}:{p.Code} ({p.Type}) / {p.ProjectionName} {c.Name}");
@@ -906,6 +903,39 @@ namespace SharpProj.Tests
                     //Assert.AreEqual(ua.MaxY, yMax, $"YMax out of bounds for {points[pTransformed.IndexOf(pTransformed.FirstOrDefault(x => x.X == yMax))]}");
                 }
                 Console.WriteLine("---");
+            }
+        }
+
+        [TestMethod]
+        public void PromoteDemote()
+        {
+            using (var crs = CoordinateReferenceSystem.CreateFromEpsg(25832))
+            {
+                Assert.AreEqual("ETRS89 / UTM zone 32N", crs.Name);
+                Assert.AreEqual(2, crs.AxisCount);
+                Assert.AreEqual("Easting:metre, Northing:metre", string.Join(", ",crs.Axis.Select(x=>x.Name+":"+x.UnitName)));
+                Assert.AreEqual("Earth", crs.CelestialBodyName);
+
+                using (var crs3D = crs.PromotedTo3D())
+                {
+                    Assert.AreEqual("ETRS89 / UTM zone 32N", crs3D.Name);
+                    Assert.AreEqual(3, crs3D.AxisCount);
+                    Assert.AreEqual("Easting:metre, Northing:metre, Ellipsoidal height:metre", string.Join(", ", crs3D.Axis.Select(x => x.Name + ":" + x.UnitName)));
+                }
+            }
+
+            using (var crs = CoordinateReferenceSystem.CreateFromEpsg(8370))
+            {
+                Assert.AreEqual("ETRS89 / Belgian Lambert 2008 + Ostend height", crs.Name);
+                Assert.AreEqual(3, crs.AxisCount);
+                Assert.AreEqual("Easting:metre, Northing:metre, Gravity-related height:metre", string.Join(", ", crs.Axis.Select(x => x.Name + ":" + x.UnitName)));
+
+                using (var crs2D = crs.DemotedTo2D())
+                {
+                    Assert.AreEqual("ETRS89 / Belgian Lambert 2008", crs2D.Name);
+                    Assert.AreEqual(2, crs2D.AxisCount);
+                    Assert.AreEqual("Easting:metre, Northing:metre", string.Join(", ", crs2D.Axis.Select(x => x.Name + ":" + x.UnitName)));
+                }
             }
         }
     }

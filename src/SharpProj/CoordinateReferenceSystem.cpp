@@ -16,11 +16,11 @@
 using namespace SharpProj;
 using namespace SharpProj::Proj;
 
-// First clear field, then dispose, to avoid loops
-template<typename T>
-void DisposeIfNotNull(T% what)
+// first clear field, then dispose, to avoid loops
+template<typename t>
+void disposeifnotnull(t% what)
 {
-    if ((Object^)what != nullptr)
+    if ((object^)what != nullptr)
     {
         auto v = what;
         what = nullptr;
@@ -40,7 +40,7 @@ CoordinateReferenceSystem::~CoordinateReferenceSystem()
     DisposeIfNotNull(m_promotedTo3D);
     DisposeIfNotNull(m_demotedTo2D);
     DisposeIfNotNull(m_axisNormalizedMe);
-    DisposeIfNotNull(m_nonNormalized);
+    DisposeIfNotNull(m_alsoDispose);
 
     m_from = nullptr; // Not owned!
 }
@@ -84,7 +84,10 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(String^ from, ProjC
             throw gcnew ProjException(String::Format("'{0}' doesn't describe a coordinate system", from));
         }
 
-        return ctx->Create<CoordinateReferenceSystem^>(pj);
+        auto r = ctx->Create<CoordinateReferenceSystem^>(pj);
+        if (createdCtx)
+            r->m_alsoDispose = ctx;
+        return r;
     }
     catch (Exception^)
     {
@@ -157,7 +160,10 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::CreateFromWellKnownText(St
             throw gcnew ProjException(String::Format("'{0}' doesn't describe a coordinate system", from));
         }
 
-        return ctx->Create<CoordinateReferenceSystem^>(pj);
+        auto r = ctx->Create<CoordinateReferenceSystem^>(pj);
+        if (createdCtx)
+            r->m_alsoDispose = ctx;
+        return r;
     }
     catch (Exception^)
     {
@@ -212,7 +218,10 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(array<String^>^ fro
             }
         }
 
-        return ctx->Create<CoordinateReferenceSystem^>(pj);
+        auto r = ctx->Create<CoordinateReferenceSystem^>(pj);
+        if (createdCtx)
+            r->m_alsoDispose = ctx;
+        return r;
     }
     catch (Exception^)
     {
@@ -251,10 +260,13 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::CreateFromDatabase(String^
         std::string codeStr = utf8_string(code);
         PJ* pj = proj_create_from_database(ctx, authStr.c_str(), codeStr.c_str(), PJ_CATEGORY_CRS, false, nullptr);
 
-        if (pj)
-            return ctx->Create<CoordinateReferenceSystem^>(pj);
-        else
+        if (!pj)
             throw ctx->ConstructException();
+
+        auto r = ctx->Create<CoordinateReferenceSystem^>(pj);
+        if (createdCtx)
+            r->m_alsoDispose = ctx;
+        return r;
     }
     catch (Exception^)
     {
@@ -362,7 +374,7 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::WithAxisNormalized(ProjCon
     if (allowReturnSame && !m_axisNormalizedMe)
     {
         m_axisNormalizedMe = crs;
-        crs->m_nonNormalized = this; // Handle explicit using(var x = CoordinateReferenceSystem.Create(...).WithAxisNormalized())
+        crs->m_alsoDispose = this; // Handle explicit using(var x = CoordinateReferenceSystem.Create(...).WithAxisNormalized())
     }
 
 
@@ -423,12 +435,15 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::PromotedTo3D()
         if (!pj)
             Context->ClearError(this);
         else
+        {
             m_promotedTo3D = Context->Create<CoordinateReferenceSystem^>(pj);
+            m_promotedTo3D->m_alsoDispose = this; // Dispose with this
+        }
     }
     return m_promotedTo3D;
 }
 
-CoordinateReferenceSystem^ CoordinateReferenceSystem::DemoteTo2D()
+CoordinateReferenceSystem^ CoordinateReferenceSystem::DemotedTo2D()
 {
     if (!m_demotedTo2D && this)
     {
@@ -437,7 +452,10 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::DemoteTo2D()
         if (!pj)
             Context->ClearError(this);
         else
+        {
             m_demotedTo2D = Context->Create<CoordinateReferenceSystem^>(pj);
+            m_demotedTo2D->m_alsoDispose = this; // Dispose with this
+        }
     }
     return m_demotedTo2D;
 }

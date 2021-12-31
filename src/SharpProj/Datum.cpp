@@ -4,11 +4,7 @@
 
 Datum::~Datum()
 {
-	if ((Object^)m_ellipsoid)
-	{
-		delete m_ellipsoid;
-		m_ellipsoid = nullptr;
-	}
+    DisposeIfNotNull(m_ellipsoid);
 }
 
 Datum^ Datum::CreateFromDatabase(String^ authority, String^ code, ProjContext^ ctx)

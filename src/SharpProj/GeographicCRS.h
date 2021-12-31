@@ -41,11 +41,7 @@ namespace SharpProj {
         private:
             ~BoundCRS()
             {
-                if ((Object^)m_hubCrs)
-                {
-                    delete m_hubCrs;
-                    m_hubCrs = nullptr;
-                }
+                DisposeIfNotNull(m_hubCrs);
             }
 
         public:

@@ -91,5 +91,16 @@ inline static String^ Utf8_PtrToString(const char* pTxt, int len)
     return gcnew String(pTxt, 0, len, System::Text::Encoding::UTF8);
 }
 
+// First clear field, then dispose, to avoid loops
+template<typename T>
+void DisposeIfNotNull(T% what)
+{
+    if ((Object^)what != nullptr)
+    {
+        auto v = what;
+        what = nullptr;
+        delete v;
+    }
+}
 
 #endif //PCH_H
