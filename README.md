@@ -6,7 +6,7 @@ Use the real OSGeo PROJ implementation, implemented the .Net way, reusable and a
 
 https://www.nuget.org/packages/SharpProj/
 
-## Simple example
+## Usage
 
 ```csharp
 using SharpProj;
