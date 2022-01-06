@@ -98,17 +98,20 @@ namespace SharpProj.Tests
         }
 
         [TestMethod]
-        public void InvokeWays()
+        [DataRow(false)]
+        [DataRow(true)]
+        public void InvokeWays(bool enableNetwork)
         {
             using (ProjContext pc = new ProjContext())
             {
-                pc.EnableNetworkConnections = false;
+                pc.EnableNetworkConnections = enableNetwork;
 
                 using (CoordinateReferenceSystem crsFrom = CoordinateReferenceSystem.CreateFromEpsg(2964, pc))
                 using (CoordinateReferenceSystem crsTo = CoordinateReferenceSystem.CreateFromEpsg(4326, pc))
                 using (var ct = CoordinateTransform.Create(crsFrom, crsTo))
                 {
-                    Assert.AreEqual("United States (USA) - Alaska mainland.", ct.UsageArea.Name);
+                    Assert.AreEqual(enableNetwork ? "United States (USA) - Alaska including EEZ."
+                                                  :"United States (USA) - Alaska mainland.", ct.UsageArea.Name);
 
                     Func<UsageArea, IEnumerable<PPoint>> getPoints =
                         (ua) => typeof(UsageArea).GetProperties().Where(x => x.PropertyType == typeof(PPoint)).Select(x => (PPoint)x.GetValue(ua)).Where(x => x.HasValues);
@@ -136,6 +139,25 @@ namespace SharpProj.Tests
 
                         Assert.AreEqual(ranked[i, 0], xs[i]);
                         Assert.AreEqual(ranked[i, 1], ys[i]);
+                    }
+
+                    PPoint[] backPoints = transformedPoints.Select(p => ct.ApplyReversed(p)).ToArray();
+                    ct.ApplyReversed(xs, ys);
+                    ct.ApplyReversed(ranked);
+
+                    int precision = enableNetwork ? 1 : 10000; // Without network this doesn't perform a sane roundtrip
+
+                    for (int i = 0; i < allPoints.Length; i++)
+                    {
+                        Assert.AreEqual(Math.Round(allPoints[i].X / precision), Math.Round(backPoints[i].X / precision));
+                        Assert.AreEqual(Math.Round(allPoints[i].Y / precision), Math.Round(backPoints[i].Y / precision));
+
+                        Assert.AreEqual(backPoints[i].X, xs[i]);
+                        Assert.AreEqual(backPoints[i].Y, ys[i]);
+
+                        Assert.AreEqual(ranked[i, 0], xs[i]);
+                        Assert.AreEqual(ranked[i, 1], ys[i]);
+                       
                     }
                 }
             }

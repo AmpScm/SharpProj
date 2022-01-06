@@ -652,7 +652,7 @@ void CoordinateTransform::Apply(...array<array<double>^>^ ordinateArrays)
         {
         }
         else if (ordinateArrays[0]->Length != l && ordinateArrays[0]->Length != 0)
-            throw gcnew ArgumentException("Invalid length of Y array");
+            throw gcnew ArgumentException("Invalid length of X array");
         else
             pX = &ordinateArrays[0][0];
 
@@ -754,9 +754,9 @@ void CoordinateTransform::ApplyReversed(...array<array<double>^>^ ordinateArrays
         {
         }
         else if (ordinateArrays[0]->Length != l && ordinateArrays[0]->Length != 0)
-            throw gcnew ArgumentException("Invalid length of Y array");
+            throw gcnew ArgumentException("Invalid length of X array");
         else
-            pY = &ordinateArrays[0][0];
+            pX = &ordinateArrays[0][0];
 
         break;
     default:
