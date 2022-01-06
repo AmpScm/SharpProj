@@ -40,10 +40,6 @@ jobs:
     - name: Ensure Proj packages are available
       run: vcpkg.exe install --overlay-ports=${{ github.workspace }}\build\vcpkg_overlays "proj4[core,tiff]:x64-windows-static-md" "proj4[core,tiff]:x86-windows-static-md"
 
-    - name: Restore NuGet package (legacy style, vcxproj only)
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: nuget restore build\src\SharpProj\SharpProj.vcxproj -SolutionDirectory build\src
-
     - name: Setup version
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: cmd.exe /C build\scripts\gh-version-setup vcpkg\installed\x86-windows-static-md\include\proj.h ${{ github.run_number }}
@@ -51,6 +47,10 @@ jobs:
     - name: Create nupkg for db package
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: cmd.exe /C build\scripts\gh-build-nuget.cmd --db-only
+
+    - name: Restore NuGet package (legacy style, vcxproj only)
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: nuget restore build\src\SharpProj\SharpProj.vcxproj -SolutionDirectory build\src
 
     - name: Build-x86
       working-directory: ${{env.GITHUB_WORKSPACE}}

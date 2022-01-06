@@ -3,7 +3,7 @@ setlocal enableextensions
 
 if "%1" == "--db-only" (
   SET DB_ONLY=1
-  SHIFT
+  SHIFT /1
 ) ELSE (
   SET DB_ONLY=0
 )
@@ -49,7 +49,7 @@ CALL :xmlpoke SharpProj.NetTopologySuite.nuspec "//nu:dependency[@id='SharpProj.
 
 nuget pack SharpProj.Database.nuspec -version %PROJ_VER% -OutputDirectory bin || exit /B 1
 
-IF "%DB_ONLY" == "1" (
+IF "%DB_ONLY%" == "1" (
   exit /B 0
 )
 
