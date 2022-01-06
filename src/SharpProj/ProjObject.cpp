@@ -151,13 +151,7 @@ ProjObject^ ProjContext::CreateFromWellKnownText(String^ from, [Out] array<Strin
         throw ex;
     }
 
-    if (!proj_is_crs(pj))
-    {
-        proj_destroy(pj);
-        throw gcnew ProjException(String::Format("'{0}' doesn't describe a coordinate system", from));
-    }
-
-    return Create<CoordinateReferenceSystem^>(pj);
+    return Create(pj);
 }
 
 ProjObject^ ProjContext::Create(PJ* pj)

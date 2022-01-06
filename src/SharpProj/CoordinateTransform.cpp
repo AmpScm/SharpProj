@@ -154,7 +154,7 @@ CoordinateTransform^ CoordinateTransform::Create(String^ from, ProjContext^ ctx)
     if (ct)
         return ct;
 
-    throw gcnew ProjException("Proj Object is no CoordinateTransform");
+    throw gcnew ProjTypeException("Proj Object is no CoordinateTransform");
 }
 
 CoordinateTransform^ CoordinateTransform::Create(array<String^>^ definition, ProjContext^ ctx)
@@ -165,7 +165,7 @@ CoordinateTransform^ CoordinateTransform::Create(array<String^>^ definition, Pro
     if (ct)
         return ct;
 
-    throw gcnew ProjException("Proj Object is no CoordinateTransform");
+    throw gcnew ProjTypeException("Proj Object is no CoordinateTransform");
 }
 
 CoordinateTransform^ CoordinateTransform::CreateFromDatabase(String^ authority, String^ code, ProjContext^ ctx)

@@ -81,7 +81,7 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(String^ from, ProjC
                 }
             }
 
-            throw gcnew ProjException(String::Format("'{0}' doesn't describe a coordinate system", from));
+            throw gcnew ProjTypeException(String::Format("'{0}' doesn't describe a coordinate system", from));
         }
 
         auto r = ctx->Create<CoordinateReferenceSystem^>(pj);
@@ -157,7 +157,7 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::CreateFromWellKnownText(St
         if (!proj_is_crs(pj))
         {
             proj_destroy(pj);
-            throw gcnew ProjException(String::Format("'{0}' doesn't describe a coordinate system", from));
+            throw gcnew ProjTypeException(String::Format("'{0}' doesn't describe a coordinate system", from));
         }
 
         auto r = ctx->Create<CoordinateReferenceSystem^>(pj);
@@ -214,7 +214,7 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(array<String^>^ fro
                 if (pj)
                     proj_destroy(pj);
 
-                throw gcnew ProjException(String::Format("'{0}' doesn't describe a coordinate system", String::Join(" ", from)));
+                throw gcnew ProjTypeException(String::Format("'{0}' doesn't describe a coordinate system", String::Join(" ", from)));
             }
         }
 
