@@ -46,7 +46,7 @@ echo Prepare building SharpProj %PROJ_VERSION_MAJOR%.%SHARPPROJ_MINOR%.%2
   REM For SharpSvn.AnnotateAssembly
   echo /p:ForceAssemblyVersion=%SHARPPROJ_MAJOR%.%SHARPPROJ_MINOR%.%SHARPPROJ_PATCH%
   echo /p:ForceAssemblyCompany="SharpProj Project, powered by AmpScm, QQn & GitHub"
-  echo /p:ForceAssemblyCopyright="Apache 2.0 licensed. See https://github.com/ampscm/SharpProj"
+  echo /p:ForceAssemblyCopyright="Apache 2.0 licensed. See https://github.com/AmpScm/SharpProj"
   echo /p:ForceAssemblyInformationalVersion=%SHARPPROJ_MAJOR%.%SHARPPROJ_MINOR%.%SHARPPROJ_PATCH%-%GIT_SHA%
   
   REM For scripting

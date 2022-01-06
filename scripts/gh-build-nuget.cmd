@@ -1,3 +1,10 @@
 @echo off
 setlocal enableextensions
-%0\..\..\nuspec\build.cmd -gh
+
+if "%*" == "" (
+  SET ARG=-gh
+) ELSE (
+  SET ARG=%* -gh
+)
+
+%0\..\..\nuspec\build.cmd %ARG%

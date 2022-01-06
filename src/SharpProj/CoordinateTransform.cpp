@@ -718,7 +718,7 @@ void CoordinateTransform::ApplyReversed(...array<array<double>^>^ ordinateArrays
     pin_ptr<double> pZ;
     pin_ptr<double> pT;
 
-    int l = ordinateArrays[0]->Length;
+    int l = ordinateArrays[0] != nullptr ? ordinateArrays[0]->Length : 0;
 
     switch (ordinateArrays->Length)
     {

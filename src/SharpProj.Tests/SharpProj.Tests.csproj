@@ -51,7 +51,7 @@
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
         <PackageReference Include="MSTest.TestAdapter" Version="2.2.8" />
         <PackageReference Include="MSTest.TestFramework" Version="2.2.8" />
-        <PackageReference Include="SharpProj.Database" Version="8.1.1" />
+        <PackageReference Include="SharpProj.Database" Version="8.2.1" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\SharpProj.NettopologySuite\SharpProj.NetTopologySuite.csproj" />

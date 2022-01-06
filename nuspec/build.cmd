@@ -1,6 +1,13 @@
 @echo off
 setlocal enableextensions
 
+if "%1" == "--db-only" (
+  SET DB_ONLY=1
+  SHIFT
+) ELSE (
+  SET DB_ONLY=0
+)
+
 REM Do this as separate if to avoid using stale variables later on
 if "%1" == "-gh" (
   call "%0\..\..\scripts\gh.cache.bat" || exit /B 1
@@ -37,11 +44,15 @@ CALL :xmlpoke SharpProj.nuspec //nu:metadata/nu:version %SHARPPROJ_VER% || EXIT 
 CALL :xmlpoke SharpProj.nuspec "//nu:dependency[@id='SharpProj.Core']/@version" "[%SHARPPROJ_VER%]" || EXIT /B 1
 CALL :xmlpoke SharpProj.nuspec "//nu:dependency[@id='SharpProj.Database']/@version" "[%PROJ_VER%]" || EXIT /B 1
 
-
 CALL :xmlpoke SharpProj.NetTopologySuite.nuspec //nu:metadata/nu:version %SHARPPROJ_VER% || EXIT /B 1
 CALL :xmlpoke SharpProj.NetTopologySuite.nuspec "//nu:dependency[@id='SharpProj.Core']/@version" "[%SHARPPROJ_VER%]" || EXIT /B 1
 
 nuget pack SharpProj.Database.nuspec -version %PROJ_VER% -OutputDirectory bin || exit /B 1
+
+IF "%DB_ONLY" == "1" (
+  exit /B 0
+)
+
 nuget pack SharpProj.Core.nuspec -version %SHARPPROJ_VER% -OutputDirectory bin || exit /B 1
 nuget pack SharpProj.nuspec -version %SHARPPROJ_VER% -OutputDirectory bin || exit /B 1
 nuget pack SharpProj.NetTopologySuite.nuspec -version %SHARPPROJ_VER% -OutputDirectory bin || exit /B 1

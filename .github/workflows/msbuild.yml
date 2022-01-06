@@ -29,7 +29,7 @@ jobs:
       uses: lukka/run-vcpkg@v10
       with:
         vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-        vcpkgGitCommitId: ae91542c8e71634cb937d467f05920653084cc0b
+        vcpkgGitCommitId: 408ffb232c30189278a3deb30fb51622036692d5
         
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1
@@ -47,6 +47,10 @@ jobs:
     - name: Setup version
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: cmd.exe /C build\scripts\gh-version-setup vcpkg\installed\x86-windows-static-md\include\proj.h ${{ github.run_number }}
+
+    - name: Create nupkg for db package
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: cmd.exe /C build\scripts\gh-build-nuget.cmd --db-only
 
     - name: Build-x86
       working-directory: ${{env.GITHUB_WORKSPACE}}
