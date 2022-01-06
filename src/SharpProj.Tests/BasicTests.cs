@@ -74,6 +74,16 @@ namespace SharpProj.Tests
 
                     Assert.AreEqual(ProjType.OtherCoordinateTransform, crs.Type);
                     string expected =
+@$"{{
+  ""$schema"": ""{ProjJsonOptions.LastSchemaUrl}"",
+  ""type"": ""Conversion"",
+  ""name"": ""PROJ-based coordinate operation"",
+  ""method"": {{
+    ""name"": ""PROJ-based operation method: +proj=merc +ellps=clrk66 +lat_ts=33""
+  }}
+}}".Replace("\r", "");
+                    Assert.AreEqual(expected, crs.AsProjJson());
+                    expected =
 @"{
   ""$schema"": ""https://proj.org/schemas/v0.2/projjson.schema.json"",
   ""type"": ""Conversion"",
@@ -82,7 +92,7 @@ namespace SharpProj.Tests
     ""name"": ""PROJ-based operation method: +proj=merc +ellps=clrk66 +lat_ts=33""
   }
 }".Replace("\r", "");
-                    Assert.AreEqual(expected, crs.AsProjJson());
+                    Assert.AreEqual(expected, crs.AsProjJson(new ProjJsonOptions { ProjJsonType = ProjJsonType.SchemaV02 }));
                     Assert.AreEqual("+proj=merc +ellps=clrk66 +lat_ts=33", crs.AsProjString());
                 }
 
@@ -585,7 +595,12 @@ namespace SharpProj.Tests
                 {
                     using (var c = p.Create())
                     {
-                        Assert.AreEqual(p.Type, c.Type);
+                        var expectedType = p.Type;
+
+                        if (expectedType == ProjType.CRS && p.Authority == "IAU_2015")
+                            expectedType = ProjType.GeodeticCrs;
+
+                        Assert.AreEqual(expectedType, c.Type, $"Expected type mismatch on {p.Identifier}, celestial_body={p.CelestialBodyName}");
                         Assert.IsNotNull(p.Authority);
                         Assert.IsNotNull(p.Code);
                         Console.WriteLine($"{p.Authority}:{p.Code} ({p.Type}) / {p.ProjectionName} {c.Name}");
@@ -867,9 +882,9 @@ namespace SharpProj.Tests
 
                     List<PPoint> points = new List<PPoint>();
 
-                    for (double x = ua.WestLongitude; x <= ua.EastLongitude; x+=1)
+                    for (double x = ua.WestLongitude; x <= ua.EastLongitude; x += 1)
                     {
-                        for (double y = Math.Min(ua.SouthLatitude, ua.NorthLatitude); y <= Math.Max(ua.SouthLatitude, ua.NorthLatitude); y+=1)
+                        for (double y = Math.Min(ua.SouthLatitude, ua.NorthLatitude); y <= Math.Max(ua.SouthLatitude, ua.NorthLatitude); y += 1)
                         {
                             points.Add(new PPoint(x, y));
                         }
@@ -913,7 +928,7 @@ namespace SharpProj.Tests
             {
                 Assert.AreEqual("ETRS89 / UTM zone 32N", crs.Name);
                 Assert.AreEqual(2, crs.AxisCount);
-                Assert.AreEqual("Easting:metre, Northing:metre", string.Join(", ",crs.Axis.Select(x=>x.Name+":"+x.UnitName)));
+                Assert.AreEqual("Easting:metre, Northing:metre", string.Join(", ", crs.Axis.Select(x => x.Name + ":" + x.UnitName)));
                 Assert.AreEqual("Earth", crs.CelestialBodyName);
 
                 using (var crs3D = crs.PromotedTo3D())

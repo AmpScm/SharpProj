@@ -13,7 +13,10 @@ namespace SharpProj.Tests
     public class ProjectionTypesTests
     {
         public static IEnumerable<object[]> ProjectionArgs
-            => ProjOperationDefinition.All.Where(x => x.Type == ProjOperationType.Projection).Select(x => new object[] { x });
+            => ProjOperationDefinition.All
+                    .Where(x => x.Type == ProjOperationType.Projection)
+                    .Where(x => x.Name != "peirce_q" && ProjContext.ProjVersion == new Version(8, 2, 1)) // Bug in 8.2.1
+                    .Select(x => new object[] { x });
 
 
         public static string ProjectionName(MethodInfo method, object[] args)
@@ -27,7 +30,7 @@ namespace SharpProj.Tests
         public void TestProjection(ProjOperationDefinition def)
         {
             using (ProjContext pc = new ProjContext() { })
-                using(var wgs84 = CoordinateReferenceSystem.CreateFromEpsg(4326, pc))
+            using (var wgs84 = CoordinateReferenceSystem.CreateFromEpsg(4326, pc))
             {
                 //Console.WriteLine(def.Details);
 
@@ -48,11 +51,11 @@ namespace SharpProj.Tests
                 using (CoordinateReferenceSystem crs = CoordinateReferenceSystem.Create(args.ToArray(), pc))
                 {
                     Assert.IsNotNull(crs.GeodeticCRS, "CRS has Geodetic CRS");
-                    using(CoordinateTransform ct = CoordinateTransform.Create(wgs84, crs))
+                    using (CoordinateTransform ct = CoordinateTransform.Create(wgs84, crs))
                     {
                         ct.Apply(new PPoint(0, 0));
                     }
-                }                
+                }
             }
         }
 
@@ -126,7 +129,7 @@ namespace SharpProj.Tests
 
                 case "path" when (name == "misrsom"): return set("1");
 
-                    // Dummy to avoid failing tests
+                // Dummy to avoid failing tests
                 case "plat_0" when (name == "sch"): return set("10");
                 case "plon_0" when (name == "sch"): return set("20");
                 case "phdg_0" when (name == "sch"): return set("30");

@@ -120,6 +120,36 @@ namespace SharpProj {
             }
         };
 
+        public enum class ProjJsonType
+        {
+            None =0,
+            SchemaV02,
+            SchemaV04
+        };
+
+        public ref class ProjJsonOptions
+        {
+        public:
+            property ProjJsonType ProjJsonType;
+            property bool NoMultiLine;
+            property bool NoIndentation;            
+
+        public:
+            ProjJsonOptions()
+            {
+
+            }
+
+        public:
+            static initonly String^ SchemaV0_2_Url = "https://proj.org/schemas/v0.2/projjson.schema.json";
+            static initonly String^ SchemaV0_4_Url = "https://proj.org/schemas/v0.4/projjson.schema.json";
+
+            static property String^ LastSchemaUrl
+            {
+                String^ get() { return SchemaV0_4_Url; }
+            }
+        };
+
         [DebuggerDisplay("[{Type}] {ToString(),nq}")]
         public ref class ProjObject
         {
@@ -322,14 +352,41 @@ namespace SharpProj {
                 }
             }
 
-            String^ AsProjJson()
+            String^ AsProjJson(ProjJsonOptions^ options)
             {
                 if (m_noProj)
                     return nullptr;
 
-                const char* v = proj_as_projjson(Context, this, nullptr);
+                const char* opts[30] = {};
+                int nOpts = 0;
+
+                if (options && options->NoMultiLine)
+                    opts[nOpts++] = "MULTILINE=NO";
+                if (options && options->NoIndentation)
+                    opts[nOpts++] = "INDENTATION_WIDTH=0";
+                if (options && options->ProjJsonType != ProjJsonType::None)
+                {
+                    switch (options->ProjJsonType)
+                    {
+                    case ProjJsonType::SchemaV02:
+                        opts[nOpts++] = "SCHEMA=https://proj.org/schemas/v0.2/projjson.schema.json";
+                        break;
+                    case ProjJsonType::SchemaV04:
+                        opts[nOpts++] = "SCHEMA=https://proj.org/schemas/v0.4/projjson.schema.json";
+                        break;
+                    default:
+                        throw gcnew ArgumentOutOfRangeException();
+                    }
+                }
+
+                const char* v = proj_as_projjson(Context, this, opts);
 
                 return Utf8_PtrToString(v);
+            }
+
+            String^ AsProjJson()
+            {
+                return AsProjJson(nullptr);
             }
 
             String^ AsWellKnownText(WktOptions^ options)
@@ -361,7 +418,7 @@ namespace SharpProj {
                     opts[nOpts++] = "ALLOW_ELLIPSOIDAL_HEIGHT_AS_VERTICAL_CRS=YES";
                 }
 
-                const char* v = proj_as_wkt(Context, this, PJ_WKT2_2019, opts);
+                const char* v = proj_as_wkt(Context, this, tp, opts);
 
                 return Utf8_PtrToString(v);
             }

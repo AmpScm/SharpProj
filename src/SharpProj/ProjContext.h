@@ -370,12 +370,20 @@ namespace SharpProj {
         String^ GetMetaData(String^ key);
 
     public:
+        static property System::Version^ ProjVersion
+        {
+            System::Version^ get()
+            {
+                return gcnew System::Version(PROJ_VERSION_MAJOR, PROJ_VERSION_MINOR, PROJ_VERSION_PATCH);
+            }
+        }
+
         /// <summary>PROJ Version, wrapped by SharpProj</summary>
         property System::Version^ Version
         {
             System::Version^ get()
             {
-                return gcnew System::Version(PROJ_VERSION_MAJOR, PROJ_VERSION_MINOR, PROJ_VERSION_PATCH);
+                return ProjVersion;
             }
         }
 

@@ -127,4 +127,33 @@ namespace SharpProj {
 
         }
     };
+
+    [Serializable]
+    public ref class ProjTypeException : ProjException
+    {
+    public:
+        ProjTypeException()
+        {
+
+        }
+
+        ProjTypeException(String^ message)
+            : ProjException(message)
+        {
+
+        }
+
+        ProjTypeException(String^ message, System::Exception^ innerException)
+            : ProjException(message, innerException)
+        {
+
+        }
+
+    protected:
+        ProjTypeException(System::Runtime::Serialization::SerializationInfo^ info, System::Runtime::Serialization::StreamingContext context)
+            : ProjException(info, context)
+        {
+
+        }
+    };
 }

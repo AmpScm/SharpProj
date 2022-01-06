@@ -181,6 +181,8 @@ namespace SharpProj {
 
 
             property bool AllowDeprecated;
+
+            property String^ CelestialBodyName;
         };
     }
 }

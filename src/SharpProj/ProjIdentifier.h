@@ -73,6 +73,22 @@ namespace SharpProj {
             {
                 return Code ? Code->GetHashCode() : 0;
             }
+
+        public:
+            static bool operator==(Identifier^ i1, Identifier^ i2)
+            {
+                if ((Object^)i1 == nullptr)
+                    return (Object^)i2 == nullptr;
+                else if ((Object^)i2 == nullptr)
+                    return false;
+
+                return i1->Authority == i2->Authority && i1->Code == i2->Code;
+            }
+
+            static bool operator!=(Identifier^ i1, Identifier^ i2)
+            {
+                return !(i1 == i2);
+            }
         };
 
         [DebuggerDisplay("Count = {Count}")]

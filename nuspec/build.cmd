@@ -23,10 +23,12 @@ if "%1" == "-gh" (
   SET PROJ_VER=%1
   SET SHARPPROJ_VER=%2
 
-  pushd ..\src
-  msbuild /m /p:Configuration=Release /p:Platform=x86 /p:ForceAssemblyVersion=%SHARPPROJ_VER%  /v:m /nologo || exit /B 1
-  msbuild /m /p:Configuration=Release /p:Platform=x64 /p:ForceAssemblyVersion=%SHARPPROJ_VER% /v:m /nologo || exit /B 1
-  popd
+  IF NOT "%DB_ONLY%" == "1" (
+    pushd ..\src
+    msbuild /m /p:Configuration=Release /p:Platform=x86 /p:ForceAssemblyVersion=%SHARPPROJ_VER%  /v:m /nologo || exit /B 1
+    msbuild /m /p:Configuration=Release /p:Platform=x64 /p:ForceAssemblyVersion=%SHARPPROJ_VER% /v:m /nologo || exit /B 1
+    popd
+  )
 )
 
 echo Packaging using version %SHARPPROJ_VER% (db version=%PROJ_VER%)
