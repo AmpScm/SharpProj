@@ -27,7 +27,7 @@ namespace SharpProj.CrsExplorer
         {
             base.OnLoad(e);
 
-            var systems = ProjContext.GetCoordinateReferenceSystems();// new Proj.CoordinateReferenceSystemFilter { Authority = "EPSG" });
+            var systems = ProjContext.GetCoordinateReferenceSystems(new CoordinateReferenceSystemFilter { CelestialBodyName = "Earth" });
 
             _allItems = systems.Where(x => x.Type != ProjType.VerticalCrs).Select(x => new CRSItem { Info = x }).OrderBy(x => int.TryParse(x.Info.Code, out var v) ? v : 0).ToArray();
 

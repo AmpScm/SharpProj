@@ -34,6 +34,8 @@ ProjObject::!ProjObject()
 
 ProjObject::~ProjObject()
 {
+    if (m_usageArea)
+        m_usageArea->InternalDispose();
     ProjObject::!ProjObject();
 }
 

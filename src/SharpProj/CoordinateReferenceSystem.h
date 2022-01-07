@@ -190,5 +190,12 @@ namespace SharpProj {
         {
             return CreateFromDatabase("EPSG", epsgCode, ctx);
         }
+        static CoordinateReferenceSystem^ CreateFromDatabase(Proj::Identifier^ identifier, [Optional] ProjContext^ ctx)
+        {
+            if ((Object^)identifier == nullptr)
+                throw gcnew ArgumentNullException("identifier");
+
+            return CreateFromDatabase(identifier->Authority, identifier->Code, ctx);
+        }
     };
 }

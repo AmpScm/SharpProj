@@ -162,5 +162,82 @@ namespace SharpProj.Tests
                 }
             }
         }
+
+        [TestMethod]
+        [DynamicData(nameof(AsCRS100))]
+        public void TestBoundsCRS100(Identifier id)
+        {
+            using (var c = CoordinateReferenceSystem.CreateFromDatabase(id))
+            {
+                var v = c.UsageArea.MinX;
+                Assert.IsTrue(!double.IsInfinity(v) && !double.IsNaN(v));
+                Assert.AreNotEqual(c.UsageArea.MinX, c.UsageArea.MaxX);
+                Assert.AreNotEqual(c.UsageArea.MinY, c.UsageArea.MaxY);
+            }
+        }
+
+        public static IEnumerable<object[]> AsCRS100
+        {
+            get
+            {
+                using(ProjContext pc = new ProjContext())
+                {
+                    return pc.GetCoordinateReferenceSystems(
+                        new CoordinateReferenceSystemFilter { CelestialBodyName= "Earth"}
+                        ).Where(x => x.Type != ProjType.VerticalCrs).Select(x => new[] { x.Identifier }).Take(100).ToList();
+                }
+            }
+        }
+
+
+        [TestMethod]
+        [DynamicData(nameof(AsCRSPole))]
+        public void TestBoundsPole(Identifier id)
+        {
+            using (var c = CoordinateReferenceSystem.CreateFromDatabase(id))
+            {
+                var v = c.UsageArea.MinX;
+                if (c.Name.Contains("Peirce") && ProjContext.ProjVersion == new Version(8, 2, 1))
+                {
+                    Assert.Inconclusive(); // Broken in 8.2.1
+                }
+
+                Assert.IsTrue(!double.IsInfinity(v) && !double.IsNaN(v));
+                Assert.AreNotEqual(c.UsageArea.MinX, c.UsageArea.MaxX);
+                Assert.AreNotEqual(c.UsageArea.MinY, c.UsageArea.MaxY);
+                Console.WriteLine($"X: {c.UsageArea.MinX} - {c.UsageArea.MaxX}");
+                Console.WriteLine($"Y: {c.UsageArea.MinY} - {c.UsageArea.MaxY}");
+            }
+        }
+
+        public static IEnumerable<object[]> AsCRSPole
+        {
+            get
+            {
+                using (ProjContext pc = new ProjContext())
+                {
+                    return pc.GetCoordinateReferenceSystems(
+                        new CoordinateReferenceSystemFilter { CelestialBodyName = "Earth" }
+                        ).Where(x => (x.Name+ x.AreaName).ToUpperInvariant().Contains("POLE") && x.Type != ProjType.VerticalCrs).Select(x => new[] { x.Identifier }).ToList();
+                }
+            }
+        }
+
+        [TestMethod]
+        [DataRow("ESRI", 102034)]
+        [DataRow("ESRI", 102036)]
+        public void TestGnomoric(string authority, int code)
+        {
+            using (var c = CoordinateReferenceSystem.CreateFromDatabase(authority, code))
+            {
+                var v = c.UsageArea.MinX;
+
+                Assert.IsTrue(!double.IsInfinity(v) && !double.IsNaN(v));
+                Assert.AreNotEqual(c.UsageArea.MinX, c.UsageArea.MaxX);
+                Assert.AreNotEqual(c.UsageArea.MinY, c.UsageArea.MaxY);
+                Console.WriteLine($"X: {c.UsageArea.MinX} - {c.UsageArea.MaxX}");
+                Console.WriteLine($"Y: {c.UsageArea.MinY} - {c.UsageArea.MaxY}");
+            }
+        }
     }
 }

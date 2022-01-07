@@ -17,6 +17,7 @@ namespace SharpProj {
         ref class ProjObject;
         ref class CoordinateReferenceSystemFilter;
         ref class CoordinateReferenceSystemInfo;
+        ref class CelestialBodyInfo;
     }
 
     public enum class ProjLogLevel
@@ -329,6 +330,7 @@ namespace SharpProj {
         /// <returns></returns>
         ProjObject^ CreateProj4Compatible(String^ definition);
 
+
     internal:
         ProjObject^ Create(PJ* pj);
 
@@ -418,6 +420,8 @@ namespace SharpProj {
         /// <returns></returns>
         System::Collections::ObjectModel::ReadOnlyCollection<CoordinateReferenceSystemInfo^>^ GetCoordinateReferenceSystems(CoordinateReferenceSystemFilter^ filter);
         System::Collections::ObjectModel::ReadOnlyCollection<CoordinateReferenceSystemInfo^>^ GetCoordinateReferenceSystems();
+
+        System::Collections::ObjectModel::ReadOnlyCollection<CelestialBodyInfo^>^ GetCelestialBodies();
 
     protected:
         virtual void OnLog(ProjLogLevel level, String^ message)

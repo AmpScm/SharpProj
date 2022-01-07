@@ -35,6 +35,7 @@ ReadOnlyCollection<CoordinateReferenceSystemInfo^>^ ProjContext::GetCoordinateRe
         throw gcnew ArgumentNullException("filter");
 
     std::string auth_name;
+    std::string body_name;
     if (filter->Authority)
         auth_name = ::utf8_string(filter->Authority);
     PROJ_CRS_LIST_PARAMETERS* params = proj_get_crs_list_parameters_create();
@@ -67,7 +68,8 @@ ReadOnlyCollection<CoordinateReferenceSystemInfo^>^ ProjContext::GetCoordinateRe
 
         if (filter->CelestialBodyName)
         {
-            params->celestial_body_name = utf8_string(filter->CelestialBodyName);
+            body_name = ::utf8_string(filter->CelestialBodyName);
+            params->celestial_body_name = body_name.c_str();
         }
 
         int count;
@@ -106,4 +108,73 @@ CoordinateReferenceSystem^ CoordinateReferenceSystemInfo::Create(ProjContext^ ct
         ctx = _ctx;
 
     return CoordinateReferenceSystem::CreateFromDatabase(Authority, Code, ctx);
+}
+
+ReadOnlyCollection<GeoidModelInfo^>^ CoordinateReferenceSystemInfo::GetGeoidModels()
+{
+    if (!_geoidModels)
+    {
+        std::string auth = utf8_string(Authority);
+        std::string code = utf8_string(Code);
+        PROJ_STRING_LIST geoid_list = proj_get_geoid_models_from_database(_ctx, auth.c_str(), code.c_str(), nullptr);
+
+        if (!geoid_list)
+            throw _ctx->ConstructException("GetGeoidModels");
+
+        array<String^>^ geoids = ProjObject::FromStringList(geoid_list);
+        proj_string_list_destroy(geoid_list);
+
+        List<GeoidModelInfo^>^ gmi = gcnew List<GeoidModelInfo^>(geoids->Length);
+
+        for each (auto s in geoids)
+            gmi->Add(gcnew GeoidModelInfo(Authority, s));
+
+        _geoidModels = gmi->AsReadOnly();
+    }
+
+    return _geoidModels;
+}
+
+private ref class CelestialBodyComparer : System::Collections::Generic::IComparer<CelestialBodyInfo^>
+{
+public:
+    // Inherited via IComparer
+    virtual int Compare(SharpProj::Proj::CelestialBodyInfo^ x, SharpProj::Proj::CelestialBodyInfo^ y)
+    {
+        if (x->IsEarth != y->IsEarth)
+        {
+            return (y->IsEarth ? 1 : 0) - (x->IsEarth ? 1 : 0);
+        }
+
+        int n = StringComparer::OrdinalIgnoreCase->Compare(x->Authority, y->Authority);
+        if (n != 0)
+            return n;
+
+        return StringComparer::OrdinalIgnoreCase->Compare(x->Name, y->Name);
+    }
+
+    static initonly CelestialBodyComparer^ Instance = gcnew CelestialBodyComparer();
+};
+
+
+System::Collections::ObjectModel::ReadOnlyCollection<CelestialBodyInfo^>^ ProjContext::GetCelestialBodies()
+{
+    int count;
+
+    array<CelestialBodyInfo^>^ result;
+    PROJ_CELESTIAL_BODY_INFO** infoList = proj_get_celestial_body_list_from_database(this, nullptr /* auth_name*/, &count);
+    try
+    {
+        result = gcnew array<CelestialBodyInfo^>(count);
+
+        for (int i = 0; i < count; i++)
+            result[i] = gcnew CelestialBodyInfo(infoList[i]);
+    }
+    finally
+    {
+        proj_celestial_body_list_destroy(infoList);
+    }
+
+    Array::Sort(result, CelestialBodyComparer::Instance);
+    return Array::AsReadOnly(result);
 }

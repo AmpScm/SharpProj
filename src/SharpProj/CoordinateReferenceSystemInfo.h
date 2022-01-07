@@ -18,6 +18,7 @@ namespace SharpProj {
 
         ref class CoordinateSystem;
         ref class UsageArea;
+        ref class GeoidModelInfo;
 
         /// <summary>
         /// Container for CoordinateReference system information obtained from proj.db via <see cref="ProjContext"/>.GetCoordinateReferenceSystems
@@ -45,6 +46,8 @@ namespace SharpProj {
             initonly String^ _celestialBodyName;
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
             initonly ProjArea^ _bbox;
+            [DebuggerBrowsable(DebuggerBrowsableState::Never)]
+            ReadOnlyCollection<GeoidModelInfo^>^ _geoidModels;
 
         internal:
             CoordinateReferenceSystemInfo(const PROJ_CRS_INFO* info, ProjContext^ ctx)
@@ -127,6 +130,9 @@ namespace SharpProj {
                 }
             }
 
+            /// <summary>
+            /// Body on which this crs applies. Usually 'Earth'
+            /// </summary>
             property String^ CelestialBodyName
             {
                 String^ get()
@@ -149,6 +155,9 @@ namespace SharpProj {
             }
 
             CoordinateReferenceSystem^ Create([Optional] ProjContext^ ctx);
+
+            // not a property, as this is prepared for a future args object
+            ReadOnlyCollection<GeoidModelInfo^>^ GetGeoidModels();
         };
 
         public ref class CoordinateReferenceSystemFilter
@@ -182,7 +191,94 @@ namespace SharpProj {
 
             property bool AllowDeprecated;
 
+            /// <summary>
+            /// Body on which this crs applies. Usually 'Earth'
+            /// </summary>
             property String^ CelestialBodyName;
+        };
+
+        [DebuggerDisplay("{Name,nq} ({Authority,nq})")]
+        public ref class CelestialBodyInfo
+        {
+            [DebuggerBrowsable(DebuggerBrowsableState::Never)]
+            initonly String^ _authName;
+            [DebuggerBrowsable(DebuggerBrowsableState::Never)]
+            initonly String^ _name;
+
+        internal:
+            CelestialBodyInfo(const PROJ_CELESTIAL_BODY_INFO* body)
+            {
+                _authName = Utf8_PtrToString(body->auth_name);
+                _name = Utf8_PtrToString(body->name);
+            }
+
+        public:
+            property String^ Authority
+            {
+                String^ get()
+                {
+                    return _authName;
+                }
+            }
+
+            property String^ Name
+            {
+                String^ get()
+                {
+                    return _name;
+                }
+            }
+
+            property bool IsEarth
+            {
+                bool get()
+                {
+                    return Name == "Earth" && Authority == "PROJ";
+                }
+            }
+
+            virtual String^ ToString() override
+            {
+                return Name;
+            }
+        };
+
+        [DebuggerDisplay("{Authority,nq}: {Name,nq}")]
+        public ref class GeoidModelInfo
+        {
+            [DebuggerBrowsable(DebuggerBrowsableState::Never)]
+            initonly String^ _authName;
+            [DebuggerBrowsable(DebuggerBrowsableState::Never)]
+            initonly String^ _name;
+
+        internal:
+            GeoidModelInfo(String^ authName, String^ name)
+            {
+                _authName = authName;
+                _name = name;
+            }
+
+        public:
+            property String^ Authority
+            {
+                String^ get()
+                {
+                    return _authName;
+                }
+            }
+
+            property String^ Name
+            {
+                String^ get()
+                {
+                    return _name;
+                }
+            }
+
+            virtual String^ ToString() override
+            {
+                return Name;
+            }
         };
     }
 }

@@ -68,7 +68,7 @@ using System::Diagnostics::DebuggerBrowsableState;
 using System::Diagnostics::DebuggerDisplayAttribute;
 using System::ComponentModel::EditorBrowsableAttribute;
 using System::ComponentModel::EditorBrowsableState;
-
+using System::Collections::ObjectModel::ReadOnlyCollection;
 #define LIT2(x) #x
 #define LIT(x) LIT2(x)
 

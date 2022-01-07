@@ -42,6 +42,8 @@ namespace SharpProj {
                 m_name = name;
             }
 
+            void InternalDispose();
+
         private:
             CoordinateTransform^ GetLatLonConvert();
             void CalculateBounds();

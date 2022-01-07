@@ -4,6 +4,11 @@
 #include "GeographicCRS.h"
 #include "UsageArea.h"
 
+void UsageArea::InternalDispose()
+{
+    DisposeIfNotNull(m_latLonTransform);
+}
+
 CoordinateTransform^ UsageArea::GetLatLonConvert()
 {
     if (!m_latLonTransform)
@@ -118,112 +123,15 @@ void UsageArea::CalculateBounds()
 
     auto llc = UsageArea::GetLatLonConvert();
 
-    if (llc)
+    double xmin, ymin, xmax, ymax;
+
+    if (llc && proj_trans_bounds(llc->Context, llc, PJ_INV, WestLongitude, SouthLatitude, EastLongitude, NorthLatitude,
+        &xmin, &ymin, &xmax, &ymax, 21))
     {
-        const int n_steps = 20;
-        const int n_steps_p1 = n_steps + 1;
-
-        auto x = gcnew array<double>(n_steps_p1 * 4);
-        auto y = gcnew array<double>(n_steps_p1 * 4);
-
-        double east_step, north_step;
-
-        if (EastLongitude >= WestLongitude)
-            east_step = (EastLongitude - WestLongitude) / n_steps;
-        else
-            east_step = (EastLongitude + 360.0 - WestLongitude) / n_steps;
-
-        north_step = (NorthLatitude - SouthLatitude) / n_steps;
-
-        for (int j = 0; j < n_steps_p1; j++)
-        {
-            double test_lon = WestLongitude + j * east_step;
-
-            if (test_lon > 180.0)
-                test_lon -= 360.0;
-
-            x[n_steps_p1 * 0 + j] = test_lon;
-            y[n_steps_p1 * 0 + j] = SouthLatitude;
-            x[n_steps_p1 * 1 + j] = test_lon;
-            y[n_steps_p1 * 1 + j] = NorthLatitude;
-            x[n_steps_p1 * 2 + j] = WestLongitude;
-            y[n_steps_p1 * 2 + j] = SouthLatitude + j * north_step;
-            x[n_steps_p1 * 3 + j] = EastLongitude;
-            y[n_steps_p1 * 3 + j] = SouthLatitude + j * north_step;
-        }
-
-        if (WestLongitude == -180 && EastLongitude == 180)
-        {
-            // We project the entire world west->east
-            // And we have some duplicated corner points. Let's use these to avoid infinite results in a few cases
-            const int dup0 = n_steps_p1 * 2 + 0;
-            const int dupA = n_steps_p1 * 0 + 0;
-            const int dup1 = n_steps_p1 * 2 + n_steps_p1 - 1;
-            const int dupB = n_steps_p1 * 1 + 0;
-            const int dup2 = n_steps_p1 * 3 + 0;
-            const int dupC = n_steps_p1 * 0 + n_steps_p1 - 1;
-            const int dup3 = n_steps_p1 * 3 + n_steps_p1 - 1;
-            const int dupD = n_steps_p1 * 1 + n_steps_p1 - 1;
-
-
-#ifdef _DEBUG
-            if (x[dup0] != x[dupA] || y[dup0] != y[dupA] || dup0 == dupA)
-                throw gcnew InvalidOperationException("P1");
-            if (x[dup1] != x[dupB] || y[dup1] != y[dupB] || dup1 == dupB)
-                throw gcnew InvalidOperationException("P2");
-            if (x[dup2] != x[dupC] || y[dup2] != y[dupC] || dup2 == dupC)
-                throw gcnew InvalidOperationException("P3");
-            if (x[dup3] != x[dupD] || y[dup3] != y[dupD] || dup3 == dupD)
-                throw gcnew InvalidOperationException("P4");
-#endif
-
-            double smallStep = Math::Min(east_step, north_step);
-
-            // Note: We don't correct for overflow at 180/-180 degrees as the
-            // bounds are constant in this block.
-
-            x[dup0] = WestLongitude + smallStep;
-            y[dup0] = NorthLatitude - smallStep;
-            x[dup1] = EastLongitude - smallStep;
-            y[dup1] = NorthLatitude - smallStep;
-            x[dup2] = WestLongitude + smallStep;
-            y[dup2] = SouthLatitude + smallStep;
-            x[dup3] = EastLongitude - smallStep;
-            y[dup3] = SouthLatitude + smallStep;
-
-            // And replace the one after south and north center points with a point slightly
-            // off the center point to also avoid asymptots here
-            x[n_steps_p1 * 0 + (n_steps_p1 / 2) + 1] = x[n_steps_p1 * 0 + (n_steps_p1 / 2)];
-            y[n_steps_p1 * 0 + (n_steps_p1 / 2) + 1] = y[n_steps_p1 * 0 + (n_steps_p1 / 2)] + smallStep;
-
-            x[n_steps_p1 * 1 + (n_steps_p1 / 2) + 1] = x[n_steps_p1 * 1 + (n_steps_p1 / 2)];
-            y[n_steps_p1 * 1 + (n_steps_p1 / 2) + 1] = y[n_steps_p1 * 1 + (n_steps_p1 / 2)] - smallStep;
-        }
-
-        {
-            pin_ptr<double> px = &x[0];
-            pin_ptr<double> py = &y[0];
-            llc->ApplyReversed(
-                px, 1, x->Length,
-                py, 1, y->Length,
-                nullptr, 0, 0,
-                nullptr, 0, 0);
-        }
-        m_minX = Double::PositiveInfinity;
-        m_minY = Double::PositiveInfinity;
-        m_maxX = Double::NegativeInfinity;
-        m_maxY = Double::NegativeInfinity;
-
-        for (int j = 0; j < x->Length; j++)
-        {
-            if (!double::IsInfinity(x[j]) && !double::IsInfinity(y[j]))
-            {
-                m_minX = Math::Min(m_minX, x[j]);
-                m_minY = Math::Min(m_minY, y[j]);
-                m_maxX = Math::Max(m_maxX, x[j]);
-                m_maxY = Math::Max(m_maxY, y[j]);
-            }
-        }
+        m_minX = xmin;
+        m_minY = ymin;
+        m_maxX = xmax;
+        m_maxY = ymax;
     }
 }
 

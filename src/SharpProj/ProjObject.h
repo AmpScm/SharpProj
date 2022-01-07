@@ -122,7 +122,7 @@ namespace SharpProj {
 
         public enum class ProjJsonType
         {
-            None =0,
+            None = 0,
             SchemaV02,
             SchemaV04
         };
@@ -132,7 +132,7 @@ namespace SharpProj {
         public:
             property ProjJsonType ProjJsonType;
             property bool NoMultiLine;
-            property bool NoIndentation;            
+            property bool NoIndentation;
 
         public:
             ProjJsonOptions()
@@ -157,7 +157,7 @@ namespace SharpProj {
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
             ProjContext^ m_ctx;
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
-            item_wrapper<PJ_CONTEXT, ProjContext, PJ> &m_pj;
+            item_wrapper<PJ_CONTEXT, ProjContext, PJ>& m_pj;
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
             String^ m_infoId;
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
@@ -246,7 +246,7 @@ namespace SharpProj {
             {
                 ProjContext^ get()
                 {
-                    return m_ctx ? m_ctx : nullptr;
+                    return ((Object^)m_ctx != nullptr) ? m_ctx : (ProjContext^)nullptr;
                 }
             }
 
@@ -312,6 +312,9 @@ namespace SharpProj {
                 }
             }
 
+            /// <summary>
+            /// Body on which this applies. Usually 'Earth'
+            /// </summary>
             property String^ CelestialBodyName
             {
                 String^ get();

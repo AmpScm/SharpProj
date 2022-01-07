@@ -36,16 +36,17 @@ namespace SharpProj {
         public:
             property Datum^ default[int]
             {
-                    virtual Datum ^ get(int index) sealed
-                    {
-                            return m_Items[index];
-                    }
+                virtual Datum ^ get(int index) sealed
+                {
+                        return m_Items[index];
+                }
             }
 
-                virtual System::Collections::Generic::IEnumerator<Datum^>^ GetEnumerator() sealed
+            virtual System::Collections::Generic::IEnumerator<Datum^>^ GetEnumerator() sealed
             {
                 return static_cast<System::Collections::Generic::IEnumerable<Datum^>^>(m_Items)->GetEnumerator();
             }
+
             property int Count
             {
                 virtual int get() sealed
@@ -57,10 +58,8 @@ namespace SharpProj {
         private:
             virtual System::Collections::IEnumerator^ Obj_GetEnumerator() sealed = System::Collections::IEnumerable::GetEnumerator
             {
-                    return GetEnumerator();
+                return GetEnumerator();
             }
-
-
         };
     }
 

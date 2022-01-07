@@ -1,7 +1,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
   <metadata>
     <id>SharpProj.Core</id>
-    <version>8.0000.10</version>
+    <version>8.2001.1</version>
     <authors>SharpSvn</authors>
     <owners>SharpSvn</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -9,7 +9,7 @@
     <projectUrl>https://github.com/ampscm/SharpProj</projectUrl>
     <description>SharpProj wraps PROJ for .Net. At runtime usually a 'proj.db' package is required,
     such as provided by the SharpProj.Database nuget package. The version number consists of the PROJ version
-    and the wrapping. As Such SharProj 7.2001.3 is based on PROJ 7.2.1 (7.2001) and is SharpProj build 3 for
+    and the wrapping. As Such SharpProj 8.2001.3 is based on PROJ 8.2.1 and is SharpProj build 3 for
     this version.
     Please use the SharpProj nuget package unless you explicitly want to ignore the database.</description>
     <repository type="git" url="https://github.com/ampscm/SharpProj.git" branch="main" />
@@ -22,7 +22,6 @@
     <!-- .Net 4.5-4.8 -->
     <file src="..\src\SharpProj\bin\Win32_release\SharpProj.dll" target="ref/net45" />
     <file src="..\src\SharpProj\bin\Win32_release\SharpProj.xml" target="ref/net45" />
-
     <file src="..\src\SharpProj\bin\Win32_release\SharpProj.dll" target="runtimes/win-x86/lib/net45" />
     <file src="..\src\SharpProj\bin\Win32_release\SharpProj.xml" target="runtimes/win-x86/lib/net45" />
     <file src="..\src\SharpProj\bin\x64_release\SharpProj.dll" target="runtimes/win-x64/lib/net45" />
@@ -31,7 +30,6 @@
     <!-- .Net Core 3.1+ -->
     <file src="..\src\SharpProj\bin\Win32_release\SharpProj.dll" target="ref/netcoreapp" />
     <file src="..\src\SharpProj\bin\Win32_release\SharpProj.xml" target="ref/netcoreapp" />
-
     <file src="..\src\SharpProj\bin\Win32_releasecore\SharpProj.dll" target="runtimes/win-x86/lib/netcoreapp" />
     <file src="..\src\SharpProj\bin\Win32_releasecore\SharpProj.xml" target="runtimes/win-x86/lib/netcoreapp" />
     <file src="..\src\SharpProj\bin\x64_releasecore\SharpProj.dll" target="runtimes/win-x64/lib/netcoreapp" />

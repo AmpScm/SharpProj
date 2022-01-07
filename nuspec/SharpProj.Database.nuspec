@@ -9,6 +9,9 @@
     <projectUrl>https://github.com/ampscm/SharpProj</projectUrl>
     <description>The PROJ (www.proj.org) proj.db and proj.ini for the SharpProj and SharpProj.Core package.
     Version number matches the PROJ version for this .db file.</description>
+    <dependencies>
+      <group targetFramework="net40" />
+    </dependencies>
     <contentFiles>
       <files include="**/proj.ini" copyToOutput="true" buildAction="Content" />
       <files include="**/proj.db" copyToOutput="true" buildAction="Content" />

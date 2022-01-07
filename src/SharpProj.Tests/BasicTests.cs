@@ -597,14 +597,59 @@ namespace SharpProj.Tests
                     {
                         var expectedType = p.Type;
 
-                        if (expectedType == ProjType.CRS && p.Authority == "IAU_2015")
+                        if (expectedType == ProjType.CRS && p.Authority == "IAU_2015" && ProjContext.ProjVersion == new Version(8, 2, 1))
                             expectedType = ProjType.GeodeticCrs;
 
                         Assert.AreEqual(expectedType, c.Type, $"Expected type mismatch on {p.Identifier}, celestial_body={p.CelestialBodyName}");
                         Assert.IsNotNull(p.Authority);
                         Assert.IsNotNull(p.Code);
-                        Console.WriteLine($"{p.Authority}:{p.Code} ({p.Type}) / {p.ProjectionName} {c.Name}");
+                        //Console.WriteLine($"{p.Authority}:{p.Code} ({p.Type}) / {p.ProjectionName} {c.Name}");
                     }
+
+                    foreach (var v in p.GetGeoidModels())
+                    {
+                        //Console.WriteLine($"{p.Name}: {v}");
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void GetGeoidModels()
+        {
+            using (ProjContext pc = new ProjContext() { EnableNetworkConnections = false })
+            {
+                var crss = pc.GetCoordinateReferenceSystems(new CoordinateReferenceSystemFilter { CelestialBodyName = "Earth", Authority = "EPSG" });
+                var crsInfo = crss.FirstOrDefault(x => x.Code == "5703");
+
+                Assert.IsNotNull(crsInfo);
+                var v = crsInfo.GetGeoidModels();
+                Assert.IsTrue(v.Count > 3);
+                Assert.IsTrue(v.Any(x => x.Name == "GEOID03"));
+                Assert.IsTrue(v.Any(x => x.Name == "GEOID18"));
+
+
+                foreach(var g in v)
+                {
+                    //Assert.IsNotNull(crss.FirstOrDefault(x => x.Name.ToUpperInvariant().Contains(g.Name.ToUpperInvariant())), $"Found {g.Authority}:{g.Name}");
+                }
+            }
+        }
+
+        [TestMethod]
+        public void WalkBodies()
+        {
+            using (ProjContext pc = new ProjContext() { EnableNetworkConnections = false })
+            {
+                var bodies = pc.GetCelestialBodies();
+
+                Assert.IsTrue(bodies.First().IsEarth, "First item is earth");
+                Assert.AreEqual("Earth", bodies.First().Name);
+                Assert.IsFalse(bodies.Skip(1).Any(x => x.IsEarth), "Just one earth");
+                foreach (var p in bodies)
+                {
+                    Assert.IsFalse(string.IsNullOrEmpty(p.Name));
+                    Assert.IsFalse(string.IsNullOrEmpty(p.Authority));
                 }
             }
         }
