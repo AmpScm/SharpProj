@@ -52,4 +52,5 @@ echo Prepare building SharpProj %PROJ_VERSION_MAJOR%.%SHARPPROJ_MINOR%.%2
   REM For scripting
   echo /p:BuildBotBuild=true
   echo /p:RestoreForce=true
+  echo /p:RestorePackagesConfig=true
 ) > %RSPFILE%

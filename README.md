@@ -37,7 +37,7 @@ Setup build environment using:
     git clone https://github.com/AmpScm/SharpProj.git
     cd vcpkg
     bootstrap-vcpkg.bat
-    vcpkg install proj4[core,tiff]:x86-windows-static-md proj4[core,tiff]:x64-windows-static-md --overlay-ports=../SharpProj/vcpkg_overlays
+    vcpkg install proj4[core,tiff]:x86-windows-static-md proj4[core,tiff]:x64-windows-static-md
     cd ..
     
 The '--overlay-ports' argument makes sure that Proj4 is build in a compatible way, and the (current) last

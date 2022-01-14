@@ -362,7 +362,10 @@ namespace SharpProj {
             void set(ProjLogLevel value)
             {
                 m_logLevel = value;
-                proj_log_level(this, (PJ_LOG_LEVEL)value);
+                if (value == ProjLogLevel::None)
+                    proj_log_level(this, (PJ_LOG_ERROR)); // errors needed for exceptions
+                else
+                    proj_log_level(this, (PJ_LOG_LEVEL)value);
             }
         }
 

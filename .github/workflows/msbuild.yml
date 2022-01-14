@@ -29,7 +29,7 @@ jobs:
       uses: lukka/run-vcpkg@v10
       with:
         vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-        vcpkgGitCommitId: 408ffb232c30189278a3deb30fb51622036692d5
+        vcpkgGitCommitId: 39b17cf84c8b389d5800775eaa61e279610c3f33
         
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1
@@ -38,7 +38,7 @@ jobs:
       uses: darenm/Setup-VSTest@v1
 
     - name: Ensure Proj packages are available
-      run: vcpkg.exe install --overlay-ports=${{ github.workspace }}\build\vcpkg_overlays "proj4[core,tiff]:x64-windows-static-md" "proj4[core,tiff]:x86-windows-static-md"
+      run: vcpkg.exe install "tiff[core]:x64-windows-static-md" "proj4[core,tiff]:x64-windows-static-md" "tiff[core]:x86-windows-static-md" "proj4[core,tiff]:x86-windows-static-md"
 
     - name: Setup version
       working-directory: ${{env.GITHUB_WORKSPACE}}
