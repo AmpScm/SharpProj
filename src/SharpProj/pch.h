@@ -11,9 +11,6 @@
 
 // add headers that you want to pre-compile here
 
-#define USE_STUB_LIBJPEG 1
-
-
 #if !defined(_DEBUG) || defined(PROJSHARP_USE_DLL)
 #pragma comment(lib, "proj.lib")
 #pragma comment(lib, "lzma.lib")
@@ -26,10 +23,6 @@
 #pragma comment(lib, "zlibd.lib")
 #endif
 #pragma comment(lib, "sqlite3.lib")
-
-#if !USE_STUB_LIBJPEG
-#pragma comment(lib, "jpeg.lib")
-#endif
 
 #pragma comment(lib, "Ole32.lib")
 #pragma comment(lib, "Shell32.lib")
