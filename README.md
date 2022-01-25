@@ -37,14 +37,11 @@ Setup build environment using:
     git clone https://github.com/AmpScm/SharpProj.git
     cd vcpkg
     bootstrap-vcpkg.bat
-    vcpkg install proj4[core,tiff]:x86-windows-static-md proj4[core,tiff]:x64-windows-static-md
+    vcpkg install proj4[core,tiff]:x86-windows-static-md proj4[core,tiff]:x64-windows-static-md tiff[core,zlib]:x86-windows-static-md tiff[core,zlib]:x64-windows-static-md
     cd ..
     
-The '--overlay-ports' argument makes sure that Proj4 is build in a compatible way, and the (current) last
-version of PROJ is used. I'm trying to get these fixes backported in plain vcpkg.
-
-The explicit feature selection here explicitly builds PROJ without the builtin network support to remove the curl dependency. This shrinks
-the library and allows configuring http(s) the .NET way. The network requests are just forwared to the .Net WebClient class using a bit
+The explicit feature selection here explicitly builds PROJ without the builtin network support to remove the curl dependency. It also disables 'jpeg' support in tiff.
+This shrinks the library and allows configuring http(s) the .NET way. The network requests are just forwared to the .Net WebClient class using a bit
 of code in SharpProj (see `ProjNetworkHandler.cpp`).
 
 This script handles the assumption inside SharpProj that the library and header files required can be found in ../vcpkg/installed/<triplet>.

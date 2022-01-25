@@ -1,8 +1,9 @@
 #pragma once
 #include "ProjArea.h"
 namespace SharpProj {
+    using namespace SharpProj::Proj;
 
-    public ref class CoordinateArea : ProjArea
+    public ref class CoordinateArea sealed : ProjArea
     {
     public:
         CoordinateArea()
@@ -14,49 +15,49 @@ namespace SharpProj {
         }
 
     public:
-        virtual property double WestLongitude
+        property double WestLongitude
         {
-            virtual double get() override
+        public:
+            double get() new
             {
                 return ProjArea::WestLongitude;
             }
-        public:
             void set(double value) new
             {
                 ProjArea::WestLongitude = value;
             }
         }
-        virtual property double SouthLatitude
+        property double SouthLatitude
         {
-            virtual double get() override
+        public:
+            double get() new
             {
                 return ProjArea::SouthLatitude;
             }
-        public:
             void set(double value) new
             {
                 ProjArea::SouthLatitude = value;
             }
         }
-        virtual property double EastLongitude
+        property double EastLongitude
         {
-            virtual double get() override
+        public:
+            double get() new
             {
                 return ProjArea::EastLongitude;
             }
-        public:
             void set(double value) new
             {
                 ProjArea::EastLongitude = value;
             }
         }
-        virtual property double NorthLatitude
+        property double NorthLatitude
         {
-            virtual double get() override
+        public:
+            double get() new
             {
                 return ProjArea::NorthLatitude;
             }
-        public:
             void set(double value) new
             {
                 ProjArea::NorthLatitude = value;

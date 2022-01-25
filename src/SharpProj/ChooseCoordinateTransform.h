@@ -4,7 +4,7 @@
 namespace SharpProj {
     using System::Collections::Generic::IReadOnlyList;
     ref class CoordinateReferenceSystem;
-    ref class ProjArea;
+    ref class Proj::ProjArea;
 
     /// <summary>
     /// Represents a <see cref="CoordinateTransform"/> which is implemented in a number of ways. The best

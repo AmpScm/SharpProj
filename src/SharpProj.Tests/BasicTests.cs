@@ -629,7 +629,7 @@ namespace SharpProj.Tests
                 Assert.IsTrue(v.Any(x => x.Name == "GEOID18"));
 
 
-                foreach(var g in v)
+                foreach (var g in v)
                 {
                     //Assert.IsNotNull(crss.FirstOrDefault(x => x.Name.ToUpperInvariant().Contains(g.Name.ToUpperInvariant())), $"Found {g.Authority}:{g.Name}");
                 }
@@ -712,6 +712,32 @@ namespace SharpProj.Tests
                     GC.KeepAlive(ct);
                 }
             }
+        }
+
+        [TestMethod]
+        public void CoordinateAreaTests()
+        {
+            var ca = new CoordinateArea();
+            Assert.IsNotNull(ca.EastLongitude);
+            Assert.IsNotNull(ca.WestLongitude);
+            Assert.IsNotNull(ca.NorthLatitude);
+            Assert.IsNotNull(ca.SouthLatitude);
+
+            ca = new CoordinateArea(1, 2, 3, 4);
+            Assert.AreEqual(3d, ca.EastLongitude);
+            Assert.AreEqual(1d, ca.WestLongitude);
+            Assert.AreEqual(4d, ca.NorthLatitude);
+            Assert.AreEqual(2d, ca.SouthLatitude);
+
+            ca.EastLongitude = 12;
+            ca.WestLongitude = 13;
+            ca.NorthLatitude = 14;
+            ca.SouthLatitude = 15;
+
+            Assert.AreEqual(12d, ca.EastLongitude);
+            Assert.AreEqual(13d, ca.WestLongitude);
+            Assert.AreEqual(14d, ca.NorthLatitude);
+            Assert.AreEqual(15d, ca.SouthLatitude);
         }
 
         [TestMethod]
