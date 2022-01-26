@@ -57,7 +57,7 @@ code, and produces DLLs that only depend on the Windows+VC runtime.
 
 The following line installs proj4 and all its required dependencies in the `installed` subdir of the vcpkg checkout.
 ```
-vcpkg install proj4[core,tiff]:x86-windows-static-md proj4[core,tiff]:x64-windows-static-md --overlay-ports=../SharpProj/vcpkg_overlays
+vcpkg install proj4[core,tiff]:x86-windows-static-md proj4[core,tiff]:x64-windows-static-md tiff[core]:x86-windows-static-md tiff[core]:x64-windows-static-md
 ```
 
 Lastly, make all installed packages available user-wide for use with `CMake`. This requires admin privileges on first use:
