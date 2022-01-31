@@ -37,28 +37,11 @@ Setup build environment using:
     git clone https://github.com/AmpScm/SharpProj.git
     cd vcpkg
     bootstrap-vcpkg.bat
-    vcpkg install proj4[core,tiff]:x86-windows-static-md proj4[core,tiff]:x64-windows-static-md tiff[core]:x86-windows-static-md tiff[core]:x64-windows-static-md
+    vcpkg install tiff[core]:x86-windows-static-md
+    vcpkg install tiff[core]:x64-windows-static-md
+    vcpkg install proj4[core,tiff]:x86-windows-static-md
+    vcpkg install proj4[core,tiff]:x64-windows-static-md
     cd ..
-    
-The explicit feature selection here explicitly builds PROJ without the builtin network support to remove the curl dependency. It also disables 'jpeg' support in tiff.
-This shrinks the library and allows configuring http(s) the .NET way. The network requests are just forwared to the .Net WebClient class using a bit
-of code in SharpProj (see `ProjNetworkHandler.cpp`).
-
-This script handles the assumption inside SharpProj that the library and header files required can be found in ../vcpkg/installed/<triplet>.
-If you choose a different layout you will need a custom setup later on. But with just this you are now able to build using either Visual Studio
-2019 or 2022.
-
-### Custom setup details
-
-`SharpProj.dll` is a shared library (.dll) built using C++/CLI. The triplets `x86-windows-static-md` and `x64-windows-static-md` ensure that the
-required third party libraries are linked **statically** with `SharpProj.dll`, while the **md** part of the triplet tells `SharpProj.dll` to use
-the **M**ultithread-specific and **D**LL-specific version of the Windows run-time library. This combination is a requirement for C++/CLI
-code, and produces DLLs that only depend on the Windows+VC runtime.
-
-The following line installs proj4 and all its required dependencies in the `installed` subdir of the vcpkg checkout.
-```
-vcpkg install proj4[core,tiff]:x86-windows-static-md proj4[core,tiff]:x64-windows-static-md tiff[core]:x86-windows-static-md tiff[core]:x64-windows-static-md
-```
 
 Lastly, make all installed packages available user-wide for use with `CMake`. This requires admin privileges on first use:
 
@@ -66,11 +49,22 @@ Lastly, make all installed packages available user-wide for use with `CMake`. Th
 vcpkg integrate install
 ```
 
-Because `SharpProj` depends on aforementioned `vcpkg` packages, you need to let `Visual Studio` know where these packages reside. This is done in `SharpProj -> Properties -> Configuration Properties -> vcpkg -> Installed Directory` . Please point `Installed Directory` to the `vcpkg` folder on your PC. Do this for `All Configurations` and for `All Platforms`.
+The explicit feature selection `[core,tiff]` builds PROJ without the built-in network support to remove the curl dependency and allows configuring http(s) the .NET way. The network requests are forwarded to the .Net WebClient class using code from SharpProj (see `ProjNetworkHandler.cpp`). 
+
+The explicit feature selection `tiff[core]` disables 'jpeg' support in tiff which shrinks the library. 
+
+Note that the script above assumes that the proj-library and header files required can be found in ../vcpkg/installed/<triplet>.
+If you choose a different layout you will need a custom setup as described further on. But with just this you are now able to build the project using either Visual Studio 2019 or 2022.
+
+### Custom setup details
+
+`SharpProj.dll` is a shared library (.dll) built using C++/CLI. The triplets `x86-windows-static-md` and `x64-windows-static-md` ensure that the required third party libraries are linked **statically** with `SharpProj.dll`, while the **md** part of the triplet tells `SharpProj.dll` to use the **M**ultithread-specific and **D**LL-specific version of the Windows run-time library. This combination is a requirement for C++/CLI code, and produces DLLs that only depend on the Windows+VC runtime.
+
+Because `SharpProj` depends on aforementioned `vcpkg` packages, you need to let `Visual Studio` know where these packages reside. This is done in `SharpProj -> Properties -> Configuration Properties -> vcpkg -> Installed Directory` . Please point `Installed Directory` to the `vcpkg` folder on your PC. Ensure this is valid for `All Configurations` and for `All Platforms`.
 
 Now you are ready to build the `SharpProj.dll`. As this DLL has been built using C++/CLI it is (unlike C#) not platform neutral, and the correct (32/64-bit) version needs to be linked against, depending on the end-user's platform.
 
-The linker will most likely throw up a number of `LNK4248` errors. These can be ignored.
+At the time of writing this readme file, the proj4 library has version 8.2.1#1. If your build-steps result in an earlier version, please run `git pull` from the command line in the `vcpkg` directory.
 
 Success....
 
