@@ -346,9 +346,9 @@ String^ ProjObject::Remarks::get()
 {
     if (!m_remarks)
     {
-        const char* scope = proj_get_remarks(this);
+        const char* remarks = proj_get_remarks(this);
 
-        m_remarks = Utf8_PtrToString(scope);
+        m_remarks = Utf8_PtrToString(remarks);
     }
     return m_remarks;
 }
