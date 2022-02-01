@@ -327,7 +327,6 @@ size_t my_network_read_range(
         strncpy_s(out_error_string, error_string_max_size, "Http error (No HttpWebResponse/readrange)", error_string_max_size);
         return 0;
     }
-    return 0;
 }
 
 void ProjContext::SetupNetworkHandling()

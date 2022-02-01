@@ -165,6 +165,8 @@ namespace SharpProj {
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
             String^ m_infoDefinition;
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
+            String^ m_remarks;
+            [DebuggerBrowsable(DebuggerBrowsableState::Never)]
             String^ m_scope;
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
             String^ m_celestialBodyName;
@@ -299,6 +301,16 @@ namespace SharpProj {
                 void set(String^ value)
                 {
                     m_infoDefinition = value;
+                }
+            }
+
+            property String^ Remarks
+            {
+                String^ get();
+            protected private:
+                void set(String^ value)
+                {
+                    m_remarks = value;
                 }
             }
 

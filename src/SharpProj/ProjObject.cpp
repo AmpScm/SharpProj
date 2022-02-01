@@ -342,6 +342,16 @@ IdentifierList^ ProjObject::Identifiers::get()
     return m_idList;
 }
 
+String^ ProjObject::Remarks::get()
+{
+    if (!m_remarks)
+    {
+        const char* remarks = proj_get_remarks(this);
+
+        m_remarks = Utf8_PtrToString(remarks);
+    }
+    return m_remarks;
+}
 
 String^ ProjObject::Scope::get()
 {
