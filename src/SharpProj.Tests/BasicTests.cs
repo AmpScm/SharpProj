@@ -123,6 +123,7 @@ namespace SharpProj.Tests
                     Assert.AreEqual("25832", crs.Identifiers[0].Code);
                     Assert.AreEqual("+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs +type=crs", crs.AsProjString());
                     Assert.AreEqual("+proj=utm +approx +zone=32 +ellps=GRS80 +units=m +no_defs +type=crs", crs.AsProjString(new ProjStringOptions { MultiLine = true, WriteApproxFlag = true }));
+                    Assert.IsNull(crs.Remarks);
 
                     using (var t = ProjObject.Create(crs.AsProjString()))
                     {

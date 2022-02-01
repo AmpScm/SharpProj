@@ -297,31 +297,16 @@ namespace SharpProj {
                     }
                     return m_infoDefinition;
                 }
-            protected private:
-                void set(String^ value)
-                {
-                    m_infoDefinition = value;
-                }
             }
 
             property String^ Remarks
             {
                 String^ get();
-            protected private:
-                void set(String^ value)
-                {
-                    m_remarks = value;
-                }
             }
 
             property String^ Scope
             {
                 String^ get();
-            protected private:
-                void set(String^ value)
-                {
-                    m_scope = value;
-                }
             }
 
             /// <summary>
@@ -330,11 +315,6 @@ namespace SharpProj {
             property String^ CelestialBodyName
             {
                 String^ get();
-            protected private:
-                void set(String^ value)
-                {
-                    m_celestialBodyName = value;
-                }
             }
 
             property Proj::ProjType Type

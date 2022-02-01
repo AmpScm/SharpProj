@@ -350,7 +350,11 @@ String^ ProjObject::Remarks::get()
 
         m_remarks = Utf8_PtrToString(remarks);
     }
-    return m_remarks;
+
+    if (m_remarks && m_remarks->Length == 0)
+        return nullptr;
+    else
+        return m_remarks;
 }
 
 String^ ProjObject::Scope::get()
