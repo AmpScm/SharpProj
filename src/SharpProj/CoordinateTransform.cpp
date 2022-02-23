@@ -377,7 +377,15 @@ void CoordinateTransform::SetupDistance()
         if (abbr == "Lat")
             d |= DistanceFlags::SwapXY | DistanceFlags::ApplyRad;
         else if (abbr == "Lon")
+        {
             d |= DistanceFlags::ApplyRad;
+
+            if (this->SourceCRS->Axis[0]->Abbreviation == "Lon")
+            {
+                // NULL transform would leave distance broken
+                d |= DistanceFlags::SwapXY;
+            }
+        }
     }
 
     m_distanceFlags = d;

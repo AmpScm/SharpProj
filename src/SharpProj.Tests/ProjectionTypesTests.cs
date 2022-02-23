@@ -12,6 +12,8 @@ namespace SharpProj.Tests
     [TestClass]
     public class ProjectionTypesTests
     {
+        public TestContext TestContext { get; set; }
+
         public static IEnumerable<object[]> ProjectionArgs
             => ProjOperationDefinition.All
                     .Where(x => x.Type == ProjOperationType.Projection)
@@ -46,7 +48,7 @@ namespace SharpProj.Tests
                         SetupArg(args, opt, def.Name);
                     }
                 }
-                Console.WriteLine($"Trying {string.Join(" ", args)}");
+                TestContext.WriteLine($"Trying {string.Join(" ", args)}");
 
                 using (CoordinateReferenceSystem crs = CoordinateReferenceSystem.Create(args.ToArray(), pc))
                 {

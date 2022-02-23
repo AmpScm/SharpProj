@@ -132,6 +132,7 @@ namespace SharpProj.Tests
                         Assert.IsNull(t.Identifiers);
 
                         Assert.AreEqual(crs.AsProjString(), t.AsProjString());
+                        Assert.IsNull(t.Remarks);
                     }
 
                     using (var t = ProjObject.Create(crs.AsWellKnownText()))
@@ -145,6 +146,7 @@ namespace SharpProj.Tests
                         Assert.AreEqual(crs.AsProjString(), t.AsProjString());
 
                         Assert.IsTrue(t.IsEquivalentTo(crs));
+                        Assert.IsNull(t.Remarks);
                     }
                     using (var t = ProjObject.Create(crs.AsProjJson()))
                     {
@@ -156,6 +158,7 @@ namespace SharpProj.Tests
                         Assert.AreEqual("+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs +type=crs", t.AsProjString());
                         Assert.AreEqual(crs.AsProjString(), t.AsProjString());
                         Assert.IsTrue(t.IsEquivalentTo(crs));
+                        Assert.IsNull(t.Remarks);
                     }
 
 
@@ -307,11 +310,11 @@ namespace SharpProj.Tests
 
                 var p = t2.ApplyReversed(new PPoint(12, 55));
 
-                Trace.WriteLine($"Easting: {p.X}, Northing: {p.Y}");
+                TestContext.WriteLine($"Easting: {p.X}, Northing: {p.Y}");
 
                 var r = t2.ApplyReversed(p);
 
-                Trace.WriteLine($"Longitude: {r.X}, Latitude: {r.Y}");
+                TestContext.WriteLine($"Longitude: {r.X}, Latitude: {r.Y}");
 
 
                 var tt = CoordinateTransform.Create(src, src, null);
@@ -421,7 +424,7 @@ namespace SharpProj.Tests
                     }
                     catch (ProjException)
                     {
-                        Trace.WriteLine($"Not supported: {i}");
+                        TestContext.WriteLine($"Not supported: {i}");
                         //Assert.IsTrue(new int[] { 0, 1, 2,3 }.Contains(i), $"EPSG {i} not supported");
                         continue;
                     }
@@ -441,7 +444,7 @@ namespace SharpProj.Tests
                         }
                         catch (ProjException)
                         {
-                            Trace.WriteLine($"Not convertible: {i}");
+                            TestContext.WriteLine($"Not convertible: {i}");
                             //Assert.IsTrue(new int[] { 0, 1, 2,3 }.Contains(i), $"EPSG {i} not supported");
                             continue;
                         }
@@ -579,10 +582,10 @@ namespace SharpProj.Tests
                 using (var epsg7000 = CoordinateTransform.CreateFromEpsg(7000, pc))
                 using (var epsg1112 = CoordinateTransform.CreateFromEpsg(1112, pc))
                 {
-                    Console.WriteLine(epsg7000.SourceCRS?.ToString());
-                    Console.WriteLine(epsg7000.TargetCRS?.ToString());
-                    Console.WriteLine(epsg1112.SourceCRS?.ToString());
-                    Console.WriteLine(epsg1112.TargetCRS?.ToString());
+                    TestContext.WriteLine(epsg7000.SourceCRS?.ToString());
+                    TestContext.WriteLine(epsg7000.TargetCRS?.ToString());
+                    TestContext.WriteLine(epsg1112.SourceCRS?.ToString());
+                    TestContext.WriteLine(epsg1112.TargetCRS?.ToString());
                 }
             }
         }
@@ -604,12 +607,12 @@ namespace SharpProj.Tests
                         Assert.AreEqual(expectedType, c.Type, $"Expected type mismatch on {p.Identifier}, celestial_body={p.CelestialBodyName}");
                         Assert.IsNotNull(p.Authority);
                         Assert.IsNotNull(p.Code);
-                        //Console.WriteLine($"{p.Authority}:{p.Code} ({p.Type}) / {p.ProjectionName} {c.Name}");
+                        //TestContext.WriteLine($"{p.Authority}:{p.Code} ({p.Type}) / {p.ProjectionName} {c.Name}");
                     }
 
                     foreach (var v in p.GetGeoidModels())
                     {
-                        //Console.WriteLine($"{p.Name}: {v}");
+                        //TestContext.WriteLine($"{p.Name}: {v}");
                     }
                 }
             }
@@ -663,7 +666,7 @@ namespace SharpProj.Tests
             using (var epsg7665 = CoordinateReferenceSystem.CreateFromEpsg(7665, pc)) // [Geographic3DCrs] WGS 84 (G1762)
             using (var t = CoordinateTransform.Create(epsg6340, epsg7665, new CoordinateTransformOptions { NoBallparkConversions = true, Accuracy = 1 }))
             {
-                pc.Log += (_, l) => Console.WriteLine(l);
+                pc.Log += (_, l) => TestContext.WriteLine(l);
 
 
                 var option1 = t.Options()[0];
@@ -676,36 +679,36 @@ namespace SharpProj.Tests
 
                 PPoint testVal = new PPoint(350499.911, 3884807.956, 150.072); // From proj/tests/test_c_api.cpp
 
-                Console.WriteLine("-Default");
+                TestContext.WriteLine("-Default");
                 Assert.AreEqual(new PPoint(35.09499807, -118.64016102), t.Apply(testVal).ToXY(8));
                 Assert.AreEqual(new PPoint(35.09499807, -118.64016102), t.Apply(testVal.ToXYZ()).ToXY(8));
-                Console.WriteLine("-AtEpoch verified");
+                TestContext.WriteLine("-AtEpoch verified");
                 Assert.AreEqual(new PPoint(35.09499807, -118.64016102), t.Apply(testVal.WithT(helmertEpoch)).ToXY(8));
 
-                Console.WriteLine("-0");
+                TestContext.WriteLine("-0");
                 Assert.AreEqual(new PPoint(35.09521122, -118.63986605), t.Apply(testVal.WithT(0)).ToXY(8));
 
 
-                Console.WriteLine("-2000");
+                TestContext.WriteLine("-2000");
                 Assert.AreEqual(new PPoint(35.09499775, -118.64016146), t.Apply(testVal.WithT(2000)).ToXY(8));
-                Console.WriteLine("-2005");
+                TestContext.WriteLine("-2005");
                 Assert.AreEqual(new PPoint(35.09499722, -118.64016220), t.Apply(testVal.WithT(2005)).ToXY(8));
-                Console.WriteLine("-2010");
+                TestContext.WriteLine("-2010");
                 Assert.AreEqual(new PPoint(35.09499668, -118.64016294), t.Apply(testVal.WithT(2010)).ToXY(8));
-                Console.WriteLine("-2020");
+                TestContext.WriteLine("-2020");
                 Assert.AreEqual(new PPoint(35.09499562, -118.64016442), t.Apply(testVal.WithT(2020)).ToXY(8));
-                Console.WriteLine("-2021");
+                TestContext.WriteLine("-2021");
                 Assert.AreEqual(new PPoint(35.09499551, -118.64016457), t.Apply(testVal.WithT(2021)).ToXY(8));
-                Console.WriteLine("-2022");
+                TestContext.WriteLine("-2022");
                 Assert.AreEqual(new PPoint(35.09499540, -118.64016471), t.Apply(testVal.WithT(2022)).ToXY(8));
-                Console.WriteLine("-year0");
+                TestContext.WriteLine("-year0");
                 var yearStart = t.Apply(testVal.WithT(DateTime.Now.Year));
                 var yearEnd = t.Apply(testVal.WithT(DateTime.Now.Year + 1));
                 var today = t.Apply(testVal.WithT(DateTime.Now));
                 Assert.IsTrue(yearStart.X >= today.X && today.X >= yearEnd.X);
                 Assert.IsTrue(yearStart.Y >= today.Y && today.Y >= yearEnd.Y);
                 Assert.AreEqual(new PPoint(35.09521122, -118.63986605), t.Apply(testVal.WithT(0)).ToXY(8));
-                Console.WriteLine("-year PositiveInf1");
+                TestContext.WriteLine("-year PositiveInf1");
                 Assert.AreEqual(new PPoint(35.09499807, -118.64016102), t.Apply(testVal.WithT(double.PositiveInfinity)).ToXY(8));
 
                 using (CoordinateTransform ct = CoordinateTransform.Create(t.Steps()[1].AsProjString()))
@@ -760,13 +763,67 @@ namespace SharpProj.Tests
         }
 
         [TestMethod]
+        public void TestNormalizeAustralia()
+        {
+            using (ProjContext pc = new ProjContext() { EnableNetworkConnections = true })
+            using (var australia = CoordinateReferenceSystem.CreateFromEpsg(7843, pc))
+            using (var australiaNormalized = australia.WithAxisNormalized())
+            using (var epsg7665 = CoordinateReferenceSystem.CreateFromEpsg(7665, pc))
+            using (var epsg7665Normalized = epsg7665.WithAxisNormalized())
+            using (var t = CoordinateTransform.Create(australia, epsg7665, new CoordinateTransformOptions { IntermediateCrsUsage = IntermediateCrsUsage.Always, NoDiscardIfMissing = true }))
+            using (var tNorm = CoordinateTransform.Create(australiaNormalized, epsg7665Normalized, new CoordinateTransformOptions { IntermediateCrsUsage = IntermediateCrsUsage.Always, NoDiscardIfMissing = true }))
+            {
+                Assert.IsTrue(!australia.IsEquivalentTo(australiaNormalized) && australia.IsEquivalentToRelaxed(australiaNormalized), "Normalized equal");
+                Assert.IsTrue(!epsg7665.IsEquivalentTo(epsg7665Normalized) && epsg7665.IsEquivalentToRelaxed(epsg7665Normalized), "Normalized equal");
+
+                var uua = australia.UsageArea;
+                var ur = t.Apply(uua.Center);
+                var ur2 = t.Apply(uua.Center.WithT(2000));
+                var ur3 = t.Apply(uua.Center.WithT(2020));
+
+                Assert.AreNotEqual(ur2.ToXY(), ur3.ToXY());
+                GC.KeepAlive(t);
+
+                var nua = australiaNormalized.UsageArea;
+                var nr = tNorm.Apply(nua.Center);
+                var nr2 = tNorm.Apply(nua.Center.WithT(2000));
+                var nr3 = tNorm.Apply(nua.Center.WithT(2020));
+
+                Assert.AreNotEqual(nr2.ToXY(), nr3.ToXY());
+
+                Assert.AreNotEqual(ur.X, ur.Y);
+                Assert.AreEqual(ur.X, nr.Y);
+                Assert.AreEqual(ur.Y, nr.X);
+
+                Assert.AreEqual("Lat,Lon,h", string.Join(",", australia.Axis.Select(x => x.Abbreviation)));
+                Assert.AreEqual("Lat,Lon,h", string.Join(",", australia.DistanceTransform.SourceCRS.Axis.Select(x => x.Abbreviation)));
+                Assert.AreEqual("Lon,Lat,h", string.Join(",", australia.DistanceTransform.TargetCRS.Axis.Select(x => x.Abbreviation)));
+                Assert.AreEqual(new PPoint(133.375, -34.51, 0), australia.DistanceTransform.Apply(uua.Center));
+
+                Assert.AreEqual("Lon,Lat,h", string.Join(",", australiaNormalized.Axis.Select(x => x.Abbreviation)));
+                Assert.AreEqual("Lon,Lat,h", string.Join(",", australiaNormalized.DistanceTransform.SourceCRS.Axis.Select(x => x.Abbreviation)));
+                Assert.AreEqual("Lon,Lat,h", string.Join(",", australiaNormalized.DistanceTransform.TargetCRS.Axis.Select(x => x.Abbreviation)));
+                Assert.AreEqual(new PPoint(133.375, -34.51, 0), australiaNormalized.DistanceTransform.Apply(nua.Center));
+
+                Assert.IsTrue(australia.Ellipsoid.IsEquivalentTo(australiaNormalized.Ellipsoid));
+                Assert.IsTrue(australia.Datum.IsEquivalentTo(australiaNormalized.Datum));
+
+                var uD = australia.DistanceTransform.GeoDistance(uua.NorthWestCorner, uua.Center);
+                var nD = australiaNormalized.DistanceTransform.GeoDistance(uua.NorthWestCorner, uua.Center);
+
+                Assert.IsFalse(double.IsNaN(uD));
+                Assert.AreEqual(uD, nD);
+            }
+        }
+
+        [TestMethod]
         [TestCategory("NeedsNetwork")]
         public void TestNewZealand_defmodel()
         {
             // New Zealand (EPSG:2105) uses a defmodel to correct specific parts at specific points in time (new in proj 7.1.0)
             using (ProjContext pc = new ProjContext() { EnableNetworkConnections = true, LogLevel = ProjLogLevel.Debug })
             {
-                pc.Log += (_, m) => Console.WriteLine(m);
+                pc.Log += (_, m) => TestContext.WriteLine(m);
                 using (var newZealandNorthIsland = CoordinateReferenceSystem.CreateFromEpsg(2105, pc))
                 using (var itrf2014 = CoordinateReferenceSystem.CreateFromEpsg(9000, pc))
                 {
@@ -793,7 +850,7 @@ namespace SharpProj.Tests
                                 Assert.IsTrue(distance >= 0.045, "Huge step in 2017");
                             else
                                 Assert.IsTrue(distance < 0.045, "Small step when not 2017");
-                            Console.WriteLine($"{year}: {Math.Round(distance, 5)} m");
+                            TestContext.WriteLine($"{year}: {Math.Round(distance, 5)} m");
                             rLast = rNow;
                         }
                     }
@@ -807,7 +864,7 @@ namespace SharpProj.Tests
             // Finland uses a tinshift when converting EPSG:2393 to EPSG 3067
             using (ProjContext pc = new ProjContext() { EnableNetworkConnections = true, LogLevel = ProjLogLevel.Debug })
             {
-                pc.Log += (_, m) => Console.WriteLine(m);
+                pc.Log += (_, m) => TestContext.WriteLine(m);
                 using (var finland = CoordinateReferenceSystem.CreateFromEpsg(2393, pc))
                 using (var etrs89_finland = CoordinateReferenceSystem.CreateFromEpsg(3067, pc))
                 {
@@ -910,11 +967,11 @@ namespace SharpProj.Tests
         bool RunMissing(CoordinateReferenceSystem crs, string i)
         {
             if (crs.DistanceTransform == null)
-                Console.WriteLine($"{crs.Identifiers[0]}: Distance transform Null for {i}");
+                TestContext.WriteLine($"{crs.Identifiers[0]}: Distance transform Null for {i}");
             else if (!crs.DistanceTransform.IsAvailable)
-                Console.WriteLine($"{crs.Identifiers[0]}: Distance transform not available for {i}");
+                TestContext.WriteLine($"{crs.Identifiers[0]}: Distance transform not available for {i}");
             else if (!crs.DistanceTransform.HasInverse)
-                Console.WriteLine($"{crs.Identifiers[0]}: Distance transform not reversable for {i}");
+                TestContext.WriteLine($"{crs.Identifiers[0]}: Distance transform not reversable for {i}");
             else
                 return false;
 
@@ -937,7 +994,7 @@ namespace SharpProj.Tests
                 }
             }
             if (projection != null)
-                Console.WriteLine($" - Projection: {projection}");
+                TestContext.WriteLine($" - Projection: {projection}");
 
             return true;
         }
@@ -974,10 +1031,10 @@ namespace SharpProj.Tests
                     int nYMin = pTransformed.IndexOf(pTransformed.FirstOrDefault(x => x.Y == yMin));
                     int nYMax = pTransformed.IndexOf(pTransformed.FirstOrDefault(x => x.Y == yMax));
 
-                    Console.WriteLine($"xMin: {xMin} at {points[nXMin]} -> {pTransformed[nXMin]}");
-                    Console.WriteLine($"xMax: {xMax} at {points[nXMax]} -> {pTransformed[nXMax]}");
-                    Console.WriteLine($"yMin: {yMin} at {points[nYMin]} -> {pTransformed[nYMin]}");
-                    Console.WriteLine($"yMax: {yMax} at {points[nYMax]} -> {pTransformed[nYMax]}");
+                    TestContext.WriteLine($"xMin: {xMin} at {points[nXMin]} -> {pTransformed[nXMin]}");
+                    TestContext.WriteLine($"xMax: {xMax} at {points[nXMax]} -> {pTransformed[nXMax]}");
+                    TestContext.WriteLine($"yMin: {yMin} at {points[nYMin]} -> {pTransformed[nYMin]}");
+                    TestContext.WriteLine($"yMax: {yMax} at {points[nYMax]} -> {pTransformed[nYMax]}");
 
                     ProjRange usageRange = new ProjRange(crs.UsageArea);
                     ProjRange range = new ProjRange(xMin, yMin, xMax, yMax);
@@ -989,7 +1046,7 @@ namespace SharpProj.Tests
                     //Assert.AreEqual(ua.MinY, yMin, $"YMin out of bounds for {points[pTransformed.IndexOf(pTransformed.FirstOrDefault(x => x.X == yMin))]}");
                     //Assert.AreEqual(ua.MaxY, yMax, $"YMax out of bounds for {points[pTransformed.IndexOf(pTransformed.FirstOrDefault(x => x.X == yMax))]}");
                 }
-                Console.WriteLine("---");
+                TestContext.WriteLine("---");
             }
         }
 

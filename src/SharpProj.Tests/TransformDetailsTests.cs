@@ -56,7 +56,7 @@ namespace SharpProj.Tests
                             Assert.IsTrue(crsFrom.IsEquivalentTo(transform.SourceCRS));
                             Assert.IsTrue(crsTo.IsEquivalentTo(transform.TargetCRS));
 
-                            Console.WriteLine($"{transform.Name} - {transform.Accuracy} m - {transform.UsageArea?.Name}");
+                            TestContext.WriteLine($"{transform.Name} - {transform.Accuracy} m - {transform.UsageArea?.Name}");
 
                             string ids = transform.Identifier?.ToString();
                             string scopes = transform.Scope;
@@ -65,13 +65,13 @@ namespace SharpProj.Tests
                                 ids = string.Join(", ", ctl.Where(x => x.Identifiers != null).SelectMany(x => x.Identifiers));
                                 scopes = string.Join(", ", ctl.Select(x => x.Scope).Where(x => x is not null).Distinct());
                             }
-                            Console.WriteLine($"Identifier(s): {ids}");
-                            Console.WriteLine($"Scope(s): {scopes}");
-                            Console.WriteLine(transform.AsProjString(new Proj.ProjStringOptions { MultiLine = true }));
-                            //Console.WriteLine(transform.AsWellKnownText());
+                            TestContext.WriteLine($"Identifier(s): {ids}");
+                            TestContext.WriteLine($"Scope(s): {scopes}");
+                            TestContext.WriteLine(transform.AsProjString(new Proj.ProjStringOptions { MultiLine = true }));
+                            //TestContext.WriteLine(transform.AsWellKnownText());
 
 
-                            Console.WriteLine();
+                            TestContext.WriteLine("");
                         }
                     }
                 }
@@ -111,7 +111,7 @@ namespace SharpProj.Tests
                 using (var ct = CoordinateTransform.Create(crsFrom, crsTo))
                 {
                     Assert.AreEqual(enableNetwork ? "United States (USA) - Alaska including EEZ."
-                                                  :"United States (USA) - Alaska mainland.", ct.UsageArea.Name);
+                                                  : "United States (USA) - Alaska mainland.", ct.UsageArea.Name);
 
                     Func<UsageArea, IEnumerable<PPoint>> getPoints =
                         (ua) => typeof(UsageArea).GetProperties().Where(x => x.PropertyType == typeof(PPoint)).Select(x => (PPoint)x.GetValue(ua)).Where(x => x.HasValues);
@@ -157,7 +157,7 @@ namespace SharpProj.Tests
 
                         Assert.AreEqual(ranked[i, 0], xs[i]);
                         Assert.AreEqual(ranked[i, 1], ys[i]);
-                       
+
                     }
                 }
             }
@@ -180,10 +180,10 @@ namespace SharpProj.Tests
         {
             get
             {
-                using(ProjContext pc = new ProjContext())
+                using (ProjContext pc = new ProjContext())
                 {
                     return pc.GetCoordinateReferenceSystems(
-                        new CoordinateReferenceSystemFilter { CelestialBodyName= "Earth"}
+                        new CoordinateReferenceSystemFilter { CelestialBodyName = "Earth" }
                         ).Where(x => x.Type != ProjType.VerticalCrs).Select(x => new[] { x.Identifier }).Take(100).ToList();
                 }
             }
@@ -205,8 +205,8 @@ namespace SharpProj.Tests
                 Assert.IsTrue(!double.IsInfinity(v) && !double.IsNaN(v));
                 Assert.AreNotEqual(c.UsageArea.MinX, c.UsageArea.MaxX);
                 Assert.AreNotEqual(c.UsageArea.MinY, c.UsageArea.MaxY);
-                Console.WriteLine($"X: {c.UsageArea.MinX} - {c.UsageArea.MaxX}");
-                Console.WriteLine($"Y: {c.UsageArea.MinY} - {c.UsageArea.MaxY}");
+                TestContext.WriteLine($"X: {c.UsageArea.MinX} - {c.UsageArea.MaxX}");
+                TestContext.WriteLine($"Y: {c.UsageArea.MinY} - {c.UsageArea.MaxY}");
             }
         }
 
@@ -218,7 +218,7 @@ namespace SharpProj.Tests
                 {
                     return pc.GetCoordinateReferenceSystems(
                         new CoordinateReferenceSystemFilter { CelestialBodyName = "Earth" }
-                        ).Where(x => (x.Name+ x.AreaName).ToUpperInvariant().Contains("POLE") && x.Type != ProjType.VerticalCrs).Select(x => new[] { x.Identifier }).ToList();
+                        ).Where(x => (x.Name + x.AreaName).ToUpperInvariant().Contains("POLE") && x.Type != ProjType.VerticalCrs).Select(x => new[] { x.Identifier }).ToList();
                 }
             }
         }
@@ -235,8 +235,8 @@ namespace SharpProj.Tests
                 Assert.IsTrue(!double.IsInfinity(v) && !double.IsNaN(v));
                 Assert.AreNotEqual(c.UsageArea.MinX, c.UsageArea.MaxX);
                 Assert.AreNotEqual(c.UsageArea.MinY, c.UsageArea.MaxY);
-                Console.WriteLine($"X: {c.UsageArea.MinX} - {c.UsageArea.MaxX}");
-                Console.WriteLine($"Y: {c.UsageArea.MinY} - {c.UsageArea.MaxY}");
+                TestContext.WriteLine($"X: {c.UsageArea.MinX} - {c.UsageArea.MaxX}");
+                TestContext.WriteLine($"Y: {c.UsageArea.MinY} - {c.UsageArea.MaxY}");
             }
         }
     }
