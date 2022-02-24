@@ -77,23 +77,6 @@ namespace SharpProj.Tests
                 }
             }
         }
-        [TestMethod]
-        public void DistanceDemo()
-        {
-            // Demo case from https://www.mkompf.com/gps/distcalc.html
-            PPoint RusselsheimStation = new PPoint(49.9917, 8.41321);
-            PPoint RusselsheimOpelBridge = new PPoint(50.0049, 8.42182);
-            PPoint BerlinBrandenburgGate = new PPoint(52.5164, 13.3777);
-            PPoint LisbonTagusBridge = new PPoint(38.692668, -9.177944);
-
-            using (var ctx = new ProjContext())
-            using (var wgs84 = CoordinateReferenceSystem.Create("EPSG:4326", ctx))
-            {
-                Assert.AreEqual(1592.7, Math.Round(wgs84.DistanceTransform.GeoDistance(RusselsheimStation, RusselsheimOpelBridge), 1));
-
-                Assert.AreEqual(2318217, Math.Round(wgs84.DistanceTransform.GeoDistance(BerlinBrandenburgGate, LisbonTagusBridge)));
-            }
-        }
 
         [TestMethod]
         public void DistanceInNL()

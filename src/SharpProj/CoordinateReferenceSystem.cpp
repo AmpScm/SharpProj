@@ -15,6 +15,7 @@
 
 using namespace SharpProj;
 using namespace SharpProj::Proj;
+using namespace System::Text;
 
 // first clear field, then dispose, to avoid loops
 template<typename t>

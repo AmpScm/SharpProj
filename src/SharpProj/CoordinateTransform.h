@@ -260,6 +260,13 @@ namespace SharpProj {
     public ref class CoordinateTransform abstract : ProjObject
     {
     private:
+        enum class DistanceFlags
+        {
+            None = 0,
+            Setup = 1,
+            ApplyRad = 2
+        };
+
         [DebuggerBrowsable(DebuggerBrowsableState::Never)]
         String^ m_methodName;
         [DebuggerBrowsable(DebuggerBrowsableState::Never)]
@@ -269,7 +276,7 @@ namespace SharpProj {
         [DebuggerBrowsable(DebuggerBrowsableState::Never)]
         CoordinateReferenceSystem^ m_target;
         [DebuggerBrowsable(DebuggerBrowsableState::Never)]
-        int m_distanceFlags;
+        DistanceFlags m_distanceFlags;
         [DebuggerBrowsable(DebuggerBrowsableState::Never)]
         struct geod_geodesic* m_pgeod;
         [DebuggerBrowsable(DebuggerBrowsableState::Never)]
@@ -511,7 +518,7 @@ namespace SharpProj {
     internal:
         void EnsureDistance()
         {
-            if (m_distanceFlags)
+            if (m_distanceFlags != DistanceFlags::None)
                 return;
 
             SetupDistance();

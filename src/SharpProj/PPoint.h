@@ -1,6 +1,12 @@
 #pragma once
 namespace SharpProj {
-    ref class CoordinateTransform;
+    ref class CoordinateReferenceSystem;
+
+    namespace Proj {
+
+        ref class AxisCollection;
+        ref class CoordinateSystem;
+    };
 
     /// <summary>
     /// .Net wrapper for proj coordinate, containing at most 4 ordinates conveniently called: X, Y, Z, T. (or V[0] upto V[3]).
@@ -351,6 +357,19 @@ namespace SharpProj {
         }
 
         /// <summary>
+        /// Swaps the x and Y coordinate within the <see cref="PPoint" />
+        /// </summary>
+        /// <returns></returns>
+        PPoint SwapXY()
+        {
+            PPoint nw = *this;
+            double tmp = nw.X;
+            nw.X = nw.Y;
+            nw.Y = tmp;
+            return nw;
+        }
+
+        /// <summary>
         /// Sets the T value to the decimalyear value of <paramref name="date"/>
         /// </summary>
         /// <param name="date"></param>
@@ -372,5 +391,22 @@ namespace SharpProj {
         {
             return ToString(format, System::Globalization::CultureInfo::CurrentCulture);
         }
+
+
+        String^ ToString(CoordinateReferenceSystem^ crs)
+        {
+            return ToString(crs, System::Globalization::CultureInfo::CurrentCulture);
+        }
+
+        String^ ToString(CoordinateReferenceSystem^ crs, IFormatProvider^ formatProvider);
+        String^ ToString(CoordinateSystem^ cs)
+        {
+            return ToString(cs, System::Globalization::CultureInfo::CurrentCulture);
+        }
+        String^ ToString(CoordinateSystem^ cs, IFormatProvider^ formatProvider);
+
+
+    private:
+        String^ ToString(AxisCollection^ axis, IFormatProvider^ formatProvider);
     };
 }

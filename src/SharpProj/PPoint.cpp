@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "PPoint.h"
 #include "CoordinateTransform.h"
+#include "CoordinateSystem.h"
 
 using namespace SharpProj;
 
@@ -64,3 +65,43 @@ PPoint SharpProj::PPoint::RadToDeg()
 	return pc;
 }
 
+String^ PPoint::ToString(CoordinateReferenceSystem^ crs, IFormatProvider^ formatProvider)
+{
+    if (!crs || !crs->Axis)
+        return ToString();
+
+    return ToString(crs->Axis, formatProvider);
+}
+
+String^ PPoint::ToString(CoordinateSystem^ cs, IFormatProvider^ formatProvider)
+{
+    if (!cs || !cs->Axis)
+        return ToString();
+
+    return ToString(cs->Axis, formatProvider);
+}
+
+String^ PPoint::ToString(AxisCollection^ axis, IFormatProvider^ formatProvider)
+{
+    if (axis == nullptr)
+        throw gcnew ArgumentNullException("axis");
+
+    auto ci = dynamic_cast<System::Globalization::CultureInfo^>(formatProvider);
+
+    String^ gs = (ci && ci->NumberFormat->NumberDecimalSeparator == ",") ? ";" : ",";
+
+    auto sb = gcnew System::Text::StringBuilder();
+    for (int i = 0; i < axis->Count; i++)
+    {
+        if (i > 0)
+        {
+            sb->Append(gs);
+            sb->Append(L' ');
+        }
+
+        sb->Append(axis[i]->Abbreviation);
+        sb->Append("=");
+        sb->AppendFormat(formatProvider, "{0}", default[i]);
+    }
+    return sb->ToString();
+}

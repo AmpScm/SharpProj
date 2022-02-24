@@ -100,15 +100,14 @@ namespace NetTopologySuite.Geometries
             //       Maybe we can assume that this is always false if the NTS cut-off thinks it's false
             //       Not 100% sure and we want correctness
 
-            using (var dt = sridItem.CRS.DistanceTransform.Clone()) // Thread safe with clone
-            {
-                double d = dt.GeoDistance(nearestPoints[0].ToPPoint(), nearestPoints[1].ToPPoint());
+            var dt = sridItem.CRS.DistanceTransform; // Distance calculations are thread safe.
 
-                if (double.IsInfinity(d) || double.IsNaN(d))
-                    return null;
-                else
-                    return (d <= distanceInMeter);
-            }
+            double d = dt.GeoDistance(nearestPoints[0].ToPPoint(), nearestPoints[1].ToPPoint());
+
+            if (double.IsInfinity(d) || double.IsNaN(d))
+                return null;
+            else
+                return (d <= distanceInMeter);
         }
 
         /// <summary>

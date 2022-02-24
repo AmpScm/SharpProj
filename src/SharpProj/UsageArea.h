@@ -2,6 +2,7 @@
 
 #include "ProjArea.h"
 namespace SharpProj {
+    ref class CoordinateTransform;
     value class PPoint;
 
 

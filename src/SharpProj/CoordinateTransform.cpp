@@ -353,40 +353,12 @@ void SharpProj::Proj::CoordinateTransformParameter::Ensure()
     }
 }
 
-enum DistanceFlags
-{
-    None = 0,
-    Setup = 1,
-    ApplyTransform = 2,
-    SwapXY = 4,
-    ApplyRad = 8
-};
-
 void CoordinateTransform::SetupDistance()
 {
-    int d = DistanceFlags::Setup;
+    DistanceFlags d = DistanceFlags::Setup;
 
-    d |= DistanceFlags::ApplyTransform;
-
-    auto axis = this->TargetCRS->Axis;
-
-    if (axis && axis->Count)
-    {
-        String^ abbr = axis[0]->Abbreviation;
-
-        if (abbr == "Lat")
-            d |= DistanceFlags::SwapXY | DistanceFlags::ApplyRad;
-        else if (abbr == "Lon")
-        {
-            d |= DistanceFlags::ApplyRad;
-
-            if (this->SourceCRS->Axis[0]->Abbreviation == "Lon")
-            {
-                // NULL transform would leave distance broken
-                d |= DistanceFlags::SwapXY;
-            }
-        }
-    }
+    if (proj_angular_output(this, PJ_FWD))
+        d = d | DistanceFlags::ApplyRad;
 
     m_distanceFlags = d;
 
@@ -417,29 +389,18 @@ double CoordinateTransform::GeoDistance(System::Collections::Generic::IEnumerabl
     if (!m_pgeod)
         return double::PositiveInfinity; // Like distance methods
 
-    bool applyTransform = (m_distanceFlags & DistanceFlags::ApplyTransform);
-    bool swapXY = (m_distanceFlags & DistanceFlags::SwapXY);
-    bool applyToRad = (m_distanceFlags & DistanceFlags::ApplyRad);
-
-    double ll1[2] = {};
-    double ll2[2] = {};
+    bool applyToRad = (DistanceFlags::None != (m_distanceFlags & DistanceFlags::ApplyRad));
+    PPoint pPrev;
     bool first = true;
 
     double size = 0;
 
     for each (PPoint p in points)
     {
-        if (applyTransform)
-            p = Apply(p);
+        p = Apply(p);
 
-        ll2[0] = swapXY ? p.X : p.Y;
-        ll2[1] = swapXY ? p.Y : p.X;
-
-        if (!applyToRad)
-        {
-            ll2[0] = ToDeg(ll2[0]);
-            ll2[1] = ToDeg(ll2[1]);
-        }
+        if (applyToRad)
+            p = p.RadToDeg();
 
         if (first)
             first = false;
@@ -448,12 +409,12 @@ double CoordinateTransform::GeoDistance(System::Collections::Generic::IEnumerabl
             double s12, azi1, azi2;
             /* Note: the geodesic code takes arguments in degrees */
 
-            geod_inverse(m_pgeod, ll1[0], ll1[1], ll2[0], ll2[1], &s12, &azi1, &azi2);
+            geod_inverse(m_pgeod, pPrev.Y, pPrev.X, p.Y, p.X, &s12, &azi1, &azi2);
 
             size += s12;
         }
 
-        memcpy(&ll1, &ll2, sizeof(ll1));
+        pPrev = p;
     }
 
     return size;
@@ -474,30 +435,18 @@ double CoordinateTransform::GeoDistanceZ(System::Collections::Generic::IEnumerab
     if (!m_pgeod) // Can be null
         return double::PositiveInfinity; // Like distance methods
 
-    bool applyTransform = (m_distanceFlags & DistanceFlags::ApplyTransform);
-    bool swapXY = (m_distanceFlags & DistanceFlags::SwapXY);
-    bool applyToRad = (m_distanceFlags & DistanceFlags::ApplyRad);
-
-    double ll1[3] = {};
-    double ll2[3] = {};
+    bool applyToRad = (DistanceFlags::None != (m_distanceFlags & DistanceFlags::ApplyRad));
+    PPoint pPrev;
     bool first = true;
 
     double size = 0;
 
     for each (PPoint p in points)
     {
-        if (applyTransform)
-            p = Apply(p);
+        p = Apply(p);
 
-        ll2[0] = swapXY ? p.X : p.Y;
-        ll2[1] = swapXY ? p.Y : p.X;
-        ll2[2] = p.Z;
-
-        if (!applyToRad)
-        {
-            ll2[0] = ToDeg(ll2[0]);
-            ll2[1] = ToDeg(ll2[1]);
-        }
+        if (applyToRad)
+            p = p.RadToDeg();
 
         if (first)
             first = false;
@@ -506,12 +455,12 @@ double CoordinateTransform::GeoDistanceZ(System::Collections::Generic::IEnumerab
             double s12, azi1, azi2;
             /* Note: the geodesic code takes arguments in degrees */
 
-            geod_inverse(m_pgeod, ll1[0], ll1[1], ll2[0], ll2[1], &s12, &azi1, &azi2);
+            geod_inverse(m_pgeod, pPrev.Y, pPrev.X, p.Y, p.X, &s12, &azi1, &azi2);
 
-            size += hypot(s12, ll1[2] - ll2[2]);
+            size += hypot(s12, pPrev.Z - p.Z);
         }
 
-        memcpy(&ll1, &ll2, sizeof(ll1));
+        pPrev = p;
     }
 
     return size;
@@ -522,13 +471,10 @@ PPoint CoordinateTransform::Geod(PPoint p1, PPoint p2)
 {
     EnsureDistance();
 
+    p1 = Apply(p1);
+    p2 = Apply(p2);
 
-    if (m_distanceFlags & DistanceFlags::ApplyTransform)
-    {
-        p1 = Apply(p1);
-        p2 = Apply(p2);
-    }
-    if (m_distanceFlags & DistanceFlags::ApplyRad)
+    if (DistanceFlags::None != (m_distanceFlags & DistanceFlags::ApplyRad))
     {
         p1 = p1.DegToRad();
         p2 = p2.DegToRad();
@@ -541,12 +487,6 @@ PPoint CoordinateTransform::Geod(PPoint p1, PPoint p2)
     coord2.xyz.x = p2.X;
     coord2.xyz.y = p2.Y;
     coord2.xyz.z = p2.Z;
-
-    if (m_distanceFlags & DistanceFlags::SwapXY)
-    {
-        std::swap(coord1.xy.x, coord1.xy.y);
-        std::swap(coord2.xy.x, coord2.xy.y);
-    }
 
     PJ_COORD r = proj_geod(this, coord1, coord2);
 
@@ -563,24 +503,19 @@ double CoordinateTransform::GeoArea(System::Collections::Generic::IEnumerable<PP
     if (!m_pgeod) // Can be null
         return double::PositiveInfinity; // Like distance methods
 
-    bool applyTransform = (m_distanceFlags & DistanceFlags::ApplyTransform);
-    bool swapXY = (m_distanceFlags & DistanceFlags::SwapXY);
-    bool applyToRad = (m_distanceFlags & DistanceFlags::ApplyRad);
+    bool applyToRad = DistanceFlags::None != (m_distanceFlags & DistanceFlags::ApplyRad);
 
     struct geod_polygon poly;
     geod_polygon_init(&poly, false);
 
     for each (PPoint p in points)
     {
-        if (applyTransform)
-            p = Apply(p);
+        p = Apply(p);
 
-        if (!applyToRad)
+        if (applyToRad)
             p = p.RadToDeg();
 
-        geod_polygon_addpoint(m_pgeod, &poly,
-            swapXY ? p.X : p.Y,
-            swapXY ? p.Y : p.X);
+        geod_polygon_addpoint(m_pgeod, &poly, p.Y, p.X);
     }
 
     double poly_area;
