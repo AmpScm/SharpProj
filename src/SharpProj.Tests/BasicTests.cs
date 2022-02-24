@@ -305,7 +305,7 @@ namespace SharpProj.Tests
 
                 var t = CoordinateTransform.Create(src, dst, ctx);
 
-                var t2 = CoordinateTransform.Create(src.WithAxisNormalized(), dst.WithAxisNormalized(), ctx);
+                var t2 = CoordinateTransform.Create(src.WithNormalizedAxis(), dst.WithNormalizedAxis(), ctx);
 
 
                 var p = t2.ApplyReversed(new PPoint(12, 55));
@@ -950,7 +950,7 @@ namespace SharpProj.Tests
         {
             foreach (int esri in new[] { 102034, 102036 })
             {
-                using (var crs = CoordinateReferenceSystem.CreateFromDatabase("ESRI", esri).WithAxisNormalized())
+                using (var crs = CoordinateReferenceSystem.CreateFromDatabase("ESRI", esri).WithNormalizedAxis())
                 {
                     var ua = crs.UsageArea;
                     var dt = crs.DistanceTransform;

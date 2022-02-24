@@ -34,7 +34,7 @@ CoordinateTransform^ UsageArea::GetLatLonConvert()
             {
                 // Ok, then we fall back to the WGS84 definition for the coordinate conversion
 
-                CoordinateReferenceSystem^ wgs84 = CoordinateReferenceSystem::CreateFromEpsg(4326, crs->Context)->WithAxisNormalized(nullptr);
+                CoordinateReferenceSystem^ wgs84 = CoordinateReferenceSystem::CreateFromEpsg(4326, crs->Context)->WithNormalizedAxis(nullptr);
                 m_latLonTransform = CoordinateTransform::Create(crs, wgs84, crs->Context);
 
                 if (!m_latLonTransform->HasInverse)

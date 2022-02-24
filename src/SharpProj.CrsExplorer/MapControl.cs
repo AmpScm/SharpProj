@@ -159,7 +159,7 @@ namespace SharpProj.CrsExplorer
 
             try
             {
-                using (var ct = CoordinateTransform.Create(crs.GeodeticCRS.WithAxisNormalized(), crs))
+                using (var ct = CoordinateTransform.Create(crs.GeodeticCRS.WithNormalizedAxis(), crs))
                 {
                     _crs = crs;
                     foreach (var countryGeo in want.Select(x => x.Geometry))

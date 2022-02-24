@@ -87,7 +87,7 @@ namespace SharpProj.CrsExplorer
                     if (CRS.Axis != null && CRS.AxisCount >= 2)
                         boundsProjectedBox.Text += $" ({CRS.Axis[0].Abbreviation}/{CRS.Axis[1].Abbreviation})";
 
-                    bool swapped = (CRS.WithAxisNormalized() == CRS);
+                    bool swapped = (CRS.WithNormalizedAxis() == CRS);
                     if (swapped)
                         boundsProjectedBox.Text += $" (axis swapped for visualization)";
                 }
@@ -182,7 +182,7 @@ namespace SharpProj.CrsExplorer
                     mp += "\r\nContains part of: " + string.Join(", ", intersects);
 
                 textBox1.Text = mp.Trim();
-                map.UpdateDisplay(CRS.WithAxisNormalized(), want);
+                map.UpdateDisplay(CRS.WithNormalizedAxis(), want);
             }
         }
 

@@ -33,7 +33,11 @@ namespace SharpProj.Tests
                 Assert.AreEqual(2318217, Math.Round(wgs84.DistanceTransform.GeoDistance(BerlinBrandenburgGate, LisbonTagusBridge)));
 
 
-                
+                Assert.AreEqual(1592.7, Math.Round(wgs84.DistanceTransform.GeoDistanceZ(RusselsheimStation, RusselsheimOpelBridge), 1));
+
+                Assert.AreEqual(2318217, Math.Round(wgs84.DistanceTransform.GeoDistanceZ(BerlinBrandenburgGate, LisbonTagusBridge)));
+
+
             }
         }
 
@@ -46,16 +50,17 @@ namespace SharpProj.Tests
             PPoint BerlinBrandenburgGate = new PPoint(52.5164, 13.3777).SwapXY();
             PPoint LisbonTagusBridge = new PPoint(38.692668, -9.177944).SwapXY();
 
-            using (var wgs84 = CoordinateReferenceSystem.Create("EPSG:4326").WithAxisNormalized())
+            using (var wgs84 = CoordinateReferenceSystem.Create("EPSG:4326").WithNormalizedAxis())
             {
                 Assert.AreEqual("Lon=8.42182, Lat=50.0049", RusselsheimOpelBridge.ToString(wgs84, CultureInfo.InvariantCulture));
                 var dt = wgs84.DistanceTransform;
                 Assert.AreEqual("Lon=8.42182, Lat=50.0049", dt.Apply(RusselsheimOpelBridge).ToString(dt.TargetCRS, CultureInfo.InvariantCulture));
 
-
                 Assert.AreEqual(1592.7, Math.Round(wgs84.DistanceTransform.GeoDistance(RusselsheimStation, RusselsheimOpelBridge), 1));
-
                 Assert.AreEqual(2318217, Math.Round(wgs84.DistanceTransform.GeoDistance(BerlinBrandenburgGate, LisbonTagusBridge)));
+
+                Assert.AreEqual(1592.7, Math.Round(wgs84.DistanceTransform.GeoDistanceZ(RusselsheimStation, RusselsheimOpelBridge), 1));
+                Assert.AreEqual(2318217, Math.Round(wgs84.DistanceTransform.GeoDistanceZ(BerlinBrandenburgGate, LisbonTagusBridge)));
             }
         }
 
@@ -66,9 +71,9 @@ namespace SharpProj.Tests
         {
             using (ProjContext pc = new ProjContext() { EnableNetworkConnections = true })
             using (var australia = CoordinateReferenceSystem.CreateFromEpsg(7843, pc))
-            using (var australiaNormalized = australia.WithAxisNormalized())
+            using (var australiaNormalized = australia.WithNormalizedAxis())
             using (var epsg7665 = CoordinateReferenceSystem.CreateFromEpsg(7665, pc))
-            using (var epsg7665Normalized = epsg7665.WithAxisNormalized())
+            using (var epsg7665Normalized = epsg7665.WithNormalizedAxis())
             using (var t = CoordinateTransform.Create(australia, epsg7665, new CoordinateTransformOptions { IntermediateCrsUsage = IntermediateCrsUsage.Always, NoDiscardIfMissing = true }))
             using (var tNorm = CoordinateTransform.Create(australiaNormalized, epsg7665Normalized, new CoordinateTransformOptions { IntermediateCrsUsage = IntermediateCrsUsage.Always, NoDiscardIfMissing = true }))
             {
@@ -116,6 +121,7 @@ namespace SharpProj.Tests
 
                 Assert.IsFalse(double.IsNaN(uD));
                 Assert.AreEqual(uD, nD);
+                Assert.AreEqual(4992993, Math.Round(nD));
             }
         }
     }

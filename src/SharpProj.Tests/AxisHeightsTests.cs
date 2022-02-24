@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace SharpProj.Tests
@@ -27,12 +28,15 @@ namespace SharpProj.Tests
                     Assert.AreEqual(2, wgs84.AxisCount);
                     Assert.AreEqual(3, wgs84D3.AxisCount);
 
-                    var n = wgs84D3.WithAxisNormalized();
+                    var n = wgs84D3.WithNormalizedAxis();
                     Assert.IsFalse(wgs84D3.IsEquivalentTo(n));
                     Assert.IsTrue(wgs84D3.IsEquivalentToRelaxed(n));
 
                     PPoint domWGS84 = DomUtrechtWGS84;
                     PPoint stServaasWGS84 = StServaasMaastrichtWGS84;
+
+                    Assert.AreEqual("Lat=52.09063, Lon=5.123078", domWGS84.ToString(wgs84, CultureInfo.InvariantCulture));
+                    Assert.AreEqual("Lat=50.84938, Lon=5.687712", stServaasWGS84.ToString(wgs84, CultureInfo.InvariantCulture));
 
                     using (var t = CoordinateTransform.Create(wgs84, nlNAP))
                     {
@@ -43,12 +47,29 @@ namespace SharpProj.Tests
                         servaasNL = t.Apply(stServaasWGS84);
 
                         Assert.AreEqual(new PPoint(176164.5, 317770.5, -45.7), servaasNL.ToXYZ(1));
+
+                        Assert.AreEqual(143562.0, Math.Round(wgs84.DistanceTransform.GeoDistance(domWGS84, stServaasWGS84), 1));
+                        Assert.AreEqual(143562.4, Math.Round(nlNAP.DistanceTransform.GeoDistance(domNL, servaasNL), 1));
                     }
 
+                    Assert.AreEqual(nlNAP, nlNAP.WithNormalizedAxis()); // NAP has axis normalized
+                    using (var wgs84Normalized = wgs84.WithNormalizedAxis())
+                    {
+                        Assert.AreNotEqual(wgs84, wgs84Normalized);
+                        Assert.IsTrue(wgs84.IsEquivalentToRelaxed(wgs84Normalized));
+
+                        var domWgsNormalized = DomUtrechtWGS84.SwapXY();
+                        var servaasWgsNormalized = stServaasWGS84.SwapXY();
+
+                        Assert.AreEqual(143562.0, Math.Round(wgs84Normalized.DistanceTransform.GeoDistance(domWgsNormalized, servaasWgsNormalized), 1));
+                    }
+
+                    Assert.AreEqual(beOstend, beOstend.WithNormalizedAxis()); // beOstend has axis normalized
 
                     using (var t = CoordinateTransform.Create(nlNAP, beOstend))
                     {
                         var servaasBE = t.Apply(servaasNL);
+                        var domBE = t.Apply(domNL);
 
                         Assert.AreEqual(new PPoint(742877.4, 671835, -45.7), servaasBE.ToXYZ(1));
 
@@ -58,6 +79,8 @@ namespace SharpProj.Tests
                         Assert.AreEqual(new PPoint(742877.4, 671835, 15), servaasBE.ToXYZ(1));
 
                         servaasNL.Z = 0; //revert to original value
+
+                        Assert.AreEqual(143562.0, Math.Round(beOstend.DistanceTransform.GeoDistance(domBE, servaasBE), 1));
                     }
 
 

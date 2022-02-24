@@ -152,7 +152,7 @@ namespace SharpProj {
 
                 if (!t && m_from)
                 {
-                    // Work around the issue that WithAxisNormalized() currently loses this information
+                    // Work around the issue that WithNormalizedAxis() currently loses this information
                     double west, south, east, north;
                     const char* name;
                     if (proj_get_area_of_use(Context, m_from, &west, &south, &east, &north, &name))
@@ -174,7 +174,23 @@ namespace SharpProj {
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        CoordinateReferenceSystem^ WithAxisNormalized([Optional] ProjContext^ context);
+        CoordinateReferenceSystem^ WithNormalizedAxis([Optional] ProjContext^ context);
+
+        /// <summary>
+        /// Gets this coordinate system, but now with axis normalized. If <paramref name="context" /> is not NULL, a new
+        /// coordinate system within the specified context is returned. Otherwise the coordinate system itself or a coupled
+        /// variant is returned. If a normalized variant is created disposing either the origin or the normalized version
+        /// will also dispose the other.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        [EditorBrowsableAttribute(EditorBrowsableState::Never)]
+        // Deprecated variant
+        //[Obsolete("Please use .WithNormalizedAxis()")]
+        CoordinateReferenceSystem^ WithAxisNormalized([Optional] ProjContext^ context)
+        {
+            return WithNormalizedAxis(context);
+        }
 
     public:
         static CoordinateReferenceSystem^ Create(String^ from, [Optional] ProjContext^ ctx);

@@ -343,7 +343,7 @@ Proj::CoordinateSystem^ CoordinateReferenceSystem::CoordinateSystem::get()
     return m_cs;
 }
 
-CoordinateReferenceSystem^ CoordinateReferenceSystem::WithAxisNormalized(ProjContext^ context)
+CoordinateReferenceSystem^ CoordinateReferenceSystem::WithNormalizedAxis(ProjContext^ context)
 {
     bool allowReturnSame = false;
     if (!context)
@@ -375,7 +375,7 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::WithAxisNormalized(ProjCon
     if (allowReturnSame && !m_axisNormalizedMe)
     {
         m_axisNormalizedMe = crs;
-        crs->m_alsoDispose = this; // Handle explicit using(var x = CoordinateReferenceSystem.Create(...).WithAxisNormalized())
+        crs->m_alsoDispose = this; // Handle explicit using(var x = CoordinateReferenceSystem.Create(...).WithNormalizedAxis())
     }
 
 
@@ -467,7 +467,7 @@ CoordinateTransform^ CoordinateReferenceSystem::DistanceTransform::get()
     {
         try
         {
-            m_distanceTransform = CoordinateTransform::Create(this, this->GeodeticCRS->WithAxisNormalized(nullptr), Context);
+            m_distanceTransform = CoordinateTransform::Create(this, this->GeodeticCRS->WithNormalizedAxis(nullptr), Context);
         }
         catch (ProjException^)
         {
