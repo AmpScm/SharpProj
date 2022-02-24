@@ -11,20 +11,16 @@ https://www.nuget.org/packages/SharpProj/
 ```csharp
 using SharpProj;
 
-using (var pc = new ProjContext())
-{
-   using (var rd = CoordinateReferenceSystem.CreateFromEpsg(28992, pc))
-   using (var wgs84 = CoordinateReferenceSystem.CreateFromEpsg(4326, pc))
-   {
-       var area = rd.UsageArea;
-       Assert.AreEqual("Netherlands - onshore, including Waddenzee, Dutch Wadden Islands and 12-mile offshore coastal zone.", area.Name);
+using var rd = CoordinateReferenceSystem.CreateFromEpsg(28992);
+using var wgs84 = CoordinateReferenceSystem.CreateFromEpsg(4326);
 
-       using (var t = CoordinateTransform.Create(rd, wgs84))
-       {
-          var r = t.Apply(new PPoint(155000, 463000));
-          Assert.AreEqual(new PPoint(52.155, 5.387), r.ToXY(3)); // Round to 3 decimals for easy testing
-       }
-   }
+var area = rd.UsageArea;
+Assert.AreEqual("Netherlands - onshore, including Waddenzee, Dutch Wadden Islands and 12-mile offshore coastal zone.", area.Name);
+
+using (var t = CoordinateTransform.Create(rd, wgs84))
+{
+    var r = t.Apply(new PPoint(155000, 463000));
+    Assert.AreEqual(new PPoint(52.155, 5.387), r.ToXY(3)); // Round to 3 decimals for easy testing
 }
 ```
 
