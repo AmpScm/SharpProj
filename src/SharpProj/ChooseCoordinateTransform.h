@@ -158,5 +158,12 @@ namespace SharpProj {
         {
             return Array::AsReadOnly(EMPTY_ARRAY(Proj::ProjOperation^));
         }
+
+
+    public:
+        virtual String^ ToString() override
+        {
+            return String::Format("<Choose best transform from {0} options>", Count);
+        }
     };
 }

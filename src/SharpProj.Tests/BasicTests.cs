@@ -1028,5 +1028,27 @@ namespace SharpProj.Tests
                 }
             }
         }
+
+        [TestMethod]
+        public void TestRemarks()
+        {
+            using var epsg2964 = CoordinateReferenceSystem.CreateFromEpsg(2964); // NAD27 Alaska Albers
+            using var epsg4326 = CoordinateReferenceSystem.CreateFromEpsg(4326); // WGS84
+
+            using var t = CoordinateTransform.Create(epsg2964, epsg4326);
+
+            if (t is ChooseCoordinateTransform choose)
+            {
+                foreach (var option in choose.Take(choose.Count-1))
+                {
+                    if (option is CoordinateTransformList list)
+                    {
+                        Assert.IsTrue(list.Any(x => !string.IsNullOrEmpty(x.Remarks)));
+                    }
+                }
+            }
+            else
+                Assert.Fail("Expected choose transform");
+        }
     }
 }
