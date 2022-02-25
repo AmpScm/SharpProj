@@ -178,3 +178,72 @@ System::Collections::ObjectModel::ReadOnlyCollection<CelestialBodyInfo^>^ ProjCo
     Array::Sort(result, CelestialBodyComparer::Instance);
     return Array::AsReadOnly(result);
 }
+
+System::Collections::ObjectModel::ReadOnlyCollection<UnitOfMeasurement^>^ ProjContext::GetUnitsOfMeasurement()
+{
+    return GetUnitsOfMeasurement(gcnew UnitOfMeasurementFilter());
+}
+
+private ref class UnitOfMeasurementComparer : System::Collections::Generic::IComparer<UnitOfMeasurement^>
+{
+public:
+    // Inherited via IComparer
+    virtual int Compare(SharpProj::Proj::UnitOfMeasurement^ x, SharpProj::Proj::UnitOfMeasurement^ y)
+    {
+        int n = StringComparer::OrdinalIgnoreCase->Compare(x->Category, y->Category);
+
+        if (n != 0)
+            return n;
+
+        if (x->IsDeprecated != y->IsDeprecated)
+        {
+            return (x->IsDeprecated ? 1 : -1);
+        }
+
+        if ((x->ConversionFactor == 1.0) != (y->ConversionFactor == 1.0))
+        {
+            return ((x->ConversionFactor == 1.0) ? -1 : 0);
+        }
+
+        return StringComparer::OrdinalIgnoreCase->Compare(x->Name, y->Name);
+    }
+
+    static initonly UnitOfMeasurementComparer^ Instance = gcnew UnitOfMeasurementComparer();
+};
+
+System::Collections::ObjectModel::ReadOnlyCollection<UnitOfMeasurement^>^ ProjContext::GetUnitsOfMeasurement(UnitOfMeasurementFilter^ filter)
+{
+    if (!filter)
+        throw gcnew ArgumentNullException("filter");
+
+    std::string auth_name;
+    std::string category;
+
+    if (filter->Authority)
+        auth_name = ::utf8_string(filter->Authority);
+    if (filter->Category)
+        category = ::utf8_string(filter->Category);
+
+    int count;
+    auto r = proj_get_units_from_database(this,
+        auth_name.length() ? auth_name.c_str() : nullptr,
+        category.length() ? category.c_str() : nullptr,
+        !filter->NoDeprecated, &count);
+
+    array< UnitOfMeasurement^>^ result;
+    try
+    {
+        result = gcnew array<UnitOfMeasurement^>(count);
+
+        for (int i = 0; i < count; i++)
+            result[i] = gcnew UnitOfMeasurement(r[i]);
+    }
+    finally
+    {
+        proj_unit_list_destroy(r);
+    }
+
+    Array::Sort(result, UnitOfMeasurementComparer::Instance);
+
+    return Array::AsReadOnly(result);
+  }

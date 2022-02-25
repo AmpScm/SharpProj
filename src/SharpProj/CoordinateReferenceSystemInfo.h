@@ -280,5 +280,129 @@ namespace SharpProj {
                 return Name;
             }
         };
+
+        [DebuggerDisplay("[{Identifier}] {Name,nq}")]
+        public ref class UnitOfMeasurement
+        {
+            [DebuggerBrowsable(DebuggerBrowsableState::Never)]
+            initonly Identifier^ m_identifier;
+            [DebuggerBrowsable(DebuggerBrowsableState::Never)]
+            initonly String^ m_name;
+            [DebuggerBrowsable(DebuggerBrowsableState::Never)]
+            initonly String^ m_shortName;
+            [DebuggerBrowsable(DebuggerBrowsableState::Never)]
+            initonly String^ m_category;
+            [DebuggerBrowsable(DebuggerBrowsableState::Never)]
+            initonly double m_conversionFactor;
+            [DebuggerBrowsable(DebuggerBrowsableState::Never)]
+            initonly bool m_deprecated;
+
+        internal:
+            UnitOfMeasurement(const PROJ_UNIT_INFO* unit_info)
+            {
+                m_identifier = gcnew Proj::Identifier(Utf8_PtrToString(unit_info->auth_name), Utf8_PtrToString(unit_info->code));
+                m_name = Utf8_PtrToString(unit_info->name);
+                m_shortName = Utf8_PtrToString(unit_info->proj_short_name);
+                m_category = Utf8_PtrToString(unit_info->category);
+                m_conversionFactor = unit_info->conv_factor;
+                m_deprecated = (unit_info->deprecated != 0);
+            }
+
+        public:
+            property Identifier^ Identifier
+            {
+                Proj::Identifier^ get()
+                {
+                    return m_identifier;
+                }
+            }
+
+            property String^ Name
+            {
+                String^ get()
+                {
+                    return m_name;
+                }
+            }
+
+            property String^ ShortName
+            {
+                String^ get()
+                {
+                    return m_shortName;
+                }
+            }
+
+            property String^ Category
+            {
+                String^ get()
+                {
+                    return m_category;
+                }
+            }
+
+            property double ConversionFactor
+            {
+                double get()
+                {
+                    return m_conversionFactor;
+                }
+            }
+
+            property bool IsDeprecated
+            {
+                bool get()
+                {
+                    return m_deprecated;
+                }
+            }
+        };
+
+        public ref class UnitOfMeasurementFilter
+        {
+            [DebuggerBrowsable(DebuggerBrowsableState::Never)]
+            String^ m_authority;
+            [DebuggerBrowsable(DebuggerBrowsableState::Never)]
+            String^ m_category;
+            [DebuggerBrowsable(DebuggerBrowsableState::Never)]
+            bool m_noDeprecated;
+
+        public:
+            property String^ Authority
+            {
+                String^ get()
+                {
+                    return m_authority;
+                }
+                void set(String^ value)
+                {
+                    m_authority = value;
+                }
+            }
+
+            property String^ Category
+            {
+                String^ get()
+                {
+                    return m_category;
+                }
+                void set(String^ value)
+                {
+                    m_category = value;
+                }
+            }
+
+            property bool NoDeprecated
+            {
+                bool get()
+                {
+                    return m_noDeprecated;
+                }
+                void set(bool value)
+                {
+                    m_noDeprecated = value;
+                }
+            }
+        };
     }
 }

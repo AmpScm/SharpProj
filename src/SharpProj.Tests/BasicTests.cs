@@ -1052,5 +1052,27 @@ namespace SharpProj.Tests
             else
                 Assert.Fail("Expected choose transform");
         }
+
+        public static IEnumerable<object[]> UnitCategories
+        {
+            get
+            {
+                using var pc = new ProjContext();
+
+                return pc.GetUnitsOfMeasurement().Select(x => x.Category).Distinct().Select(x => new object[] { x });
+            }
+        }
+
+        [TestMethod]
+        [DynamicData(nameof(UnitCategories))]
+        public void UnitTest(string category)
+        {
+            using var pc = new ProjContext();
+
+            var r = pc.GetUnitsOfMeasurement(new UnitOfMeasurementFilter { Category = category });
+            var def = r.FirstOrDefault(x => x.ConversionFactor == 1.0);
+            TestContext.WriteLine($"Default unit: {def.Name} ({def.ShortName})");
+            TestContext.WriteLine($"Defined by: {def.Identifier}");
+        }
     }
 }

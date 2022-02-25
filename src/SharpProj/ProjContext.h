@@ -18,6 +18,8 @@ namespace SharpProj {
         ref class CoordinateReferenceSystemFilter;
         ref class CoordinateReferenceSystemInfo;
         ref class CelestialBodyInfo;
+        ref class UnitOfMeasurement;
+        ref class UnitOfMeasurementFilter;
     }
 
     public enum class ProjLogLevel
@@ -414,6 +416,9 @@ namespace SharpProj {
         System::Collections::ObjectModel::ReadOnlyCollection<CoordinateReferenceSystemInfo^>^ GetCoordinateReferenceSystems();
 
         System::Collections::ObjectModel::ReadOnlyCollection<CelestialBodyInfo^>^ GetCelestialBodies();
+
+        System::Collections::ObjectModel::ReadOnlyCollection<UnitOfMeasurement^>^ GetUnitsOfMeasurement();
+        System::Collections::ObjectModel::ReadOnlyCollection<UnitOfMeasurement^>^ GetUnitsOfMeasurement(UnitOfMeasurementFilter^ filter);
 
     protected:
         virtual void OnLog(ProjLogLevel level, String^ message)
