@@ -20,6 +20,7 @@ namespace SharpProj {
 
         ref class CoordinateSystem;
         ref class UsageArea;
+        interface class IHasCelestialBody;
     }
 
     ref class CoordinateReferenceIdList;
@@ -28,7 +29,7 @@ namespace SharpProj {
     /// A coordinate reference system (CRS) refers to the way in which spatial data that represent the earth's surface (which is round / 3 dimensional) 
     /// is represented in a mathematical 2 or 3 dimensional way.
     /// </summary>
-    public ref class CoordinateReferenceSystem : ProjObject
+    public ref class CoordinateReferenceSystem : ProjObject, IHasCelestialBody
     {
     private:
         [DebuggerBrowsable(DebuggerBrowsableState::Never)]
@@ -57,6 +58,8 @@ namespace SharpProj {
         int m_axis;
         [DebuggerBrowsable(DebuggerBrowsableState::Never)]
         CoordinateReferenceSystem^ m_from;
+        [DebuggerBrowsable(DebuggerBrowsableState::Never)]
+        String^ m_celestialBodyName;
 
         ~CoordinateReferenceSystem();
 
@@ -96,7 +99,13 @@ namespace SharpProj {
         }
 
     public:
-        //bool TryIdentify([Out] CoordinateReferenceIdList^% identified);
+        /// <summary>
+        /// Body on which this applies. Usually 'Earth'
+        /// </summary>
+        property String^ CelestialBodyName
+        {
+            virtual String^ get() sealed;
+        }
 
     public:
         property int AxisCount

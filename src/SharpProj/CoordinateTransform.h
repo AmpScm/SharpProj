@@ -420,29 +420,11 @@ namespace SharpProj {
             }
         }
 
-        [Obsolete("Use .Accuracy. Will be removed after 8.x"), EditorBrowsable(EditorBrowsableState::Never)]
-        property Nullable<double> Accuraracy
-        {
-            Nullable<double> get()
-            {
-                return Accuracy;
-            }
-        }
-
         property virtual bool IsAvailable
         {
             bool get()
             {
                 return 0 != proj_coordoperation_is_instantiable(Context, this);
-            }
-        }
-
-        [Obsolete("Use .IsAvailable. Will be removed after 8.x"), EditorBrowsable(EditorBrowsableState::Never)]
-        property bool IsInstantiable
-        {
-            bool get()
-            {
-                return IsAvailable;
             }
         }
 

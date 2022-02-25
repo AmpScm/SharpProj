@@ -1039,11 +1039,13 @@ namespace SharpProj.Tests
 
             if (t is ChooseCoordinateTransform choose)
             {
-                foreach (var option in choose.Take(choose.Count-1))
+                foreach (var option in choose.Take(choose.Count - 1))
                 {
                     if (option is CoordinateTransformList list)
                     {
                         Assert.IsTrue(list.Any(x => !string.IsNullOrEmpty(x.Remarks)));
+                        Assert.IsTrue(list.All(x => !string.IsNullOrEmpty(x.MethodName)));
+                        Assert.IsTrue(list.All(x => !string.IsNullOrEmpty(x.Identifier.Code)));
                     }
                 }
             }

@@ -229,17 +229,6 @@ namespace SharpProj {
         }
 
         /// <summary>
-        /// Keeps a reference to the database open after use
-        /// </summary>
-        [Obsolete("Unused since Proj 8.1")]
-        [EditorBrowsableAttribute(EditorBrowsableState::Never)]
-        property bool AutoCloseSession
-        {
-            bool get() { return false; }
-            void set(bool value) { UNUSED_ALWAYS(value); }
-        }
-
-        /// <summary>
         /// Gets or sets the URL used to access the proj data
         /// </summary>
         property String^ EndpointUrl

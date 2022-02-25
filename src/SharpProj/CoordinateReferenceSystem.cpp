@@ -508,3 +508,14 @@ Proj::AxisCollection^ CoordinateReferenceSystem::Axis::get()
     else
         return nullptr;
 }
+
+String^ CoordinateReferenceSystem::CelestialBodyName::get()
+{
+    if (!m_celestialBodyName)
+    {
+        const char* bodyName = proj_get_celestial_body_name(Context, this);
+
+        m_celestialBodyName = Utf8_PtrToString(bodyName);
+    }
+    return m_celestialBodyName;
+}

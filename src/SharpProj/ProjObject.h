@@ -14,6 +14,14 @@ namespace SharpProj {
     namespace Proj {
         ref class ProjObject;
 
+        public interface class IHasCelestialBody
+        {
+            property String^ CelestialBodyName
+            {
+                String^ get();
+            }
+        };
+
         public enum class ProjType
         {
             Unknown = PJ_TYPE_UNKNOWN,
@@ -159,17 +167,11 @@ namespace SharpProj {
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
             item_wrapper<PJ_CONTEXT, ProjContext, PJ>& m_pj;
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
-            String^ m_infoId;
-            [DebuggerBrowsable(DebuggerBrowsableState::Never)]
             String^ m_name;
-            [DebuggerBrowsable(DebuggerBrowsableState::Never)]
-            String^ m_infoDefinition;
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
             String^ m_remarks;
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
             String^ m_scope;
-            [DebuggerBrowsable(DebuggerBrowsableState::Never)]
-            String^ m_celestialBodyName;
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
             Proj::IdentifierList^ m_idList;
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
@@ -187,11 +189,8 @@ namespace SharpProj {
         private protected:
             void ForceUnknownInfo()
             {
-                m_infoId = "?";
                 m_name = "?";
-                m_infoDefinition = "?";
                 m_scope = "?";
-                m_celestialBodyName = "?";
                 m_noProj = true;
             }
 
@@ -273,8 +272,7 @@ namespace SharpProj {
                 {
                     if (!m_name)
                     {
-                        const char* name = proj_get_name(this);
-                        m_name = name ? gcnew System::String(name) : nullptr;
+                        m_name = Utf8_PtrToString(proj_get_name(this));
                     }
                     return m_name;
                 }
@@ -285,34 +283,12 @@ namespace SharpProj {
                 }
             }
 
-            [EditorBrowsableAttribute(EditorBrowsableState::Never), DebuggerBrowsableAttribute(DebuggerBrowsableState::Never), ObsoleteAttribute("Please use .AsProjString(). Will be removed after 8.x")]
-            property String^ Definition
-            {
-                String^ get()
-                {
-                    if (!m_infoDefinition)
-                    {
-                        PJ_PROJ_INFO info = proj_pj_info(this);
-                        m_infoDefinition = gcnew System::String(info.definition);
-                    }
-                    return m_infoDefinition;
-                }
-            }
-
             property String^ Remarks
             {
                 String^ get();
             }
 
             property String^ Scope
-            {
-                String^ get();
-            }
-
-            /// <summary>
-            /// Body on which this applies. Usually 'Earth'
-            /// </summary>
-            property String^ CelestialBodyName
             {
                 String^ get();
             }

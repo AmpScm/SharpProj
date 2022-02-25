@@ -4,12 +4,14 @@ namespace SharpProj {
     namespace Proj {
         ref class Ellipsoid;
 
-        public ref class Datum :
-            public ProjObject
+        public ref class Datum : ProjObject, IHasCelestialBody
         {
         private:
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
             Ellipsoid^ m_ellipsoid;
+            [DebuggerBrowsable(DebuggerBrowsableState::Never)]
+            String^ m_celestialBodyName;
+
         internal:
             Datum(ProjContext^ ctx, PJ* pj)
                 : ProjObject(ctx, pj)
@@ -24,6 +26,14 @@ namespace SharpProj {
             property Proj::Ellipsoid^ Ellipsoid
             {
                 Proj::Ellipsoid^ get();
+            }
+
+            /// <summary>
+            /// Body on which this applies. Usually 'Earth'
+            /// </summary>
+            property String^ CelestialBodyName
+            {
+                virtual String^ get() sealed;
             }
 
         public:

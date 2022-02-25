@@ -23,3 +23,14 @@ Ellipsoid^ Ellipsoid::CreateFromDatabase(String^ authority, String^ code, ProjCo
 	else
 		throw ctx->ConstructException();
 }
+
+String^ Ellipsoid::CelestialBodyName::get()
+{
+    if (!m_celestialBodyName)
+    {
+        const char* bodyName = proj_get_celestial_body_name(Context, this);
+
+        m_celestialBodyName = Utf8_PtrToString(bodyName);
+    }
+    return m_celestialBodyName;
+}

@@ -46,3 +46,14 @@ Proj::Ellipsoid^ Datum::Ellipsoid::get()
 	}
 	return m_ellipsoid;
 }
+
+String^ Datum::CelestialBodyName::get()
+{
+    if (!m_celestialBodyName)
+    {
+        const char* bodyName = proj_get_celestial_body_name(Context, this);
+
+        m_celestialBodyName = Utf8_PtrToString(bodyName);
+    }
+    return m_celestialBodyName;
+}

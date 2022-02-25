@@ -2,8 +2,7 @@
 #include "ProjObject.h"
 namespace SharpProj {
     namespace Proj {
-        public ref class Ellipsoid :
-            public ProjObject
+        public ref class Ellipsoid : ProjObject, IHasCelestialBody
         {
         private:
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
@@ -14,6 +13,8 @@ namespace SharpProj {
             initonly bool m_is_semi_minor_computed;
             [DebuggerBrowsable(DebuggerBrowsableState::Never)]
             initonly double m_inv_flattening;
+            [DebuggerBrowsable(DebuggerBrowsableState::Never)]
+            String^ m_celestialBodyName;
 
         internal:
             Ellipsoid(ProjContext^ ctx, PJ* pj)
@@ -63,6 +64,14 @@ namespace SharpProj {
                 {
                     return m_inv_flattening;
                 }
+            }
+
+            /// <summary>
+            /// Body on which this applies. Usually 'Earth'
+            /// </summary>
+            property String^ CelestialBodyName
+            {
+                virtual String^ get() sealed;
             }
 
         public:

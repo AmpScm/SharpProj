@@ -6,6 +6,7 @@
 #include "CoordinateTransformList.h"
 #include "CoordinateReferenceSystem.h"
 #include "CoordinateReferenceSystemList.h"
+#include "ChooseCoordinateTransform.h"
 #include "CoordinateSystem.h"
 #include "Ellipsoid.h"
 #include "GeographicCRS.h"
@@ -368,13 +369,3 @@ String^ ProjObject::Scope::get()
     return m_scope;
 }
 
-String^ ProjObject::CelestialBodyName::get()
-{
-    if (!m_celestialBodyName)
-    {
-        const char* bodyName = proj_get_celestial_body_name(Context, this);
-
-        m_celestialBodyName = Utf8_PtrToString(bodyName);
-    }
-    return m_celestialBodyName;
-}
