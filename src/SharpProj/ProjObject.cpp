@@ -345,7 +345,7 @@ IdentifierList^ ProjObject::Identifiers::get()
 
 String^ ProjObject::Remarks::get()
 {
-    if (!m_remarks)
+    if (!m_remarks && !m_noProj)
     {
         const char* remarks = proj_get_remarks(this);
 
@@ -360,7 +360,7 @@ String^ ProjObject::Remarks::get()
 
 String^ ProjObject::Scope::get()
 {
-    if (!m_scope)
+    if (!m_scope && !m_noProj)
     {
         const char* scope = proj_get_scope(this);
 

@@ -43,7 +43,7 @@ namespace SharpProj.Tests
 
                         // Returns best match
                         Assert.AreEqual(useNetwork ? "United States (USA) - Alaska including EEZ." : "United States (USA) - Alaska mainland.", ct.UsageArea.Name);
-                        Assert.AreEqual("?", ct.Scope);
+                        Assert.IsNull(ct.Scope);
 
                         var cct = ct as ChooseCoordinateTransform;
                         Assert.IsNotNull("Have Choose coordinate transform");

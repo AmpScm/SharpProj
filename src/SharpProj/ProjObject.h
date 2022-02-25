@@ -189,8 +189,6 @@ namespace SharpProj {
         private protected:
             void ForceUnknownInfo()
             {
-                m_name = "?";
-                m_scope = "?";
                 m_noProj = true;
             }
 
