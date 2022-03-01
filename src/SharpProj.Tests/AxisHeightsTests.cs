@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -9,6 +10,8 @@ namespace SharpProj.Tests
     {
         static readonly PPoint DomUtrechtWGS84 = new PPoint(52.09063, 5.123078); // WGS84
         static readonly PPoint StServaasMaastrichtWGS84 = new PPoint(50.84938, 5.687712);
+
+        public TestContext TestContext { get; set; }
 
         [TestMethod]
         [TestCategory("NeedsNetwork")]
@@ -48,8 +51,8 @@ namespace SharpProj.Tests
 
                         Assert.AreEqual(new PPoint(176164.5, 317770.5, -45.7), servaasNL.ToXYZ(1));
 
-                        Assert.AreEqual(143562.0, Math.Round(wgs84.DistanceTransform.GeoDistance(domWGS84, stServaasWGS84), 1));
-                        Assert.AreEqual(143562.4, Math.Round(nlNAP.DistanceTransform.GeoDistance(domNL, servaasNL), 1));
+                        Assert.AreEqual(143562.0, Math.Round(wgs84.GeoDistance(domWGS84, stServaasWGS84), 1));
+                        Assert.AreEqual(143562.4, Math.Round(nlNAP.GeoDistance(domNL, servaasNL), 1));
                     }
 
                     Assert.AreEqual(nlNAP, nlNAP.WithNormalizedAxis()); // NAP has axis normalized
@@ -61,7 +64,7 @@ namespace SharpProj.Tests
                         var domWgsNormalized = DomUtrechtWGS84.SwapXY();
                         var servaasWgsNormalized = stServaasWGS84.SwapXY();
 
-                        Assert.AreEqual(143562.0, Math.Round(wgs84Normalized.DistanceTransform.GeoDistance(domWgsNormalized, servaasWgsNormalized), 1));
+                        Assert.AreEqual(143562.0, Math.Round(wgs84Normalized.GeoDistance(domWgsNormalized, servaasWgsNormalized), 1));
                     }
 
                     Assert.AreEqual(beOstend, beOstend.WithNormalizedAxis()); // beOstend has axis normalized
@@ -80,7 +83,7 @@ namespace SharpProj.Tests
 
                         servaasNL.Z = 0; //revert to original value
 
-                        Assert.AreEqual(143562.0, Math.Round(beOstend.DistanceTransform.GeoDistance(domBE, servaasBE), 1));
+                        Assert.AreEqual(143562.0, Math.Round(beOstend.GeoDistance(domBE, servaasBE), 1));
                     }
 
 
@@ -118,9 +121,9 @@ namespace SharpProj.Tests
                     servaas = t.Apply(StServaasMaastrichtWGS84);
                 }
 
-                Assert.AreEqual(143.562, Math.Round(wgs84.DistanceTransform.GeoDistance(DomUtrechtWGS84, StServaasMaastrichtWGS84)) / 1000.0, "Distance WGS84");
+                Assert.AreEqual(143.562, Math.Round(wgs84.GeoDistance(DomUtrechtWGS84, StServaasMaastrichtWGS84)) / 1000.0, "Distance WGS84");
 
-                Assert.AreEqual(143.562, Math.Round(nl.DistanceTransform.GeoDistance(dom, servaas), 0) / 1000.0, "Distance RD");
+                Assert.AreEqual(143.562, Math.Round(nl.GeoDistance(dom, servaas), 0) / 1000.0, "Distance RD");
 
                 double dx = (dom.X - servaas.X);
                 double dy = (dom.Y - servaas.Y);
@@ -141,6 +144,64 @@ namespace SharpProj.Tests
                 using (var WGS84_2 = CoordinateReferenceSystem.CreateFromEpsg(4329, pc))
                 {
                     GC.KeepAlive(WGS84_2);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void RecreateViaWKT()
+        {
+            using var pc = new ProjContext() { EnableNetworkConnections = true };
+
+            pc.LogLevel = ProjLogLevel.Trace;
+            pc.Log += (x, y) => Debug.WriteLine(y);
+
+            using var nlNAP = CoordinateReferenceSystem.CreateFromEpsg(7415, pc);
+            using var wgs84 = CoordinateReferenceSystem.CreateFromEpsg(4326, pc);
+            using var wgs84D3 = CoordinateReferenceSystem.CreateFromEpsg(4329, pc);
+
+            string tWkt = "";
+            string tProj = "";
+            CoordinateTransform from;
+
+            using var tOriginal = CoordinateTransform.Create(nlNAP, wgs84D3);
+
+            if (tOriginal is ChooseCoordinateTransform cct)
+            {
+                tWkt = cct[0].AsWellKnownText();
+                tProj = cct[0].AsProjString();
+                from = cct[0];
+            }
+            else
+            {
+                tWkt = tOriginal.AsWellKnownText();
+                tProj = tOriginal.AsProjString();
+                from = tOriginal;
+            }
+
+            Assert.IsNotNull(tWkt);
+
+            using var tWgs84nlNAP = CoordinateTransform.Create(wgs84, nlNAP);
+
+            var domNL = tWgs84nlNAP.Apply(DomUtrechtWGS84);
+            var servaasNL = tWgs84nlNAP.Apply(StServaasMaastrichtWGS84);
+
+
+            using (var t1 = CoordinateTransform.Create(tProj, pc))
+            {
+                var domGPS1 = from.Apply(domNL);
+                var domGPS = t1.Apply(domNL);
+
+                Assert.AreEqual(domGPS1, domGPS);
+
+                Assert.AreEqual(tProj, t1.AsProjString());
+            }
+
+            using (var t2 = CoordinateTransform.CreateFromWellKnownText(tWkt, out var warnings, pc))
+            {
+                if (tProj != t2.AsProjString())
+                {
+                    Assert.Inconclusive("Proj string should have matched after reloading via WKT");
                 }
             }
         }

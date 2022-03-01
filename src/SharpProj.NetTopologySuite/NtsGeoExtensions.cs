@@ -50,7 +50,7 @@ namespace NetTopologySuite.Geometries
             DistanceOp distanceOp = new DistanceOp(g0, g1);
             Coordinate[] nearestPoints = distanceOp.NearestPoints();
 
-            double d = crs.DistanceTransform.GeoDistance(nearestPoints[0].ToPPoint(), nearestPoints[1].ToPPoint());
+            double d = crs.GeoDistance(nearestPoints[0].ToPPoint(), nearestPoints[1].ToPPoint());
 
             if (double.IsInfinity(d) || double.IsNaN(d))
                 return null;
@@ -97,9 +97,9 @@ namespace NetTopologySuite.Geometries
             //       Maybe we can assume that this is always false if the NTS cut-off thinks it's false
             //       Not 100% sure and we want correctness
 
-            var dt = sridItem.CRS.DistanceTransform; // Distance calculations are thread safe.
+            var crs = sridItem.CRS; // Distance calculations are thread safe.
 
-            double d = dt.GeoDistance(nearestPoints[0].ToPPoint(), nearestPoints[1].ToPPoint());
+            double d = crs.GeoDistance(nearestPoints[0].ToPPoint(), nearestPoints[1].ToPPoint());
 
             if (double.IsInfinity(d) || double.IsNaN(d))
                 return null;
@@ -175,7 +175,7 @@ namespace NetTopologySuite.Geometries
 
         private static double? MeterLength(this LineString l, CoordinateReferenceSystem crs)
         {
-            double d = crs.DistanceTransform.GeoDistance(l.CoordinateSequence.ToPPoints());
+            double d = crs.GeoDistance(l.CoordinateSequence.ToPPoints());
 
             if (double.IsInfinity(d) || double.IsNaN(d))
                 return null;
@@ -274,7 +274,7 @@ namespace NetTopologySuite.Geometries
 
         private static double? SignedRingArea(LineString ring, CoordinateReferenceSystem crs)
         {
-            double d = crs.DistanceTransform.GeoArea(ring.CoordinateSequence.ToPPoints());
+            double d = crs.GeoArea(ring.CoordinateSequence.ToPPoints());
 
             if (double.IsInfinity(d) || double.IsNaN(d))
                 return null;

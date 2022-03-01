@@ -188,6 +188,71 @@ CoordinateTransform^ CoordinateTransform::CreateFromDatabase(String^ authority, 
         throw ctx->ConstructException();
 }
 
+CoordinateTransform^ CoordinateTransform::CreateFromWellKnownText(String^ from, ProjContext^ ctx)
+{
+    array<String^>^ wars = nullptr;
+
+    return CreateFromWellKnownText(from, wars, ctx);
+}
+
+CoordinateTransform^ CoordinateTransform::CreateFromWellKnownText(String^ from, [Out] array<String^>^% warnings, ProjContext^ ctx)
+{
+    if (String::IsNullOrWhiteSpace(from))
+        throw gcnew ArgumentNullException("from");
+
+    bool createdCtx = false;
+    if (!ctx)
+    {
+        ctx = gcnew ProjContext();
+        createdCtx = true;
+    }
+
+    try
+    {
+        PROJ_STRING_LIST wrs = nullptr;
+        PROJ_STRING_LIST errs = nullptr;
+        const char* options[32] = {};
+
+        std::string fromStr = utf8_string(from);
+        PJ* pj = proj_create_from_wkt(ctx, fromStr.c_str(), options, &wrs, &errs);
+
+        warnings = FromStringList(wrs);
+        array<String^>^ errors = FromStringList(errs);
+
+        if (wrs)
+            proj_string_list_destroy(wrs);
+        if (errs)
+            proj_string_list_destroy(errs);
+
+        if (!pj)
+        {
+            Exception^ ex = ctx->ConstructException("Transform from WKT failed");
+            if (errors && errors->Length)
+            {
+                Exception^ ex2 = (ex && ex->Message->Length) ? ex : nullptr;
+
+                for each (String ^ msg in errors)
+                {
+                    ex2 = gcnew ProjException(msg, ex2);
+                }
+
+                if (ex2)
+                    throw ex2;
+            }
+            throw ex;
+        }
+
+        return ctx->Create<CoordinateTransform^>(pj);
+    }
+    catch (Exception^)
+    {
+        if (createdCtx)
+            delete ctx;
+
+        throw;
+    }
+}
+
 
 double CoordinateTransform::RoundTrip(bool forward, int transforms, PPoint coordinate)
 {
@@ -750,4 +815,74 @@ void CoordinateTransform::ApplyReversed(array<double, 2>^ ordinateArray)
     default:
         throw gcnew ArgumentException();
     }
+}
+
+double CoordinateReferenceSystem::GeoDistance(PPoint p1, PPoint p2)
+{
+    auto d = this->DistanceTransform;
+
+    return d ? d->GeoDistance(p1, p2) : double::NaN;
+}
+
+double CoordinateReferenceSystem::GeoDistance(System::Collections::Generic::IEnumerable<PPoint>^ points)
+{
+    auto d = this->DistanceTransform;
+
+    return d ? d->GeoDistance(points) : double::NaN;
+}
+
+///////////////////////
+double CoordinateReferenceSystem::GeoDistance(array<double>^ ordinates1, array<double>^ ordinates2)
+{
+    auto d = this->DistanceTransform;
+
+    return d ? d->GeoDistance(ordinates1, ordinates2) : double::NaN;
+}
+
+double CoordinateReferenceSystem::GeoDistanceZ(PPoint p1, PPoint p2)
+{
+    auto d = this->DistanceTransform;
+
+    return d ? d->GeoDistanceZ(p1, p2) : double::NaN;
+}
+
+
+double CoordinateReferenceSystem::GeoDistanceZ(System::Collections::Generic::IEnumerable<PPoint>^ points)
+{
+    auto d = this->DistanceTransform;
+
+    return d ? d->GeoDistanceZ(points) : double::NaN;
+}
+
+double CoordinateReferenceSystem::GeoDistanceZ(array<double>^ ordinates1, array<double>^ ordinates2)
+{
+    auto d = this->DistanceTransform;
+
+    return d ? d->GeoDistanceZ(ordinates1, ordinates2) : double::NaN;
+}
+
+PPoint CoordinateReferenceSystem::Geod(PPoint p1, PPoint p2)
+{
+    auto d = this->DistanceTransform;
+
+    if (d)
+        return d->Geod(p1, p2);
+    else
+        return PPoint(double::NaN, double::NaN);
+}
+array<double>^ CoordinateReferenceSystem::Geod(array<double>^ ordinates1, array<double>^ ordinates2)
+{
+    auto d = this->DistanceTransform;
+
+    if (d)
+        return d->Geod(ordinates1, ordinates2);
+    else
+        return nullptr;
+}
+
+double CoordinateReferenceSystem::GeoArea(System::Collections::Generic::IEnumerable<PPoint>^ points)
+{
+    auto d = this->DistanceTransform;
+
+    return d ? d->GeoArea(points) : double::NaN;
 }

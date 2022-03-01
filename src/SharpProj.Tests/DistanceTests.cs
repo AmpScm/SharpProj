@@ -28,14 +28,14 @@ namespace SharpProj.Tests
                 var dt = wgs84.DistanceTransform;
                 Assert.AreEqual("Lon=8.42182, Lat=50.0049", dt.Apply(RusselsheimOpelBridge).ToString(dt.TargetCRS, CultureInfo.InvariantCulture));
 
-                Assert.AreEqual(1592.7, Math.Round(wgs84.DistanceTransform.GeoDistance(RusselsheimStation, RusselsheimOpelBridge), 1));
+                Assert.AreEqual(1592.7, Math.Round(wgs84.GeoDistance(RusselsheimStation, RusselsheimOpelBridge), 1));
 
-                Assert.AreEqual(2318217, Math.Round(wgs84.DistanceTransform.GeoDistance(BerlinBrandenburgGate, LisbonTagusBridge)));
+                Assert.AreEqual(2318217, Math.Round(wgs84.GeoDistance(BerlinBrandenburgGate, LisbonTagusBridge)));
 
 
-                Assert.AreEqual(1592.7, Math.Round(wgs84.DistanceTransform.GeoDistanceZ(RusselsheimStation, RusselsheimOpelBridge), 1));
+                Assert.AreEqual(1592.7, Math.Round(wgs84.GeoDistanceZ(RusselsheimStation, RusselsheimOpelBridge), 1));
 
-                Assert.AreEqual(2318217, Math.Round(wgs84.DistanceTransform.GeoDistanceZ(BerlinBrandenburgGate, LisbonTagusBridge)));
+                Assert.AreEqual(2318217, Math.Round(wgs84.GeoDistanceZ(BerlinBrandenburgGate, LisbonTagusBridge)));
 
 
             }
@@ -56,11 +56,11 @@ namespace SharpProj.Tests
                 var dt = wgs84.DistanceTransform;
                 Assert.AreEqual("Lon=8.42182, Lat=50.0049", dt.Apply(RusselsheimOpelBridge).ToString(dt.TargetCRS, CultureInfo.InvariantCulture));
 
-                Assert.AreEqual(1592.7, Math.Round(wgs84.DistanceTransform.GeoDistance(RusselsheimStation, RusselsheimOpelBridge), 1));
-                Assert.AreEqual(2318217, Math.Round(wgs84.DistanceTransform.GeoDistance(BerlinBrandenburgGate, LisbonTagusBridge)));
+                Assert.AreEqual(1592.7, Math.Round(wgs84.GeoDistance(RusselsheimStation, RusselsheimOpelBridge), 1));
+                Assert.AreEqual(2318217, Math.Round(wgs84.GeoDistance(BerlinBrandenburgGate, LisbonTagusBridge)));
 
-                Assert.AreEqual(1592.7, Math.Round(wgs84.DistanceTransform.GeoDistanceZ(RusselsheimStation, RusselsheimOpelBridge), 1));
-                Assert.AreEqual(2318217, Math.Round(wgs84.DistanceTransform.GeoDistanceZ(BerlinBrandenburgGate, LisbonTagusBridge)));
+                Assert.AreEqual(1592.7, Math.Round(wgs84.GeoDistanceZ(RusselsheimStation, RusselsheimOpelBridge), 1));
+                Assert.AreEqual(2318217, Math.Round(wgs84.GeoDistanceZ(BerlinBrandenburgGate, LisbonTagusBridge)));
             }
         }
 

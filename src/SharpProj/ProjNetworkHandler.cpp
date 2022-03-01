@@ -294,6 +294,7 @@ size_t my_network_read_range(
         {
             pin_ptr<unsigned char> pBuf = &buf[0];
             memcpy(buffer, pBuf, r);
+
             return r;
         }
         else

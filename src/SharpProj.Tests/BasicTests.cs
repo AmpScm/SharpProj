@@ -788,7 +788,7 @@ namespace SharpProj.Tests
                             PPoint rNow = t.Apply(centerPoint.WithT(year));
 
                             Assert.AreNotEqual(rLast.ToXY(), rNow.ToXY());
-                            double distance = itrf2014.DistanceTransform.GeoDistance(rNow, rLast);
+                            double distance = itrf2014.GeoDistance(rNow, rLast);
 
                             Assert.IsTrue(distance >= 0.04, "Distance > 4cm / year. check grid file acces (e.g. network) if this fails");
 

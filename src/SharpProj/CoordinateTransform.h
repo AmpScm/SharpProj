@@ -588,6 +588,9 @@ namespace SharpProj {
             return CreateFromDatabase("EPSG", epsgCode, ctx);
         }
 
+        static CoordinateTransform^ CreateFromWellKnownText(String^ from, [Optional] ProjContext^ ctx);
+        static CoordinateTransform^ CreateFromWellKnownText(String^ from, [Out] array<String^>^% warnings, [Optional] ProjContext^ ctx);
+
     public:
         /// <summary>
         /// Measure internal consistency of a given transformation. The function performs n round trip transformations starting in either the forward or reverse direction. Returns the euclidean distance of the starting point coo and the resulting coordinate after n iterations back and forth.

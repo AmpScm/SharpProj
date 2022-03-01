@@ -125,7 +125,7 @@ namespace SharpProj.Tests
 
             // Test the raw (signed) operations to return the same thing. On polygon the value is taken absolute (unsigned)
             Assert.AreEqual(4330127018.92, Math.Round(NetTopologySuite.Algorithm.Area.OfRingSigned(t3.ExteriorRing.Coordinates), 2));
-            Assert.AreEqual(4330957964.64, Math.Round(srid.CRS.DistanceTransform.GeoArea(t3.Coordinates), 2));
+            Assert.AreEqual(4330957964.64, Math.Round(srid.CRS.GeoArea(t3.Coordinates), 2));
 
             Assert.AreEqual(4330957964.64, Math.Round(t3.MeterArea().Value, 2)); // Not using backing data yet
         }

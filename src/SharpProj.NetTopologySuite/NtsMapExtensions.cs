@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using NetTopologySuite.Geometries;
 using SharpProj.NTS;
@@ -345,10 +346,69 @@ namespace SharpProj
         /// <summary>
         /// Calculates the distance between the two coordinates (X,Y) in meters
         /// </summary>
+        /// <param name="crs"></param>
+        /// <param name="c1"></param>
+        /// <param name="c2"></param>
+        /// <returns>The distance in meters or <see cref="double.NaN"/> if the value can't be calculated</returns>
+        public static double GeoDistance(this CoordinateReferenceSystem crs, Coordinate c1, Coordinate c2)
+        {
+            return crs.GeoDistance(c1.ToPPoint(), c2.ToPPoint());
+        }
+
+        /// <summary>
+        /// Calculates the distance between the coordinates (X,Y) in meters
+        /// </summary>
+        /// <param name="crs"></param>
+        /// <param name="coordinates"></param>
+        /// <returns>The distance in meters or <see cref="double.NaN"/> if the value can't be calculated</returns>
+        public static double GeoDistance(this CoordinateReferenceSystem crs, IEnumerable<Coordinate> coordinates)
+        {
+            return crs.GeoDistance(coordinates.ToPPoints());
+        }
+
+        /// <summary>
+        /// Calculates the distance between the two coordinates (X,Y) in meters, and then applies Z (assumed to be meters) via Pythagoras
+        /// </summary>
+        /// <param name="crs"></param>
+        /// <param name="c1"></param>
+        /// <param name="c2"></param>
+        /// <returns>The distance in meters or <see cref="double.NaN"/> if the value can't be calculated</returns>
+        public static double GeoDistanceZ(this CoordinateReferenceSystem crs, Coordinate c1, Coordinate c2)
+        {
+            return crs.GeoDistanceZ(ToPPoint(c1), ToPPoint(c2));
+        }
+
+        /// <summary>
+        /// Calculates the distance between the two coordinates (X,Y) in meters, and then applies Z (assumed to be meters) via Pythagoras
+        /// </summary>
+        /// <param name="crs"></param>
+        /// <param name="coordinates"></param>
+        /// <returns>The distance in meters or <see cref="double.NaN"/> if the value can't be calculated</returns>
+        public static double GeoDistanceZ(this CoordinateReferenceSystem crs, IEnumerable<Coordinate> coordinates)
+        {
+            return crs.GeoDistanceZ(coordinates.Select(x => x.ToPPoint()));
+        }
+
+        /// <summary>
+        /// Calculates the area in square meters occupied by the polygon described in coordinates
+        /// </summary>
+        /// <param name="crs"></param>
+        /// <param name="coordinates"></param>
+        /// <returns></returns>
+        public static double GeoArea(this CoordinateReferenceSystem crs, IEnumerable<Coordinate> coordinates)
+        {
+            return crs.GeoArea(coordinates.Select(x => x.ToPPoint()));
+        }
+
+
+        /// <summary>
+        /// Calculates the distance between the two coordinates (X,Y) in meters
+        /// </summary>
         /// <param name="operation"></param>
         /// <param name="c1"></param>
         /// <param name="c2"></param>
         /// <returns>The distance in meters or <see cref="double.NaN"/> if the value can't be calculated</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static double GeoDistance(this CoordinateTransform operation, Coordinate c1, Coordinate c2)
         {
             return operation.GeoDistance(c1.ToPPoint(), c2.ToPPoint());
@@ -360,6 +420,7 @@ namespace SharpProj
         /// <param name="operation"></param>
         /// <param name="coordinates"></param>
         /// <returns>The distance in meters or <see cref="double.NaN"/> if the value can't be calculated</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static double GeoDistance(this CoordinateTransform operation, IEnumerable<Coordinate> coordinates)
         {
             return operation.GeoDistance(coordinates.ToPPoints());
@@ -372,6 +433,7 @@ namespace SharpProj
         /// <param name="c1"></param>
         /// <param name="c2"></param>
         /// <returns>The distance in meters or <see cref="double.NaN"/> if the value can't be calculated</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static double GeoDistanceZ(this CoordinateTransform operation, Coordinate c1, Coordinate c2)
         {
             return operation.GeoDistanceZ(ToPPoint(c1), ToPPoint(c2));
@@ -383,6 +445,7 @@ namespace SharpProj
         /// <param name="operation"></param>
         /// <param name="coordinates"></param>
         /// <returns>The distance in meters or <see cref="double.NaN"/> if the value can't be calculated</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static double GeoDistanceZ(this CoordinateTransform operation, IEnumerable<Coordinate> coordinates)
         {
             return operation.GeoDistanceZ(coordinates.Select(x => x.ToPPoint()));
@@ -394,6 +457,7 @@ namespace SharpProj
         /// <param name="operation"></param>
         /// <param name="coordinates"></param>
         /// <returns></returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static double GeoArea(this CoordinateTransform operation, IEnumerable<Coordinate> coordinates)
         {
             return operation.GeoArea(coordinates.Select(x => x.ToPPoint()));
