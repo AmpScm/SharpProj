@@ -198,9 +198,12 @@ namespace SharpProj.Tests
 
             using (var t2 = CoordinateTransform.CreateFromWellKnownText(tWkt, out var warnings, pc))
             {
-                Assert.AreEqual("", t2.AsProjString(new Proj.ProjStringOptions { MultiLine = true }));
-                if (tProj != t2.AsProjString())
+                //Assert.AreEqual("", t2.AsProjString(new Proj.ProjStringOptions { MultiLine = true }));
+                if (tProj != t2.AsProjString(new Proj.ProjStringOptions { MultiLine = true }))
                 {
+#if DEBUG
+                    Assert.AreEqual(tProj, t2.AsProjString(new Proj.ProjStringOptions { MultiLine = true }));
+#endif
                     Assert.Inconclusive("Proj string should have matched after reloading via WKT");
                 }
             }

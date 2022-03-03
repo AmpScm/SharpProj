@@ -13,7 +13,7 @@ struct my_network_data
 {
     gcroot<ProjContext^> ctx;
     gcroot<String^> url;
-    gcroot<System::Net::WebResponse^> rp;
+    gcroot<System::Net::WebHeaderCollection^> Headers;
     gcroot<String^> etag;
     void* chain;
 
@@ -92,69 +92,73 @@ static PROJ_NETWORK_HANDLE* my_network_open(
         return nullptr;
     }
 
-    HttpWebResponse^ hrp = dynamic_cast<HttpWebResponse^>(rp);
-
-    if (hrp && hrp->StatusCode == HttpStatusCode::PartialContent)
+    try
     {
-        System::IO::Stream^ s = hrp->GetResponseStream();
+        HttpWebResponse^ hrp = dynamic_cast<HttpWebResponse^>(rp);
 
-        int to_read = (int)Math::Min((long long)size_to_read, (long long)int::MaxValue);
-        array<unsigned char>^ buf = gcnew array<unsigned char>(to_read);
-
-        int r = s->Read(buf, 0, to_read);
-
-        while (r > 0 && r < to_read)
+        if (hrp && hrp->StatusCode == HttpStatusCode::PartialContent)
         {
-            int n = s->Read(buf, r, to_read - r);
+            System::IO::Stream^ s = hrp->GetResponseStream();
 
-            if (n > 0)
-                r += n;
+            int to_read = (int)Math::Min((long long)size_to_read, (long long)int::MaxValue);
+            array<unsigned char>^ buf = gcnew array<unsigned char>(to_read);
+
+            int r = s->Read(buf, 0, to_read);
+
+            while (r > 0 && r < to_read)
+            {
+                int n = s->Read(buf, r, to_read - r);
+
+                if (n > 0)
+                    r += n;
+                else
+                    break;
+            }
+
+            if (r > 0)
+            {
+                pin_ptr<unsigned char> pBuf = &buf[0];
+                memcpy(buffer, pBuf, r);
+                *out_size_read = r;
+            }
             else
-                break;
-        }
+            {
+                strncpy_s(out_error_string, error_string_max_size, "Read error", error_string_max_size);
+                *out_size_read = 0;
+                return nullptr;
+            }
 
-        if (r > 0)
-        {
-            pin_ptr<unsigned char> pBuf = &buf[0];
-            memcpy(buffer, pBuf, r);
-            *out_size_read = r;
         }
-        else
+        else if (!in_error)
         {
-            strncpy_s(out_error_string, error_string_max_size, "Read error", error_string_max_size);
-            *out_size_read = 0;
-            delete rp;
+            strncpy_s(out_error_string, error_string_max_size, "No partial web response", error_string_max_size);
+            return nullptr;
+        }
+        else if (hrp)
+        {
+            std::string msg = utf8_string(String::Format("Unexpected HTTP(S) result {0}: {1}", hrp->StatusCode, hrp->StatusDescription));
+            strncpy_s(out_error_string, error_string_max_size, msg.c_str(), error_string_max_size);
+            return nullptr;
+        }
+        else if (rp)
+        {
+            std::string msg = utf8_string(String::Format("Unexpected WebResponse {0}", rp->ToString()));
+            strncpy_s(out_error_string, error_string_max_size, msg.c_str(), error_string_max_size);
             return nullptr;
         }
 
+        my_network_data* d = new my_network_data();
+        d->ctx = pc;
+        d->url = sUrl;
+        d->Headers = rp->Headers;
+        d->chain = nullptr;
+        return (PROJ_NETWORK_HANDLE*)(void*)d;
     }
-    else if (!in_error)
+    finally
     {
-        strncpy_s(out_error_string, error_string_max_size, "No partial web response", error_string_max_size);
-        delete rp;
-        return nullptr;
+        if (rp)
+            delete rp;
     }
-    else if (hrp)
-    {
-        std::string msg = utf8_string(String::Format("Unexpected HTTP(S) result {0}: {1}", hrp->StatusCode, hrp->StatusDescription));
-        strncpy_s(out_error_string, error_string_max_size, msg.c_str(), error_string_max_size);
-        delete rp;
-        return nullptr;
-    }
-    else if (rp)
-    {
-        std::string msg = utf8_string(String::Format("Unexpected WebResponse {0}", rp->ToString()));
-        strncpy_s(out_error_string, error_string_max_size, msg.c_str(), error_string_max_size);
-        delete rp;
-        return nullptr;
-    }
-
-    my_network_data* d = new my_network_data();
-    d->ctx = pc;
-    d->url = sUrl;
-    d->rp = rp;
-    d->chain = nullptr;
-    return (PROJ_NETWORK_HANDLE*)(void*)d;
 }
 
 static void my_network_close(
@@ -165,13 +169,6 @@ static void my_network_close(
     UNUSED_ALWAYS(ctx);
     UNUSED_ALWAYS(user_data);
     my_network_data* d = (my_network_data*)handle;
-
-    WebResponse^ rp = d->rp;
-    if (rp)
-    {
-        d->rp = nullptr;
-        delete rp;
-    }
 
     d->ctx->free_chain(d->chain);
 
@@ -188,9 +185,9 @@ const char* my_network_get_header_value(
     UNUSED_ALWAYS(user_data);
     my_network_data* d = (my_network_data*)handle;
 
-    if (nullptr != (Object^)d->rp)
+    if (d->Headers)
     {
-        String^ h = d->rp->Headers->Get(Utf8_PtrToString(header_name));
+        String^ h = d->Headers->Get(Utf8_PtrToString(header_name));
 
         if (h)
             return d->ctx->utf8_chain(h, d->chain);
@@ -216,14 +213,7 @@ size_t my_network_read_range(
     if (error_string_max_size > 0 && out_error_string)
         out_error_string[0] = '\0';
 
-    if ((Object^)d->rp != nullptr)
-    {
-        if ((String^)d->etag == nullptr)
-            d->etag = d->rp->Headers->Get("ETag");
-
-        delete d->rp;
-    }
-    d->rp = nullptr;
+    d->Headers = nullptr;
 
 
     WebRequest^ rq = WebRequest::Create(d->url);
@@ -268,65 +258,69 @@ size_t my_network_read_range(
         return 0;
     }
 
-    HttpWebResponse^ hrp = dynamic_cast<HttpWebResponse^>(rp);
-
-    if (hrp && hrp->StatusCode == HttpStatusCode::PartialContent)
+    try
     {
-        d->rp = rp;
-        System::IO::Stream^ s = hrp->GetResponseStream();
+        HttpWebResponse^ hrp = dynamic_cast<HttpWebResponse^>(rp);
 
-        int to_read = (int)Math::Min((long long)size_to_read, (long long)int::MaxValue);
-        array<unsigned char>^ buf = gcnew array<unsigned char>(to_read);
-
-        int r = s->Read(buf, 0, to_read);
-
-        while (r > 0 && r < to_read)
+        if (hrp && hrp->StatusCode == HttpStatusCode::PartialContent)
         {
-            int n = s->Read(buf, r, to_read - r);
+            System::IO::Stream^ s = hrp->GetResponseStream();
 
-            if (n > 0)
-                r += n;
+            int to_read = (int)Math::Min((long long)size_to_read, (long long)int::MaxValue);
+            array<unsigned char>^ buf = gcnew array<unsigned char>(to_read);
+
+            int r = s->Read(buf, 0, to_read);
+
+            while (r > 0 && r < to_read)
+            {
+                int n = s->Read(buf, r, to_read - r);
+
+                if (n > 0)
+                    r += n;
+                else
+                    break;
+            }
+
+            if (r > 0)
+            {
+                pin_ptr<unsigned char> pBuf = &buf[0];
+                memcpy(buffer, pBuf, r);
+
+                return r;
+            }
             else
-                break;
+            {
+                strncpy_s(out_error_string, error_string_max_size, "Read error", error_string_max_size);
+                return 0;
+            }
         }
-
-        if (r > 0)
+        else if (!in_error)
         {
-            pin_ptr<unsigned char> pBuf = &buf[0];
-            memcpy(buffer, pBuf, r);
-
-            return r;
+            strncpy_s(out_error_string, error_string_max_size, "No partial web response", error_string_max_size);
+            return 0;
+        }
+        else if (hrp)
+        {
+            std::string msg = utf8_string(String::Format("Unexpected HTTP(s) result {0}: {1}", hrp->StatusCode, hrp->StatusDescription));
+            strncpy_s(out_error_string, error_string_max_size, msg.c_str(), error_string_max_size);
+            return 0;
+        }
+        else if (rp)
+        {
+            std::string msg = utf8_string(String::Format("Unexpected WebResponse {0}", rp->ToString()));
+            strncpy_s(out_error_string, error_string_max_size, msg.c_str(), error_string_max_size);
+            return 0;
         }
         else
         {
-            strncpy_s(out_error_string, error_string_max_size, "Read error", error_string_max_size);
-            delete rp;
+            strncpy_s(out_error_string, error_string_max_size, "Http error (No HttpWebResponse/readrange)", error_string_max_size);
             return 0;
         }
     }
-    else if (!in_error)
+    finally
     {
-        strncpy_s(out_error_string, error_string_max_size, "No partial web response", error_string_max_size);
-        return 0;
-    }
-    else if (hrp)
-    {
-        std::string msg = utf8_string(String::Format("Unexpected HTTP(s) result {0}: {1}", hrp->StatusCode, hrp->StatusDescription));
-        strncpy_s(out_error_string, error_string_max_size, msg.c_str(), error_string_max_size);
-        delete rp;
-        return 0;
-    }
-    else if (rp)
-    {
-        std::string msg = utf8_string(String::Format("Unexpected WebResponse {0}", rp->ToString()));
-        strncpy_s(out_error_string, error_string_max_size, msg.c_str(), error_string_max_size);
-        delete rp;
-        return 0;
-    }
-    else
-    {
-        strncpy_s(out_error_string, error_string_max_size, "Http error (No HttpWebResponse/readrange)", error_string_max_size);
-        return 0;
+        if (rp)
+            delete rp;
     }
 }
 
@@ -387,7 +381,12 @@ void ProjContext::DownloadProjDB(String^ target)
     }
     catch (Exception^)
     {
+        // Ignore all errors
+    }
+    finally
+    {
         if (rp)
             delete rp;
     }
+
 }

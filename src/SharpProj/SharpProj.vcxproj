@@ -435,13 +435,17 @@
     <_ProjResourceFile Include="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\proj4\*">
       <Visible>false</Visible>
     </_ProjResourceFile>
-    <_ProjResourceFile Remove="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\proj4\proj.*" />
-    <_ProjResourceFile Remove="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\proj4\proj-*" />
-    <_ProjResourceFile Remove="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\proj4\proj4*" />
-    <_ProjResourceFile Remove="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\proj4\vcpkg*" />
-    <_ProjResourceFile Remove="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\proj4\copyright" />
-    <_ProjResourceFile Remove="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\proj4\*.json" />
-    <_ProjResourceFile Remove="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\proj4\*.lst" />
+    <_ProjResourceFile Include="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\proj\data\*">
+      <Visible>false</Visible>
+    </_ProjResourceFile>
+    <_ProjResourceFile Remove="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\**\proj.*" />
+    <_ProjResourceFile Remove="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\**\proj-*" />
+    <_ProjResourceFile Remove="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\**\proj4*" />
+    <_ProjResourceFile Remove="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\**\copyright" />
+    <_ProjResourceFile Remove="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\**\usage" />
+    <_ProjResourceFile Remove="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\**\vcpkg*" />
+    <_ProjResourceFile Remove="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\**\*.json" />
+    <_ProjResourceFile Remove="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\**\*.lst" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

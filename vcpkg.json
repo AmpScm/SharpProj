@@ -4,9 +4,14 @@
   "version": "9.0",
   "dependencies": [
     {
-      "name": "proj4",
+      "name": "proj",
       "default-features": false,
       "features": [ "core", "tiff" ]
+    },
+    {
+      "name": "tiff",
+      "default-features": false,
+      "features": [ "core" ]
     }
   ]
 }
