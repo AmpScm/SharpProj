@@ -157,31 +157,30 @@ namespace SharpProj.Tests
             pc.Log += (x, y) => Debug.WriteLine(y);
 
             using var nlNAP = CoordinateReferenceSystem.CreateFromEpsg(7415, pc);
-            using var wgs84 = CoordinateReferenceSystem.CreateFromEpsg(4326, pc);
-            using var wgs84D3 = CoordinateReferenceSystem.CreateFromEpsg(4329, pc);
+            using var wgs84_3D = CoordinateReferenceSystem.CreateFromEpsg(4329, pc);
 
             string tWkt = "";
             string tProj = "";
             CoordinateTransform from;
 
-            using var tOriginal = CoordinateTransform.Create(nlNAP, wgs84D3);
+            using var tOriginal = CoordinateTransform.Create(nlNAP, wgs84_3D);
 
             if (tOriginal is ChooseCoordinateTransform cct)
             {
                 tWkt = cct[0].AsWellKnownText();
-                tProj = cct[0].AsProjString();
+                tProj = cct[0].AsProjString(new Proj.ProjStringOptions { MultiLine = true });
                 from = cct[0];
             }
             else
             {
                 tWkt = tOriginal.AsWellKnownText();
-                tProj = tOriginal.AsProjString();
+                tProj = tOriginal.AsProjString(new Proj.ProjStringOptions { MultiLine = true });
                 from = tOriginal;
             }
 
             Assert.IsNotNull(tWkt);
 
-            using var tWgs84nlNAP = CoordinateTransform.Create(wgs84, nlNAP);
+            using var tWgs84nlNAP = CoordinateTransform.Create(wgs84_3D, nlNAP);
 
             var domNL = tWgs84nlNAP.Apply(DomUtrechtWGS84);
             var servaasNL = tWgs84nlNAP.Apply(StServaasMaastrichtWGS84);
@@ -194,11 +193,12 @@ namespace SharpProj.Tests
 
                 Assert.AreEqual(domGPS1, domGPS);
 
-                Assert.AreEqual(tProj, t1.AsProjString());
+                Assert.AreEqual(tProj, t1.AsProjString(new Proj.ProjStringOptions { MultiLine = true }));
             }
 
             using (var t2 = CoordinateTransform.CreateFromWellKnownText(tWkt, out var warnings, pc))
             {
+                Assert.AreEqual("", t2.AsProjString(new Proj.ProjStringOptions { MultiLine = true }));
                 if (tProj != t2.AsProjString())
                 {
                     Assert.Inconclusive("Proj string should have matched after reloading via WKT");

@@ -29,7 +29,7 @@ jobs:
       uses: lukka/run-vcpkg@v10
       with:
         vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-        vcpkgGitCommitId: b18b17865cfb6bd24620a00f30691be6775abb96
+        vcpkgGitCommitId: c8f55e31af756636f02166332f4995aebf9c5c82
         
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1
