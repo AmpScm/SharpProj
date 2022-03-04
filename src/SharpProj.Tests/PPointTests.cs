@@ -125,5 +125,39 @@ namespace SharpProj.Tests
             Assert.IsFalse(new PPoint(double.PositiveInfinity, 1, 0, 0).HasValues);
             Assert.IsFalse(new PPoint(double.NaN, 0, 1, 0).HasValues);
         }
+
+        [TestMethod]
+        public void DMSTest()
+        {
+            Assert.AreEqual("9d7'12\"N, 11d7'48\"E", new PPoint(9.12, 11.13).DegToRad().ToStringDMS(CultureInfo.InvariantCulture));
+            Assert.AreEqual("12d8'24\"S, 19d19'12\"W", new PPoint(-12.14, -19.32).DegToRad().ToStringDMS(CultureInfo.InvariantCulture));
+            Assert.AreEqual("9d7'12\"a, 11d7'48\"c", new PPoint(9.12, 11.13).DegToRad().ToString("DMS:abcd", CultureInfo.InvariantCulture));
+            Assert.AreEqual("12d8'24\"b, 19d19'12\"d", new PPoint(-12.14, -19.32).DegToRad().ToString("DMS:abcd", CultureInfo.InvariantCulture));
+
+            Assert.IsTrue(PPoint.TryParse(new PPoint(9.12, 11.13).DegToRad().ToStringDMS(CultureInfo.InvariantCulture), "DMS", CultureInfo.InvariantCulture, out var p));
+            Assert.AreEqual(new PPoint(9.12, 11.13), p.RadToDeg().ToXY(2));
+
+            Assert.IsTrue(PPoint.TryParse(new PPoint(-77.6543, -67.003).DegToRad().ToStringDMS(CultureInfo.InvariantCulture), "DMS", CultureInfo.InvariantCulture, out p));
+            Assert.AreEqual(new PPoint(-77.65, -67.0), p.RadToDeg().ToXY(2));
+        }
+
+        [TestMethod]
+        public void TryParse()
+        {
+            Assert.IsTrue(PPoint.TryParse(new PPoint(12.13, 14.15, 15.16, 16.17).ToString("G", CultureInfo.InvariantCulture), null, CultureInfo.InvariantCulture, out var p));
+            Assert.AreEqual(new PPoint(12.13, 14.15, 15.16, 16.17), p);
+            Assert.IsTrue(PPoint.TryParse(new PPoint(12.13, 14.15, 15.16, 16.17).ToString("DMS", CultureInfo.InvariantCulture), "DMS", CultureInfo.InvariantCulture, out p));
+            Assert.AreEqual(new PPoint(12.13, 14.15, 15.16, 16.17), p.ToXYZ(2).WithT(p.T));
+            //Assert.AreEqual("9d7'12\"N, 11d7'48\"E", new PPoint(9.12, 11.13).DegToRad().ToStringDMS(CultureInfo.InvariantCulture));
+            //Assert.AreEqual("12d8'24\"S, 19d19'12\"W", new PPoint(-12.14, -19.32).DegToRad().ToStringDMS(CultureInfo.InvariantCulture));
+            //Assert.AreEqual("9d7'12\"a, 11d7'48\"c", new PPoint(9.12, 11.13).DegToRad().ToString("DMS:abcd", CultureInfo.InvariantCulture));
+            //Assert.AreEqual("12d8'24\"b, 19d19'12\"d", new PPoint(-12.14, -19.32).DegToRad().ToString("DMS:abcd", CultureInfo.InvariantCulture));
+            //
+            //Assert.IsTrue(PPoint.TryParse(new PPoint(9.12, 11.13).DegToRad().ToStringDMS(CultureInfo.InvariantCulture), "DMS", CultureInfo.InvariantCulture, out var p));
+            //Assert.AreEqual(new PPoint(9.12, 11.13), p.RadToDeg().ToXY(2));
+            //
+            //Assert.IsTrue(PPoint.TryParse(new PPoint(-77.6543, -67.003).DegToRad().ToStringDMS(CultureInfo.InvariantCulture), "DMS", CultureInfo.InvariantCulture, out p));
+            //Assert.AreEqual(new PPoint(-77.65, -67.0), p.RadToDeg().ToXY(2));
+        }
     }
 }

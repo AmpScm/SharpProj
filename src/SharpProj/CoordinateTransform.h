@@ -588,8 +588,16 @@ namespace SharpProj {
             return CreateFromDatabase("EPSG", epsgCode, ctx);
         }
 
-        static CoordinateTransform^ CreateFromWellKnownText(String^ from, [Optional] ProjContext^ ctx);
-        static CoordinateTransform^ CreateFromWellKnownText(String^ from, [Out] array<String^>^% warnings, [Optional] ProjContext^ ctx);
+        static CoordinateTransform^ CreateFromWellKnownText(String^ from, [Optional] ProjContext^ ctx)
+        {
+            return CreateFromWellKnownText(from, nullptr, ctx);
+        }
+        static CoordinateTransform^ CreateFromWellKnownText(String^ from, CreateFromWKTOptions^ options, [Optional] ProjContext^ ctx);
+        static CoordinateTransform^ CreateFromWellKnownText(String^ from, [Out] array<String^>^% warnings, [Optional] ProjContext^ ctx)
+        {
+            return CreateFromWellKnownText(from, nullptr, warnings, ctx);
+        }
+        static CoordinateTransform^ CreateFromWellKnownText(String^ from, CreateFromWKTOptions^ options, [Out] array<String^>^% warnings, [Optional] ProjContext^ ctx);
 
     public:
         /// <summary>

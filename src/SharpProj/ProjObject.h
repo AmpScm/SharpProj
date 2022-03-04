@@ -83,9 +83,7 @@ namespace SharpProj {
             WKT2_2015 = PJ_WKT2_2015,
             WKT2_2015_Simplified = PJ_WKT2_2015_SIMPLIFIED,
             WKT2_2019 = PJ_WKT2_2019,
-            WKT2_2018 = PJ_WKT2_2018, // Alias for 2019 (via PROJ)
             WKT2_2019_Simplified = PJ_WKT2_2019_SIMPLIFIED,
-            WKT2_2018_Simplified = PJ_WKT2_2018_SIMPLIFIED, // Alias for 2019 (via PROJ)
             WKT1_GDAL = PJ_WKT1_GDAL,
             WKT1_SRI = PJ_WKT1_ESRI
         };
@@ -156,6 +154,13 @@ namespace SharpProj {
             {
                 String^ get() { return SchemaV0_4_Url; }
             }
+        };
+
+        public ref class CreateFromWKTOptions
+        {
+        public:
+            [field: DebuggerBrowsable(DebuggerBrowsableState::Never)]
+            property bool Strict;
         };
 
         [DebuggerDisplay("[{Type}] {ToString(),nq}")]
@@ -510,14 +515,35 @@ namespace SharpProj {
             /// <param name="from"></param>
             /// <param name="ctx"></param>
             /// <returns></returns>
-            static ProjObject^ CreateFromWellKnownText(String^ from, [Optional] ProjContext^ ctx);
+            static ProjObject^ CreateFromWellKnownText(String^ from, [Optional] ProjContext^ ctx)
+            {
+                return CreateFromWellKnownText(from, nullptr, ctx);
+            }
             /// <summary>
             /// Creates a proj object from its definition. Shortcut for <see cref="ProjContext"/>.CreateFromWellKnownText" />
             /// </summary>
             /// <param name="from"></param>
             /// <param name="ctx"></param>
             /// <returns></returns>
-            static ProjObject^ CreateFromWellKnownText(String^ from, [Out] array<String^>^% warnings, [Optional] ProjContext^ ctx);
+            static ProjObject^ CreateFromWellKnownText(String^ from, CreateFromWKTOptions^ options, [Optional] ProjContext^ ctx);
+            /// <summary>
+            /// Creates a proj object from its definition. Shortcut for <see cref="ProjContext"/>.CreateFromWellKnownText" />
+            /// </summary>
+            /// <param name="from"></param>
+            /// <param name="ctx"></param>
+            /// <returns></returns>
+            static ProjObject^ CreateFromWellKnownText(String^ from, [Out] array<String^>^% warnings, [Optional] ProjContext^ ctx)
+            {
+                return CreateFromWellKnownText(from, nullptr, warnings, ctx);
+            }
+
+            /// <summary>
+            /// Creates a proj object from its definition. Shortcut for <see cref="ProjContext"/>.CreateFromWellKnownText" />
+            /// </summary>
+            /// <param name="from"></param>
+            /// <param name="ctx"></param>
+            /// <returns></returns>
+            static ProjObject^ CreateFromWellKnownText(String^ from, CreateFromWKTOptions^ options, [Out] array<String^>^% warnings, [Optional] ProjContext^ ctx);
 
         private protected:
             void SetCoordinate(PJ_COORD& coord, PPoint% coordinate)

@@ -20,6 +20,7 @@ namespace SharpProj {
         ref class CelestialBodyInfo;
         ref class UnitOfMeasurement;
         ref class UnitOfMeasurementFilter;
+        ref class CreateFromWKTOptions;
     }
 
     public enum class ProjLogLevel
@@ -306,14 +307,33 @@ namespace SharpProj {
         /// </summary>
         /// <param name="from"></param>
         /// <returns></returns>
-        ProjObject^ CreateFromWellKnownText(String^ from);
+        ProjObject^ CreateFromWellKnownText(String^ from)
+        {
+            return CreateFromWellKnownText(from, nullptr);
+        }
+        /// <summary>
+        /// Creates a new proj object from a Well known text definition.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <returns></returns>
+        ProjObject^ CreateFromWellKnownText(String^ from, CreateFromWKTOptions^ options);
         /// <summary>
         /// Creates a new proj object from a Well known text definition.
         /// </summary>
         /// <param name="from"></param>
         /// <param name="warnings"></param>
         /// <returns></returns>
-        ProjObject^ CreateFromWellKnownText(String^ from, [Out] array<String^>^% warnings);
+        ProjObject^ CreateFromWellKnownText(String^ from, [Out] array<String^>^% warnings)
+        {
+            return CreateFromWellKnownText(from, nullptr, warnings);
+        }
+        /// <summary>
+        /// Creates a new proj object from a Well known text definition.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="warnings"></param>
+        /// <returns></returns>
+        ProjObject^ CreateFromWellKnownText(String^ from, CreateFromWKTOptions^ args, [Out] array<String^>^% warnings);
         /// <summary>
         /// Similar to <see cref="Create(String)"/> but follows more strict Proj4 compatibility
         /// </summary>

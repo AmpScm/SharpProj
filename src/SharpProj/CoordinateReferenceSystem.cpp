@@ -99,14 +99,14 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::Create(String^ from, ProjC
     }
 }
 
-CoordinateReferenceSystem^ CoordinateReferenceSystem::CreateFromWellKnownText(String^ from, ProjContext^ ctx)
+CoordinateReferenceSystem^ CoordinateReferenceSystem::CreateFromWellKnownText(String^ from, CreateFromWKTOptions^ options, ProjContext^ ctx)
 {
     array<String^>^ wars = nullptr;
 
-    return CreateFromWellKnownText(from, wars, ctx);
+    return CreateFromWellKnownText(from, options, wars, ctx);
 }
 
-CoordinateReferenceSystem^ CoordinateReferenceSystem::CreateFromWellKnownText(String^ from, [Out] array<String^>^% warnings, ProjContext^ ctx)
+CoordinateReferenceSystem^ CoordinateReferenceSystem::CreateFromWellKnownText(String^ from, CreateFromWKTOptions^ options, [Out] array<String^>^% warnings, ProjContext^ ctx)
 {
     if (String::IsNullOrWhiteSpace(from))
         throw gcnew ArgumentNullException("from");
@@ -120,14 +120,21 @@ CoordinateReferenceSystem^ CoordinateReferenceSystem::CreateFromWellKnownText(St
 
     try
     {
-
-
         PROJ_STRING_LIST wrs = nullptr;
         PROJ_STRING_LIST errs = nullptr;
-        const char* options[32] = {};
+        const char* c_options[8] = {};
+        int nOption = 0;
+
+        if (options)
+        {
+            if (options->Strict)
+            {
+                c_options[nOption++] = "STRICT=YES";
+            }
+        }
 
         std::string fromStr = utf8_string(from);
-        PJ* pj = proj_create_from_wkt(ctx, fromStr.c_str(), options, &wrs, &errs);
+        PJ* pj = proj_create_from_wkt(ctx, fromStr.c_str(), c_options, &wrs, &errs);
 
         warnings = FromStringList(wrs);
         array<String^>^ errors = FromStringList(errs);

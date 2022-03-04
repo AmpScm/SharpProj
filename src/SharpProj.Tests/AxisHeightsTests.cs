@@ -196,7 +196,7 @@ namespace SharpProj.Tests
                 Assert.AreEqual(tProj, t1.AsProjString(new Proj.ProjStringOptions { MultiLine = true }));
             }
 
-            using (var t2 = CoordinateTransform.CreateFromWellKnownText(tWkt, out var warnings, pc))
+            using (var t2 = CoordinateTransform.CreateFromWellKnownText(tWkt, new Proj.CreateFromWKTOptions { Strict = true }, out var warnings, pc))
             {
                 //Assert.AreEqual("", t2.AsProjString(new Proj.ProjStringOptions { MultiLine = true }));
                 if (tProj != t2.AsProjString(new Proj.ProjStringOptions { MultiLine = true }))

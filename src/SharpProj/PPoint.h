@@ -405,6 +405,26 @@ namespace SharpProj {
         }
         String^ ToString(CoordinateSystem^ cs, IFormatProvider^ formatProvider);
 
+        String^ ToStringDMS(IFormatProvider^ formatProvider)
+        {
+            return ToString("DMS", formatProvider);
+        }
+
+        String^ ToStringDMS()
+        {
+            return ToString("DMS", System::Globalization::CultureInfo::CurrentCulture);
+        }
+
+        static bool TryParse(String^ stringValue, String^ format, IFormatProvider^ formatProvider, [Out] PPoint% value);
+        static bool TryParse(String^ stringValue, String^ format, [Out] PPoint% value)
+        {
+            return TryParse(stringValue, format, System::Globalization::CultureInfo::CurrentCulture, value);
+        }
+
+        static bool TryParse(String^ stringValue, [Out] PPoint% value)
+        {
+            return TryParse(stringValue, nullptr, System::Globalization::CultureInfo::CurrentCulture, value);
+        }
 
     private:
         String^ ToString(AxisCollection^ axis, IFormatProvider^ formatProvider);

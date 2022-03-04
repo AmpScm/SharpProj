@@ -257,8 +257,16 @@ namespace SharpProj {
     public:
         static CoordinateReferenceSystem^ Create(String^ from, [Optional] ProjContext^ ctx);
         static CoordinateReferenceSystem^ Create(array<String^>^ from, [Optional] ProjContext^ ctx);
-        static CoordinateReferenceSystem^ CreateFromWellKnownText(String^ from, [Optional] ProjContext^ ctx);
-        static CoordinateReferenceSystem^ CreateFromWellKnownText(String^ from, [Out] array<String^>^% warnings, [Optional] ProjContext^ ctx);
+        static CoordinateReferenceSystem^ CreateFromWellKnownText(String^ from, [Optional] ProjContext^ ctx)
+        {
+            return CreateFromWellKnownText(from, nullptr, ctx);
+        }
+        static CoordinateReferenceSystem^ CreateFromWellKnownText(String^ from, CreateFromWKTOptions^ options, [Optional] ProjContext^ ctx);
+        static CoordinateReferenceSystem^ CreateFromWellKnownText(String^ from, [Out] array<String^>^% warnings, [Optional] ProjContext^ ctx)
+        {
+            return CreateFromWellKnownText(from, nullptr, warnings, ctx);
+        }
+        static CoordinateReferenceSystem^ CreateFromWellKnownText(String^ from, CreateFromWKTOptions^ options, [Out] array<String^>^% warnings, [Optional] ProjContext^ ctx);
         static CoordinateReferenceSystem^ CreateFromDatabase(String^ authority, String^ code, [Optional] ProjContext^ ctx);
         static CoordinateReferenceSystem^ CreateFromDatabase(String^ authority, int code, [Optional] ProjContext^ ctx)
         {
