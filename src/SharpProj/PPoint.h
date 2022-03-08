@@ -407,7 +407,7 @@ namespace SharpProj {
 
         String^ ToStringDMS(IFormatProvider^ formatProvider)
         {
-            return ToString("DMS", formatProvider);
+            return ToString("d", formatProvider);
         }
 
         String^ ToStringDMS()

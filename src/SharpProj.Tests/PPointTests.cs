@@ -127,37 +127,56 @@ namespace SharpProj.Tests
         }
 
         [TestMethod]
-        public void DMSTest()
+        public void ToStringTests()
         {
-            Assert.AreEqual("9d7'12\"N, 11d7'48\"E", new PPoint(9.12, 11.13).DegToRad().ToStringDMS(CultureInfo.InvariantCulture));
-            Assert.AreEqual("12d8'24\"S, 19d19'12\"W", new PPoint(-12.14, -19.32).DegToRad().ToStringDMS(CultureInfo.InvariantCulture));
-            Assert.AreEqual("9d7'12\"a, 11d7'48\"c", new PPoint(9.12, 11.13).DegToRad().ToString("DMS:abcd", CultureInfo.InvariantCulture));
-            Assert.AreEqual("12d8'24\"b, 19d19'12\"d", new PPoint(-12.14, -19.32).DegToRad().ToString("DMS:abcd", CultureInfo.InvariantCulture));
+            Assert.AreEqual("9°7'12\"N, 11°7'48\"E", new PPoint(9.12, 11.13).ToStringDMS(CultureInfo.InvariantCulture));
+            Assert.AreEqual("12°8'24\"S, 19°19'12\"W", new PPoint(-12.14, -19.32).ToStringDMS(CultureInfo.InvariantCulture));
+            Assert.AreEqual("9° 7' 12\"a, 11° 7' 48\"c", new PPoint(9.12, 11.13).ToString("D:abcd", CultureInfo.InvariantCulture));
+            Assert.AreEqual("12°8'24\"b, 19°19'12\"d", new PPoint(-12.14, -19.32).ToString("d:abcd", CultureInfo.InvariantCulture));
 
-            Assert.IsTrue(PPoint.TryParse(new PPoint(9.12, 11.13).DegToRad().ToStringDMS(CultureInfo.InvariantCulture), "DMS", CultureInfo.InvariantCulture, out var p));
-            Assert.AreEqual(new PPoint(9.12, 11.13), p.RadToDeg().ToXY(2));
+            var d = new PPoint(9.12, 11.13).ToStringDMS(CultureInfo.InvariantCulture);
+            Assert.AreEqual("9°7'12\"N, 11°7'48\"E", d);
+            Assert.IsTrue(PPoint.TryParse(d, "d", CultureInfo.InvariantCulture, out var p));
+            Assert.AreEqual(new PPoint(9.12, 11.13), p.ToXY(2));
 
-            Assert.IsTrue(PPoint.TryParse(new PPoint(-77.6543, -67.003).DegToRad().ToStringDMS(CultureInfo.InvariantCulture), "DMS", CultureInfo.InvariantCulture, out p));
-            Assert.AreEqual(new PPoint(-77.65, -67.0), p.RadToDeg().ToXY(2));
+            d = new PPoint(-77.6543, -67.003).ToStringDMS(CultureInfo.InvariantCulture);
+            Assert.AreEqual("77°39'15.48\"S, 67°0'10.8\"W", d);
+            Assert.IsTrue(PPoint.TryParse(d, "D", CultureInfo.InvariantCulture, out p));
+            Assert.AreEqual(new PPoint(-77.65, -67.0), p.ToXY(2));
+
+            double oneAndABit = BitConverter.Int64BitsToDouble(BitConverter.DoubleToInt64Bits(1.0) - 1);
+            Assert.AreEqual("0.99999999999999989", oneAndABit.ToString("R",CultureInfo.InvariantCulture)); // R = Roundtrip
+            d =new PPoint(oneAndABit, oneAndABit).ToStringDMS(CultureInfo.InvariantCulture);
+            Assert.AreEqual("1°0'0\"N, 1°0'0\"E", d);
+            Assert.AreEqual(new PPoint(oneAndABit, oneAndABit).ToXY(5), PPoint.TryParse(d, "d", CultureInfo.InvariantCulture, out var pp) ? pp.ToXY(5) : new PPoint());
+
+
+            d = new PPoint(oneAndABit, oneAndABit).ToString("r", CultureInfo.InvariantCulture); // Full roundtrip
+            Assert.AreEqual("0.99999999999999989, 0.99999999999999989", d);
+            Assert.AreEqual(new PPoint(oneAndABit, oneAndABit), PPoint.TryParse(d, "r", CultureInfo.InvariantCulture, out pp) ? pp : new PPoint());
         }
 
         [TestMethod]
         public void TryParse()
         {
-            Assert.IsTrue(PPoint.TryParse(new PPoint(12.13, 14.15, 15.16, 16.17).ToString("G", CultureInfo.InvariantCulture), null, CultureInfo.InvariantCulture, out var p));
-            Assert.AreEqual(new PPoint(12.13, 14.15, 15.16, 16.17), p);
-            Assert.IsTrue(PPoint.TryParse(new PPoint(12.13, 14.15, 15.16, 16.17).ToString("DMS", CultureInfo.InvariantCulture), "DMS", CultureInfo.InvariantCulture, out p));
-            Assert.AreEqual(new PPoint(12.13, 14.15, 15.16, 16.17), p.ToXYZ(2).WithT(p.T));
-            //Assert.AreEqual("9d7'12\"N, 11d7'48\"E", new PPoint(9.12, 11.13).DegToRad().ToStringDMS(CultureInfo.InvariantCulture));
-            //Assert.AreEqual("12d8'24\"S, 19d19'12\"W", new PPoint(-12.14, -19.32).DegToRad().ToStringDMS(CultureInfo.InvariantCulture));
-            //Assert.AreEqual("9d7'12\"a, 11d7'48\"c", new PPoint(9.12, 11.13).DegToRad().ToString("DMS:abcd", CultureInfo.InvariantCulture));
-            //Assert.AreEqual("12d8'24\"b, 19d19'12\"d", new PPoint(-12.14, -19.32).DegToRad().ToString("DMS:abcd", CultureInfo.InvariantCulture));
-            //
-            //Assert.IsTrue(PPoint.TryParse(new PPoint(9.12, 11.13).DegToRad().ToStringDMS(CultureInfo.InvariantCulture), "DMS", CultureInfo.InvariantCulture, out var p));
-            //Assert.AreEqual(new PPoint(9.12, 11.13), p.RadToDeg().ToXY(2));
-            //
-            //Assert.IsTrue(PPoint.TryParse(new PPoint(-77.6543, -67.003).DegToRad().ToStringDMS(CultureInfo.InvariantCulture), "DMS", CultureInfo.InvariantCulture, out p));
-            //Assert.AreEqual(new PPoint(-77.65, -67.0), p.RadToDeg().ToXY(2));
+            foreach (char c in "gGdDfFeErR")
+            {
+                var d = new PPoint(12.13, 14.15, 15.16, 16.17).ToString(c.ToString(), CultureInfo.InvariantCulture);
+                Assert.IsTrue(PPoint.TryParse(d, null, CultureInfo.InvariantCulture, out var p), $"TryParse passes on '{d}', flag={c}");
+                Assert.AreEqual(new PPoint(12.13, 14.15, 15.16, 16.17), p);
+                Assert.IsTrue(PPoint.TryParse(d, c.ToString(), CultureInfo.InvariantCulture, out p), $"TryParse passes on '{d}', flag={c}");
+                Assert.AreEqual(new PPoint(12.13, 14.15, 15.16, 16.17), p);
+
+                d = new PPoint(-12.13, -14.15, -15.16, 2022).ToString(c.ToString(), CultureInfo.InvariantCulture);
+                Assert.IsTrue(PPoint.TryParse(d, null, CultureInfo.InvariantCulture, out p), $"TryParse passes on '{d}', flag={c}");
+                Assert.AreEqual(new PPoint(-12.13, -14.15, -15.16, 2022), p);
+                Assert.IsTrue(PPoint.TryParse(d, c.ToString(), CultureInfo.InvariantCulture, out p), $"TryParse passes on '{d}', flag={c}");
+                Assert.AreEqual(new PPoint(-12.13, -14.15, -15.16, 2022), p);
+
+                d = new PPoint(-12.13, -14.15).WithT(2022).ToString(c.ToString(), CultureInfo.InvariantCulture);
+                Assert.IsTrue(PPoint.TryParse(d, null, CultureInfo.InvariantCulture, out p), $"TryParse passes on '{d}', flag={c}");
+                Assert.AreEqual(new PPoint(-12.13, -14.15).WithT(2022), p, $"T-Equal with flag={c}, p={d}");
+            }
         }
     }
 }
