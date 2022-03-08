@@ -145,8 +145,8 @@ namespace SharpProj.Tests
             Assert.AreEqual(new PPoint(-77.65, -67.0), p.ToXY(2));
 
             double oneAndABit = BitConverter.Int64BitsToDouble(BitConverter.DoubleToInt64Bits(1.0) - 1);
-            Assert.AreEqual("0.99999999999999989", oneAndABit.ToString("R",CultureInfo.InvariantCulture)); // R = Roundtrip
-            d =new PPoint(oneAndABit, oneAndABit).ToStringDMS(CultureInfo.InvariantCulture);
+            Assert.AreEqual("0.99999999999999989", oneAndABit.ToString("R", CultureInfo.InvariantCulture)); // R = Roundtrip
+            d = new PPoint(oneAndABit, oneAndABit).ToStringDMS(CultureInfo.InvariantCulture);
             Assert.AreEqual("1°0'0\"N, 1°0'0\"E", d);
             Assert.AreEqual(new PPoint(oneAndABit, oneAndABit).ToXY(5), PPoint.TryParse(d, "d", CultureInfo.InvariantCulture, out var pp) ? pp.ToXY(5) : new PPoint());
 
@@ -177,6 +177,30 @@ namespace SharpProj.Tests
                 Assert.IsTrue(PPoint.TryParse(d, null, CultureInfo.InvariantCulture, out p), $"TryParse passes on '{d}', flag={c}");
                 Assert.AreEqual(new PPoint(-12.13, -14.15).WithT(2022), p, $"T-Equal with flag={c}, p={d}");
             }
+        }
+
+        [TestMethod]
+        public void MoreDMSParse()
+        {
+            // Check a few alternate separators in DMS syntax
+            var d = ReplaceDMS(new PPoint(1.23, -4.56).ToStringDMS(CultureInfo.InvariantCulture), false);
+
+            Assert.IsTrue(PPoint.TryParse(d, "d", CultureInfo.InvariantCulture, out var p));
+            Assert.AreEqual(new PPoint(1.23, -4.56), p.ToXY(2));
+
+
+            d = ReplaceDMS(new PPoint(1.23, -4.56).ToStringDMS(CultureInfo.InvariantCulture), true);
+
+            Assert.IsTrue(PPoint.TryParse(d, "d", CultureInfo.InvariantCulture, out p));
+            Assert.AreEqual(new PPoint(1.23, -4.56), p.ToXY(2));
+        }
+
+        private string ReplaceDMS(string v, bool h)
+        {
+            return v
+                .Replace("\xB0", h ? "h" : "d")
+                .Replace("'", "m")
+                .Replace("\"", "s");
         }
     }
 }

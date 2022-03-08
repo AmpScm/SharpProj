@@ -94,7 +94,7 @@ static bool TryParseDMS(String^ text, System::IFormatProvider^ formatProvider, w
     if (nEnd >= nLast)
         return false;
 
-    if (text[nEnd] != L'\xB0' && text[nEnd] != 'd')
+    if (text[nEnd] != L'\xB0' && text[nEnd] != 'd' && text[nEnd] != 'h')
         return false;
 
     if (!double::TryParse(text->Substring(nStart, nEnd-nStart), NumberStyles::Any, formatProvider, value))
@@ -114,7 +114,7 @@ static bool TryParseDMS(String^ text, System::IFormatProvider^ formatProvider, w
 
     value += vv / 60.0;
 
-    if (nEnd >= text->Length || text[nEnd] != L'\'')
+    if (nEnd >= text->Length || (text[nEnd] != L'\'' && text[nEnd] != L'm'))
         return false;
 
     nStart = nEnd + 1;
@@ -133,7 +133,7 @@ static bool TryParseDMS(String^ text, System::IFormatProvider^ formatProvider, w
 
     value += vv / 3600.0;
 
-    if (nEnd >= text->Length || text[nEnd] != L'\"')
+    if (nEnd >= text->Length || (text[nEnd] != L'\"' && text[nEnd] != L's'))
         return false;
     nEnd++;
 
