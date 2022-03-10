@@ -33,7 +33,7 @@ Setup build environment using:
     git clone https://github.com/AmpScm/SharpProj.git
     cd vcpkg
     bootstrap-vcpkg.bat
-    vcpkg install proj[core,tiff]:x86-windows-static-md proj[core,tiff]:x64-windows-static-md tiff[core]:x86-windows-static-md tiff[core]:x64-windows-static-md
+    vcpkg install proj[core,tiff]:x86-windows-static-md proj[core,tiff]:x64-windows-static-md tiff[core,lzma,zip]:x86-windows-static-md tiff[core,lzma,zip]:x64-windows-static-md
     cd ..
     
 The explicit feature selection here explicitly builds PROJ without the builtin network support to remove the curl dependency. It also disables 'jpeg' support in tiff.

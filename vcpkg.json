@@ -11,7 +11,7 @@
     {
       "name": "tiff",
       "default-features": false,
-      "features": [ "core" ]
+      "features": [ "core", "lzma", "zip" ]
     }
   ]
 }
