@@ -208,5 +208,195 @@ namespace SharpProj.Tests
                 }
             }
         }
+
+        [TestMethod]
+        public void NL_Wgs84()
+        {
+            using var pc = new ProjContext() { EnableNetworkConnections = true };
+
+            pc.LogLevel = ProjLogLevel.Trace;
+            pc.Log += (x, y) => Debug.WriteLine(y);
+
+            using var nl = CoordinateReferenceSystem.CreateFromEpsg(28992, pc);
+            using var wgs84 = CoordinateReferenceSystem.CreateFromEpsg(4326, pc);
+
+            using var t = CoordinateTransform.Create(nl, wgs84);
+            CoordinateTransform tOne;
+            if (t is ChooseCoordinateTransform cct)
+                tOne = cct[0];
+            else
+                tOne = t;
+
+            var tProj = tOne.AsProjString(new Proj.ProjStringOptions { MultiLine=true});
+            var tWkt = tOne.AsWellKnownText();
+
+            var tRecreated = CoordinateTransform.CreateFromWellKnownText(tWkt, pc);
+
+            Assert.AreEqual(tProj, tRecreated.AsProjString(new Proj.ProjStringOptions { MultiLine = true }));
+            Assert.AreEqual(tWkt, tRecreated.AsWellKnownText());
+
+
+        }
+
+        [TestMethod]
+        public void CreateFromWKT()
+        {
+            using var pc = new ProjContext() { EnableNetworkConnections = true };
+            using var transform = CoordinateTransform.CreateFromWellKnownText(@"
+CONCATENATEDOPERATION[""Inverse of RD New + Amersfoort to ETRS89(9) + Inverse of ETRS89 to NAP height(2) + ETRS89 to WGS 84(1)"",
+    SOURCECRS[
+        COMPOUNDCRS[""Amersfoort / RD New + NAP height"",
+            PROJCRS[""Amersfoort / RD New"",
+                BASEGEOGCRS[""Amersfoort"",
+                    DATUM[""Amersfoort"",
+                        ELLIPSOID[""Bessel 1841"", 6377397.155, 299.1528128,
+                            LENGTHUNIT[""metre"", 1]]],
+                    PRIMEM[""Greenwich"", 0,
+                        ANGLEUNIT[""degree"", 0.0174532925199433]],
+                    ID[""EPSG"", 4289]],
+                CONVERSION[""RD New"",
+                    METHOD[""Oblique Stereographic"",
+                        ID[""EPSG"", 9809]],
+                    PARAMETER[""Latitude of natural origin"", 52.1561605555556,
+                        ANGLEUNIT[""degree"", 0.0174532925199433],
+                        ID[""EPSG"", 8801]],
+                    PARAMETER[""Longitude of natural origin"", 5.38763888888889,
+                        ANGLEUNIT[""degree"", 0.0174532925199433],
+                        ID[""EPSG"", 8802]],
+                    PARAMETER[""Scale factor at natural origin"", 0.9999079,
+                        SCALEUNIT[""unity"", 1],
+                        ID[""EPSG"", 8805]],
+                    PARAMETER[""False easting"", 155000,
+                        LENGTHUNIT[""metre"", 1],
+                        ID[""EPSG"", 8806]],
+                    PARAMETER[""False northing"", 463000,
+                        LENGTHUNIT[""metre"", 1],
+                        ID[""EPSG"", 8807]]],
+                CS[Cartesian, 2],
+                    AXIS[""easting (X)"", east,
+                        ORDER[1],
+                        LENGTHUNIT[""metre"", 1]],
+                    AXIS[""northing (Y)"", north,
+                        ORDER[2],
+                        LENGTHUNIT[""metre"", 1]]],
+            VERTCRS[""NAP height"",
+                VDATUM[""Normaal Amsterdams Peil""],
+                CS[vertical, 1],
+                    AXIS[""gravity-related height (H)"", up,
+                        LENGTHUNIT[""metre"", 1]]],
+            ID[""EPSG"", 7415]]],
+    TARGETCRS[
+        GEOGCRS[""WGS 84 (3D)"",
+            ENSEMBLE[""World Geodetic System 1984 ensemble"",
+                MEMBER[""World Geodetic System 1984 (Transit)""],
+                MEMBER[""World Geodetic System 1984 (G730)""],
+                MEMBER[""World Geodetic System 1984 (G873)""],
+                MEMBER[""World Geodetic System 1984 (G1150)""],
+                MEMBER[""World Geodetic System 1984 (G1674)""],
+                MEMBER[""World Geodetic System 1984 (G1762)""],
+                MEMBER[""World Geodetic System 1984 (G2139)""],
+                ELLIPSOID[""WGS 84"", 6378137, 298.257223563,
+                    LENGTHUNIT[""metre"", 1]],
+                ENSEMBLEACCURACY[2.0]],
+            PRIMEM[""Greenwich"", 0,
+                ANGLEUNIT[""degree"", 0.0174532925199433]],
+            CS[ellipsoidal, 3],
+                AXIS[""geodetic latitude (Lat)"", north,
+                    ORDER[1],
+                    ANGLEUNIT[""degree minute second hemisphere"", 0.0174532925199433]],
+                AXIS[""geodetic longitude (Long)"", east,
+                    ORDER[2],
+                    ANGLEUNIT[""degree minute second hemisphere"", 0.0174532925199433]],
+                AXIS[""ellipsoidal height (h)"", up,
+                    ORDER[3],
+                    LENGTHUNIT[""metre"", 1]],
+            ID[""EPSG"", 4329]]],
+    STEP[
+        CONVERSION[""Inverse of RD New"",
+            METHOD[""Inverse of Oblique Stereographic"",
+                ID[""INVERSE(EPSG)"", 9809]],
+            PARAMETER[""Latitude of natural origin"", 52.1561605555556,
+                ANGLEUNIT[""degree"", 0.0174532925199433],
+                ID[""EPSG"", 8801]],
+            PARAMETER[""Longitude of natural origin"", 5.38763888888889,
+                ANGLEUNIT[""degree"", 0.0174532925199433],
+                ID[""EPSG"", 8802]],
+            PARAMETER[""Scale factor at natural origin"", 0.9999079,
+                SCALEUNIT[""unity"", 1],
+                ID[""EPSG"", 8805]],
+            PARAMETER[""False easting"", 155000,
+                LENGTHUNIT[""metre"", 1],
+                ID[""EPSG"", 8806]],
+            PARAMETER[""False northing"", 463000,
+                LENGTHUNIT[""metre"", 1],
+                ID[""EPSG"", 8807]],
+            ID[""INVERSE(EPSG)"", 19914]]],
+    STEP[
+        COORDINATEOPERATION[""Amersfoort to ETRS89 (9) + Inverse of ETRS89 to NAP height (2) + ETRS89 to WGS 84 (1)"",
+            SOURCECRS[
+                COMPOUNDCRS[""Amersfoort + NAP height"",
+                    GEOGCRS[""Amersfoort"",
+                        DATUM[""Amersfoort"",
+                            ELLIPSOID[""Bessel 1841"", 6377397.155, 299.1528128,
+                                LENGTHUNIT[""metre"", 1]]],
+                        PRIMEM[""Greenwich"", 0,
+                            ANGLEUNIT[""degree"", 0.0174532925199433]],
+                        CS[ellipsoidal, 2],
+                            AXIS[""geodetic latitude (Lat)"", north,
+                                ORDER[1],
+                                ANGLEUNIT[""degree"", 0.0174532925199433]],
+                            AXIS[""geodetic longitude (Lon)"", east,
+                                ORDER[2],
+                                ANGLEUNIT[""degree"", 0.0174532925199433]],
+                        ID[""EPSG"", 4289]],
+                    VERTCRS[""NAP height"",
+                        VDATUM[""Normaal Amsterdams Peil""],
+                        CS[vertical, 1],
+                            AXIS[""gravity-related height (H)"", up,
+                                LENGTHUNIT[""metre"", 1]],
+                        ID[""EPSG"", 5709]]]],
+            TARGETCRS[
+                GEOGCRS[""WGS 84 (3D)"",
+                    ENSEMBLE[""World Geodetic System 1984 ensemble"",
+                        MEMBER[""World Geodetic System 1984 (Transit)""],
+                        MEMBER[""World Geodetic System 1984 (G730)""],
+                        MEMBER[""World Geodetic System 1984 (G873)""],
+                        MEMBER[""World Geodetic System 1984 (G1150)""],
+                        MEMBER[""World Geodetic System 1984 (G1674)""],
+                        MEMBER[""World Geodetic System 1984 (G1762)""],
+                        MEMBER[""World Geodetic System 1984 (G2139)""],
+                        ELLIPSOID[""WGS 84"", 6378137, 298.257223563,
+                            LENGTHUNIT[""metre"", 1]],
+                        ENSEMBLEACCURACY[2.0]],
+                    PRIMEM[""Greenwich"", 0,
+                        ANGLEUNIT[""degree"", 0.0174532925199433]],
+                    CS[ellipsoidal, 3],
+                        AXIS[""geodetic latitude (Lat)"", north,
+                            ORDER[1],
+                            ANGLEUNIT[""degree minute second hemisphere"", 0.0174532925199433]],
+                        AXIS[""geodetic longitude (Long)"", east,
+                            ORDER[2],
+                            ANGLEUNIT[""degree minute second hemisphere"", 0.0174532925199433]],
+                        AXIS[""ellipsoidal height (h)"", up,
+                            ORDER[3],
+                            LENGTHUNIT[""metre"", 1]],
+                    ID[""EPSG"", 4329]]],
+            METHOD[""PROJ-based operation method (approximate): +proj=pipeline +step +proj=axisswap +order=2,1 +step +proj=unitconvert +xy_in=deg +xy_out=rad +step +proj=hgridshift +grids=nl_nsgi_rdtrans2018.tif +step +proj=vgridshift +grids=nl_nsgi_nlgeo2018.tif +multiplier=1 +step +proj=unitconvert +xy_in=rad +xy_out=deg +step +proj=axisswap +order=2,1""],
+            OPERATIONACCURACY[1.002],
+            REMARK[""For Amersfoort to ETRS89 (9) (EPSG:9282): Replaces Amersfoort to ETRS89 (7) (tfm code 7000). Horizontal component of official transformation RDNAPTRANS(TM)2018.
+For ETRS89 to NAP height(2)(EPSG: 9283): Vertical component of official transformation RDNAPTRANS(TM)2018.Replaces earlier versions of RDNAPTRANS(TM). For reversible alternative to this transformation see ETRS89 to ETRS89 + NAP height(2)(code 9597).
+For ETRS89 to WGS 84(1)(EPSG: 1149): ETRS89 and WGS 84 are realizations of ITRS coincident to within 1 metre.This transformation has an accuracy equal to the coincidence figure.""]]],
+    USAGE[
+        SCOPE[""unknown""],
+        AREA[""Netherlands - onshore, including Waddenzee, Dutch Wadden Islands and 12-mile offshore coastal zone.""],
+        BBOX[50.75, 3.2, 53.7, 7.22]]]
+", pc);
+
+
+            GC.KeepAlive(transform);
+
+            Assert.AreEqual(@"
+", transform.AsProjString(new Proj.ProjStringOptions { MultiLine = true }));
+        }
     }
 }
