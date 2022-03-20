@@ -22,7 +22,7 @@ jobs:
         path: build
 
     - name: Setup VCPKG
-      uses: lukka/run-vcpkg@v10
+      uses: lukka/run-vcpkg@v10.1
       with:
         vcpkgDirectory: '${{ github.workspace }}/vcpkg'
         vcpkgGitCommitId: a3df696929b28195b0d7a477ba6cd16dba48fa52
