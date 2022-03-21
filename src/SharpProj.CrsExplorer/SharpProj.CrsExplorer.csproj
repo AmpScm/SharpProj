@@ -13,8 +13,8 @@
     <PropertyGroup>
         <!-- Somehow needed for NuGet restore -->
         <TargetFramework>net462</TargetFramework>
-        <TargetFramework Condition="'$(Configuration)' == 'DebugCore'">net5.0-windows</TargetFramework>
-        <TargetFramework Condition="'$(Configuration)' == 'ReleaseCore'">net5.0-windows</TargetFramework>
+        <TargetFramework Condition="'$(Configuration)' == 'DebugCore'">net6.0-windows</TargetFramework>
+        <TargetFramework Condition="'$(Configuration)' == 'ReleaseCore'">net6.0-windows</TargetFramework>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
