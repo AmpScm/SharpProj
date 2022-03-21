@@ -10,6 +10,7 @@ env:
   # Path to the solution file relative to the root of the project.
   SOLUTION_FILE_PATH: build/src/SharpProj.sln
   buildDir: '${{ github.workspace }}/build'
+  vcpkgExe: '${{ github.workspace }}/vcpkg/vcpkg.exe'
 
 jobs:
   build:
@@ -30,6 +31,11 @@ jobs:
     - name: Show VCPKG version for https://github.com/microsoft/vcpkg/issues/23448
       run: vcpkg.exe --version
 
+    - name: Show VCPKG version directly
+      run: ${{env.vcpkgExe}} --version
+
+    - name: Where vcpkg
+      run: where vcpkg
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1
 
