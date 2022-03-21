@@ -238,7 +238,7 @@ namespace SharpProj.Tests
 
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void CreateFromWKT()
         {
             using var pc = new ProjContext() { EnableNetworkConnections = true };

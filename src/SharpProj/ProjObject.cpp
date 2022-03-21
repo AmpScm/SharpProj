@@ -113,7 +113,7 @@ ProjObject^ ProjContext::CreateFromWellKnownText(String^ from, CreateFromWKTOpti
 {
     array<String^>^ wars = nullptr;
 
-    return CreateFromWellKnownText(from, wars);
+    return CreateFromWellKnownText(from, options, wars);
 }
 
 ProjObject^ ProjContext::CreateFromWellKnownText(String^ from, CreateFromWKTOptions^ options, [Out] array<String^>^% warnings)
