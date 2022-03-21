@@ -145,6 +145,7 @@ namespace SharpProj.Tests
             Assert.AreEqual(new PPoint(-77.65, -67.0), p.ToXY(2));
 
             double oneAndABit = BitConverter.Int64BitsToDouble(BitConverter.DoubleToInt64Bits(1.0) - 1);
+#if NETFRAMEWORK
             Assert.AreEqual("0.99999999999999989", oneAndABit.ToString("R", CultureInfo.InvariantCulture)); // R = Roundtrip
             d = new PPoint(oneAndABit, oneAndABit).ToStringDMS(CultureInfo.InvariantCulture);
             Assert.AreEqual("1°0'0\"N, 1°0'0\"E", d);
@@ -154,6 +155,7 @@ namespace SharpProj.Tests
             d = new PPoint(oneAndABit, oneAndABit).ToString("r", CultureInfo.InvariantCulture); // Full roundtrip
             Assert.AreEqual("0.99999999999999989, 0.99999999999999989", d);
             Assert.AreEqual(new PPoint(oneAndABit, oneAndABit), PPoint.TryParse(d, "r", CultureInfo.InvariantCulture, out pp) ? pp : new PPoint());
+#endif
         }
 
         [TestMethod]
