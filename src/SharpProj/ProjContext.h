@@ -440,6 +440,8 @@ namespace SharpProj {
         System::Collections::ObjectModel::ReadOnlyCollection<UnitOfMeasurement^>^ GetUnitsOfMeasurement();
         System::Collections::ObjectModel::ReadOnlyCollection<UnitOfMeasurement^>^ GetUnitsOfMeasurement(UnitOfMeasurementFilter^ filter);
 
+        System::Collections::ObjectModel::ReadOnlyCollection<String^>^ GetAuthorities();
+
     protected:
         virtual void OnLog(ProjLogLevel level, String^ message)
         {

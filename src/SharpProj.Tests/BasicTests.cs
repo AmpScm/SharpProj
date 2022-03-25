@@ -1074,5 +1074,18 @@ namespace SharpProj.Tests
             TestContext.WriteLine($"Default unit: {def.Name} ({def.ShortName})");
             TestContext.WriteLine($"Defined by: {def.Identifier}");
         }
+
+        [TestMethod]
+        public void TestAuthorities()
+        {
+            using var pc = new ProjContext();
+
+            var a = pc.GetAuthorities();
+
+            Assert.IsNotNull(a);
+            Assert.IsTrue(a.Count >= 2);
+            Assert.AreEqual("EPSG", a[0]); // Primary authority
+            Assert.AreEqual("PROJ", a.Last()); // Always last. Proj specific tweaks go after 'standards'
+        }
     }
 }

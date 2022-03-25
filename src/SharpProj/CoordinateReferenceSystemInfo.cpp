@@ -179,6 +179,34 @@ System::Collections::ObjectModel::ReadOnlyCollection<CelestialBodyInfo^>^ ProjCo
     return Array::AsReadOnly(result);
 }
 
+System::Collections::ObjectModel::ReadOnlyCollection<String^>^ ProjContext::GetAuthorities()
+{
+    array<String^>^ result;
+    auto infoList = proj_get_authorities_from_database(this);
+    try
+    {
+        const char** pItem = const_cast<const char**>(infoList);
+        int count = 0;
+
+        while (*pItem)
+        {
+            count++;
+            pItem++;
+        }
+
+        result = gcnew array<String^>(count);
+
+        for (int i = 0; i < count; i++)
+            result[i] = Utf8_PtrToString(infoList[i]);
+    }
+    finally
+    {
+        proj_string_list_destroy(infoList);
+    }
+
+    return Array::AsReadOnly(result);
+}
+
 System::Collections::ObjectModel::ReadOnlyCollection<UnitOfMeasurement^>^ ProjContext::GetUnitsOfMeasurement()
 {
     return GetUnitsOfMeasurement(gcnew UnitOfMeasurementFilter());
@@ -246,4 +274,4 @@ System::Collections::ObjectModel::ReadOnlyCollection<UnitOfMeasurement^>^ ProjCo
     Array::Sort(result, UnitOfMeasurementComparer::Instance);
 
     return Array::AsReadOnly(result);
-  }
+}
