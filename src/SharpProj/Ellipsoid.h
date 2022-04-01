@@ -81,6 +81,13 @@ namespace SharpProj {
             {
                 return CreateFromDatabase(authority, code.ToString(), ctx);
             }
+            static Ellipsoid^ CreateFromDatabase(Proj::Identifier^ identifier, [Optional] ProjContext^ ctx)
+            {
+                if (!(Object^)identifier)
+                    throw gcnew ArgumentNullException("identifier");
+
+                return CreateFromDatabase(identifier->Authority, identifier->Code, ctx);
+            }
             static Ellipsoid^ CreateFromEpsg(int epsgCode, [Optional] ProjContext^ ctx)
             {
                 return CreateFromDatabase("EPSG", epsgCode, ctx);

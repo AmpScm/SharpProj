@@ -21,6 +21,7 @@ namespace SharpProj {
         ref class CoordinateSystem;
         ref class UsageArea;
         interface class IHasCelestialBody;
+        enum class CoordinateSystemType;
     }
 
     ref class CoordinateReferenceIdList;
@@ -174,6 +175,11 @@ namespace SharpProj {
 
                 return t;
             }
+        }
+
+        property CoordinateSystemType CoordinateSystemType
+        {
+            Proj::CoordinateSystemType get();
         }
 
     public:

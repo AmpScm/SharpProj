@@ -42,6 +42,13 @@ namespace SharpProj {
             {
                 return Datum::CreateFromDatabase(authority, code.ToString(), ctx);
             }
+            static Datum^ CreateFromDatabase(Proj::Identifier^ identifier, [Optional] ProjContext^ ctx)
+            {
+                if (!(Object^)identifier)
+                    throw gcnew ArgumentNullException("identifier");
+
+                return CreateFromDatabase(identifier->Authority, identifier->Code, ctx);
+            }
             static Datum^ CreateFromEpsg(int epsgCode, [Optional] ProjContext^ ctx)
             {
                 return CreateFromDatabase("EPSG", epsgCode, ctx);

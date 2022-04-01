@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "CoordinateSystem.h"
+#include "CoordinateReferenceSystem.h"
 
 using namespace SharpProj;
 
@@ -19,4 +20,9 @@ void SharpProj::Proj::Axis::Ensure()
         m_unit_auth_name = Utf8_PtrToString(unit_auth_name);
         m_unit_code = Utf8_PtrToString(unit_code);
     }
+}
+
+CoordinateSystemType CoordinateReferenceSystem::CoordinateSystemType::get()
+{
+    return CoordinateSystem->CoordinateSystemType;
 }
