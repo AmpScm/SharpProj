@@ -74,12 +74,12 @@ namespace SharpProj.Tests
                         var servaasBE = t.Apply(servaasNL);
                         var domBE = t.Apply(domNL);
 
-                        Assert.AreEqual(new PPoint(742877.4, 671835, -45.7), servaasBE.ToXYZ(1));
+                        Assert.AreEqual(new PPoint(742877.4, 671835, -43.4), servaasBE.ToXYZ(1));
 
                         servaasNL.Z = 15;
                         servaasBE = t.Apply(servaasNL);
 
-                        Assert.AreEqual(new PPoint(742877.4, 671835, 15), servaasBE.ToXYZ(1));
+                        Assert.AreEqual(new PPoint(742877.4, 671835, 17.3), servaasBE.ToXYZ(1));
 
                         servaasNL.Z = 0; //revert to original value
 
