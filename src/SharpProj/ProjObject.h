@@ -34,7 +34,7 @@ namespace SharpProj {
             DynamicGeodeticReferenceFrame = PJ_TYPE_DYNAMIC_GEODETIC_REFERENCE_FRAME,
             VerticalReferenceFrame = PJ_TYPE_VERTICAL_REFERENCE_FRAME,
             DynamicVerticalReferenceFrame = PJ_TYPE_DYNAMIC_VERTICAL_REFERENCE_FRAME,
-            DatumEnsamble = PJ_TYPE_DATUM_ENSEMBLE,
+            DatumEnsemble = PJ_TYPE_DATUM_ENSEMBLE,
 
             /// <summary>
             /// Abstract type, not returned by <see cref="ProjObject" />.Type.

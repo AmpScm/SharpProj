@@ -31,7 +31,37 @@ namespace SharpProj.Tests
                 ProjType.CoordinateSystem, // Not mapped by proj
             };
 
-            Assert.AreEqual(!expectNone.Contains(pt), pc.GetIdentifiers(pt, "EPSG").Any());
+            var noCreate = new List<ProjType> {
+                ProjType.ConcatenatedOperation,
+                ProjType.Conversion,
+                ProjType.DynamicGeodeticReferenceFrame,
+                ProjType.DynamicVerticalReferenceFrame,
+                ProjType.DatumEnsemble,
+                ProjType.Ellipsoid,
+                ProjType.GeodeticReferenceFrame,
+                ProjType.Transformation,
+                ProjType.VerticalReferenceFrame,
+            };
+
+            var lst = pc.GetIdentifiers(pt, "EPSG");
+            Assert.AreEqual(!expectNone.Contains(pt), lst.Any());
+
+            if (lst.Any())
+            {
+                try
+                {
+                    using var p = pc.CreateFromDatabase(lst[0]);
+
+                    Assert.IsNotNull(p);
+
+                }
+                catch(ProjException e) when (noCreate.Contains(pt))
+                { }
+                catch(ProjException e)
+                {
+                    throw new InvalidOperationException($"While creating {lst[0]}", e);
+                }
+            }
         }
 
         [TestMethod]
@@ -54,5 +84,74 @@ namespace SharpProj.Tests
             Assert.AreEqual(!expectNone.Contains(pt), pc.GetIdentifiers(pt).Any());
         }
 
+        [TestMethod]
+        public void CreateEllipsoid()
+        {
+            using var pc = new ProjContext();
+            var item1 = pc.GetIdentifiers(ProjType.Ellipsoid).First();
+
+            using var ob = Ellipsoid.CreateFromDatabase(item1);
+            Assert.IsNotNull(ob);
+        }
+
+        [TestMethod]
+        public void CreateGeodeticReferenceFrame()
+        {
+            using var pc = new ProjContext();
+            var item1 = pc.GetIdentifiers(ProjType.GeodeticReferenceFrame).First();
+
+            using var ob = Datum.CreateFromDatabase(item1);
+            Assert.IsNotNull(ob);
+        }
+
+        [TestMethod]
+        public void CreateDynamicGeodeticReferenceFrame()
+        {
+            using var pc = new ProjContext();
+            var item1 = pc.GetIdentifiers(ProjType.DynamicGeodeticReferenceFrame).First();
+
+            using var ob = Datum.CreateFromDatabase(item1);
+            Assert.IsNotNull(ob);
+        }
+
+        [TestMethod]
+        public void CreateDynamicVerticalReferenceFrame()
+        {
+            using var pc = new ProjContext();
+            var item1 = pc.GetIdentifiers(ProjType.DynamicVerticalReferenceFrame).First();
+
+            using var ob = Datum.CreateFromDatabase(item1);
+            Assert.IsNotNull(ob);
+        }
+
+        [TestMethod]
+        public void CreateConcatenatedOperation()
+        {
+            using var pc = new ProjContext();
+            var item1 = pc.GetIdentifiers(ProjType.ConcatenatedOperation).First();
+
+            using var ob = CoordinateTransform.CreateFromDatabase(item1);
+            Assert.IsNotNull(ob);
+        }
+
+        [TestMethod]
+        public void CreateConversion()
+        {
+            using var pc = new ProjContext();
+            var item1 = pc.GetIdentifiers(ProjType.Conversion).First();
+
+            using var ob = CoordinateTransform.CreateFromDatabase(item1);
+            Assert.IsNotNull(ob);
+        }
+
+        [TestMethod]
+        public void CreateTransform()
+        {
+            using var pc = new ProjContext();
+            var item1 = pc.GetIdentifiers(ProjType.Transformation).First();
+
+            using var ob = CoordinateTransform.CreateFromDatabase(item1);
+            Assert.IsNotNull(ob);
+        }
     }
 }

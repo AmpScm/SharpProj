@@ -587,6 +587,13 @@ namespace SharpProj {
         {
             return CreateFromDatabase("EPSG", epsgCode, ctx);
         }
+        static CoordinateTransform^ CreateFromDatabase(Proj::Identifier^ identifier, [Optional] ProjContext^ ctx)
+        {
+            if (!(Object^)identifier)
+                throw gcnew ArgumentNullException("identifier");
+
+            return CreateFromDatabase(identifier->Authority, identifier->Code, ctx);
+        }
 
         static CoordinateTransform^ CreateFromWellKnownText(String^ from, [Optional] ProjContext^ ctx)
         {
