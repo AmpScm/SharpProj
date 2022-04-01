@@ -21,6 +21,8 @@ namespace SharpProj {
         ref class UnitOfMeasurement;
         ref class UnitOfMeasurementFilter;
         ref class CreateFromWKTOptions;
+        ref class Identifier;
+        enum class ProjType;
     }
 
     public enum class ProjLogLevel
@@ -341,6 +343,13 @@ namespace SharpProj {
         /// <returns></returns>
         ProjObject^ CreateProj4Compatible(String^ definition);
 
+        ProjObject^ CreateFromDatabase(Proj::Identifier^ identifier);
+        ProjObject^ CreateFromDatabase(String^ authority, String^ code);
+        ProjObject^ CreateFromDatabase(String^ authority, int code)
+        {
+            return CreateFromDatabase(authority, code.ToString());
+        }
+
 
     internal:
         ProjObject^ Create(PJ* pj);
@@ -441,6 +450,8 @@ namespace SharpProj {
         System::Collections::ObjectModel::ReadOnlyCollection<UnitOfMeasurement^>^ GetUnitsOfMeasurement(UnitOfMeasurementFilter^ filter);
 
         System::Collections::ObjectModel::ReadOnlyCollection<String^>^ GetAuthorities();
+
+        System::Collections::ObjectModel::ReadOnlyCollection<Proj::Identifier^>^ GetIdentifiers(Proj::ProjType type, [Optional] String^ authority, [Optional] bool includeDeprecated);
 
     protected:
         virtual void OnLog(ProjLogLevel level, String^ message)

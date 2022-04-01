@@ -80,6 +80,25 @@ ProjObject^ ProjContext::CreateProj4Compatible(String^ definition)
     return Create(pj);
 }
 
+ProjObject^ ProjContext::CreateFromDatabase(Proj::Identifier^ identifier)
+{
+    if ((Object^)identifier == nullptr)
+        throw gcnew ArgumentNullException("identifier");
+
+    return CreateFromDatabase(identifier->Authority, identifier->Code);
+}
+
+ProjObject^ ProjContext::CreateFromDatabase(String^ authority, String^ code)
+{
+    if (String::IsNullOrWhiteSpace(authority))
+        throw gcnew ArgumentNullException("authority");
+    else if (String::IsNullOrWhiteSpace(code))
+        throw gcnew ArgumentNullException("code");
+
+    return Create(authority + ":" + code);
+}
+
+
 ProjObject^ ProjContext::Create(...array<String^>^ from)
 {
     char** lst = new char* [from->Length + 1];

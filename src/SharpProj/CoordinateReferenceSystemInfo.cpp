@@ -3,6 +3,8 @@
 #include "CoordinateReferenceSystem.h"
 #include "CoordinateReferenceSystemInfo.h"
 
+using System::Collections::Generic::IEnumerable;
+
 private ref class CRSComparer : System::Collections::Generic::IComparer<CoordinateReferenceSystemInfo^>
 {
 public:
@@ -211,6 +213,52 @@ System::Collections::ObjectModel::ReadOnlyCollection<UnitOfMeasurement^>^ ProjCo
 {
     return GetUnitsOfMeasurement(gcnew UnitOfMeasurementFilter());
 }
+
+
+System::Collections::ObjectModel::ReadOnlyCollection<Identifier^>^ ProjContext::GetIdentifiers(ProjType type, [Optional] String^ authority, [Optional] bool includeDeprecated)
+{
+    if (authority && String::IsNullOrEmpty(authority))
+        throw gcnew ArgumentNullException("authority");
+
+    auto lst = gcnew List<Identifier^>();
+
+    if (type >= ProjType::ChooseTransform)
+        return lst->AsReadOnly();
+
+    IEnumerable<String^>^ authorities;
+
+    if (authority)
+        authorities = gcnew array<String^>(1) { authority };
+    else
+        authorities = GetAuthorities();
+
+    for each (auto a in authorities)
+    {
+        std::string a_c = ::utf8_string(a);
+        auto infoList = proj_get_codes_from_database(this, a_c.c_str(), (PJ_TYPE)type, includeDeprecated);
+        try
+        {
+            const char** pItem = const_cast<const char**>(infoList);
+
+            if (!infoList)
+                continue;
+
+            while (*pItem)
+            {
+                lst->Add(gcnew Proj::Identifier(a, Utf8_PtrToString(*pItem)));
+                pItem++;
+            }
+        }
+        finally
+        {
+            if (infoList)
+                proj_string_list_destroy(infoList);
+        }
+    }
+
+    return lst->AsReadOnly();
+}
+
 
 private ref class UnitOfMeasurementComparer : System::Collections::Generic::IComparer<UnitOfMeasurement^>
 {
