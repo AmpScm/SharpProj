@@ -37,7 +37,7 @@ namespace SharpProj.Tests
         {
             using (var pc = new ProjContext())
             {
-                Assert.IsTrue(pc.Version >= new Version(8, 1, 0));
+                Assert.IsTrue(pc.Version >= new Version(9, 0, 1));
                 Assert.IsTrue(pc.EpsgVersion >= new Version(10, 15));
 
                 Assert.IsTrue(pc.EsriVersion >= new Version(10, 8, 1));
@@ -82,7 +82,7 @@ namespace SharpProj.Tests
     ""name"": ""PROJ-based operation method: +proj=merc +ellps=clrk66 +lat_ts=33""
   }}
 }}".Replace("\r", "");
-                    Assert.AreEqual(expected, crs.AsProjJson());
+                    Assert.AreEqual(expected, crs.AsProjJson().Replace(",\n  \"parameters\": []", ""));
                     expected =
 @"{
   ""$schema"": ""https://proj.org/schemas/v0.2/projjson.schema.json"",
@@ -92,7 +92,7 @@ namespace SharpProj.Tests
     ""name"": ""PROJ-based operation method: +proj=merc +ellps=clrk66 +lat_ts=33""
   }
 }".Replace("\r", "");
-                    Assert.AreEqual(expected, crs.AsProjJson(new ProjJsonOptions { ProjJsonType = ProjJsonType.SchemaV02 }));
+                    Assert.AreEqual(expected, crs.AsProjJson(new ProjJsonOptions { ProjJsonType = ProjJsonType.SchemaV02 }).Replace(",\n  \"parameters\": []", ""));
                     Assert.AreEqual("+proj=merc +ellps=clrk66 +lat_ts=33", crs.AsProjString());
                 }
 
@@ -600,9 +600,6 @@ namespace SharpProj.Tests
                     using (var c = p.Create())
                     {
                         var expectedType = p.Type;
-
-                        if (expectedType == ProjType.CRS && p.Authority == "IAU_2015" && ProjContext.ProjVersion == new Version(8, 2, 1))
-                            expectedType = ProjType.GeodeticCrs;
 
                         Assert.AreEqual(expectedType, c.Type, $"Expected type mismatch on {p.Identifier}, celestial_body={p.CelestialBodyName}");
                         Assert.IsNotNull(p.Authority);

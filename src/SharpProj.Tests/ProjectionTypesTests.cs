@@ -17,7 +17,6 @@ namespace SharpProj.Tests
         public static IEnumerable<object[]> ProjectionArgs
             => ProjOperationDefinition.All
                     .Where(x => x.Type == ProjOperationType.Projection)
-                    .Where(x => !(x.Name == "peirce_q" && ProjContext.ProjVersion == new Version(8, 2, 1))) // Bug in 8.2.1
                     .Select(x => new object[] { x });
 
 

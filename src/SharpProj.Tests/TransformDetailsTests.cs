@@ -197,10 +197,6 @@ namespace SharpProj.Tests
             using (var c = CoordinateReferenceSystem.CreateFromDatabase(id))
             {
                 var v = c.UsageArea.MinX;
-                if (c.Name.Contains("Peirce") && ProjContext.ProjVersion == new Version(8, 2, 1))
-                {
-                    Assert.Inconclusive(); // Broken in 8.2.1
-                }
 
                 Assert.IsTrue(!double.IsInfinity(v) && !double.IsNaN(v));
                 Assert.AreNotEqual(c.UsageArea.MinX, c.UsageArea.MaxX);
