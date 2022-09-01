@@ -238,7 +238,7 @@ namespace SharpProj.Tests
 
         }
 
-        [TestMethod, Ignore]
+        [TestMethod]
         public void CreateFromWKT()
         {
             using var pc = new ProjContext() { EnableNetworkConnections = true };
@@ -395,8 +395,13 @@ For ETRS89 to WGS 84(1)(EPSG: 1149): ETRS89 and WGS 84 are realizations of ITRS 
 
             GC.KeepAlive(transform);
 
-            Assert.AreEqual(@"
-", transform.AsProjString(new Proj.ProjStringOptions { MultiLine = true }));
+            Assert.AreEqual(@"+proj=pipeline
+  +step +inv +proj=sterea +lat_0=52.1561605555556 +lon_0=5.38763888888889
+        +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel
+  +step +proj=hgridshift +grids=nl_nsgi_rdtrans2018.tif
+  +step +proj=vgridshift +grids=nl_nsgi_nlgeo2018.tif +multiplier=1
+  +step +proj=unitconvert +xy_in=rad +xy_out=deg
+  +step +proj=axisswap +order=2,1".Replace("\r", ""), transform.AsProjString(new Proj.ProjStringOptions { MultiLine = true }));
         }
     }
 }
