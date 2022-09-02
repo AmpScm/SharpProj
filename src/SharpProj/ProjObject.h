@@ -130,7 +130,8 @@ namespace SharpProj {
         {
             None = 0,
             SchemaV02,
-            SchemaV04
+            SchemaV04,
+            SchemaV05
         };
 
         public ref class ProjJsonOptions
@@ -146,13 +147,18 @@ namespace SharpProj {
 
             }
 
+        private:
+#define PROJ_SCHEMA_PREFIX "https://proj.org/schemas/"
+#define PROJ_SCHEMA_SUFFIX "/projjson.schema.json"
         public:
-            static initonly String^ SchemaV0_2_Url = "https://proj.org/schemas/v0.2/projjson.schema.json";
-            static initonly String^ SchemaV0_4_Url = "https://proj.org/schemas/v0.4/projjson.schema.json";
+            static initonly String^ SchemaV0_2_Url = PROJ_SCHEMA_PREFIX "v0.2" PROJ_SCHEMA_SUFFIX;
+            static initonly String^ SchemaV0_4_Url = PROJ_SCHEMA_PREFIX "v0.4" PROJ_SCHEMA_SUFFIX;
+            static initonly String^ SchemaV0_5_Url = PROJ_SCHEMA_PREFIX "v0.5" PROJ_SCHEMA_SUFFIX;
+            // Don't forget to update the ProjJsonType enum and AsProjJson() function(s).
 
             static property String^ LastSchemaUrl
             {
-                String^ get() { return SchemaV0_4_Url; }
+                String^ get() { return SchemaV0_5_Url; }
             }
         };
 
@@ -343,10 +349,13 @@ namespace SharpProj {
                     switch (options->ProjJsonType)
                     {
                     case ProjJsonType::SchemaV02:
-                        opts[nOpts++] = "SCHEMA=https://proj.org/schemas/v0.2/projjson.schema.json";
+                        opts[nOpts++] = "SCHEMA=" PROJ_SCHEMA_PREFIX "v0.2" PROJ_SCHEMA_SUFFIX;
                         break;
                     case ProjJsonType::SchemaV04:
-                        opts[nOpts++] = "SCHEMA=https://proj.org/schemas/v0.4/projjson.schema.json";
+                        opts[nOpts++] = "SCHEMA=" PROJ_SCHEMA_PREFIX "v0.4" PROJ_SCHEMA_SUFFIX;
+                        break;
+                    case ProjJsonType::SchemaV05:
+                        opts[nOpts++] = "SCHEMA=" PROJ_SCHEMA_PREFIX "v0.5" PROJ_SCHEMA_SUFFIX;
                         break;
                     default:
                         throw gcnew ArgumentOutOfRangeException();

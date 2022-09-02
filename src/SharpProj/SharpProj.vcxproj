@@ -432,10 +432,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <_ProjResourceFile Include="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\proj4\*">
-      <Visible>false</Visible>
-    </_ProjResourceFile>
-    <_ProjResourceFile Include="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\proj\data\*">
+    <_ProjResourceFile Include="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\proj\*">
       <Visible>false</Visible>
     </_ProjResourceFile>
     <_ProjResourceFile Remove="$(VCPKG_ROOT)\installed\x64-windows-static-md\share\**\proj.*" />
