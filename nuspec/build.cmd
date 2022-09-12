@@ -35,8 +35,8 @@ echo Packaging using version %SHARPPROJ_VER% (db version=%PROJ_VER%)
 pushd %0\..
 if NOT EXIST ".\obj\." mkdir obj
 if NOT EXIST ".\bin\." mkdir bin
-copy ..\..\vcpkg\installed\x86-windows-static-md\share\proj\data\*.db obj\ || exit /B 1
-copy ..\..\vcpkg\installed\x86-windows-static-md\share\proj\data\*.ini obj\ || exit /B 1
+copy ..\..\vcpkg\installed\x86-windows-static-md\share\proj\*.db obj\ || exit /B 1
+copy ..\..\vcpkg\installed\x86-windows-static-md\share\proj\*.ini obj\ || exit /B 1
 
 CALL :xmlpoke SharpProj.Database.nuspec //nu:metadata/nu:version %PROJ_VER% || EXIT /B 1
 
