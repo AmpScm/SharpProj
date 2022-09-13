@@ -187,8 +187,10 @@ Version^ ProjContext::EsriVersion::get()
     String^ md = GetMetaData("ESRI.VERSION");
     System::Version^ v = nullptr;
 
-    if (md->StartsWith("ArcMap") && System::Version::TryParse(md->Substring(6)->Trim(), v))
-        return v;
+    if (md->StartsWith("ArcGIS Pro") && System::Version::TryParse(md->Substring(10)->Trim(), v))
+        return v; // Format 9.1.0 (and later?)
+    else if (md->StartsWith("ArcMap") && System::Version::TryParse(md->Substring(6)->Trim(), v))
+        return v; // Format for 9.0
     else
         return nullptr;
 }

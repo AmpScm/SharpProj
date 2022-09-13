@@ -38,10 +38,10 @@ namespace SharpProj.Tests
             using (var pc = new ProjContext())
             {
                 Assert.IsTrue(pc.Version >= new Version(9, 0, 1));
-                Assert.IsTrue(pc.EpsgVersion >= new Version(10, 15));
+                Assert.IsTrue(pc.EpsgVersion >= new Version(10, 15), $"EPSG {pc.EpsgVersion} within range");
 
-                Assert.IsTrue(pc.EsriVersion >= new Version(10, 8, 1));
-                Assert.IsTrue(pc.IgnfVersion >= new Version(3, 1, 0));
+                Assert.IsTrue(pc.EsriVersion >= new Version(3, 0), $"ESRI {pc.EsriVersion} within range"); // ArcGIS 3.0.0. Maintained at https://github.com/Esri/projection-engine-db-doc/
+                Assert.IsTrue(pc.IgnfVersion >= new Version(3, 1, 0), $"IGNF {pc.IgnfVersion} within range");
 
                 Assert.IsTrue(pc.ProjDataVersion >= new Version(1, 7));
             }
