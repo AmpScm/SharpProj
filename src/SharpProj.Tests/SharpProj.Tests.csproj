@@ -3,7 +3,7 @@
 
     <PropertyGroup>
         <Configurations>Debug;Release;DebugCore;ReleaseCore</Configurations>
-        <Platforms>x86;x64</Platforms>
+        <Platforms>x86;x64;ARM64</Platforms>
         <LangVersion>latest</LangVersion>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
         <GenerateDocumentationFile>False</GenerateDocumentationFile>
@@ -17,9 +17,18 @@
         <TargetFramework>net462</TargetFramework>
         <OutputPath>bin\x64\Debug\</OutputPath>
     </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+      <TargetFramework>net462</TargetFramework>
+      <OutputPath>bin\x64\Debug\</OutputPath>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
         <TargetFramework>net462</TargetFramework>
         <OutputPath>bin\x64\Release\</OutputPath>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+      <TargetFramework>net462</TargetFramework>
+      <OutputPath>bin\x64\Release\</OutputPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
         <TargetFramework>net462</TargetFramework>
@@ -33,6 +42,10 @@
         <TargetFramework>netcoreapp31</TargetFramework>
         <OutputPath>bin\x64\DebugCore\</OutputPath>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugCore|ARM64'">
+      <TargetFramework>netcoreapp31</TargetFramework>
+      <OutputPath>bin\x64\DebugCore\</OutputPath>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugCore|x86'">
         <TargetFramework>netcoreapp31</TargetFramework>
         <OutputPath>bin\x86\DebugCore\</OutputPath>
@@ -41,6 +54,11 @@
         <TargetFramework>netcoreapp31</TargetFramework>
         <OutputPath>bin\x64\ReleaseCore\</OutputPath>
         <Optimize>True</Optimize>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseCore|ARM64'">
+      <TargetFramework>netcoreapp31</TargetFramework>
+      <OutputPath>bin\x64\ReleaseCore\</OutputPath>
+      <Optimize>True</Optimize>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseCore|x86'">
         <TargetFramework>netcoreapp31</TargetFramework>

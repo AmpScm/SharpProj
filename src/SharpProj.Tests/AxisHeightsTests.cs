@@ -41,7 +41,7 @@ namespace SharpProj.Tests
                     Assert.AreEqual("Lat=52.09063, Lon=5.123078", domWGS84.ToString(wgs84, CultureInfo.InvariantCulture));
                     Assert.AreEqual("Lat=50.84938, Lon=5.687712", stServaasWGS84.ToString(wgs84, CultureInfo.InvariantCulture));
 
-                    using (var t = CoordinateTransform.Create(wgs84D3, nlNAP))
+                    using (var t = CoordinateTransform.Create(wgs84.PromotedTo3D(), nlNAP))
                     {
                         domNL = t.Apply(domWGS84);
 

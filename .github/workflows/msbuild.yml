@@ -40,7 +40,7 @@ jobs:
       uses: darenm/Setup-VSTest@v1
 
     - name: Ensure Proj packages are available
-      run: ${{env.vcpkgExe}} install "tiff[core]:x64-windows-static-md" "proj[core,tiff]:x64-windows-static-md" "tiff[core]:x86-windows-static-md" "proj[core,tiff]:x86-windows-static-md"
+      run: ${{env.vcpkgExe}} install "tiff[core]:x64-windows-static-md" "proj[core,tiff]:x64-windows-static-md" "tiff[core]:x86-windows-static-md" "proj[core,tiff]:x86-windows-static-md" "tiff[core]:arm64-windows-static-md" "proj[core,tiff]:arm64-windows-static-md"
 
     - name: Setup version
       working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -69,6 +69,10 @@ jobs:
     - name: Build-x64-Core
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild /r /v:m /p:Platform=x64 /p:Configuration=ReleaseCore ${{env.SOLUTION_FILE_PATH}} @build\scripts\msbuild-version.rsp
+
+    - name: Build-arm64-Core
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: msbuild /r /v:m /p:Platform=ARM64 /p:Configuration=ReleaseCore ${{env.SOLUTION_FILE_PATH}} /t:Library\SharpProj @build\scripts\msbuild-version.rsp
 
     - name: VSTest-x86
       working-directory: ${{env.GITHUB_WORKSPACE}}
