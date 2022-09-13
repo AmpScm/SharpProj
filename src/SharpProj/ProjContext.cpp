@@ -184,8 +184,14 @@ Version^ ProjContext::EpsgVersion::get()
 
 Version^ ProjContext::EsriVersion::get()
 {
-    String^ md = GetMetaData("ESRI.VERSION");
+    String^ md = GetMetaData("ESRI.DATE");
     System::Version^ v = nullptr;
+
+    if (!String::IsNullOrEmpty(md) && System::Version::TryParse(md->Replace('-', '.'), v))
+        return v;
+
+    md = GetMetaData("ESRI.VERSION");
+    v = nullptr;
 
     if (md->StartsWith("ArcGIS Pro") && System::Version::TryParse(md->Substring(10)->Trim(), v))
         return v; // Format 9.1.0 (and later?)

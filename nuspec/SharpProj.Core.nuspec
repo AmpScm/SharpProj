@@ -34,5 +34,8 @@
     <file src="..\src\SharpProj\bin\Win32_releasecore\SharpProj.xml" target="runtimes/win-x86/lib/netcoreapp" />
     <file src="..\src\SharpProj\bin\x64_releasecore\SharpProj.dll" target="runtimes/win-x64/lib/netcoreapp" />
     <file src="..\src\SharpProj\bin\x64_releasecore\SharpProj.xml" target="runtimes/win-x64/lib/netcoreapp" />
+    <!-- .Net 6.0+ -->
+    <file src="..\src\SharpProj\bin\ARM64_releasecore\SharpProj.dll" target="runtimes/win-arm64/lib/netcoreapp" />
+    <file src="..\src\SharpProj\bin\ARM64_releasecore\SharpProj.xml" target="runtimes/win-arm64/lib/netcoreapp" />
   </files>
 </package>
