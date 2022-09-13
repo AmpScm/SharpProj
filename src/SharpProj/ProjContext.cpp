@@ -385,7 +385,7 @@ String^ ProjContext::FindFile(String^ file)
     }
     else if (CanWriteFromResource(file, userDir, testFile /* = Path::Combine(userDir, ("#proj" "-" PROJ_VERSION "-") + file)*/))
         return testFile;
-    else if (file == "proj.db" && EnableNetworkConnections)
+    else if (file == "proj.db" && (EnableNetworkConnections || m_enableNetwork))
     {
         // testFile = Path::Combine(userDir, ("#proj-" PROJ_VERSION "-") + file);
         try

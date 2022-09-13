@@ -17,5 +17,6 @@ IF NOT EXIST "..\vcpkg\vcpkg.exe" (
 )
 
 pushd ..\vcpkg
-.\vcpkg.exe install "--overlay-ports=%BASEDIR%\vcpkg_ports" proj4:x64-windows-static-md proj4:x86-windows-static-md || exit /b 1
+.\vcpkg remove --outdated --recurse
+.\vcpkg.exe install proj[core,tiff]:x86-windows-static-md proj[core,tiff]:x64-windows-static-md tiff[core,lzma,zip]:x86-windows-static-md tiff[core,lzma,zip]:x64-windows-static-md || exit /b 1
 popd

@@ -179,6 +179,8 @@ namespace SharpProj {
 
         [DebuggerBrowsable(DebuggerBrowsableState::Never)]
         bool m_disposed;
+        [DebuggerBrowsable(DebuggerBrowsableState::Never)]
+        bool m_enableNetwork; // not reset on filefinder, unlike proj inner setting
         ProjContext(PJ_CONTEXT* ctx);
         void SetupNetworkHandling();
 
@@ -221,6 +223,7 @@ namespace SharpProj {
             }
             void set(bool value)
             {
+                m_enableNetwork = value;
                 proj_context_set_enable_network(this, value);
 
                 if (value)
