@@ -3,6 +3,8 @@
 
 using namespace SharpProj;
 using namespace System::IO;
+
+#pragma warning(disable: 4950) // WebRequest, HttpWebRequest, ServicePoint, and WebClient are obsolete. Use HttpClient instead
 using System::Net::WebRequest;
 using System::Net::WebResponse;
 using System::Net::HttpWebRequest;
