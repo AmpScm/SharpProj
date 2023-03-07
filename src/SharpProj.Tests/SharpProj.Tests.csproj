@@ -39,29 +39,29 @@
         <OutputPath>bin\x86\Release\</OutputPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugCore|x64'">
-        <TargetFramework>netcoreapp31</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <OutputPath>bin\x64\DebugCore\</OutputPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugCore|ARM64'">
-      <TargetFramework>netcoreapp31</TargetFramework>
+      <TargetFramework>net6.0</TargetFramework>
       <OutputPath>bin\x64\DebugCore\</OutputPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugCore|x86'">
-        <TargetFramework>netcoreapp31</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <OutputPath>bin\x86\DebugCore\</OutputPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseCore|x64'">
-        <TargetFramework>netcoreapp31</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <OutputPath>bin\x64\ReleaseCore\</OutputPath>
         <Optimize>True</Optimize>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseCore|ARM64'">
-      <TargetFramework>netcoreapp31</TargetFramework>
+      <TargetFramework>net6.0</TargetFramework>
       <OutputPath>bin\x64\ReleaseCore\</OutputPath>
       <Optimize>True</Optimize>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseCore|x86'">
-        <TargetFramework>netcoreapp31</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <OutputPath>bin\x86\ReleaseCore\</OutputPath>
         <Optimize>True</Optimize>
     </PropertyGroup>
