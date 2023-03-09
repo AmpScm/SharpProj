@@ -154,11 +154,12 @@ namespace SharpProj {
             static initonly String^ SchemaV0_2_Url = PROJ_SCHEMA_PREFIX "v0.2" PROJ_SCHEMA_SUFFIX;
             static initonly String^ SchemaV0_4_Url = PROJ_SCHEMA_PREFIX "v0.4" PROJ_SCHEMA_SUFFIX;
             static initonly String^ SchemaV0_5_Url = PROJ_SCHEMA_PREFIX "v0.5" PROJ_SCHEMA_SUFFIX;
+            static initonly String^ SchemaV0_6_Url = PROJ_SCHEMA_PREFIX "v0.6" PROJ_SCHEMA_SUFFIX;
             // Don't forget to update the ProjJsonType enum and AsProjJson() function(s).
 
             static property String^ LastSchemaUrl
             {
-                String^ get() { return SchemaV0_5_Url; }
+                String^ get() { return SchemaV0_6_Url; }
             }
         };
 
