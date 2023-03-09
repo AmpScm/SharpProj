@@ -40,6 +40,8 @@ namespace SharpProj.Utils.NTSAdditions
         /// <param name="seq">The sequenc</param>
         public virtual void Filter(CoordinateSequence seq)
         {
+            ArgumentNullException.ThrowIfNull(seq);
+
             switch (seq)
             {
                 case PackedDoubleCoordinateSequence doubleSequence:
@@ -84,10 +86,12 @@ namespace SharpProj.Utils.NTSAdditions
         }
 
         /// <inheritdoc cref="IEntireCoordinateSequenceFilter.Done"/>
-        bool IEntireCoordinateSequenceFilter.Done { get => false; }
+#pragma warning disable CA1033 // Interface methods should be callable by child types
+        bool IEntireCoordinateSequenceFilter.Done => false;
 
         /// <inheritdoc cref="IEntireCoordinateSequenceFilter.GeometryChanged"/>
-        bool IEntireCoordinateSequenceFilter.GeometryChanged { get => true; }
+        bool IEntireCoordinateSequenceFilter.GeometryChanged => true;
+#pragma warning restore CA1033 // Interface methods should be callable by child types
     }
 
 }

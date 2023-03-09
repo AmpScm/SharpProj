@@ -13,8 +13,8 @@
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <OutDir>bin\$(Configuration)\</OutDir>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
-        <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
-        <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
+        <AnalysisLevel>latest-all</AnalysisLevel>
+        <NullableAnnotations>enable</NullableAnnotations>
     </PropertyGroup>
 
     <PropertyGroup>

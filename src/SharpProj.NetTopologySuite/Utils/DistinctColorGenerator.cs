@@ -68,8 +68,8 @@ namespace SharpProj.Utils.Colors
     [System.Diagnostics.DebuggerDisplay("L={L}, A={A}, B={B}, Color={ToColor()}")]
     struct ColorLab
     {
-        public static readonly double DefaultLightness = 2.0;
-        public static readonly double DefaultChroma = 1.0;
+        public const double DefaultLightness = 2.0;
+        public const double DefaultChroma = 1.0;
 
         public double L { get; private set; }
         public double A { get; private set; }
@@ -316,7 +316,7 @@ namespace SharpProj.Utils.Colors
         public static Color[] GetDistinctColors(int count, IEnumerable<Color> existingColors)
         {
             if (count < 1 || count > DifferentColorCount)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(count));
 
             var colors = GetDifferentColors().ToArray();
             List<Color> results = new List<Color>(DifferentColorCount);

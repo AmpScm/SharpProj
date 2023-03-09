@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
@@ -120,7 +121,9 @@ namespace SharpProj.NTS
         /// Gets the <see cref="CRS"/> from the <see cref="SridItem"/>
         /// </summary>
         /// <param name="s"></param>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static implicit operator CoordinateReferenceSystem(SridItem s)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return s?.CRS;
         }

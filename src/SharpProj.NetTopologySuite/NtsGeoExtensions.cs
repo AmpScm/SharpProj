@@ -30,16 +30,16 @@ namespace NetTopologySuite.Geometries
 
             int srid = g0.SRID;
             if (srid == 0 || g1.SRID != g0.SRID)
-                throw new ArgumentOutOfRangeException("SRID is 0 or doesn't match");
+                throw new ArgumentOutOfRangeException(nameof(g1), "SRID is 0 or doesn't match");
 
             SridItem sridItem;
             try
             {
                 sridItem = SridRegister.GetByValue(srid);
             }
-            catch (IndexOutOfRangeException sridExcepton)
+            catch (IndexOutOfRangeException sridException)
             {
-                throw new ArgumentOutOfRangeException("SRID not resolveable", sridExcepton);
+                throw new ArgumentOutOfRangeException("SRID not resolveable", sridException);
             }
 
             return g0.MeterDistance(g1, sridItem.CRS);
@@ -78,7 +78,7 @@ namespace NetTopologySuite.Geometries
 
             int srid = g0.SRID;
             if (srid == 0 || g1.SRID != g0.SRID)
-                throw new ArgumentOutOfRangeException("SRID is 0 or doesn't match");
+                throw new ArgumentOutOfRangeException(nameof(g1), "SRID is 0 or doesn't match");
 
             DistanceOp distanceOp = new DistanceOp(g0, g1);
             Coordinate[] nearestPoints = distanceOp.NearestPoints();
@@ -157,7 +157,7 @@ namespace NetTopologySuite.Geometries
 
             int srid = l.SRID;
             if (srid == 0)
-                throw new ArgumentOutOfRangeException("SRID is 0 or doesn't match");
+                throw new ArgumentOutOfRangeException(nameof(l), "SRID is 0 or doesn't match");
 
 
             SridItem sridItem;
@@ -195,7 +195,7 @@ namespace NetTopologySuite.Geometries
 
             int srid = p.SRID;
             if (srid == 0)
-                throw new ArgumentOutOfRangeException("SRID is 0 or doesn't match");
+                throw new ArgumentOutOfRangeException(nameof(p), "SRID is 0 or doesn't match");
 
 
             SridItem sridItem;
@@ -236,7 +236,7 @@ namespace NetTopologySuite.Geometries
 
             int srid = p.SRID;
             if (srid == 0)
-                throw new ArgumentOutOfRangeException("SRID is 0 or doesn't match");
+                throw new ArgumentOutOfRangeException(nameof(p), "SRID is 0 or doesn't match");
 
 
             SridItem sridItem;
@@ -289,12 +289,13 @@ namespace NetTopologySuite.Geometries
         /// <returns></returns>
         public static double? MeterLength(this GeometryCollection gc)
         {
+            ArgumentNullException.ThrowIfNull(gc);
             if (gc.Count == 0)
                 return null;
 
             int srid = gc.SRID;
             if (srid == 0)
-                throw new ArgumentOutOfRangeException("SRID is 0 or doesn't match");
+                throw new ArgumentOutOfRangeException(nameof(gc), "SRID is 0 or doesn't match");
 
             SridItem sridItem;
             try
@@ -334,12 +335,13 @@ namespace NetTopologySuite.Geometries
         /// <returns></returns>
         public static double? MeterArea(this GeometryCollection gc)
         {
+            ArgumentNullException.ThrowIfNull(gc);
             if (gc.Count == 0)
                 return null;
 
             int srid = gc.SRID;
             if (srid == 0)
-                throw new ArgumentOutOfRangeException("SRID is 0 or doesn't match");
+                throw new ArgumentOutOfRangeException(nameof(gc), "SRID is 0 or doesn't match");
 
             SridItem sridItem;
             try

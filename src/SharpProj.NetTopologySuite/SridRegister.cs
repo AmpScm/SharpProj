@@ -15,7 +15,6 @@ namespace SharpProj.NTS
 
         static ReaderWriterLockSlim _rwl = new ReaderWriterLockSlim();
         static List<System.Collections.IDictionary> _dicts = new List<System.Collections.IDictionary>();
-        static readonly Dictionary<Type, Delegate> _reprojects = new Dictionary<Type, Delegate>();
 
 
         static int _nextId = -21000;
@@ -25,7 +24,7 @@ namespace SharpProj.NTS
         /// </summary>
         /// <param name="srid"></param>
         /// <returns></returns>
-        /// <exception cref="IndexOutOfRangeException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="ArgumentException"></exception>
         public static SridItem GetByValue(int srid)
         {
@@ -34,7 +33,7 @@ namespace SharpProj.NTS
                 if (_catalog.TryGetValue(srid, out var v))
                     return v;
 
-                throw new IndexOutOfRangeException($"Unregistered SRID {srid} used");
+                throw new ArgumentOutOfRangeException(nameof(srid), $"Unregistered SRID {srid} used");
             }
         }
 
@@ -269,8 +268,8 @@ namespace SharpProj.NTS
             }
         }
 
-        static int _nextTypeId = 0;
-        sealed class TypeId<T>
+        static int _nextTypeId;
+        static class TypeId<T>
             where T : Enum
         {
             public static int Value { get; } = _nextTypeId++;
@@ -320,6 +319,7 @@ namespace SharpProj.NTS
         public static SridItem Ensure<T>(T value, Func<CoordinateReferenceSystem> creator, int? preferredSrid, SridItem.SridItemArgs args)
         where T : struct, Enum
         {
+            ArgumentNullException.ThrowIfNull(creator);
             if (preferredSrid.HasValue && preferredSrid == 0)
                 throw new ArgumentOutOfRangeException(nameof(preferredSrid));
 
@@ -331,7 +331,7 @@ namespace SharpProj.NTS
             using (_rwl.WithWriteLock())
             {
                 if (_registered.ContainsKey(crs))
-                    throw new ArgumentException("CRS instance already registered", nameof(crs));
+                    throw new ArgumentException("CRS instance already registered", nameof(creator));
 
                 try
                 {
