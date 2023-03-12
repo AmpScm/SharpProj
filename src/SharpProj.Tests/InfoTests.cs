@@ -29,6 +29,8 @@ namespace SharpProj.Tests
                 ProjType.Unknown,
                 ProjType.ChooseTransform, // SharpProj type (id = 1001)
                 ProjType.CoordinateSystem, // Not mapped by proj
+                ProjType.CoordinateMetadata,
+                ProjType.DerivedProjectedCrs
             };
 
             var noCreate = new List<ProjType> {
@@ -44,7 +46,7 @@ namespace SharpProj.Tests
             };
 
             var lst = pc.GetIdentifiers(pt, "EPSG");
-            Assert.AreEqual(!expectNone.Contains(pt), lst.Any());
+            Assert.AreEqual(!expectNone.Contains(pt), lst.Any(), "Expect none");
 
             if (lst.Any())
             {
@@ -79,6 +81,10 @@ namespace SharpProj.Tests
                 ProjType.Unknown,
                 ProjType.ChooseTransform, // SharpProj type (id = 1001)
                 ProjType.CoordinateSystem, // Not mapped by proj
+
+                // New in 9.2
+                ProjType.DerivedProjectedCrs,
+                ProjType.CoordinateMetadata
             };
 
             Assert.AreEqual(!expectNone.Contains(pt), pc.GetIdentifiers(pt).Any());
