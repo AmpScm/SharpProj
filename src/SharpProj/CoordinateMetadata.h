@@ -5,7 +5,7 @@ namespace SharpProj {
 
     namespace Proj {        
 
-        ref class CoordinateMetadata :
+        public ref class CoordinateMetadata :
             public ProjObject
         {
         private:

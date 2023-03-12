@@ -1084,5 +1084,20 @@ namespace SharpProj.Tests
             Assert.AreEqual("EPSG", a[0]); // Primary authority
             Assert.AreEqual("PROJ", a.Last()); // Always last. Proj specific tweaks go after 'standards'
         }
+
+        [TestMethod]
+        public void TestCoordinateMetadata()
+        {
+            using var pc = new ProjContext();
+
+            using CoordinateMetadata cm = (CoordinateMetadata)pc.Create("ITRF2014@2025.0");
+
+            Assert.IsNotNull(cm, "Created");
+            Assert.AreEqual(ProjType.CoordinateMetadata, cm.Type);
+            Assert.IsNotNull(cm.CRS, "Metadata has CRS");
+            Assert.AreEqual(2025.0, cm.Epoch, "Expected epoch");
+
+            Console.WriteLine(cm.AsWellKnownText());
+        }
     }
 }
