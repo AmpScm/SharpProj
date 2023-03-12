@@ -289,7 +289,8 @@ namespace NetTopologySuite.Geometries
         /// <returns></returns>
         public static double? MeterLength(this GeometryCollection gc)
         {
-            ArgumentNullException.ThrowIfNull(gc);
+            if (gc is null)
+                throw new ArgumentNullException(nameof(gc));
             if (gc.Count == 0)
                 return null;
 
@@ -335,7 +336,8 @@ namespace NetTopologySuite.Geometries
         /// <returns></returns>
         public static double? MeterArea(this GeometryCollection gc)
         {
-            ArgumentNullException.ThrowIfNull(gc);
+            if (gc is null)
+                throw new ArgumentNullException(nameof(gc));
             if (gc.Count == 0)
                 return null;
 

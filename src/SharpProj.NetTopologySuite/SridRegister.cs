@@ -319,7 +319,8 @@ namespace SharpProj.NTS
         public static SridItem Ensure<T>(T value, Func<CoordinateReferenceSystem> creator, int? preferredSrid, SridItem.SridItemArgs args)
         where T : struct, Enum
         {
-            ArgumentNullException.ThrowIfNull(creator);
+            if (creator is null)
+                throw new ArgumentNullException(nameof(creator));
             if (preferredSrid.HasValue && preferredSrid == 0)
                 throw new ArgumentOutOfRangeException(nameof(preferredSrid));
 

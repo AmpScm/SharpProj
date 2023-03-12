@@ -16,7 +16,8 @@ namespace SharpProj.Testing
         /// <returns></returns>
         public static Coordinate RoundAll(this Coordinate coord, int decimals)
         {
-            ArgumentNullException.ThrowIfNull(coord);
+            if (coord is null)
+                throw new ArgumentNullException(nameof(coord));
             if (coord is CoordinateZ)
             {
                 if (coord is CoordinateZM)
@@ -56,7 +57,8 @@ namespace SharpProj.Testing
         /// <returns></returns>
         public static Coordinate ToXY(this Coordinate coord)
         {
-            ArgumentNullException.ThrowIfNull(coord);
+            if (coord is null)
+                throw new ArgumentNullException(nameof(coord));
             return new Coordinate(coord.X, coord.Y);
         }
 
@@ -68,7 +70,8 @@ namespace SharpProj.Testing
         /// <returns></returns>
         public static Coordinate ToXY(this Coordinate coord, int decimals)
         {
-            ArgumentNullException.ThrowIfNull(coord);
+            if (coord is null)
+                throw new ArgumentNullException(nameof(coord));
             return new Coordinate(Math.Round(coord.X, decimals),
                                   Math.Round(coord.Y, decimals));
         }

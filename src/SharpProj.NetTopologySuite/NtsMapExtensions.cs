@@ -88,7 +88,8 @@ namespace SharpProj
         /// <returns></returns>
         public static IEnumerable<PPoint> ToPPoints(this CoordinateSequence cs)
         {
-            ArgumentNullException.ThrowIfNull(cs);
+            if (cs is null)
+                throw new ArgumentNullException(nameof(cs));
             if (cs.Dimension == 2)
             {
                 for (int i = 0; i < cs.Count; i++)
@@ -113,7 +114,8 @@ namespace SharpProj
         /// <returns></returns>
         public static IEnumerable<PPoint> ToPPoints(this IEnumerable<Coordinate> cs)
         {
-            ArgumentNullException.ThrowIfNull(cs);
+            if (cs is null)
+                throw new ArgumentNullException(nameof(cs));
             foreach (Coordinate c in cs)
             {
                 yield return c.ToPPoint();
@@ -127,7 +129,8 @@ namespace SharpProj
         /// <returns></returns>
         public static IEnumerable<Coordinate> ToCoordinates(this IEnumerable<PPoint> points)
         {
-            ArgumentNullException.ThrowIfNull(points);
+            if (points is null)
+                throw new ArgumentNullException(nameof(points));
             foreach (var p in points)
             {
                 yield return p.ToCoordinate();
@@ -194,7 +197,8 @@ namespace SharpProj
         public static TGeometry Reproject<TGeometry>(this TGeometry geometry, CoordinateTransform operation, GeometryFactory factory)
             where TGeometry : Geometry
         {
-            ArgumentNullException.ThrowIfNull(factory);
+            if (factory is null)
+                throw new ArgumentNullException(nameof(factory));
             // TODO: Add something to support custom geometry types (circles/arcs) as previously
             // implemented via the SridRegister
             var res = (TGeometry)factory.CreateGeometry(geometry);
@@ -213,8 +217,10 @@ namespace SharpProj
         /// <returns></returns>
         public static Coordinate Apply(this CoordinateTransform op, Coordinate c)
         {
-            ArgumentNullException.ThrowIfNull(op);
-            ArgumentNullException.ThrowIfNull(c);
+            if (op is null)
+                throw new ArgumentNullException(nameof(op));
+            if (c is null)
+                throw new ArgumentNullException(nameof(c));
 
             return op.Apply(c.ToPPoint()).ToCoordinate();
         }
@@ -227,8 +233,10 @@ namespace SharpProj
         /// <returns></returns>
         public static Coordinate ApplyReversed(this CoordinateTransform op, Coordinate c)
         {
-            ArgumentNullException.ThrowIfNull(op);
-            ArgumentNullException.ThrowIfNull(c);
+            if (op is null)
+                throw new ArgumentNullException(nameof(op));
+            if (c is null)
+                throw new ArgumentNullException(nameof(c));
 
             return op.ApplyReversed(c.ToPPoint()).ToCoordinate();
         }
@@ -255,7 +263,8 @@ namespace SharpProj
             Span<double> zSpan, int zStep, int zCount,
             Span<double> tSpan, int tStep, int tCount)
         {
-            ArgumentNullException.ThrowIfNull(op);
+            if (op is null)
+                throw new ArgumentNullException(nameof(op));
             fixed (double* x0 = &xSpan.GetPinnableReference())
             fixed (double* y0 = &ySpan.GetPinnableReference())
             fixed (double* z0 = &zSpan.GetPinnableReference())
@@ -291,7 +300,8 @@ namespace SharpProj
             Span<double> zSpan, int zStep, int zCount,
             Span<double> tSpan, int tStep, int tCount)
         {
-            ArgumentNullException.ThrowIfNull(op);
+            if (op is null)
+                throw new ArgumentNullException(nameof(op));
             fixed (double* x0 = &xSpan.GetPinnableReference())
             fixed (double* y0 = &ySpan.GetPinnableReference())
             fixed (double* z0 = &zSpan.GetPinnableReference())
@@ -364,7 +374,8 @@ namespace SharpProj
         /// <returns>The distance in meters or <see cref="double.NaN"/> if the value can't be calculated</returns>
         public static double GeoDistance(this CoordinateReferenceSystem crs, Coordinate c1, Coordinate c2)
         {
-            ArgumentNullException.ThrowIfNull(crs);
+            if (crs is null)
+                throw new ArgumentNullException(nameof(crs));
             return crs.GeoDistance(c1.ToPPoint(), c2.ToPPoint());
         }
 
@@ -376,7 +387,8 @@ namespace SharpProj
         /// <returns>The distance in meters or <see cref="double.NaN"/> if the value can't be calculated</returns>
         public static double GeoDistance(this CoordinateReferenceSystem crs, IEnumerable<Coordinate> coordinates)
         {
-            ArgumentNullException.ThrowIfNull(crs);
+            if (crs is null)
+                throw new ArgumentNullException(nameof(crs));
             return crs.GeoDistance(coordinates.ToPPoints());
         }
 
@@ -389,7 +401,8 @@ namespace SharpProj
         /// <returns>The distance in meters or <see cref="double.NaN"/> if the value can't be calculated</returns>
         public static double GeoDistanceZ(this CoordinateReferenceSystem crs, Coordinate c1, Coordinate c2)
         {
-            ArgumentNullException.ThrowIfNull(crs);
+            if (crs is null)
+                throw new ArgumentNullException(nameof(crs));
             return crs.GeoDistanceZ(ToPPoint(c1), ToPPoint(c2));
         }
 
@@ -401,7 +414,8 @@ namespace SharpProj
         /// <returns>The distance in meters or <see cref="double.NaN"/> if the value can't be calculated</returns>
         public static double GeoDistanceZ(this CoordinateReferenceSystem crs, IEnumerable<Coordinate> coordinates)
         {
-            ArgumentNullException.ThrowIfNull(crs);
+            if (crs is null)
+                throw new ArgumentNullException(nameof(crs));
             return crs.GeoDistanceZ(coordinates.Select(x => x.ToPPoint()));
         }
 
@@ -413,7 +427,8 @@ namespace SharpProj
         /// <returns></returns>
         public static double GeoArea(this CoordinateReferenceSystem crs, IEnumerable<Coordinate> coordinates)
         {
-            ArgumentNullException.ThrowIfNull(crs);
+            if (crs is null)
+                throw new ArgumentNullException(nameof(crs));
             return crs.GeoArea(coordinates.Select(x => x.ToPPoint()));
         }
 
@@ -428,7 +443,8 @@ namespace SharpProj
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static double GeoDistance(this CoordinateTransform operation, Coordinate c1, Coordinate c2)
         {
-            ArgumentNullException.ThrowIfNull(operation);
+            if (operation is null)
+                throw new ArgumentNullException(nameof(operation));
             return operation.GeoDistance(c1.ToPPoint(), c2.ToPPoint());
         }
 
@@ -441,7 +457,8 @@ namespace SharpProj
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static double GeoDistance(this CoordinateTransform operation, IEnumerable<Coordinate> coordinates)
         {
-            ArgumentNullException.ThrowIfNull(operation);
+            if (operation is null)
+                throw new ArgumentNullException(nameof(operation));
             return operation.GeoDistance(coordinates.ToPPoints());
         }
 
@@ -455,7 +472,8 @@ namespace SharpProj
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static double GeoDistanceZ(this CoordinateTransform operation, Coordinate c1, Coordinate c2)
         {
-            ArgumentNullException.ThrowIfNull(operation);
+            if (operation is null)
+                throw new ArgumentNullException(nameof(operation));
             return operation.GeoDistanceZ(ToPPoint(c1), ToPPoint(c2));
         }
 
@@ -468,7 +486,8 @@ namespace SharpProj
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static double GeoDistanceZ(this CoordinateTransform operation, IEnumerable<Coordinate> coordinates)
         {
-            ArgumentNullException.ThrowIfNull(operation);
+            if (operation is null)
+                throw new ArgumentNullException(nameof(operation));
             return operation.GeoDistanceZ(coordinates.Select(x => x.ToPPoint()));
         }
 
@@ -481,7 +500,8 @@ namespace SharpProj
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static double GeoArea(this CoordinateTransform operation, IEnumerable<Coordinate> coordinates)
         {
-            ArgumentNullException.ThrowIfNull(operation);
+            if (operation is null)
+                throw new ArgumentNullException(nameof(operation));
             return operation.GeoArea(coordinates.Select(x => x.ToPPoint()));
         }
     }

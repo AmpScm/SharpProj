@@ -40,7 +40,8 @@ namespace SharpProj.Utils.NTSAdditions
         /// <param name="seq">The sequenc</param>
         public virtual void Filter(CoordinateSequence seq)
         {
-            ArgumentNullException.ThrowIfNull(seq);
+            if (seq is null)
+                throw new ArgumentNullException(nameof(seq));
 
             switch (seq)
             {
