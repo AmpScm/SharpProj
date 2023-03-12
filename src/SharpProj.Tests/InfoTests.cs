@@ -12,7 +12,7 @@ namespace SharpProj.Tests
     public class InfoTests
     {
 
-        public static IEnumerable<object[]> BuiltinProjTypes => Enum.GetValues(typeof(ProjType)).Cast<ProjType>().Where(x => x < ProjType.ChooseTransform).Select(x=>new object[] { x });
+        public static IEnumerable<object[]> BuiltinProjTypes => Enum.GetValues(typeof(ProjType)).Cast<ProjType>().Where(x => x < ProjType.ChooseTransform).Select(x => new object[] { x });
 
         [TestMethod]
         [DynamicData(nameof(BuiltinProjTypes))]
@@ -55,9 +55,9 @@ namespace SharpProj.Tests
                     Assert.IsNotNull(p);
 
                 }
-                catch(ProjException e) when (noCreate.Contains(pt))
+                catch (ProjException) when (noCreate.Contains(pt))
                 { }
-                catch(ProjException e)
+                catch (ProjException e)
                 {
                     throw new InvalidOperationException($"While creating {lst[0]}", e);
                 }

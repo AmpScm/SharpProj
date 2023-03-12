@@ -53,6 +53,13 @@ CoordinateTransform^ CoordinateTransform::Create(CoordinateReferenceSystem^ sour
     else if (!targetCrs)
         throw gcnew ArgumentNullException("targetCrs");
 
+    if (options && options->BestOnly)
+        return CoordinateTransform::CreateSingle(sourceCrs, targetCrs, options, ctx);
+
+
+    if (options && (options->ForceOver /* || options-> */))
+        throw gcnew ArgumentOutOfRangeException("options", "Some options specified are not compatible with multiple coordinate transform handling yet");
+
     if (!ctx) // After fromCrs
         ctx = sourceCrs->Context;
 
@@ -144,6 +151,65 @@ CoordinateTransform^ CoordinateTransform::Create(CoordinateReferenceSystem^ sour
     }
 
     return gcnew ChooseCoordinateTransform(ctx, P, op_list);
+}
+
+CoordinateTransform^ CoordinateTransform::CreateSingle(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, CoordinateTransformOptions^ options, ProjContext^ ctx)
+{
+    if (!sourceCrs)
+        throw gcnew ArgumentNullException("sourceCrs");
+    else if (!targetCrs)
+        throw gcnew ArgumentNullException("targetCrs");
+
+    if (!ctx) // After fromCrs
+        ctx = sourceCrs->Context;
+
+    if (!options)
+        options = gcnew CoordinateTransformOptions();
+
+    PJ_AREA* area = nullptr;
+
+    if (options && options->Area)
+    {
+        area = proj_area_create();
+
+        proj_area_set_bbox(area,
+            options->Area->WestLongitude,
+            options->Area->SouthLatitude,
+            options->Area->EastLongitude,
+            options->Area->NorthLatitude);
+    }
+
+    try
+    {
+        const char* opts[30] = {};
+        int nOpts = 0;
+
+        // We assume BestOnly
+        opts[nOpts++] = "BEST_ONLY=YES"; // Or don't use CreateSingle()
+
+        std::string s_auth;
+        if (!String::IsNullOrEmpty(options->Authority))
+            opts[nOpts++] = (s_auth = utf8_string(String::Format("AUTHORITY={0}", options->Authority))).c_str();
+
+        std::string s_accuracy;
+        if (options->Accuracy.HasValue)
+            opts[nOpts++] = (s_accuracy = utf8_string(String::Format("ACCURACY=" + options->Accuracy))).c_str();
+
+        if (options->NoBallparkConversions)
+            opts[nOpts++] = "ALLOW_BALLPARK=NO";
+
+        if (options->ForceOver)
+            opts[nOpts++] = "FORCE_OVER=YES";
+
+        auto P = proj_create_crs_to_crs_from_pj(ctx, sourceCrs, targetCrs, area, opts);
+
+        return ctx->Create<CoordinateTransform^>(P);
+    }
+    finally
+    {
+        if (area)
+            proj_area_destroy(area);
+    }
 }
 
 CoordinateTransform^ CoordinateTransform::Create(String^ from, ProjContext^ ctx)

@@ -33,6 +33,7 @@ struct PJconsts {};
 struct PROJ_NETWORK_HANDLE {};
 struct PJ_OBJ_LIST {};
 struct PJ_OPERATION_FACTORY_CONTEXT {};
+struct PJ_AREA {};
 #endif
 
 

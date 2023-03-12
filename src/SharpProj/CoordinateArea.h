@@ -93,5 +93,7 @@ namespace SharpProj {
         property bool UseSuperseded;
         property bool StrictContains;
         property IntermediateCrsUsage IntermediateCrsUsage;
+        property bool BestOnly;
+        property bool ForceOver;
     };
 }

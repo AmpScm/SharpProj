@@ -606,6 +606,8 @@ namespace SharpProj {
         }
         static CoordinateTransform^ CreateFromWellKnownText(String^ from, CreateFromWKTOptions^ options, [Out] array<String^>^% warnings, [Optional] ProjContext^ ctx);
 
+        static CoordinateTransform^ CreateSingle(CoordinateReferenceSystem^ sourceCrs, CoordinateReferenceSystem^ targetCrs, CoordinateTransformOptions^ options, [Optional] ProjContext^ ctx);
+
     public:
         /// <summary>
         /// Measure internal consistency of a given transformation. The function performs n round trip transformations starting in either the forward or reverse direction. Returns the euclidean distance of the starting point coo and the resulting coordinate after n iterations back and forth.

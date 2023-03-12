@@ -18,6 +18,7 @@ namespace SharpProj {
         ref class GeodeticCRS;
         ref class GeometricCRS;
 
+        ref class CoordinateMetadata;
         ref class CoordinateSystem;
         ref class UsageArea;
         interface class IHasCelestialBody;

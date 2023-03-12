@@ -530,6 +530,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CoordinateMetadata.h" />
     <ClInclude Include="CoordinateReferenceSystemInfo.h" />
     <ClInclude Include="CoordinateReferenceSystemList.h" />
     <ClInclude Include="CoordinateTransformList.h" />
@@ -557,6 +558,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
+    <ClCompile Include="CoordinateMetadata.cpp" />
     <ClCompile Include="CoordinateReferenceSystemInfo.cpp" />
     <ClCompile Include="CoordinateTransformList.cpp" />
     <ClCompile Include="ChooseCoordinateTransform.cpp" />

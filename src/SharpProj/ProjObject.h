@@ -68,7 +68,9 @@ namespace SharpProj {
             EngineeringDatum = PJ_TYPE_ENGINEERING_DATUM,
             ParametricDatum = PJ_TYPE_PARAMETRIC_DATUM,
 
+            DerivedProjectedCrs = PJ_TYPE_DERIVED_PROJECTED_CRS,
 
+            CoordinateMetadata = PJ_TYPE_COORDINATE_METADATA,
 
 
             // Local types

@@ -2,6 +2,7 @@
 #include "ProjObject.h"
 #include "ProjException.h"
 #include "PPoint.h"
+#include "CoordinateMetadata.h"
 #include "CoordinateTransform.h"
 #include "CoordinateTransformList.h"
 #include "CoordinateReferenceSystem.h"
@@ -225,6 +226,7 @@ ProjObject^ ProjContext::Create(PJ* pj)
     case ProjType::TemporalCrs:
     case ProjType::EngineeringCrs:
     case ProjType::OtherCrs:
+    case ProjType::DerivedProjectedCrs: // TODO: Is this a CompoundCrs -> CoordinateReferenceSystemList ?
         return gcnew CoordinateReferenceSystem(this, pj);
 
     case ProjType::BoundCrs:
@@ -246,6 +248,9 @@ ProjObject^ ProjContext::Create(PJ* pj)
     case ProjType::ChooseTransform:
     case ProjType::CoordinateSystem:
         throw gcnew InvalidOperationException(); // Never returned by proj, but needed for sensible API
+
+    case ProjType::CoordinateMetadata:
+        return gcnew Proj::CoordinateMetadata(this, pj);
 
     case ProjType::Unknown:
     default:
