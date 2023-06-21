@@ -18,9 +18,10 @@ namespace SharpProj.Tests
         [DynamicData(nameof(BuiltinProjTypes))]
         public void CheckInfoEPSG(ProjType pt)
         {
-            using var pc = new ProjContext();
+            using var pc = new ProjContext() {  EnableNetworkConnections = false };
 
-            var expectNone = new List<ProjType> {
+
+            var expectNone = new HashSet<ProjType> {
                 ProjType.BoundCrs,
                 ProjType.EngineeringCrs, ProjType.EngineeringDatum,
                 ProjType.OtherCoordinateTransform,
@@ -33,7 +34,7 @@ namespace SharpProj.Tests
                 ProjType.DerivedProjectedCrs
             };
 
-            var noCreate = new List<ProjType> {
+            var failOnCreate = new HashSet<ProjType> {
                 ProjType.ConcatenatedOperation,
                 ProjType.Conversion,
                 ProjType.DynamicGeodeticReferenceFrame,
@@ -43,26 +44,50 @@ namespace SharpProj.Tests
                 ProjType.GeodeticReferenceFrame,
                 ProjType.Transformation,
                 ProjType.VerticalReferenceFrame,
+                ProjType.PrimeMeridian
+            };
+
+            var canNotCreate = new HashSet<ProjType> {
+                ProjType.ConcatenatedOperation,
+                ProjType.Conversion,
+                ProjType.DynamicVerticalReferenceFrame,
+                ProjType.Transformation,
             };
 
             var lst = pc.GetIdentifiers(pt, "EPSG");
             Assert.AreEqual(!expectNone.Contains(pt), lst.Any(), "Expect none");
+            HashSet<ProjType> fails = new();
 
             if (lst.Any())
             {
-                try
+                bool gotOne = false;
+                int n = 0;
+                foreach (var one in lst)
                 {
-                    using var p = pc.CreateFromDatabase(lst[0]);
+                    try
+                    {
+                        using var p = pc.CreateFromDatabase(one);
 
-                    Assert.IsNotNull(p);
+                        Assert.IsNotNull(p);
+                        gotOne = true;
+                        break;
 
+                    }
+                    catch (ProjException) when (failOnCreate.Contains(pt))
+                    {
+                        fails.Add(pt);
+                    }
+                    catch (ProjException e)
+                    {
+                        throw new InvalidOperationException($"While creating {lst[0]}", e);
+                    }
+
+                    if (n++ > 250)
+                        break;
                 }
-                catch (ProjException) when (noCreate.Contains(pt))
-                { }
-                catch (ProjException e)
-                {
-                    throw new InvalidOperationException($"While creating {lst[0]}", e);
-                }
+
+
+                Assert.AreEqual(!canNotCreate.Contains(pt), gotOne);
             }
         }
 
