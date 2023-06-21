@@ -133,7 +133,9 @@ namespace SharpProj {
             None = 0,
             SchemaV02,
             SchemaV04,
-            SchemaV05
+            SchemaV05,
+            SchemaV06,
+            SchemaV07,
         };
 
         public ref class ProjJsonOptions
@@ -157,11 +159,12 @@ namespace SharpProj {
             static initonly String^ SchemaV0_4_Url = PROJ_SCHEMA_PREFIX "v0.4" PROJ_SCHEMA_SUFFIX;
             static initonly String^ SchemaV0_5_Url = PROJ_SCHEMA_PREFIX "v0.5" PROJ_SCHEMA_SUFFIX;
             static initonly String^ SchemaV0_6_Url = PROJ_SCHEMA_PREFIX "v0.6" PROJ_SCHEMA_SUFFIX;
+            static initonly String^ SchemaV0_7_Url = PROJ_SCHEMA_PREFIX "v0.7" PROJ_SCHEMA_SUFFIX;
             // Don't forget to update the ProjJsonType enum and AsProjJson() function(s).
 
             static property String^ LastSchemaUrl
             {
-                String^ get() { return SchemaV0_6_Url; }
+                String^ get() { return SchemaV0_7_Url; }
             }
         };
 
@@ -359,6 +362,12 @@ namespace SharpProj {
                         break;
                     case ProjJsonType::SchemaV05:
                         opts[nOpts++] = "SCHEMA=" PROJ_SCHEMA_PREFIX "v0.5" PROJ_SCHEMA_SUFFIX;
+                        break;
+                    case ProjJsonType::SchemaV06:
+                        opts[nOpts++] = "SCHEMA=" PROJ_SCHEMA_PREFIX "v0.6" PROJ_SCHEMA_SUFFIX;
+                        break;
+                    case ProjJsonType::SchemaV07:
+                        opts[nOpts++] = "SCHEMA=" PROJ_SCHEMA_PREFIX "v0.7" PROJ_SCHEMA_SUFFIX;
                         break;
                     default:
                         throw gcnew ArgumentOutOfRangeException();
