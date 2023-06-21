@@ -226,7 +226,7 @@ ProjObject^ ProjContext::Create(PJ* pj)
     case ProjType::TemporalCrs:
     case ProjType::EngineeringCrs:
     case ProjType::OtherCrs:
-    case ProjType::DerivedProjectedCrs: // TODO: Is this a CompoundCrs -> CoordinateReferenceSystemList ?
+    case ProjType::DerivedProjectedCrs:
         return gcnew CoordinateReferenceSystem(this, pj);
 
     case ProjType::BoundCrs:
