@@ -69,7 +69,7 @@
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.3" />
         <PackageReference Include="MSTest.TestAdapter" Version="3.0.4" />
         <PackageReference Include="MSTest.TestFramework" Version="3.0.4" />
-        <PackageReference Include="SharpProj.Database" Version="9.2.1" />
+        <PackageReference Include="SharpProj.Database" Version="9.3.0" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\SharpProj.NettopologySuite\SharpProj.NetTopologySuite.csproj" />
