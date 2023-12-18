@@ -66,10 +66,10 @@
         <Optimize>True</Optimize>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
-        <PackageReference Include="MSTest.TestAdapter" Version="3.0.4" />
-        <PackageReference Include="MSTest.TestFramework" Version="3.0.4" />
-        <PackageReference Include="SharpProj.Database" Version="9.3.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+        <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
+        <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
+        <PackageReference Include="SharpProj.Database" Version="9.3.1" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\SharpProj.NettopologySuite\SharpProj.NetTopologySuite.csproj" />
