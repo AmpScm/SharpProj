@@ -16,16 +16,16 @@
   </metadata>
   <files>
     <!-- For legacy NuGet -->
-    <file src="..\src\SharpProj\bin\Win32_release\SharpProj.dll" target="lib/net462" />
-    <file src="..\src\SharpProj\bin\Win32_release\SharpProj.xml" target="lib/net462" />
+    <file src="..\src\SharpProj\bin\Win32_release\SharpProj.dll" target="lib/net47" />
+    <file src="..\src\SharpProj\bin\Win32_release\SharpProj.xml" target="lib/net47" />
 
-    <!-- .Net 4.5-4.8 -->
-    <file src="..\src\SharpProj\bin\Win32_release\SharpProj.dll" target="ref/net462" />
-    <file src="..\src\SharpProj\bin\Win32_release\SharpProj.xml" target="ref/net462" />
-    <file src="..\src\SharpProj\bin\Win32_release\SharpProj.dll" target="runtimes/win-x86/lib/net462" />
-    <file src="..\src\SharpProj\bin\Win32_release\SharpProj.xml" target="runtimes/win-x86/lib/net462" />
-    <file src="..\src\SharpProj\bin\x64_release\SharpProj.dll" target="runtimes/win-x64/lib/net462" />
-    <file src="..\src\SharpProj\bin\x64_release\SharpProj.xml" target="runtimes/win-x64/lib/net462" />
+    <!-- .Net 4.7-4.8 -->
+    <file src="..\src\SharpProj\bin\Win32_release\SharpProj.dll" target="ref/net47" />
+    <file src="..\src\SharpProj\bin\Win32_release\SharpProj.xml" target="ref/net47" />
+    <file src="..\src\SharpProj\bin\Win32_release\SharpProj.dll" target="runtimes/win-x86/lib/net47" />
+    <file src="..\src\SharpProj\bin\Win32_release\SharpProj.xml" target="runtimes/win-x86/lib/net47" />
+    <file src="..\src\SharpProj\bin\x64_release\SharpProj.dll" target="runtimes/win-x64/lib/net47" />
+    <file src="..\src\SharpProj\bin\x64_release\SharpProj.xml" target="runtimes/win-x64/lib/net47" />
 
     <!-- .Net 6.0+ -->
     <file src="..\src\SharpProj\bin\Win32_release\SharpProj.dll" target="ref/netcoreapp" />
