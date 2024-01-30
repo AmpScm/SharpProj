@@ -339,7 +339,30 @@ System::Collections::Generic::IEnumerable<String^>^ ProjContext::ProjLibDirs::ge
                     if (String::IsNullOrWhiteSpace(p))
                         continue;
 
-                    auto pp = Path::GetFullPath(p);
+                    auto pp = Path::GetFullPath(p->Trim());
+
+                    if (Directory::Exists(pp) && !dirs->Contains(pp))
+                        dirs->Add(pp);
+                }
+            }
+        }
+        catch (Exception^)
+        { /* Assembly security restrictions */
+        }
+
+
+        try
+        {
+            auto libs = Environment::GetEnvironmentVariable("PROJ_DATA");
+
+            if (!String::IsNullOrEmpty(libs))
+            {
+                for each (String ^ p in libs->Split(System::IO::Path::PathSeparator))
+                {
+                    if (String::IsNullOrWhiteSpace(p))
+                        continue;
+
+                    auto pp = Path::GetFullPath(p->Trim());
 
                     if (Directory::Exists(pp) && !dirs->Contains(pp))
                         dirs->Add(pp);
