@@ -65,7 +65,7 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="MSTest" Version="3.2.0" />
-        <PackageReference Include="SharpProj.Database" Version="9.3.1" />
+        <PackageReference Include="SharpProj.Database" Version="9.4.0" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\SharpProj.NettopologySuite\SharpProj.NetTopologySuite.csproj" />
