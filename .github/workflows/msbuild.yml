@@ -96,13 +96,13 @@ jobs:
       run: cmd.exe /C build\scripts\gh-build-nuget.cmd
 
     - name: Package nupkg files
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: nupkg-files
         path: build/nuspec/bin/*.nupkg
 
     - name: Package pdb files
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: pdb-files
         path: |
