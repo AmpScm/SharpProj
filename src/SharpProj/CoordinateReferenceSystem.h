@@ -183,6 +183,11 @@ namespace SharpProj {
             Proj::CoordinateSystemType get();
         }
 
+        property bool HasPointMotionOperation
+        {
+            bool get();
+        }
+
     public:
         /// <summary>
         /// When called on an instance obtained from CoordinateRefenceSystem.DistanceTransform calculates the distance in meters
@@ -260,6 +265,9 @@ namespace SharpProj {
         {
             return WithNormalizedAxis(context);
         }
+
+    public:
+        CoordinateMetadata^ CreateMetadata(double epoch);
 
     public:
         static CoordinateReferenceSystem^ Create(String^ from, [Optional] ProjContext^ ctx);

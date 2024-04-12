@@ -8,6 +8,7 @@
 #include "DatumList.h"
 #include "CoordinateTransform.h"
 #include "CoordinateSystem.h"
+#include "CoordinateMetadata.h"
 #include "Ellipsoid.h"
 #include "PrimeMeridian.h"
 #include "Datum.h"
@@ -525,4 +526,21 @@ String^ CoordinateReferenceSystem::CelestialBodyName::get()
         m_celestialBodyName = Utf8_PtrToString(bodyName);
     }
     return m_celestialBodyName;
+}
+
+bool CoordinateReferenceSystem::HasPointMotionOperation::get()
+{
+    return proj_crs_has_point_motion_operation(Context, this);
+}
+
+CoordinateMetadata^ CoordinateReferenceSystem::CreateMetadata(double epoch)
+{
+    auto pj = proj_coordinate_metadata_create(Context, this, epoch);
+
+    if (pj)
+    {
+        return gcnew CoordinateMetadata(Context, pj);
+    }
+
+    return nullptr;
 }
