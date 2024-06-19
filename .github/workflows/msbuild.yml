@@ -41,7 +41,8 @@ jobs:
       uses: Malcolmnixon/Setup-VSTest@v4
 
     - name: Ensure Proj packages are available
-      run: ${{env.vcpkgExe}} install "tiff[core]:x64-windows-static-md" "proj[core,tiff]:x64-windows-static-md" "tiff[core]:x86-windows-static-md" "proj[core,tiff]:x86-windows-static-md" "tiff[core]:arm64-windows-static-md" "proj[core,tiff]:arm64-windows-static-md"
+      run: ${{env.vcpkgExe}} install "proj[core,tiff]:x64-windows-static-md" "proj[core,tiff]:x86-windows-static-md" "proj[core,tiff]:arm64-windows-static-md" "tiff[core,zip]:x64-windows-static-md" "tiff[core,zip]:x86-windows-static-md" "tiff[core,zip]:arm64-windows-static-md"
+
 
     - name: Setup version
       working-directory: ${{env.GITHUB_WORKSPACE}}
