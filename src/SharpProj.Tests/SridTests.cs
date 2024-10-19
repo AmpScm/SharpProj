@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
@@ -23,9 +22,9 @@ namespace SharpProj.Tests
         [TestInitialize]
         public void Init()
         {
-            SridRegister.Ensure(Epsg.Netherlands, () => CoordinateReferenceSystem.Create("EPSG:28992"), (int)Epsg.Netherlands);
-            SridRegister.Ensure(Epsg.BelgiumLambert, () => CoordinateReferenceSystem.Create("EPSG:3812"), (int)Epsg.BelgiumLambert);
-            SridRegister.Ensure(Epsg.AnotherNL, () => CoordinateReferenceSystem.Create("EPSG:28992"), (int)Epsg.AnotherNL); // Different EPSG, same definition. Ok. But can't use same CRS instance
+            SridRegister.Ensure(Epsg.Netherlands, () => CoordinateReferenceSystem.Create("EPSG:28992").WithNormalizedAxis(), (int)Epsg.Netherlands);
+            SridRegister.Ensure(Epsg.BelgiumLambert, () => CoordinateReferenceSystem.Create("EPSG:3812").WithNormalizedAxis(), (int)Epsg.BelgiumLambert);
+            SridRegister.Ensure(Epsg.AnotherNL, () => CoordinateReferenceSystem.Create("EPSG:28992").WithNormalizedAxis(), (int)Epsg.AnotherNL); // Different EPSG, same definition. Ok. But can't use same CRS instance
         }
 
         [TestMethod]
@@ -52,7 +51,7 @@ namespace SharpProj.Tests
             Assert.AreEqual((int)Epsg.BelgiumLambert, pp.SRID);
             Assert.AreEqual(new Point(719706, 816781), new Point(pp.Coordinate.RoundAll(0)));
 
-            using(var pc = new ProjContext())
+            using (var pc = new ProjContext())
             using (CoordinateTransform t = CoordinateTransform.Create(SridRegister.GetByValue(p.SRID), SridRegister.GetById(Epsg.BelgiumLambert), new CoordinateTransformOptions { NoBallparkConversions = true }, pc))
             {
                 if (t is CoordinateTransformList mc)
@@ -76,6 +75,15 @@ namespace SharpProj.Tests
             CoordinateReferenceSystem crs = SridRegister.GetById(Epsg.Netherlands);
 
             SridRegister.Ensure((Epsg)(-1), () => crs, -1);
+        }
+
+        [TestMethod]
+        public void SameTwiceClone()
+        {
+            CoordinateReferenceSystem crs = SridRegister.GetById(Epsg.Netherlands);
+
+            // Works as expected. Not same instance
+            SridRegister.Ensure((Epsg)(-1), () => crs.Clone(), -1);
         }
 
         private static Polygon CreateTriangle(GeometryFactory f, Coordinate centerPoint, double size)
