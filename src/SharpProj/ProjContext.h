@@ -1,7 +1,7 @@
 #pragma once
 
 
-#if 1
+#ifndef NETCORE
 #define EMPTY_ARRAY(T) gcnew array<T> {}
 #else
 #define EMPTY_ARRAY(T) Array::Empty<T>()
@@ -14,9 +14,11 @@ namespace SharpProj {
     ref class CoordinateReferenceSystem;
 
     namespace Proj {
+        ref class ProjFactory;
         ref class ProjObject;
         ref class CoordinateReferenceSystemFilter;
         ref class CoordinateReferenceSystemInfo;
+        ref class CoordinateSystem;
         ref class CelestialBodyInfo;
         ref class UnitOfMeasurement;
         ref class UnitOfMeasurementFilter;
@@ -102,7 +104,7 @@ namespace SharpProj {
 
             return m_netRef->TryGetTarget(target);
         }
-    
+
         void SetTarget(TNetCtx^ target)
         {
             m_netRef->SetTarget(target);
@@ -181,6 +183,8 @@ namespace SharpProj {
         bool m_disposed;
         [DebuggerBrowsable(DebuggerBrowsableState::Never)]
         bool m_enableNetwork; // not reset on filefinder, unlike proj inner setting
+        [DebuggerBrowsable(DebuggerBrowsableState::Never)]
+        ProjFactory^ m_factory;
         ProjContext(PJ_CONTEXT* ctx);
         void SetupNetworkHandling();
 
@@ -284,7 +288,7 @@ namespace SharpProj {
     private:
         bool CanWriteFromResource(String^ file, String^ userDir, String^ resultFile);
         [DebuggerBrowsable(DebuggerBrowsableState::Never)]
-        property System::Collections::Generic::IEnumerable<String^>^ ProjLibDirs
+            property System::Collections::Generic::IEnumerable<String^>^ ProjLibDirs
         {
             System::Collections::Generic::IEnumerable<String^>^ get();
         }
@@ -437,6 +441,12 @@ namespace SharpProj {
         property System::Version^ ProjDataVersion
         {
             System::Version^ get();
+        }
+
+        /// <summary>Gets the factory instance for this <see cref="ProjContext" /></summary>
+        property ProjFactory^ Factory
+        {
+            ProjFactory^ get();
         }
 
         /// <summary>

@@ -546,6 +546,7 @@
     <ClInclude Include="PrimeMeridian.h" />
     <ClInclude Include="CoordinateArea.h" />
     <ClInclude Include="Datum.h" />
+    <ClInclude Include="ProjFactory.h" />
     <ClInclude Include="ProjIdentifier.h" />
     <ClInclude Include="ProjObject.h" />
     <ClInclude Include="ProjContext.h" />
@@ -586,6 +587,7 @@
     <ClCompile Include="PrimeMeridian.cpp" />
     <ClCompile Include="CoordinateArea.cpp" />
     <ClCompile Include="Datum.cpp" />
+    <ClCompile Include="ProjFactory.cpp" />
     <ClCompile Include="ProjIdentifier.cpp" />
     <ClCompile Include="ProjNetworkHandler.cpp" />
     <ClCompile Include="ProjObject.cpp" />

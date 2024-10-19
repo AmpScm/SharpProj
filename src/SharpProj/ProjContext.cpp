@@ -4,6 +4,7 @@
 #include <codecvt>
 #include "ProjContext.h"
 #include "ProjException.h"
+#include "ProjFactory.h"
 
 using namespace SharpProj;
 using namespace System::IO;
@@ -455,3 +456,13 @@ void ProjContext::OnLogMessage(ProjLogLevel level, String^ message)
 
     OnLog(level, message);
 }
+
+ProjFactory^ ProjContext::Factory::get()
+    {
+        if (!m_factory)
+        {
+            m_factory = gcnew ProjFactory(this);
+        }
+
+        return m_factory;
+    }

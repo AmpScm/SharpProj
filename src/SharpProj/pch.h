@@ -97,4 +97,6 @@ void DisposeIfNotNull(T% what)
     }
 }
 
+#define nameof(x) #x
+
 #endif //PCH_H
