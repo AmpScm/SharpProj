@@ -34,7 +34,7 @@ Setup build environment using:
     git clone https://github.com/AmpScm/SharpProj.git
     cd vcpkg
     bootstrap-vcpkg.bat
-    vcpkg install proj[core,tiff]:x64-windows-static-md proj[core,tiff]:x86-windows-static-md proj[core,tiff]:arm64-windows-static-md tiff[core,zip]:x64-windows-static-md tiff[core,zip]:x86-windows-static-md tiff[core,zip]:arm64-windows-static-md
+    vcpkg install proj[core,tiff]:x64-windows-static-md proj[core,tiff]:x86-windows-static-md proj[core,tiff]:arm64-windows-static-md tiff[core,lzma,zip]:x64-windows-static-md tiff[core,lzma,zip]:x86-windows-static-md tiff[core,lzma,zip]:arm64-windows-static-md
     cd ..
     
 The explicit feature selection here explicitly builds PROJ without the builtin network support to remove the curl dependency. It also disables 'jpeg' support in tiff.
@@ -44,3 +44,20 @@ of code in SharpProj (see `ProjNetworkHandler.cpp`).
 This script handles the assumption inside SharpProj that the library and header files required can be found in ../vcpkg/installed/<triplet>.
 If you choose a different layout you will need a custom setup later on. But with just this you are now able to build using either Visual Studio
 2019 or 2022.
+
+### Handling PROJ updates with major proj.db changes
+SharpProj needs a working `proj.db` to run its tests. if you are bumping proj to a new version
+you may need to run
+    $ scripts\gh-version-setup ..\vcpkg\installed\x86-windows-static-md\include\proj.h 1
+    $ scripts\gh-build-nuget.cmd --db-only
+To create a local newer than official nuget package for the proj data. Then update the test package
+to reference it. This should fix the chicken-and-egg problem for bootstrapping without a proper
+package in the nuget repository. Usually I will fix this for you shortly after a new majr proj X is
+released/
+
+### Error in ALINK 'access denied'
+If you see this on your box you can fix this by runnning
+
+$ reg add HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\StrongName /v MachineKeyset /t REG_DWORD /d 0
+$ reg add HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\StrongName /v MachineKeyset /t REG_DWORD /d 0
+(From: https://stackoverflow.com/questions/4606342/signing-assembly-access-is-denied )

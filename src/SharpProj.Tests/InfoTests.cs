@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SharpProj.Proj;
 
@@ -18,13 +16,12 @@ namespace SharpProj.Tests
         [DynamicData(nameof(BuiltinProjTypes))]
         public void CheckInfoEPSG(ProjType pt)
         {
-            using var pc = new ProjContext() {  EnableNetworkConnections = false };
+            using var pc = new ProjContext() { EnableNetworkConnections = false };
 
 
             var expectNone = new HashSet<ProjType> {
                 ProjType.BoundCrs,
                 ProjType.EngineeringCrs, ProjType.EngineeringDatum,
-                ProjType.OtherCoordinateTransform,
                 ProjType.ParametricDatum,
                 ProjType.TemporalCrs, ProjType.TemporalDatum,
                 ProjType.Unknown,
@@ -44,14 +41,17 @@ namespace SharpProj.Tests
                 ProjType.GeodeticReferenceFrame,
                 ProjType.Transformation,
                 ProjType.VerticalReferenceFrame,
-                ProjType.PrimeMeridian
+                ProjType.PrimeMeridian,
+                ProjType.OtherCoordinateTransform,
             };
 
             var canNotCreate = new HashSet<ProjType> {
+                // These are also included in `failOnCreate`
                 ProjType.ConcatenatedOperation,
                 ProjType.Conversion,
                 ProjType.DynamicVerticalReferenceFrame,
                 ProjType.Transformation,
+                ProjType.OtherCoordinateTransform
             };
 
             var lst = pc.GetIdentifiers(pt, "EPSG");
@@ -87,7 +87,7 @@ namespace SharpProj.Tests
                 }
 
 
-                Assert.AreEqual(!canNotCreate.Contains(pt), gotOne);
+                Assert.AreEqual(!canNotCreate.Contains(pt), gotOne, "CanNotCreate set properly");
             }
         }
 
@@ -100,7 +100,6 @@ namespace SharpProj.Tests
             var expectNone = new List<ProjType> {
                 ProjType.BoundCrs,
                 ProjType.EngineeringCrs, ProjType.EngineeringDatum,
-                ProjType.OtherCoordinateTransform,
                 ProjType.ParametricDatum,
                 ProjType.TemporalCrs, ProjType.TemporalDatum,
                 ProjType.Unknown,

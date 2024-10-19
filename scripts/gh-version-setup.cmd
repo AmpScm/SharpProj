@@ -11,9 +11,9 @@ if NOT EXIST "%1" (
 
 echo @echo off > %CACHE%
 
-for /F "usebackq tokens=2,3" %%i in (`"type %1 |findstr /C:_VERSION_"`) do (
-  SET %%i=%%j
-  echo SET %%i=%%j>> %CACHE%
+for /F "usebackq tokens=2,3" %%i in (`"type %1 |findstr /C:PROJ_VERSION_"`) do (
+  SET "%%i=%%j"
+  echo SET "%%i=%%j" >> %CACHE%
 ) 
 
 pushd %0\..

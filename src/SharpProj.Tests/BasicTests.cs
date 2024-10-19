@@ -775,8 +775,9 @@ namespace SharpProj.Tests
 
                     using (var t = CoordinateTransform.Create(newZealandNorthIsland, itrf2014))
                     {
-                        Assert.IsNotNull(t.ProjOperations().SingleOrDefault(x => x.Name == "defmodel"), "New Zealand has defmodel step");
-                        Assert.IsNotNull(t.ProjOperations().SingleOrDefault(x => x.Name == "helmert"), "New Zealand has helmert step");
+                        var tt = t is ChooseCoordinateTransform c ? c.FirstOrDefault() : t; // 9.5+: There are now more transform options
+                        Assert.IsNotNull(tt.ProjOperations().SingleOrDefault(x => x.Name == "defmodel"), "New Zealand has defmodel step");
+                        Assert.IsNotNull(tt.ProjOperations().SingleOrDefault(x => x.Name == "helmert"), "New Zealand has helmert step");
 
                         PPoint rLast = t.Apply(centerPoint.WithT(1999));
 
@@ -883,7 +884,7 @@ namespace SharpProj.Tests
                 Assert.AreEqual(11, missing, "Expected that this many ESRI test projections between 53000-54999 fail. Fix assumption");
 
                 foreach (int epsg in new[] {2218, 2221, 2296, 2299, 2301, 2303, 2304, 2305, 2306, 2307, 2963, 2985, 2986, 3052,
-                    3053, 3144, 3145, 3173, 5017, 5224, 5225, 5515, 5516, 22300, 22700, 32600, 32700})
+                    3053, 3144, 3145, 3173, 5017, 22300, 22700, 32600, 32700})
                 {
                     using (var crs = CoordinateReferenceSystem.CreateFromEpsg(epsg, pc))
                     {
@@ -894,7 +895,7 @@ namespace SharpProj.Tests
                     }
                 }
 
-                foreach (int esri in new[] { 53044, 102299, 102460 })
+                foreach (int esri in new[] { 53044, 102299 })
                 {
                     using (var crs = CoordinateReferenceSystem.CreateFromDatabase("ESRI", esri, pc))
                     {
