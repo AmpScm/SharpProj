@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\packages\SharpSvn.AnnotateAssembly.1.14001.80\build\SharpSvn.AnnotateAssembly.props" Condition="Exists('..\..\packages\SharpSvn.AnnotateAssembly.1.14001.80\build\SharpSvn.AnnotateAssembly.props')" />
+  <Import Project="..\..\packages\SharpSvn.AnnotateAssembly.1.14001.156\build\SharpSvn.AnnotateAssembly.props" Condition="Exists('..\..\packages\SharpSvn.AnnotateAssembly.1.14001.156\build\SharpSvn.AnnotateAssembly.props')" />
   <PropertyGroup Label="PlatformFix">
     <!-- To allow including project in Sandcastle Helpfile Builder tools -->
     <Platform Condition="'$(Platform)' == 'x86'">Win32</Platform>
@@ -624,7 +624,7 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\packages\SharpSvn.AnnotateAssembly.1.14001.80\build\SharpSvn.AnnotateAssembly.targets" Condition="Exists('..\..\packages\SharpSvn.AnnotateAssembly.1.14001.80\build\SharpSvn.AnnotateAssembly.targets')" />
+    <Import Project="..\..\packages\SharpSvn.AnnotateAssembly.1.14001.156\build\SharpSvn.AnnotateAssembly.targets" Condition="Exists('..\..\packages\SharpSvn.AnnotateAssembly.1.14001.156\build\SharpSvn.AnnotateAssembly.targets')" />
   </ImportGroup>
   <Target Name="AddWildCardItems" AfterTargets="BuildGenerateSources">
     <ItemGroup>
@@ -635,7 +635,7 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\SharpSvn.AnnotateAssembly.1.14001.80\build\SharpSvn.AnnotateAssembly.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\SharpSvn.AnnotateAssembly.1.14001.80\build\SharpSvn.AnnotateAssembly.props'))" />
-    <Error Condition="!Exists('..\..\packages\SharpSvn.AnnotateAssembly.1.14001.80\build\SharpSvn.AnnotateAssembly.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\SharpSvn.AnnotateAssembly.1.14001.80\build\SharpSvn.AnnotateAssembly.targets'))" />
+    <Error Condition="!Exists('..\..\packages\SharpSvn.AnnotateAssembly.1.14001.156\build\SharpSvn.AnnotateAssembly.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\SharpSvn.AnnotateAssembly.1.14001.156\build\SharpSvn.AnnotateAssembly.props'))" />
+    <Error Condition="!Exists('..\..\packages\SharpSvn.AnnotateAssembly.1.14001.156\build\SharpSvn.AnnotateAssembly.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\SharpSvn.AnnotateAssembly.1.14001.156\build\SharpSvn.AnnotateAssembly.targets'))" />
   </Target>
 </Project>

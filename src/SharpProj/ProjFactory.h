@@ -50,7 +50,7 @@ namespace SharpProj {
                 return me->m_context;
             }
 
-        public:
+        private:
             CoordinateSystem^ CreateCoordinateSystem(CoordinateSystemType type, int axisCount, array<AxisDefinition^>^ axis);
             CoordinateSystem^ CreateCartesianCoordinateSystem(Cartesian2DType type, String^ unitName, double conversionFactor);
             CoordinateSystem^ CreateEllipsoidalCoordinateSystem(Ellipsoidal2DType type, String^ unitName, double conversionFactor);
