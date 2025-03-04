@@ -1,7 +1,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
   <metadata>
     <id>SharpProj.Core</id>
-    <version>8.2001.1</version>
+    <version>9.5000.12</version>
     <authors>SharpSvn</authors>
     <owners>SharpSvn</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -18,7 +18,6 @@
     <!-- For legacy NuGet -->
     <file src="..\src\SharpProj\bin\Win32_release\SharpProj.dll" target="lib/net47" />
     <file src="..\src\SharpProj\bin\Win32_release\SharpProj.xml" target="lib/net47" />
-
     <!-- .Net 4.7-4.8 -->
     <file src="..\src\SharpProj\bin\Win32_release\SharpProj.dll" target="ref/net47" />
     <file src="..\src\SharpProj\bin\Win32_release\SharpProj.xml" target="ref/net47" />
@@ -26,7 +25,6 @@
     <file src="..\src\SharpProj\bin\Win32_release\SharpProj.xml" target="runtimes/win-x86/lib/net47" />
     <file src="..\src\SharpProj\bin\x64_release\SharpProj.dll" target="runtimes/win-x64/lib/net47" />
     <file src="..\src\SharpProj\bin\x64_release\SharpProj.xml" target="runtimes/win-x64/lib/net47" />
-
     <!-- .Net 6.0+ -->
     <file src="..\src\SharpProj\bin\Win32_release\SharpProj.dll" target="ref/netcoreapp" />
     <file src="..\src\SharpProj\bin\Win32_release\SharpProj.xml" target="ref/netcoreapp" />

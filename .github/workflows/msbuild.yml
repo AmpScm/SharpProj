@@ -26,7 +26,7 @@ jobs:
       uses: lukka/run-vcpkg@v11
       with:
         vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-        vcpkgGitCommitId: d567b667adba0e72c5c3931ddbe745b66aa34b73
+        vcpkgGitCommitId: 566f9496b7e00ee0cc00aca0ab90493d122d148a
 
     - name: Show VCPKG version directly
       run: ${{env.vcpkgExe}} --version
