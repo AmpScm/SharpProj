@@ -119,13 +119,7 @@ namespace SharpProj {
             }
 
             // Inherited via IFormattable
-            virtual String^ ToString(String^ format, IFormatProvider^ formatProvider)
-            {
-                String^ f = format;
-                IFormatProvider^ fp = formatProvider;
-
-                return String::Format(formatProvider, "W-E: {0} - {1}, S-N: {2} - {3}", Fmt(f, fp, WestLongitude), Fmt(f, fp, EastLongitude), Fmt(f, fp, SouthLatitude), Fmt(f, fp, NorthLatitude));
-            }
+            virtual String^ ToString(String^ format, IFormatProvider^ formatProvider);
 
         public:
             virtual bool Equals(ProjArea^ other)
@@ -253,20 +247,7 @@ namespace SharpProj {
                 return ToString("G", System::Globalization::CultureInfo::InvariantCulture);
             }
 
-            virtual String^ ToString(System::String^ format, System::IFormatProvider^ formatProvider)
-            {
-                if (format == "G")
-                {
-                    auto ci = dynamic_cast<System::Globalization::CultureInfo^>(formatProvider);
-                    String^ gs = ci ? ci->NumberFormat->NumberGroupSeparator : ",";
-
-                    return String::Format(formatProvider, "X: {0} - {1}{2} Y: {3} - {4}", MinX, MaxX, gs, MinY, MaxY);
-                }
-                else
-                    throw gcnew FormatException();
-            }
-
-
+            virtual String^ ToString(System::String^ format, System::IFormatProvider^ formatProvider);
 
             // Inherited via IEquatable
             virtual bool Equals(ProjRange^ other)
