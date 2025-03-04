@@ -188,12 +188,14 @@ String^ PPoint::ToString(System::String^ format, System::IFormatProvider^ format
             v = String::Format(formatProvider, "{1}{0}", X.ToString(format, formatProvider), k ? "X=" : "");
             break;
         case 2:
-            v = String::Format(formatProvider, "{3}{0}{2} {4}{1}", X.ToString(format, formatProvider), Y.ToString(format, formatProvider), gs, k ? "X=" : "", k ? "Y=" : "");
+        {
+            v = String::Format(formatProvider, "{3}{0}{2} {4}{1}", gcnew array<Object^>{X.ToString(format, formatProvider), Y.ToString(format, formatProvider), gs, k ? "X=" : "", k ? "Y=" : ""});
             break;
+        }
         case 3:
         default:
-            v = String::Format(formatProvider, "{4}{0}{3} {5}{1}{3} {6}{2}", X.ToString(format, formatProvider), Y.ToString(format, formatProvider), Z.ToString(format, formatProvider), gs,
-                               k ? "X=" : "", k ? "Y=" : "", k ? "Z=" : "");
+            v = String::Format(formatProvider, "{4}{0}{3} {5}{1}{3} {6}{2}", gcnew array<Object^> {X.ToString(format, formatProvider), Y.ToString(format, formatProvider), Z.ToString(format, formatProvider), gs,
+                k ? "X=" : "", k ? "Y=" : "", k ? "Z=" : ""});
         }
 
         if (HasT)
