@@ -169,7 +169,7 @@ IReadOnlyList<String^>^ ProjOperationDefinition::RequiredArguments::get()
 
         if (!String::IsNullOrEmpty(dl))
         {
-            auto lines = dl->Split('\n', 2);
+            auto lines = dl->Split(L'\n', 2);
 
             if (lines->Length >= 2)
             {
@@ -177,7 +177,7 @@ IReadOnlyList<String^>^ ProjOperationDefinition::RequiredArguments::get()
 
                 for (int n = 0; (0 <= (n = info->IndexOf('[')));)
                 {
-                    int nn = info->IndexOf(']', n + 1);
+                    int nn = info->IndexOf(L']', n + 1);
 
                     if (nn >= 0)
                         info = info->Remove(n, nn - n + 1);
