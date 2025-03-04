@@ -16,7 +16,7 @@ String^ ProjRange::ToString(System::String^ format, System::IFormatProvider^ for
         auto ci = dynamic_cast<System::Globalization::CultureInfo^>(formatProvider);
         String^ gs = ci ? ci->NumberFormat->NumberGroupSeparator : ",";
 
-        return String::Format(formatProvider, "X: {0} - {1}{2} Y: {3} - {4}", MinX, MaxX, gs, MinY, MaxY);
+        return String::Format(formatProvider, "X: {0} - {1}{2} Y: {3} - {4}", gcnew array<Object^> { MinX, MaxX, gs, MinY, MaxY });
     }
     else
         throw gcnew FormatException();

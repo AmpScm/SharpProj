@@ -168,7 +168,7 @@ String^ PPoint::ToString(System::String^ format, System::IFormatProvider^ format
             break;
         case 3:
         default:
-            v = String::Format(formatProvider, "X={0}{3} Y={1}{3} Z={2}", X, Y, Z, gs);
+            v = String::Format(formatProvider, "X={0}{3} Y={1}{3} Z={2}", gcnew array<Object^> { X, Y, Z, gs });
         }
 
         if (HasT)
