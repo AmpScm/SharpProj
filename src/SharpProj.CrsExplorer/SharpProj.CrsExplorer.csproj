@@ -88,7 +88,7 @@
 
     <ItemGroup>
         <PackageReference Include="NetTopologySuite" Version="2.5.0" />
-        <PackageReference Include="SharpProj.Database" Version="9.5.0" />
+        <PackageReference Include="SharpProj.Database" Version="9.5.1" />
         <PackageReference Include="System.Text.Json" Version="8.0.5" />
     </ItemGroup>
 
