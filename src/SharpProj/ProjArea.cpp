@@ -6,7 +6,7 @@ String^ ProjArea::ToString(String^ format, IFormatProvider^ formatProvider)
     String^ f = format;
     IFormatProvider^ fp = formatProvider;
 
-    return String::Format(formatProvider, "W-E: {0} - {1}, S-N: {2} - {3}", Fmt(f, fp, WestLongitude), Fmt(f, fp, EastLongitude), Fmt(f, fp, SouthLatitude), Fmt(f, fp, NorthLatitude));
+    return String::Format(formatProvider, "W-E: {0} - {1}, S-N: {2} - {3}", gcnew array<Object^>{Fmt(f, fp, WestLongitude), Fmt(f, fp, EastLongitude), Fmt(f, fp, SouthLatitude), Fmt(f, fp, NorthLatitude)});
 }
 
 String^ ProjRange::ToString(System::String^ format, System::IFormatProvider^ formatProvider)
