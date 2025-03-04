@@ -133,16 +133,16 @@ namespace SharpProj.CrsExplorer
             Invalidate();
         }
 
-        static readonly Lazy<ReadOnlyCollection<CountryShape>> _geoms = new Lazy<ReadOnlyCollection<CountryShape>>(CreateCountryShapes);
+        private static readonly Lazy<ReadOnlyCollection<CountryShape>> _geoms = new Lazy<ReadOnlyCollection<CountryShape>>(CreateCountryShapes);
         public ReadOnlyCollection<CountryShape> CountryShapes => _geoms.Value;
 
-        readonly List<Geometry> Draw = new();
+        private readonly List<Geometry> Draw = new();
 
-        CoordinateReferenceSystem _crs;
+        private CoordinateReferenceSystem _crs;
 
         public Color[] Colors { get; private set; }
 
-        readonly List<LineString> Lines = new();
+        private readonly List<LineString> Lines = new();
 
         internal void UpdateDisplay(CoordinateReferenceSystem crs, List<CountryShape> want)
         {
@@ -326,7 +326,7 @@ namespace SharpProj.CrsExplorer
             }
         }
 
-        static ReadOnlyCollection<CountryShape> CreateCountryShapes()
+        private static ReadOnlyCollection<CountryShape> CreateCountryShapes()
         {
             List<CountryShape> g = new List<CountryShape>();
             using (var gz = new GZipStream(typeof(CountryShape).Assembly.GetManifestResourceStream("SharpProj.CrsExplorer.mapdata.json.gz"), CompressionMode.Decompress))
@@ -444,7 +444,7 @@ namespace SharpProj.CrsExplorer
                 return new MultiPolygon(polys.ToArray());
             }
 
-            class GeometryData
+            private class GeometryData
             {
                 [JsonIgnore]
                 public string Name { get; set; }

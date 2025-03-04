@@ -21,7 +21,7 @@ namespace SharpProj.Implementation
 
         internal sealed class Disposer : IDisposable
         {
-            Action _dispose;
+            private Action _dispose;
 
             public Disposer(Action onDispose)
             {

@@ -231,8 +231,12 @@ namespace NetTopologySuite.Geometries
         /// <returns></returns>
         public static double? MeterArea(this Polygon p)
         {
+#if NET
+            ArgumentNullException.ThrowIfNull(p);
+#else
             if (p == null)
                 throw new ArgumentNullException(nameof(p));
+#endif
 
             int srid = p.SRID;
             if (srid == 0)
@@ -289,8 +293,12 @@ namespace NetTopologySuite.Geometries
         /// <returns></returns>
         public static double? MeterLength(this GeometryCollection gc)
         {
+#if NET
+            ArgumentNullException.ThrowIfNull(gc);
+#else
             if (gc is null)
                 throw new ArgumentNullException(nameof(gc));
+#endif
             if (gc.Count == 0)
                 return null;
 
@@ -336,8 +344,12 @@ namespace NetTopologySuite.Geometries
         /// <returns></returns>
         public static double? MeterArea(this GeometryCollection gc)
         {
+#if NET
+            ArgumentNullException.ThrowIfNull(gc);
+#else
             if (gc is null)
                 throw new ArgumentNullException(nameof(gc));
+#endif
             if (gc.Count == 0)
                 return null;
 

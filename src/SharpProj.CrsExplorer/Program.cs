@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace SharpProj.CrsExplorer
 {
-    static class Program
+    internal static class Program
     {
         /// <summary>
         ///  The main entry point for the application.

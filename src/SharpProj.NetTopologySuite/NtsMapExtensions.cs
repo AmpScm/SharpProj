@@ -114,8 +114,13 @@ namespace SharpProj
         /// <returns></returns>
         public static IEnumerable<PPoint> ToPPoints(this IEnumerable<Coordinate> cs)
         {
+#if NET
+            ArgumentNullException.ThrowIfNull(cs);
+#else
             if (cs is null)
                 throw new ArgumentNullException(nameof(cs));
+#endif
+
             foreach (Coordinate c in cs)
             {
                 yield return c.ToPPoint();
@@ -129,8 +134,13 @@ namespace SharpProj
         /// <returns></returns>
         public static IEnumerable<Coordinate> ToCoordinates(this IEnumerable<PPoint> points)
         {
+#if NET
+            ArgumentNullException.ThrowIfNull(points);
+#else
             if (points is null)
                 throw new ArgumentNullException(nameof(points));
+#endif
+
             foreach (var p in points)
             {
                 yield return p.ToCoordinate();
@@ -150,8 +160,12 @@ namespace SharpProj
             if (geometry == null)
                 return null;
 
+#if NET
+            ArgumentNullException.ThrowIfNull(toSrid);
+#else
             if (toSrid == null)
                 throw new ArgumentNullException(nameof(toSrid));
+#endif
 
             int srcSRID = geometry.SRID;
             if (srcSRID == 0)
@@ -300,8 +314,12 @@ namespace SharpProj
             Span<double> zSpan, int zStep, int zCount,
             Span<double> tSpan, int tStep, int tCount)
         {
+#if NET
+            ArgumentNullException.ThrowIfNull(op);
+#else
             if (op is null)
                 throw new ArgumentNullException(nameof(op));
+#endif
             fixed (double* x0 = &xSpan.GetPinnableReference())
             fixed (double* y0 = &ySpan.GetPinnableReference())
             fixed (double* z0 = &zSpan.GetPinnableReference())

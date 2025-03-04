@@ -16,12 +16,12 @@ namespace SharpProj.Utils.NTSAdditions
         /// <summary>
         /// The transform behind this reproject
         /// </summary>
-        readonly CoordinateTransform m_transform;
+        private readonly CoordinateTransform m_transform;
 
         /// <summary>
         /// The precision model behind this reproject
         /// </summary>
-        readonly PrecisionModel m_precisionModel;
+        private readonly PrecisionModel m_precisionModel;
 
         /// <summary>
         /// Creates an instance of this class

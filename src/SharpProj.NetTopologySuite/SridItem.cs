@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
@@ -14,7 +13,7 @@ namespace SharpProj.NTS
     [DebuggerDisplay("SRID={SRID}, CRS={CRS}")]
     public sealed class SridItem
     {
-        readonly Lazy<GeometryFactory> _factory;
+        private readonly Lazy<GeometryFactory> _factory;
 
         /// <summary>
         /// The unique SRID value used in NetTopologySuite
@@ -26,14 +25,16 @@ namespace SharpProj.NTS
         /// </summary>
         public CoordinateReferenceSystem CRS { get; }
 
-        readonly List<object> _idMap = new List<object>();
+        private readonly List<object> _idMap = new List<object>();
 
         /// <summary>
         /// Read only, not iterable dictionary to allow extending the registry
         /// </summary>
+#pragma warning disable CA1034 // Nested types should not be visible
         public sealed class ItemDict
+#pragma warning restore CA1034 // Nested types should not be visible
         {
-            readonly Dictionary<object, object> _items = new Dictionary<object, object>();
+            private readonly Dictionary<object, object> _items = new Dictionary<object, object>();
 
             /// <summary>
             /// Gets or sets an item in the item dictionary for the <see cref="SridItem"/>
@@ -65,7 +66,7 @@ namespace SharpProj.NTS
             }
         }
 
-        ItemDict _items;
+        private ItemDict _items;
 
         /// <summary>
         /// Gets the item dictionary
@@ -89,7 +90,7 @@ namespace SharpProj.NTS
                 SRID));
         }
 
-        static Lazy<NtsGeometryServices> _ntsGeometryServices = new Lazy<NtsGeometryServices>(SetupServices);
+        private static Lazy<NtsGeometryServices> _ntsGeometryServices = new Lazy<NtsGeometryServices>(SetupServices);
 
         /// <summary>
         /// The NTS Geometry servic to create new Geometry factories

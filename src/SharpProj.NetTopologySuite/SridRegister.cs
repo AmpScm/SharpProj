@@ -10,14 +10,14 @@ namespace SharpProj.NTS
     /// </summary>
     public static partial class SridRegister
     {
-        static readonly Dictionary<int, SridItem> _catalog = new Dictionary<int, SridItem>();
-        static readonly Dictionary<CoordinateReferenceSystem, SridItem> _registered = new Dictionary<CoordinateReferenceSystem, SridItem>();
+        private static readonly Dictionary<int, SridItem> _catalog = new Dictionary<int, SridItem>();
+        private static readonly Dictionary<CoordinateReferenceSystem, SridItem> _registered = new Dictionary<CoordinateReferenceSystem, SridItem>();
 
-        static ReaderWriterLockSlim _rwl = new ReaderWriterLockSlim();
-        static List<System.Collections.IDictionary> _dicts = new List<System.Collections.IDictionary>();
+        private static ReaderWriterLockSlim _rwl = new ReaderWriterLockSlim();
+        private static List<System.Collections.IDictionary> _dicts = new List<System.Collections.IDictionary>();
 
 
-        static int _nextId = -21000;
+        private static int _nextId = -21000;
 
         /// <summary>
         /// Gets the SRID item by id
@@ -174,10 +174,15 @@ namespace SharpProj.NTS
         /// <returns></returns>
         public static SridItem Register(CoordinateReferenceSystem crs, SridItem.SridItemArgs args)
         {
+#if NET
+            ArgumentNullException.ThrowIfNull(crs);
+            ArgumentNullException.ThrowIfNull(args);
+#else
             if (crs == null)
                 throw new ArgumentNullException(nameof(crs));
             else if (args == null)
                 throw new ArgumentNullException(nameof(args));
+#endif
 
             using (_rwl.WithWriteLock())
             {
@@ -198,7 +203,7 @@ namespace SharpProj.NTS
             return Register(crs, new SridItem.SridItemArgs());
         }
 
-        static SridItem WithinWriteLock_Register(CoordinateReferenceSystem crs, SridItem.SridItemArgs args)
+        private static SridItem WithinWriteLock_Register(CoordinateReferenceSystem crs, SridItem.SridItemArgs args)
         {
             while (_catalog.ContainsKey(_nextId))
                 _nextId--;
@@ -268,8 +273,8 @@ namespace SharpProj.NTS
             }
         }
 
-        static int _nextTypeId;
-        static class TypeId<T>
+        private static int _nextTypeId;
+        private static class TypeId<T>
             where T : Enum
         {
             public static int Value { get; } = _nextTypeId++;
@@ -319,8 +324,12 @@ namespace SharpProj.NTS
         public static SridItem Ensure<T>(T value, Func<CoordinateReferenceSystem> creator, int? preferredSrid, SridItem.SridItemArgs args)
         where T : struct, Enum
         {
+#if NET
+            ArgumentNullException.ThrowIfNull(creator);
+#else
             if (creator is null)
                 throw new ArgumentNullException(nameof(creator));
+#endif
             if (preferredSrid.HasValue && preferredSrid == 0)
                 throw new ArgumentOutOfRangeException(nameof(preferredSrid));
 

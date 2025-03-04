@@ -21,7 +21,7 @@ namespace SharpProj.CrsExplorer
 
         public ProjContext ProjContext { get; internal set; }
 
-        CRSItem[] _allItems;
+        private CRSItem[] _allItems;
 
         protected override void OnLoad(EventArgs e)
         {
@@ -44,9 +44,9 @@ namespace SharpProj.CrsExplorer
                 comboBox1.SelectedItem = _allItems.FirstOrDefault(x => x.IntCode == 3857);
         }
 
-        class CRSItem
+        private class CRSItem
         {
-            int? _code;
+            private int? _code;
             public CoordinateReferenceSystemInfo Info { get; set; }
             public int? IntCode => _code ?? (int.TryParse(Info.Code, out var code) ? (_code = code).Value : null);
 
@@ -186,8 +186,8 @@ namespace SharpProj.CrsExplorer
             }
         }
 
-        CRSItem Current { get; set; }
-        CoordinateReferenceSystem CRS { get; set; }
+        private CRSItem Current { get; set; }
+        private CoordinateReferenceSystem CRS { get; set; }
 
         private void filterBox_TextChanged(object sender, EventArgs e)
         {

@@ -6,7 +6,7 @@ using System.Linq;
 namespace SharpProj.Utils.Colors
 {
     [System.Diagnostics.DebuggerDisplay("X={X}, Y={Y}, Z={Z}, Color={ToColor()}")]
-    struct ColorXyz
+    internal struct ColorXyz
     {
         public double X { get; private set; }
         public double Y { get; private set; }
@@ -66,7 +66,7 @@ namespace SharpProj.Utils.Colors
     }
 
     [System.Diagnostics.DebuggerDisplay("L={L}, A={A}, B={B}, Color={ToColor()}")]
-    struct ColorLab
+    internal struct ColorLab
     {
         public const double DefaultLightness = 2.0;
         public const double DefaultChroma = 1.0;
@@ -102,7 +102,7 @@ namespace SharpProj.Utils.Colors
             return ToColorXyz().ToColor();
         }
 
-        static readonly double[] REF = new double[] { 95.047, 100.0, 108.883 };
+        private static readonly double[] REF = new double[] { 95.047, 100.0, 108.883 };
 
         public static ColorLab FromColorXyz(ColorXyz xyz)
         {
@@ -197,7 +197,7 @@ namespace SharpProj.Utils.Colors
     /// </summary>
     public static class DistinctColorGenerator
     {
-        static Color GetColorFromHSB(double hue, double saturation, double brightness)
+        private static Color GetColorFromHSB(double hue, double saturation, double brightness)
         {
             if (hue < 0.0 || hue >= 360.0)
                 throw new ArgumentOutOfRangeException(nameof(hue), hue, "Hue must be >= 0 and <= 360");
@@ -270,9 +270,9 @@ namespace SharpProj.Utils.Colors
             return Color.FromArgb(255, (int)(r * 255.0), (int)(g * 255.0), (int)(b * 255.0));
         }
 
-        const int iHueCount = 360 / 8; // 0-360 with step 8
-        const int iSatCount = 4; // 100%-25% with step -25
-        const int iValCount = 16 + 1; // 100%-20% with step -5
+        private const int iHueCount = 360 / 8; // 0-360 with step 8
+        private const int iSatCount = 4; // 100%-25% with step -25
+        private const int iValCount = 16 + 1; // 100%-20% with step -5
 
         /// <summary>
         /// Gets the maximum amount of different colors <see cref="GetDifferentColors"/> and <see cref="GetDistinctColors(int)"/> can generate (most likely 3060)
