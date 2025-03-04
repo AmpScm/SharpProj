@@ -188,7 +188,7 @@ Version^ ProjContext::EsriVersion::get()
     String^ md = GetMetaData("ESRI.DATE");
     System::Version^ v = nullptr;
 
-    if (!String::IsNullOrEmpty(md) && System::Version::TryParse(md->Replace('-', '.'), v))
+    if (!String::IsNullOrEmpty(md) && System::Version::TryParse(md->Replace(L'-', L'.'), v))
         return v;
 
     md = GetMetaData("ESRI.VERSION");

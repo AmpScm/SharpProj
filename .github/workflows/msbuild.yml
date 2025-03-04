@@ -103,7 +103,7 @@ jobs:
         path: build/nuspec/bin/*.nupkg
 
     - name: Package pdb files
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: pdb-files
         path: |

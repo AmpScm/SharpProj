@@ -1,5 +1,4 @@
 #include "pch.h"
-#include <proj_experimental.h>
 
 #include "ProjContext.h"
 #include "ProjException.h"
