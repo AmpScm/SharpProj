@@ -220,7 +220,7 @@ ProjObject^ ProjContext::Create(PJ* pj)
     case ProjType::CompoundCrs:
         return gcnew CoordinateReferenceSystemList(this, pj);
 
-    case ProjType::CRS: // abstract
+    case ProjType::CoordinateReferenceSystem: // abstract
     case ProjType::VerticalCrs:
     case ProjType::ProjectedCrs:
     case ProjType::TemporalCrs:

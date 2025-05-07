@@ -21,14 +21,14 @@ namespace SharpProj.Tests
 
             var expectNone = new HashSet<ProjType> {
                 ProjType.BoundCrs,
-                ProjType.EngineeringCrs, ProjType.EngineeringDatum,
                 ProjType.ParametricDatum,
                 ProjType.TemporalCrs, ProjType.TemporalDatum,
                 ProjType.Unknown,
-                ProjType.ChooseTransform, // SharpProj type (id = 1001)
-                ProjType.CoordinateSystem, // Not mapped by proj
                 ProjType.CoordinateMetadata,
-                ProjType.DerivedProjectedCrs
+                ProjType.DerivedProjectedCrs,
+
+                ProjType.ChooseTransform, // SharpProj type (id = 1001)
+                ProjType.CoordinateSystem, // Not mapped by proj (id = 1002)
             };
 
             var failOnCreate = new HashSet<ProjType> {
@@ -43,6 +43,7 @@ namespace SharpProj.Tests
                 ProjType.VerticalReferenceFrame,
                 ProjType.PrimeMeridian,
                 ProjType.OtherCoordinateTransform,
+                ProjType.EngineeringDatum,
             };
 
             var canNotCreate = new HashSet<ProjType> {
@@ -99,7 +100,7 @@ namespace SharpProj.Tests
 
             var expectNone = new List<ProjType> {
                 ProjType.BoundCrs,
-                ProjType.EngineeringCrs, ProjType.EngineeringDatum,
+                //ProjType.EngineeringCrs, ProjType.EngineeringDatum,
                 ProjType.ParametricDatum,
                 ProjType.TemporalCrs, ProjType.TemporalDatum,
                 ProjType.Unknown,

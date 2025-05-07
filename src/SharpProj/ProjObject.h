@@ -39,7 +39,7 @@ namespace SharpProj {
             /// <summary>
             /// Abstract type, not returned by <see cref="ProjObject" />.Type.
             /// </summary>
-            CRS = PJ_TYPE_CRS,
+            CoordinateReferenceSystem = PJ_TYPE_CRS,
 
             GeodeticCrs = PJ_TYPE_GEODETIC_CRS,
             GeocentricCrs = PJ_TYPE_GEOCENTRIC_CRS,
@@ -75,7 +75,11 @@ namespace SharpProj {
 
             // Local types
             ChooseTransform = 1001,
-            CoordinateSystem
+            CoordinateSystem,
+
+            Crs = CoordinateReferenceSystem,
+            [ObsoleteAttribute]
+            CRS = CoordinateReferenceSystem,
         };
 
 
