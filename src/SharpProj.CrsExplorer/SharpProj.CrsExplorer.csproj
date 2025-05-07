@@ -12,69 +12,69 @@
 
     <PropertyGroup>
         <!-- Somehow needed for NuGet restore -->
-        <TargetFramework>net47</TargetFramework>
-        <TargetFramework Condition="'$(Configuration)' == 'DebugCore'">net6.0-windows</TargetFramework>
-        <TargetFramework Condition="'$(Configuration)' == 'ReleaseCore'">net6.0-windows</TargetFramework>
+        <TargetFramework>net48</TargetFramework>
+        <TargetFramework Condition="'$(Configuration)' == 'DebugCore'">net8.0-windows</TargetFramework>
+        <TargetFramework Condition="'$(Configuration)' == 'ReleaseCore'">net8.0-windows</TargetFramework>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
         <PlatformTarget>x86</PlatformTarget>
-        <TargetFrameworks>net47</TargetFrameworks>
+        <TargetFrameworks>net48</TargetFrameworks>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugCore|x86'">
         <PlatformTarget>x86</PlatformTarget>
-        <TargetFrameworks>net6.0-windows</TargetFrameworks>
+        <TargetFrameworks>net8.0-windows</TargetFrameworks>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
         <PlatformTarget>x64</PlatformTarget>
-        <TargetFrameworks>net47</TargetFrameworks>
+        <TargetFrameworks>net48</TargetFrameworks>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
       <PlatformTarget>x64</PlatformTarget>
-      <TargetFrameworks>net47</TargetFrameworks>
+      <TargetFrameworks>net48</TargetFrameworks>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugCore|x64'">
         <PlatformTarget>x64</PlatformTarget>
-        <TargetFrameworks>net6.0-windows</TargetFrameworks>
+        <TargetFrameworks>net8.0-windows</TargetFrameworks>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugCore|ARM64'">
       <PlatformTarget>x64</PlatformTarget>
-      <TargetFrameworks>net6.0-windows</TargetFrameworks>
+      <TargetFrameworks>net8.0-windows</TargetFrameworks>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
         <PlatformTarget>x86</PlatformTarget>
-        <TargetFrameworks>net47</TargetFrameworks>
+        <TargetFrameworks>net48</TargetFrameworks>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseCore|x86'">
         <PlatformTarget>x86</PlatformTarget>
-        <TargetFrameworks>net6.0-windows</TargetFrameworks>
+        <TargetFrameworks>net8.0-windows</TargetFrameworks>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
         <PlatformTarget>x64</PlatformTarget>
-        <TargetFrameworks>net47</TargetFrameworks>
+        <TargetFrameworks>net48</TargetFrameworks>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
       <PlatformTarget>x64</PlatformTarget>
-      <TargetFrameworks>net47</TargetFrameworks>
+      <TargetFrameworks>net48</TargetFrameworks>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseCore|x64'">
         <PlatformTarget>x64</PlatformTarget>
-        <TargetFrameworks>net6.0-windows</TargetFrameworks>
+        <TargetFrameworks>net8.0-windows</TargetFrameworks>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseCore|ARM64'">
       <PlatformTarget>x64</PlatformTarget>
-      <TargetFrameworks>net6.0-windows</TargetFrameworks>
+      <TargetFrameworks>net8.0-windows</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>
